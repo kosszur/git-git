@@ -3,7 +3,7 @@ git-fast-export(1)
 
 NAME
 ----
-git-fast-export - Git data exporter
+git-fast-export - Git adatexportáló
 
 
 SYNOPSIS
@@ -13,186 +13,193 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-This program dumps the given revisions in a form suitable to be piped
-into 'git fast-import'.
+Ez a program a megadott revíziókat olyan formában dumpolja ki, amely
+alkalmas a 'git fast-import'-ba való becsövezésre.
 
-You can use it as a human-readable bundle replacement (see
-linkgit:git-bundle[1]), or as a format that can be edited before being
-fed to 'git fast-import' in order to do history rewrites (an ability
-relied on by tools like 'git filter-repo').
+Használhatod emberi szemmel is olvasható bundle-helyettesítőként (lásd:
+linkgit:git-bundle[1]), vagy olyan formátumként, amely szerkeszthető,
+mielőtt a 'git fast-import'-nak átadnák előzmény-átírás elvégzéséhez
+(ilyen képességre támaszkodnak az olyan eszközök, mint a 'git filter-repo').
 
 OPTIONS
 -------
 --progress=<n>::
-	Insert 'progress' statements every <n> objects, to be shown by
-	'git fast-import' during import.
+	'progress' utasításokat szúr be minden <n> objektumonként,
+	amelyeket a 'git fast-import' jelenít meg az importálás során.
 
 --signed-tags=(verbatim|warn-verbatim|warn-strip|strip|abort)::
-	Specify how to handle signed tags.  Since any transformation
-	after the export (or during the export, such as excluding
-	revisions) can change the hashes being signed, the signatures
-	may become invalid.
+	Megadja, hogyan kell kezelni az aláírt tageket. Mivel az export
+	után (vagy az export közben, például revíziók kizárásakor)
+	végzett bármely transzformáció megváltoztathatja az aláírt
+	hasheket, az aláírások érvénytelenné válhatnak.
 +
-When asking to 'abort' (which is the default), this program will die
-when encountering a signed tag.  With 'strip', the tags will silently
-be made unsigned, with 'warn-strip' they will be made unsigned but a
-warning will be displayed, with 'verbatim', they will be silently
-exported and with 'warn-verbatim' (or 'warn', a deprecated synonym),
-they will be exported, but you will see a warning.  'verbatim' and
-'warn-verbatim' should only be used if you know that no transformation
-affecting tags or any commit in their history will be performed by you
-or by fast-export or fast-import, or if you do not care that the
-resulting tag will have an invalid signature.
+Ha az 'abort'-ot kéred (ez az alapértelmezett), a program leáll, ha
+aláírt tagre bukkan. A 'strip' esetén a tagek csendben aláíratlanná
+válnak, a 'warn-strip' esetén aláíratlanná válnak, de figyelmeztetés
+jelenik meg, a 'verbatim' esetén csendben exportálásra kerülnek, a
+'warn-verbatim' (vagy 'warn', egy elavult szinonima) esetén pedig
+exportálásra kerülnek, de figyelmeztetést fogsz látni. A 'verbatim'
+és a 'warn-verbatim' csak akkor használandó, ha tudod, hogy sem te,
+sem a fast-export vagy a fast-import nem fog olyan transzformációt
+végezni, amely a tageket vagy az előzményükben lévő bármely commitot
+érinti, vagy ha nem érdekel, hogy a keletkező tag érvénytelen
+aláírással fog rendelkezni.
 
 --signed-commits=(verbatim|warn-verbatim|warn-strip|strip|abort)::
-	Specify how to handle signed commits.  Behaves exactly as
-	'--signed-tags', but for commits.  Default is 'strip', which
-	is the same as how earlier versions of this command without
-	this option behaved.
+	Megadja, hogyan kell kezelni az aláírt commitokat. Pontosan úgy
+	viselkedik, mint a '--signed-tags', csak commitokra. Az
+	alapértelmezés a 'strip', ami ugyanaz, ahogyan e parancs korábbi,
+	ezen opció nélküli verziói viselkedtek.
 +
-When exported, a signature starts with:
+Exportáláskor az aláírás a következővel kezdődik:
 +
 gpgsig <git-hash-algo> <signature-format>
 +
-where <git-hash-algo> is the Git object hash so either "sha1" or
-"sha256", and <signature-format> is the signature type, so "openpgp",
-"x509", "ssh" or "unknown".
+ahol a <git-hash-algo> a Git objektum-hash, tehát vagy "sha1", vagy
+"sha256", a <signature-format> pedig az aláírás típusa, tehát
+"openpgp", "x509", "ssh" vagy "unknown".
 +
-For example, an OpenPGP signature on a SHA-1 commit starts with
-`gpgsig sha1 openpgp`, while an SSH signature on a SHA-256 commit
-starts with `gpgsig sha256 ssh`.
+Például egy SHA-1 commit OpenPGP-aláírása `gpgsig sha1 openpgp`-vel
+kezdődik, míg egy SHA-256 commit SSH-aláírása `gpgsig sha256 ssh`-val.
 +
-While all the signatures of a commit are exported, an importer may
-choose to accept only some of them. For example
-linkgit:git-fast-import[1] currently stores at most one signature per
-Git hash algorithm in each commit.
+Bár egy commit összes aláírása exportálásra kerül, egy importáló
+dönthet úgy, hogy csak néhányat fogad el közülük. Például a
+linkgit:git-fast-import[1] jelenleg legfeljebb egy aláírást tárol
+Git-hash-algoritmusonként minden commitban.
 +
-NOTE: This is highly experimental and the format of the data stream may
-change in the future without compatibility guarantees.
+NOTE: Ez rendkívül kísérleti, és az adatfolyam formátuma a jövőben
+kompatibilitási garancia nélkül változhat.
 
 --tag-of-filtered-object=(abort|drop|rewrite)::
-	Specify how to handle tags whose tagged object is filtered out.
-	Since revisions and files to export can be limited by path,
-	tagged objects may be filtered completely.
+	Megadja, hogyan kell kezelni azokat a tageket, amelyek tagelt
+	objektuma ki van szűrve. Mivel az exportálandó revíziók és fájlok
+	útvonal szerint korlátozhatók, a tagelt objektumok teljesen
+	kiszűrődhetnek.
 +
-When asking to 'abort' (which is the default), this program will die
-when encountering such a tag.  With 'drop' it will omit such tags from
-the output.  With 'rewrite', if the tagged object is a commit, it will
-rewrite the tag to tag an ancestor commit (via parent rewriting; see
-linkgit:git-rev-list[1]).
+Ha az 'abort'-ot kéred (ez az alapértelmezett), a program leáll, ha
+ilyen tagre bukkan. A 'drop' esetén az ilyen tageket kihagyja a
+kimenetből. A 'rewrite' esetén, ha a tagelt objektum egy commit,
+átírja a taget úgy, hogy egy elődcommitot tageljen (szülő-átírás
+révén; lásd: linkgit:git-rev-list[1]).
 
 -M::
 -C::
-	Perform move and/or copy detection, as described in the
-	linkgit:git-diff[1] manual page, and use it to generate
-	rename and copy commands in the output dump.
+	Áthelyezés- és/vagy másolásészlelést végez, ahogyan azt a
+	linkgit:git-diff[1] man page leírja, és felhasználja
+	átnevezési és másolási parancsok generálásához a kimeneti
+	dumpban.
 +
-Note that earlier versions of this command did not complain and
-produced incorrect results if you gave these options.
+Vedd figyelembe, hogy e parancs korábbi verziói nem panaszkodtak, és
+helytelen eredményeket produkáltak, ha ezeket az opciókat megadtad.
 
 --export-marks=<file>::
-	Dumps the internal marks table to <file> when complete.
-	Marks are written one per line as `:markid SHA-1`. Only marks
-	for revisions are dumped; marks for blobs are ignored.
-	Backends can use this file to validate imports after they
-	have been completed, or to save the marks table across
-	incremental runs.  As <file> is only opened and truncated
-	at completion, the same path can also be safely given to
-	--import-marks.
-	The file will not be written if no new object has been
-	marked/exported.
+	Befejezéskor kiírja a belső marks-táblát a <file>-ba. A markok
+	soronként egyet kerülnek kiírásra `:markid SHA-1` formában. Csak
+	a revíziókhoz tartozó markok kerülnek kiírásra; a blobokhoz
+	tartozó markok figyelmen kívül maradnak. A backendek ezt a fájlt
+	használhatják az importok érvényesítésére a befejezésük után,
+	vagy a marks-tábla mentésére inkrementális futtatások között.
+	Mivel a <file> csak a befejezéskor kerül megnyitásra és
+	csonkolásra, ugyanaz az útvonal biztonságosan megadható a
+	--import-marks-nak is. A fájl nem kerül kiírásra, ha egyetlen új
+	objektum sem lett megjelölve/exportálva.
 
 --import-marks=<file>::
-	Before processing any input, load the marks specified in
-	<file>.  The input file must exist, must be readable, and
-	must use the same format as produced by --export-marks.
+	Bármilyen bemenet feldolgozása előtt betölti a <file>-ban
+	megadott markokat. A bemeneti fájlnak léteznie kell, olvashatónak
+	kell lennie, és ugyanazt a formátumot kell használnia, amit a
+	--export-marks állít elő.
 
 --mark-tags::
-	In addition to labelling blobs and commits with mark ids, also
-	label tags.  This is useful in conjunction with
-	`--export-marks` and `--import-marks`, and is also useful (and
-	necessary) for exporting of nested tags.  It does not hurt
-	other cases and would be the default, but many fast-import
-	frontends are not prepared to accept tags with mark
-	identifiers.
+	A blobok és commitok mark-id-kkel való megjelölése mellett a
+	tageket is megjelöli. Ez hasznos a `--export-marks`-szal és a
+	`--import-marks`-szal együtt, valamint hasznos (és szükséges) is
+	az egymásba ágyazott tagek exportálásához. Más esetekben nem árt,
+	és alapértelmezett is lehetne, de sok fast-import frontend nincs
+	felkészítve arra, hogy mark-azonosítós tageket fogadjon el.
 +
-Any commits (or tags) that have already been marked will not be
-exported again.  If the backend uses a similar --import-marks file,
-this allows for incremental bidirectional exporting of the repository
-by keeping the marks the same across runs.
+Az olyan commitok (vagy tagek), amelyek már meg vannak jelölve, nem
+kerülnek újra exportálásra. Ha a backend hasonló --import-marks
+fájlt használ, ez lehetővé teszi a repository inkrementális,
+kétirányú exportálását azáltal, hogy a markok ugyanazok maradnak a
+futtatások között.
 
 --fake-missing-tagger::
-	Some old repositories have tags without a tagger.  The
-	fast-import protocol was pretty strict about that, and did not
-	allow that.  So fake a tagger to be able to fast-import the
-	output.
+	Néhány régi repository-ban vannak tagelő nélküli tagek. A
+	fast-import protokoll ezzel kapcsolatban meglehetősen szigorú
+	volt, és nem engedte ezt meg. Ezért egy hamis tagelőt hoz létre,
+	hogy a kimenet fast-importálható legyen.
 
 --use-done-feature::
-	Start the stream with a 'feature done' stanza, and terminate
-	it with a 'done' command.
+	Egy 'feature done' szakasszal kezdi az adatfolyamot, és egy
+	'done' paranccsal zárja azt le.
 
 --no-data::
-	Skip output of blob objects and instead refer to blobs via
-	their original SHA-1 hash.  This is useful when rewriting the
-	directory structure or history of a repository without
-	touching the contents of individual files.  Note that the
-	resulting stream can only be used by a repository which
-	already contains the necessary objects.
+	Kihagyja a blob objektumok kiírását, és ehelyett az eredeti
+	SHA-1 hash-ükön keresztül hivatkozik a blobokra. Ez akkor
+	hasznos, amikor egy repository könyvtárszerkezetét vagy
+	előzményét írod át anélkül, hogy az egyes fájlok tartalmához
+	hozzányúlnál. Vedd figyelembe, hogy a keletkező adatfolyam csak
+	olyan repository-ban használható, amely már tartalmazza a
+	szükséges objektumokat.
 
 --full-tree::
-	This option will cause fast-export to issue a "deleteall"
-	directive for each commit followed by a full list of all files
-	in the commit (as opposed to just listing the files which are
-	different from the commit's first parent).
+	Ez az opció azt eredményezi, hogy a fast-export minden commithoz
+	kibocsát egy "deleteall" direktívát, amelyet az adott commitban
+	lévő összes fájl teljes listája követ (szemben azzal, hogy csak
+	a commit első szülőjétől eltérő fájlokat sorolná fel).
 
 --anonymize::
-	Anonymize the contents of the repository while still retaining
-	the shape of the history and stored tree.  See the section on
-	`ANONYMIZING` below.
+	Anonimizálja a repository tartalmát, miközben megtartja az
+	előzmény és a tárolt fa alakját. Lásd lent az `ANONYMIZING`
+	szakaszt.
 
 --anonymize-map=<from>[:<to>]::
-	Convert token `<from>` to `<to>` in the anonymized output. If
-	`<to>` is omitted, map `<from>` to itself (i.e., do not
-	anonymize it). See the section on `ANONYMIZING` below.
+	A `<from>` tokent `<to>`-vá alakítja az anonimizált kimenetben.
+	Ha a `<to>` el van hagyva, a `<from>`-ot önmagára képezi le
+	(azaz nem anonimizálja azt). Lásd lent az `ANONYMIZING` szakaszt.
 
 --reference-excluded-parents::
-	By default, running a command such as `git fast-export
-	master~5..master` will not include the commit master{tilde}5
-	and will make master{tilde}4 no longer have master{tilde}5 as
-	a parent (though both the old master{tilde}4 and new
-	master{tilde}4 will have all the same files).  Use
-	--reference-excluded-parents to instead have the stream
-	refer to commits in the excluded range of history by their
-	sha1sum.  Note that the resulting stream can only be used by a
-	repository which already contains the necessary parent
-	commits.
+	Alapértelmezés szerint az olyan parancs futtatása, mint a
+	`git fast-export master~5..master`, nem tartalmazza a
+	master{tilde}5 commitot, és azt eredményezi, hogy a
+	master{tilde}4-nek többé nem lesz szülője a master{tilde}5 (bár
+	a régi master{tilde}4-nek és az új master{tilde}4-nek is
+	ugyanazok a fájljai lesznek). Használd a
+	--reference-excluded-parents-t, hogy ehelyett az adatfolyam a
+	kizárt előzménytartományban lévő commitokra a sha1sum-jukon
+	keresztül hivatkozzon. Vedd figyelembe, hogy a keletkező
+	adatfolyam csak olyan repository-ban használható, amely már
+	tartalmazza a szükséges szülőcommitokat.
 
 --show-original-ids::
-	Add an extra directive to the output for commits and blobs,
-	`original-oid <SHA1SUM>`.  While such directives will likely be
-	ignored by importers such as git-fast-import, it may be useful
-	for intermediary filters (e.g. for rewriting commit messages
-	which refer to older commits, or for stripping blobs by id).
+	Egy extra direktívát ad hozzá a kimenethez a commitok és blobok
+	esetén: `original-oid <SHA1SUM>`. Bár az ilyen direktívákat az
+	olyan importálók, mint a git-fast-import, valószínűleg
+	figyelmen kívül hagyják, hasznosak lehetnek köztes szűrők
+	számára (pl. régebbi commitokra hivatkozó commit-üzenetek
+	átírásához, vagy blobok id szerinti kiszűréséhez).
 
 --reencode=(yes|no|abort)::
-	Specify how to handle `encoding` header in commit objects.  When
-	asking to 'abort' (which is the default), this program will die
-	when encountering such a commit object.  With 'yes', the commit
-	message will be re-encoded into UTF-8.  With 'no', the original
-	encoding will be preserved.
+	Megadja, hogyan kell kezelni a commit objektumokban lévő
+	`encoding` fejlécet. Ha az 'abort'-ot kéred (ez az
+	alapértelmezett), a program leáll, ha ilyen commit objektumra
+	bukkan. A 'yes' esetén a commit-üzenet UTF-8-ra lesz
+	újrakódolva. A 'no' esetén az eredeti kódolás megmarad.
 
 --refspec::
-	Apply the specified refspec to each ref exported. Multiple of them can
-	be specified.
+	A megadott refspecet alkalmazza minden exportált ref-re. Több is
+	megadható belőlük.
 
 [<git-rev-list-args>...]::
-	A list of arguments, acceptable to 'git rev-parse' and
-	'git rev-list', that specifies the specific objects and references
-	to export.  For example, `master~10..master` causes the
-	current master reference to be exported along with all objects
-	added since its 10th ancestor commit and (unless the
-	--reference-excluded-parents option is specified) all files
-	common to master{tilde}9 and master{tilde}10.
+	A 'git rev-parse' és a 'git rev-list' számára elfogadható
+	argumentumok listája, amely megadja az exportálandó konkrét
+	objektumokat és referenciákat. Például a `master~10..master`
+	azt eredményezi, hogy a jelenlegi master referencia exportálásra
+	kerül a 10. ősétől kezdve hozzáadott összes objektummal együtt,
+	valamint (hacsak nincs megadva a --reference-excluded-parents
+	opció) a master{tilde}9 és a master{tilde}10 közös fájljaival
+	együtt.
 
 EXAMPLES
 --------
@@ -201,9 +208,10 @@ EXAMPLES
 $ git fast-export --all | (cd /empty/repository && git fast-import)
 -------------------------------------------------------------------
 
-This will export the whole repository and import it into the existing
-empty repository.  Except for reencoding commits that are not in
-UTF-8, it would be a one-to-one mirror.
+Ez exportálja a teljes repository-t, és importálja a meglévő üres
+repository-ba. Eltekintve azoktól a commitoktól, amelyek átkódolásra
+kerülnek, mert nem UTF-8-ban vannak, ez egy az egyben tükörmásolat
+lenne.
 
 -----------------------------------------------------
 $ git fast-export master~5..master |
@@ -211,46 +219,47 @@ $ git fast-export master~5..master |
 	git fast-import
 -----------------------------------------------------
 
-This makes a new branch called 'other' from 'master~5..master'
-(i.e. if 'master' has linear history, it will take the last 5 commits).
+Ez létrehoz egy 'other' nevű új branchet a 'master~5..master'-ből
+(azaz ha a 'master'-nek lineáris előzménye van, az utolsó 5 commitot
+veszi át).
 
-Note that this assumes that none of the blobs and commit messages
-referenced by that revision range contains the string
-'refs/heads/master'.
+Vedd figyelembe, hogy ez feltételezi, hogy az adott revíziótartomány
+által hivatkozott blobok és commit-üzenetek egyike sem tartalmazza a
+'refs/heads/master' stringet.
 
 
 ANONYMIZING
 -----------
 
-If the `--anonymize` option is given, git will attempt to remove all
-identifying information from the repository while still retaining enough
-of the original tree and history patterns to reproduce some bugs. The
-goal is that a git bug which is found on a private repository will
-persist in the anonymized repository, and the latter can be shared with
-git developers to help solve the bug.
+Ha a `--anonymize` opciót megadod, a git megpróbál eltávolítani minden
+azonosító információt a repository-ból, miközben megtartja az eredeti
+fa és előzmény mintáinak annyit, amennyi elég néhány hiba
+reprodukálásához. A cél az, hogy egy privát repository-n talált git
+hiba fennmaradjon az anonimizált repository-ban is, és ez utóbbi
+megosztható legyen a git fejlesztőkkel a hiba megoldásához.
 
-With this option, git will replace all refnames, paths, blob contents,
-commit and tag messages, names, and email addresses in the output with
-anonymized data.  Two instances of the same string will be replaced
-equivalently (e.g., two commits with the same author will have the same
-anonymized author in the output, but bear no resemblance to the original
-author string). The relationship between commits, branches, and tags is
-retained, as well as the commit timestamps (but the commit messages and
-refnames bear no resemblance to the originals). The relative makeup of
-the tree is retained (e.g., if you have a root tree with 10 files and 3
-trees, so will the output), but their names and the contents of the
-files will be replaced.
+Ezzel az opcióval a git a kimenetben az összes refnevet, útvonalat,
+blob-tartalmat, commit- és tag-üzenetet, nevet és e-mail-címet
+anonimizált adatra cseréli. Ugyanannak a stringnek két előfordulása
+egyenértékűen kerül cserére (pl. két, azonos szerzőjű commit ugyanazt
+az anonimizált szerzőt kapja a kimenetben, de az nem fog hasonlítani
+az eredeti szerző-stringre). A commitok, branchek és tagek közötti
+kapcsolat megmarad, csakúgy, mint a commit-időbélyegek (de a
+commit-üzenetek és a refnevek nem hasonlítanak az eredetire). A fa
+relatív felépítése megmarad (pl. ha van egy gyökérfád 10 fájllal és 3
+alfával, a kimenet is ilyen lesz), de a neveik és a fájlok tartalma
+lecserélődik.
 
-If you think you have found a git bug, you can start by exporting an
-anonymized stream of the whole repository:
+Ha úgy gondolod, hogy találtál egy git hibát, kezdheted azzal, hogy
+exportálod a teljes repository anonimizált adatfolyamát:
 
 ---------------------------------------------------
 $ git fast-export --anonymize --all >anon-stream
 ---------------------------------------------------
 
-Then confirm that the bug persists in a repository created from that
-stream (many bugs will not, as they really do depend on the exact
-repository contents):
+Ezután erősítsd meg, hogy a hiba fennmarad az abból az adatfolyamból
+létrehozott repository-ban is (sok hiba nem fog, mivel ténylegesen
+a pontos repository-tartalomtól függenek):
 
 ---------------------------------------------------
 $ git init anon-repo
@@ -259,26 +268,28 @@ $ git fast-import <../anon-stream
 $ ... test your bug ...
 ---------------------------------------------------
 
-If the anonymized repository shows the bug, it may be worth sharing
-`anon-stream` along with a regular bug report. Note that the anonymized
-stream compresses very well, so gzipping it is encouraged. If you want
-to examine the stream to see that it does not contain any private data,
-you can peruse it directly before sending. You may also want to try:
+Ha az anonimizált repository mutatja a hibát, érdemes lehet megosztani
+az `anon-stream`-et egy rendes hibajelentés mellett. Vedd figyelembe,
+hogy az anonimizált adatfolyam nagyon jól tömöríthető, ezért ajánlott
+gzip-elni. Ha meg akarod vizsgálni az adatfolyamot, hogy megbizonyosodj
+róla, nem tartalmaz privát adatot, elolvashatod közvetlenül, mielőtt
+elküldenéd. Kipróbálhatod ezt is:
 
 ---------------------------------------------------
 $ perl -pe 's/\d+/X/g' <anon-stream | sort -u | less
 ---------------------------------------------------
 
-which shows all of the unique lines (with numbers converted to "X", to
-collapse "User 0", "User 1", etc into "User X"). This produces a much
-smaller output, and it is usually easy to quickly confirm that there is
-no private data in the stream.
+amely megmutatja az összes egyedi sort (a számok "X"-re alakítva, hogy
+a "User 0", "User 1" stb. "User X"-be tömörüljön). Ez sokkal kisebb
+kimenetet ad, és általában könnyű gyorsan megerősíteni, hogy nincs
+privát adat az adatfolyamban.
 
-Reproducing some bugs may require referencing particular commits or
-paths, which becomes challenging after refnames and paths have been
-anonymized. You can ask for a particular token to be left as-is or
-mapped to a new value. For example, if you have a bug which reproduces
-with `git rev-list sensitive -- secret.c`, you can run:
+Néhány hiba reprodukálásához bizonyos commitokra vagy útvonalakra kell
+hivatkozni, ami kihívást jelent, miután a refnevek és útvonalak
+anonimizálásra kerültek. Kérheted, hogy egy adott token változatlanul
+maradjon, vagy egy új értékre képződjön le. Ha például van egy hibád,
+amely a `git rev-list sensitive -- secret.c` paranccsal reprodukálható,
+futtathatod ezt:
 
 ---------------------------------------------------
 $ git fast-export --anonymize --all \
@@ -287,24 +298,25 @@ $ git fast-export --anonymize --all \
       >stream
 ---------------------------------------------------
 
-After importing the stream, you can then run `git rev-list foo -- bar.c`
-in the anonymized repository.
+Az adatfolyam importálása után futtathatod a `git rev-list foo -- bar.c`
+parancsot az anonimizált repository-ban.
 
-Note that paths and refnames are split into tokens at slash boundaries.
-The command above would anonymize `subdir/secret.c` as something like
-`path123/bar.c`; you could then search for `bar.c` in the anonymized
-repository to determine the final pathname.
+Vedd figyelembe, hogy az útvonalak és a refnevek per-jel határoknál
+tokenekre vannak bontva. A fenti parancs a `subdir/secret.c`-t valami
+ilyesmire anonimizálná: `path123/bar.c`; ezután kereshetsz a `bar.c`-re
+az anonimizált repository-ban, hogy meghatározd a végleges
+fájlútvonalat.
 
-To make referencing the final pathname simpler, you can map each path
-component; so if you also anonymize `subdir` to `publicdir`, then the
-final pathname would be `publicdir/bar.c`.
+Hogy a végleges fájlútvonalra hivatkozás egyszerűbb legyen, minden
+útvonal-komponenst leképezhetsz; így ha a `subdir`-t is anonimizálod
+`publicdir`-ra, a végleges fájlútvonal `publicdir/bar.c` lesz.
 
 LIMITATIONS
 -----------
 
-Since 'git fast-import' cannot tag trees, you will not be
-able to export the linux.git repository completely, as it contains
-a tag referencing a tree instead of a commit.
+Mivel a 'git fast-import' nem tud fákat tagelni, nem leszel képes
+teljesen exportálni a linux.git repository-t, mivel az egy fára, nem
+pedig egy commitra hivatkozó taget tartalmaz.
 
 SEE ALSO
 --------
@@ -312,4 +324,4 @@ linkgit:git-fast-import[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -1007,3 +1007,74 @@ egyszerűen hagyd angolul (az esetleges `[[...]]` anchort és `<<...>>` xrefet a
 kezelve), és a blokk lezárásakor elég egy rövid, egysoros megjegyzés a glossary-ban (fájl + a megtalált
 címek felsorolása), **nem kell** többé „eldöntendő"-ként vagy hosszas indoklással dokumentálni.
 
+## 14. blokk — `git-diagnose.adoc`, `git-diff-files.adoc`, `git-diff-index.adoc`, `git-diff-pairs.adoc`, `git-diff-tree.adoc`, `git-diff.adoc`, `git-difftool.adoc`, `git-fast-export.adoc` — 2026-09-04
+
+**Módszer:** 4 párhuzamos subagent indult 3-3 fájlas, diszjunkt blokkokban (A: diagnose/diff-files/
+diff-index; B: diff-pairs/diff-tree/diff; C: difftool/fast-export/fast-import; D: fetch-pack/fetch/
+filter-branch — a C és D blokk a `content filtering policy` API-hiba miatt többször megszakadt,
+l. lent és a 12–13. blokk). Az A és B blokk egy-egy menetben, megszakítás nélkül végzett.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| backing store | **„háttértároló"** | `git-diff-index.adoc`, ad hoc kifejezés |
+| all-zero sha1 | **„csupa nulla sha1"** | `git-diff-index.adoc` |
+| stat state | **„stat-információ"** rokon mintája szerint **„stat-állapot"** | `git-diff-index.adoc`, a 3. blokk `git-checkout-index.adoc`-beli „stat-információ" mintáját folytatja |
+| tentatively changed | **„feltételezetten megváltozott"** | `git-diff-index.adoc` |
+| „SPECIFYING REVISIONS" / „SPECIFYING RANGES" (`git-diff.adoc` idézőjeles prózahivatkozás a `gitrevisions.adoc`-ra) | **angolul maradt** (nem `<<...>>` xref) | a 7. blokk `git-blame.adoc`-beli „SPECIFYING RANGES" precedensét folytatja |
+| „3-Way Merge" (`git-diff.adoc` idézőjeles prózahivatkozás a `git-read-tree.adoc`-ra) | **angolul maradt** | ugyanaz a minta, új előfordulás — érdemes a jövőben nyomon követni, ha `git-read-tree.adoc` fordítása során a cél szakaszcím lefordul |
+
+Nem volt szükség új terminológiára a `git-difftool.adoc`/`git-fast-export.adoc` fájlokban (a meglévő
+0. blokk szókincse lefedte); a `git-fast-export.adoc`-ban új, ad hoc kifejezés: „anonimizál"/
+„anonimizálás" (`--anonymize`), „fájlútvonal-komponens leképezése" (path-component mapping).
+
+### Címsor-anchorok
+
+- `git-diagnose.adoc`, `git-diff-files.adoc`, `git-diff-pairs.adoc`, `git-diff-tree.adoc`,
+  `git-diff.adoc`, `git-difftool.adoc`, `git-fast-export.adoc`: **nincs** bennük `[[...]]` anchor és
+  `<<...>>` xref sem — csak kanonikus man-page szekciócímek, nem kellett anchor-kezelés.
+- `git-diff-index.adoc`: nincs `[[...]]`/`<<...>>`, de van 3 nem-kanonikus, csupa nagybetűs alcím
+  (`OPERATING MODES`, `CACHED MODE`, `NON-CACHED MODE`) — l. lent.
+
+### Man-page címként/man-page-stílusúként ANGOLUL hagyott, eldöntendő címsorok
+
+- **`OPERATING MODES`**, **`CACHED MODE`**, **`NON-CACHED MODE`** (`git-diff-index.adoc`) — a
+  visszatérő, kanonikus listán kívüli, csupa nagybetűs, man-page-stílusú alcím precedenst folytatva
+  (`MERGES`, `SERVICES`, `SCOPES`, `COMMANDS`, `DEPRECATED MODES`, `DETACHED HEAD`,
+  `ARGUMENT DISAMBIGUATION`, `COMMIT INFORMATION`, `HOOKS`,
+  `ENVIRONMENT AND CONFIGURATION VARIABLES`, `CONFIGURED REMOTE-TRACKING BRANCHES`, `PRUNING`, `OUTPUT`,
+  `CHECKLIST FOR SHRINKING A REPOSITORY`, `PERFORMANCE`, `SAFETY`) **bájtazonosan angolul maradtak**.
+  Ez volt a 15–17. ilyen eset, amely alapján a felhasználó a fenti „VÉGLEGES DÖNTÉS" szakaszban
+  lezárta a kérdést: ez a kategória mindig angolul marad, nem „eldöntendő" többé.
+
+### Megőrzött markup / megjegyzések
+
+- Mindegyik fájlban a `----`/`------------------------------------------------` határolók párban
+  maradtak, `ifdef::`/`endif::` egyikben sincs, `include::` sorok (`diff-options.adoc`,
+  `diff-format.adoc` stb.) változatlanok.
+- Mind a 8 fájl GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti
+  egységesített forma).
+- `git-fast-export.adoc`: az EXAMPLES/ANONYMIZING kódpélda-blokkjai (`$ git fast-export --all | ...`)
+  bájtazonosak.
+
+### Hiányzó `glossary-progit2.md` — megerősítve, munkameneti szinten jelezve
+
+Két független subagent (A és B blokk) is jelentette, hogy a `git/transl-memo-hu/glossary-progit2.md`
+fájl **nem létezik** ebben a workspace-ben (csak `glossary-git-git-docs.md` és `progress-git-git-docs.md`
+van a mappában). Mindkettő az itteni „0. blokk" örökölt-alapvonal táblát használta helyette (ami a
+`glossary-progit2.md` véglegesített döntéseinek kivonata), ami tartalmilag elegendő volt — nem volt
+terminológiai probléma emiatt. **A felhasználónak érdemes megerősítenie**, hogy ez a fájl valóban nincs
+ebben a repóban (más projekt testvér-workspace-ében lehet), és ha szükséges, a skill hivatkozását
+frissíteni kell.
+
+### `git-fast-import.adoc` — felfüggesztve a felhasználó kérésére
+
+A C blokk a `git-difftool.adoc` és `git-fast-export.adoc` befejezése után elkezdte a
+`git-fast-import.adoc`-ot (1682→1700 sor, a legnagyobb hátralévő fájl a batchben), de a
+`content filtering policy` API-hiba miatt több nekifutásra volt szükség (109→222→316→545 sorig
+haladt). A felhasználó **explicit felfüggesztette** ennek a fájlnak a fordítását, későbbre halasztva.
+Állapot lezáráskor: **545/1700 sor kész** (a `commit` parancs alszakaszáig, az INPUT FORMAT szakasz
+elején), a progress-táblában `~32%`-ként jelölve. **Folytatáskor:** kis, célzott `Read`/`Edit`
+lépésekben érdemes haladni (l. a 13. blokk stratégiaváltása), mert ez a fájl is rendszeresen kiváltja
+a content-filtering-hibát.

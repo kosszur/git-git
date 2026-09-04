@@ -3,7 +3,7 @@ git-difftool(1)
 
 NAME
 ----
-git-difftool - Show changes using common diff tools
+git-difftool - Változtatások megjelenítése általános diff-eszközökkel
 
 SYNOPSIS
 --------
@@ -12,115 +12,120 @@ git difftool [<options>] [<commit> [<commit>]] [--] [<path>...]
 
 DESCRIPTION
 -----------
-`git difftool` is a Git command that allows you to compare and edit files
-between revisions using common diff tools. `git difftool` is a frontend
-to `git diff` and accepts the same options and arguments. See
-linkgit:git-diff[1].
+A `git difftool` egy Git-parancs, amellyel fájlokat lehet összehasonlítani
+és szerkeszteni a revíziók között általános diff-eszközök segítségével. A
+`git difftool` a `git diff`-hez készült frontend, és ugyanazokat az
+opciókat és argumentumokat fogadja el. Lásd: linkgit:git-diff[1].
 
 OPTIONS
 -------
 `-d`::
 `--dir-diff`::
-	Copy the modified files to a temporary location and perform
-	a directory diff on them. This mode never prompts before
-	launching the diff tool.
+	A módosított fájlokat egy ideiglenes helyre másolja, és azokon
+	végez könyvtár-diffet. Ez a mód soha nem kérdez rá a diff-eszköz
+	elindítása előtt.
 
 `-y`::
 `--no-prompt`::
-	Do not prompt before launching a diff tool.
+	Ne kérdezzen rá a diff-eszköz elindítása előtt.
 
 `--prompt`::
-	Prompt before each invocation of the diff tool.
-	This is the default behaviour; the option is provided to
-	override any configuration settings.
+	Kérdezzen rá a diff-eszköz minden egyes meghívása előtt.
+	Ez az alapértelmezett viselkedés; az opció azért áll
+	rendelkezésre, hogy felülbírálhassa a konfigurációs beállításokat.
 
 `--rotate-to=<file>`::
-	Start showing the diff for _<file>_,
-	the paths before it will move to the end and output.
+	A diff megjelenítését _<file>_-nál kezdi, az előtte lévő
+	útvonalak a végére kerülnek, és úgy jelennek meg.
 
 `--skip-to=<file>`::
-	Start showing the diff for _<file>_, skipping all
-	the paths before it.
+	A diff megjelenítését _<file>_-nál kezdi, kihagyva az összes
+	előtte lévő útvonalat.
 
 `-t <tool>`::
 `--tool=<tool>`::
-	Use the diff tool specified by _<tool>_. Valid values include
-	emerge, kompare, meld, and vimdiff. Run `git difftool --tool-help`
-	for the list of valid _<tool>_ settings.
+	A _<tool>_ által megadott diff-eszközt használja. Az érvényes
+	értékek közé tartozik többek között az emerge, a kompare, a meld
+	és a vimdiff. Futtasd a `git difftool --tool-help` parancsot az
+	érvényes _<tool>_ beállítások listájáért.
 +
-If a diff tool is not specified, `git difftool`
-will use the configuration variable `diff.tool`.  If the
-configuration variable `diff.tool` is not set, `git difftool`
-will pick a suitable default.
+Ha nincs megadva diff-eszköz, a `git difftool` a `diff.tool`
+konfigurációs változót fogja használni. Ha a `diff.tool` konfigurációs
+változó sincs beállítva, a `git difftool` egy megfelelő alapértelmezést
+választ.
 +
-You can explicitly provide a full path to the tool by setting the
-configuration variable `difftool.<tool>.path`. For example, you
-can configure the absolute path to kdiff3 by setting
-`difftool.kdiff3.path`. Otherwise, `git difftool` assumes the
-tool is available in PATH.
+A `difftool.<tool>.path` konfigurációs változó beállításával
+kifejezetten megadhatod az eszköz teljes útvonalát. Például a kdiff3
+abszolút útvonalát a `difftool.kdiff3.path` beállításával
+konfigurálhatod. Egyébként a `git difftool` feltételezi, hogy az
+eszköz elérhető a PATH-ban.
 +
-Instead of running one of the known diff tools,
-`git difftool` can be customized to run an alternative program
-by specifying the command line to invoke in a configuration
-variable `difftool.<tool>.cmd`.
+Az ismert diff-eszközök egyikének futtatása helyett a `git difftool`
+testre szabható úgy, hogy egy alternatív programot futtasson: ehhez
+a meghívandó parancssort a `difftool.<tool>.cmd` konfigurációs
+változóban kell megadni.
 +
-When `git difftool` is invoked with this tool (either through the
-`-t` or `--tool` option or the `diff.tool` configuration variable)
-the configured command line will be invoked with the following
-variables available: `$LOCAL` is set to the name of the temporary
-file containing the contents of the diff pre-image and `$REMOTE`
-is set to the name of the temporary file containing the contents
-of the diff post-image.  `$MERGED` is the name of the file which is
-being compared. `$BASE` is provided for compatibility
-with custom merge tool commands and has the same value as `$MERGED`.
+Amikor a `git difftool`-t ezzel az eszközzel hívják meg (akár a `-t`
+vagy `--tool` opción, akár a `diff.tool` konfigurációs változón
+keresztül), a konfigurált parancssor a következő változókkal
+elérhetően kerül meghívásra: a `$LOCAL` annak az ideiglenes fájlnak a
+nevére van beállítva, amely a diff kép-előzmény ("pre-image")
+tartalmát tartalmazza, a `$REMOTE` pedig annak az ideiglenes fájlnak a
+nevére, amely a diff kép-utókép ("post-image") tartalmát tartalmazza.
+A `$MERGED` az összehasonlítás alatt álló fájl neve. A `$BASE` a
+saját merge-eszköz parancsokkal való kompatibilitás miatt áll
+rendelkezésre, és ugyanaz az értéke, mint a `$MERGED`-nek.
 
 `--tool-help`::
-	Print a list of diff tools that may be used with `--tool`.
+	Kiírja a `--tool`-lal használható diff-eszközök listáját.
 
 `--symlinks`::
 `--no-symlinks`::
-	`git difftool`'s default behavior is to create symlinks to the
-	working tree when run in `--dir-diff` mode and the right-hand
-	side of the comparison yields the same content as the file in
-	the working tree.
+	A `git difftool` alapértelmezett viselkedése, hogy szimbolikus
+	linkeket hoz létre a munkakönyvtárra, amikor `--dir-diff` módban
+	fut, és az összehasonlítás jobb oldala ugyanazt a tartalmat adja,
+	mint a munkakönyvtárban lévő fájl.
 +
-Specifying `--no-symlinks` instructs `git difftool` to create copies
-instead.  `--no-symlinks` is the default on Windows.
+A `--no-symlinks` megadása arra utasítja a `git difftool`-t, hogy
+ehelyett másolatokat hozzon létre. Windows alatt a `--no-symlinks`
+az alapértelmezett.
 
 `-x <command>`::
 `--extcmd=<command>`::
-	Specify a custom command for viewing diffs.
-	`git-difftool` ignores the configured defaults and runs
-	`<command> $LOCAL $REMOTE` when this option is specified.
-	Additionally, `$BASE` is set in the environment.
+	Egyéni parancsot ad meg a diffek megtekintéséhez.
+	A `git-difftool` figyelmen kívül hagyja a konfigurált
+	alapértelmezéseket, és a `<command> $LOCAL $REMOTE`-ot futtatja,
+	ha ez az opció meg van adva. Emellett a `$BASE` is beállításra
+	kerül a környezetben.
 
 `-g`::
 `--gui`::
 `--no-gui`::
-	When `git-difftool` is invoked with the `-g` or `--gui` option
-	the default diff tool will be read from the configured
-	`diff.guitool` variable instead of `diff.tool`. This may be
-	selected automatically using the configuration variable
-	`difftool.guiDefault`. The `--no-gui` option can be used to
-	override these settings. If `diff.guitool` is not set, we will
-	fallback in the order of `merge.guitool`, `diff.tool`,
-	`merge.tool` until a tool is found.
+	Amikor a `git-difftool`-t a `-g` vagy `--gui` opcióval hívják meg,
+	az alapértelmezett diff-eszközt a konfigurált `diff.guitool`
+	változóból olvassa be a `diff.tool` helyett. Ez a `difftool.guiDefault`
+	konfigurációs változó segítségével automatikusan is kiválasztható.
+	A `--no-gui` opcióval felülbírálhatók ezek a beállítások. Ha a
+	`diff.guitool` nincs beállítva, a `merge.guitool`, `diff.tool`,
+	`merge.tool` sorrendben esünk vissza, amíg egy eszköz meg nem
+	található.
 
 `--trust-exit-code`::
 `--no-trust-exit-code`::
-	Errors reported by the diff tool are ignored by default.
-	Use `--trust-exit-code` to make `git-difftool` exit when an
-	invoked diff tool returns a non-zero exit code.
+	A diff-eszköz által jelentett hibákat alapértelmezésben figyelmen
+	kívül hagyjuk. Használd a `--trust-exit-code`-ot, hogy a
+	`git-difftool` kilépjen, ha a meghívott diff-eszköz nullától
+	eltérő kilépési kóddal tér vissza.
 +
-`git-difftool` will forward the exit code of the invoked tool when
-`--trust-exit-code` is used.
+A `git-difftool` továbbítja a meghívott eszköz kilépési kódját, ha a
+`--trust-exit-code` van használatban.
 
-See linkgit:git-diff[1] for the full list of supported options.
+A támogatott opciók teljes listájáért lásd: linkgit:git-diff[1].
 
 CONFIGURATION
 -------------
-`git difftool` falls back to `git mergetool` config variables when the
-difftool equivalents have not been defined.
+A `git difftool` visszaesik a `git mergetool` konfigurációs
+változóira, ha a difftool megfelelőik nincsenek meghatározva.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -129,14 +134,16 @@ include::config/difftool.adoc[]
 SEE ALSO
 --------
 linkgit:git-diff[1]::
-	 Show changes between commits, commit and working tree, etc
+	 Változtatások megjelenítése commitok, commit és munkakönyvtár
+	 között stb.
 
 linkgit:git-mergetool[1]::
-	Run merge conflict resolution tools to resolve merge conflicts
+	Merge-konfliktus-feloldó eszközök futtatása merge-konfliktusok
+	feloldásához
 
 linkgit:git-config[1]::
-	 Get and set repository or global options
+	 Repository- vagy globális opciók lekérdezése és beállítása
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

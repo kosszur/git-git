@@ -3,7 +3,7 @@ git-diff(1)
 
 NAME
 ----
-git-diff - Show changes between commits, commit and working tree, etc
+git-diff - Változások megjelenítése commitok között, commit és munkakönyvtár között, stb.
 
 
 SYNOPSIS
@@ -18,111 +18,112 @@ git diff [<options>] --no-index [--] <path> <path> [<pathspec>...]
 
 DESCRIPTION
 -----------
-Show changes between the working tree and the index or a tree, changes
-between the index and a tree, changes between two trees, changes resulting
-from a merge, changes between two blob objects, or changes between two
-files on disk.
+Megjeleníti a munkakönyvtár és az index vagy egy fa közötti változásokat, az
+index és egy fa közötti változásokat, két fa közötti változásokat, egy
+merge-ből eredő változásokat, két blob objektum közötti változásokat, vagy
+két, lemezen lévő fájl közötti változásokat.
 
 `git diff [<options>] [--] [<path>...]`::
 
-	This form is to view the changes you made relative to
-	the index (staging area for the next commit).  In other
-	words, the differences are what you _could_ tell Git to
-	further add to the index but you still haven't.  You can
-	stage these changes by using linkgit:git-add[1].
+	Ez a forma az index (a következő commit staging area-ja) viszonylatában
+	végzett módosítások megtekintésére szolgál. Más szóval, a különbségek
+	azok, amiket Gitnek _mondhatnál_, hogy adjon hozzá az indexhez, de
+	még nem tetted meg. Ezeket a változásokat a linkgit:git-add[1]
+	használatával stage-elheted.
 
 `git diff [<options>] --no-index [--] <path> <path> [<pathspec>...]`::
 
-	This form is to compare the given two paths on the
-	filesystem.  You can omit the `--no-index` option when
-	running the command in a working tree controlled by Git and
-	at least one of the paths points outside the working tree,
-	or when running the command outside a working tree
-	controlled by Git. This form implies `--exit-code`. If both
-	paths point to directories, additional pathspecs may be
-	provided. These will limit the files included in the
-	difference. All such pathspecs must be relative as they
-	apply to both sides of the diff.
+	Ez a forma a fájlrendszeren megadott két útvonal összehasonlítására
+	szolgál. A `--no-index` opciót elhagyhatod, ha a parancsot egy Git
+	által vezérelt munkakönyvtárban futtatod, és legalább az egyik
+	útvonal a munkakönyvtáron kívülre mutat, vagy ha a parancsot egy Git
+	által vezérelt munkakönyvtáron kívül futtatod. Ez a forma
+	implikálja a `--exit-code`-ot. Ha mindkét útvonal könyvtárra mutat,
+	további pathspecek adhatók meg. Ezek korlátozzák a különbségbe
+	bevont fájlokat. Minden ilyen pathspecnek relatívnak kell lennie,
+	mivel a diff mindkét oldalára vonatkoznak.
 
 `git diff [<options>] --cached [--merge-base] [<commit>] [--] [<path>...]`::
 
-	This form is to view the changes you staged for the next
-	commit relative to the named _<commit>_.  Typically you
-	would want comparison with the latest commit, so if you
-	do not give _<commit>_, it defaults to `HEAD`.
-	If `HEAD` does not exist (e.g. unborn branches) and
-	_<commit>_ is not given, it shows all staged changes.
-	`--staged` is a synonym of `--cached`.
+	Ez a forma a következő commit számára stage-elt, a megnevezett
+	_<commit>_ viszonylatában vett változások megtekintésére szolgál.
+	Jellemzően a legutóbbi commithoz szeretnél viszonyítani, így ha
+	nem adod meg a _<commit>_-ot, az alapértelmezetten `HEAD`. Ha a
+	`HEAD` nem létezik (pl. meg nem született branchek esetén), és a
+	_<commit>_ sincs megadva, akkor az összes stage-elt változást
+	megmutatja. A `--staged` a `--cached` szinonimája.
 +
-If `--merge-base` is given, instead of using _<commit>_, use the merge base
-of _<commit>_ and `HEAD`.  `git diff --cached --merge-base A` is equivalent to
-`git diff --cached $(git merge-base A HEAD)`.
+Ha a `--merge-base` meg van adva, akkor a _<commit>_ helyett a _<commit>_
+és a `HEAD` közötti merge-alap kerül felhasználásra. A `git diff --cached
+--merge-base A` egyenértékű a `git diff --cached $(git merge-base A
+HEAD)`-del.
 
 `git diff [<options>] [--merge-base] <commit> [--] [<path>...]`::
 
-	This form is to view the changes you have in your
-	working tree relative to the named _<commit>_.  You can
-	use `HEAD` to compare it with the latest commit, or a
-	branch name to compare with the tip of a different
-	branch.
+	Ez a forma a munkakönyvtáradban lévő, a megnevezett _<commit>_
+	viszonylatában vett változások megtekintésére szolgál. A `HEAD`
+	segítségével a legutóbbi commithoz, vagy egy branch nevével egy
+	másik branch csúcsához hasonlíthatod.
 +
-If `--merge-base` is given, instead of using _<commit>_, use the merge base
-of _<commit>_ and `HEAD`.  `git diff --merge-base A` is equivalent to
-`git diff $(git merge-base A HEAD)`.
+Ha a `--merge-base` meg van adva, akkor a _<commit>_ helyett a _<commit>_
+és a `HEAD` közötti merge-alap kerül felhasználásra. A `git diff
+--merge-base A` egyenértékű a `git diff $(git merge-base A HEAD)`-del.
 
 `git diff [<options>] [--merge-base] <commit> <commit> [--] [<path>...]`::
 
-	This is to view the changes between two arbitrary
-	_<commit>_.
+	Ez két tetszőleges _<commit>_ közötti változások megtekintésére
+	szolgál.
 +
-If `--merge-base` is given, use the merge base of the two commits for the
-"before" side.  `git diff --merge-base A B` is equivalent to
-`git diff $(git merge-base A B) B`.
+Ha a `--merge-base` meg van adva, a két commit merge-alapja lesz az
+"előtte" oldal. A `git diff --merge-base A B` egyenértékű a `git diff
+$(git merge-base A B) B`-vel.
 
 `git diff [<options>] <commit> <commit>...<commit> [--] [<path>...]`::
 
-	This form is to view the results of a merge commit.  The first
-	listed _<commit>_ must be the merge itself; the remaining two or
-	more commits should be its parents.  Convenient ways to produce
-	the desired set of revisions are to use the suffixes `@` and
-	`^!`.  If `A` is a merge commit, then `git diff A A^@`,
-	`git diff A^!` and `git show A` all give the same combined diff.
+	Ez a forma egy merge commit eredményének megtekintésére szolgál.
+	Az elsőként felsorolt _<commit>_-nak magának a merge-nek kell lennie;
+	a fennmaradó két vagy több commitnak a szüleinek kell lennie. A
+	kívánt revízió-halmaz előállításának kényelmes módja a `@` és a
+	`^!` utótagok használata. Ha `A` egy merge commit, akkor a `git
+	diff A A^@`, a `git diff A^!` és a `git show A` mind ugyanazt a
+	kombinált diffet adják.
 
 `git diff [<options>] <commit>..<commit> [--] [<path>...]`::
 
-	This is synonymous to the earlier form (without the `..`) for
-	viewing the changes between two arbitrary _<commit>_.  If _<commit>_ on
-	one side is omitted, it will have the same effect as
-	using `HEAD` instead.
+	Ez szinonimája a korábbi (`..` nélküli) formának, két tetszőleges
+	_<commit>_ közötti változások megtekintésére. Ha a _<commit>_ az
+	egyik oldalon el van hagyva, ugyanaz a hatása, mintha a `HEAD`-et
+	használtad volna helyette.
 
 `git diff [<options>] <commit>...<commit> [--] [<path>...]`::
 
-	This form is to view the changes on the branch containing
-	and up to the second _<commit>_, starting at a common ancestor
-	of both _<commit>_.  `git diff A...B` is equivalent to
-	`git diff $(git merge-base A B) B`.  You can omit any one
-	of _<commit>_, which has the same effect as using `HEAD` instead.
+	Ez a forma a második _<commit>_-ot tartalmazó és odáig terjedő
+	branchen lévő változások megtekintésére szolgál, a két _<commit>_
+	közös ősétől kezdve. A `git diff A...B` egyenértékű a `git diff
+	$(git merge-base A B) B`-vel. Bármelyik _<commit>_-ot elhagyhatod,
+	aminek ugyanaz a hatása, mintha a `HEAD`-et használtad volna
+	helyette.
 
-Just in case you are doing something exotic, it should be
-noted that all of the _<commit>_ in the above description, except
-in the `--merge-base` case and in the last two forms that use `..`
-notations, can be any _<tree>_. A tree of interest is the one pointed to
-by the ref named `AUTO_MERGE`, which is written by the `ort` merge
-strategy upon hitting merge conflicts (see linkgit:git-merge[1]).
-Comparing the working tree with `AUTO_MERGE` shows changes you've made
-so far to resolve textual conflicts (see the examples below).
+Arra az esetre, ha valami egzotikus dolgot csinálnál, meg kell jegyezni,
+hogy a fenti leírásban szereplő összes _<commit>_ — a `--merge-base` esetét,
+és a `..` jelöléseket használó utolsó két formát kivéve — bármilyen
+_<tree>_ lehet. Egy érdekes fa az, amelyre az `AUTO_MERGE` nevű ref mutat,
+amelyet az `ort` merge-stratégia ír, amikor merge-konfliktusba ütközik
+(lásd linkgit:git-merge[1]). A munkakönyvtár `AUTO_MERGE`-dzsel való
+összehasonlítása megmutatja azokat a változtatásokat, amelyeket eddig a
+szöveges konfliktusok feloldására tettél (lásd lent a példákat).
 
-For a more complete list of ways to spell _<commit>_, see
-"SPECIFYING REVISIONS" section in linkgit:gitrevisions[7].
-However, `diff` is about comparing two _endpoints_, not ranges,
-and the range notations (`<commit>..<commit>` and `<commit>...<commit>`)
-do not mean a range as defined in the
-"SPECIFYING RANGES" section in linkgit:gitrevisions[7].
+A _<commit>_ megadásának teljesebb listájáért lásd a linkgit:gitrevisions[7]
+"SPECIFYING REVISIONS" szakaszát. A `diff` azonban két _végpont_
+összehasonlításáról szól, nem tartományokról, és a tartomány-jelölések
+(`<commit>..<commit>` és `<commit>...<commit>`) nem jelentenek olyan
+tartományt, mint amit a linkgit:gitrevisions[7] "SPECIFYING RANGES"
+szakasza definiál.
 
 `git diff [<options>] <blob> <blob>`::
 
-	This form is to view the differences between the raw
-	contents of two blob objects.
+	Ez a forma két blob objektum nyers tartalma közötti különbségek
+	megtekintésére szolgál.
 
 OPTIONS
 -------
@@ -135,27 +136,27 @@ include::diff-options.adoc[]
 `--ours`::
 `-3`::
 `--theirs`::
-	Compare the working tree with
+	A munkakönyvtár összehasonlítása
 +
 --
- * the "base" version (stage #1) when using `-1` or `--base`,
- * "our branch" (stage #2) when using `-2` or `--ours`, or
- * "their branch" (stage #3) when using `-3` or `--theirs`.
+ * a "base" verzióval (1. stage), a `-1` vagy a `--base` használatakor,
+ * a "mi branchünkkel" (2. stage), a `-2` vagy a `--ours` használatakor, vagy
+ * az "ő branchükkel" (3. stage), a `-3` vagy a `--theirs` használatakor.
 --
 +
-The index contains these stages only for unmerged entries i.e.
-while resolving conflicts.  See linkgit:git-read-tree[1]
-section "3-Way Merge" for detailed information.
+Az index csak a nem merge-elt bejegyzések esetén, azaz a konfliktusok
+feloldása közben tartalmazza ezeket a stage-eket. Részletes információért
+lásd a linkgit:git-read-tree[1] "3-Way Merge" szakaszát.
 
 `-0`::
-	Omit diff output for unmerged entries and just show
-	"Unmerged".  Can be used only when comparing the working tree
-	with the index.
+	Elhagyja a diff kimenetét a nem merge-elt bejegyzéseknél, és csak
+	azt mutatja, hogy "Unmerged". Csak akkor használható, ha a
+	munkakönyvtárat az indexszel hasonlítod össze.
 
 `<path>...`::
-	The _<path>_ parameters, when given, are used to limit
-	the diff to the named paths (you can give directory
-	names and get diff for all files under them).
+	A _<path>_ paraméterek, ha meg vannak adva, a diff a megnevezett
+	útvonalakra korlátozására szolgálnak (könyvtárneveket is megadhatsz,
+	és az alattuk lévő összes fájlra megkapod a diffet).
 
 
 include::diff-format.adoc[]
@@ -163,7 +164,7 @@ include::diff-format.adoc[]
 EXAMPLES
 --------
 
-Various ways to check your working tree::
+A munkakönyvtár ellenőrzésének különféle módjai::
 +
 ------------
 $ git diff            <1>
@@ -172,15 +173,16 @@ $ git diff HEAD       <3>
 $ git diff AUTO_MERGE <4>
 ------------
 +
-<1> Changes in the working tree not yet staged for the next commit.
-<2> Changes between the index and your last commit; what you
-    would be committing if you run `git commit` without `-a` option.
-<3> Changes in the working tree since your last commit; what you
-    would be committing if you run `git commit -a`
-<4> Changes in the working tree you've made to resolve textual
-    conflicts so far.
+<1> A munkakönyvtár változásai, amelyek még nincsenek stage-elve a
+    következő commithoz.
+<2> Az index és a legutóbbi commitod közötti változások; amit akkor
+    commitolnál, ha a `git commit`-ot a `-a` opció nélkül futtatnád.
+<3> A munkakönyvtár változásai a legutóbbi commitod óta; amit akkor
+    commitolnál, ha a `git commit -a`-t futtatnád.
+<4> A munkakönyvtárban eddig tett változtatásaid a szöveges konfliktusok
+    feloldásához.
 
-Comparing with arbitrary commits::
+Összehasonlítás tetszőleges commitokkal::
 +
 ------------
 $ git diff test            <1>
@@ -188,14 +190,14 @@ $ git diff HEAD -- ./test  <2>
 $ git diff HEAD^ HEAD      <3>
 ------------
 +
-<1> Instead of using the tip of the current branch, compare with the
-    tip of "test" branch.
-<2> Instead of comparing with the tip of "test" branch, compare with
-    the tip of the current branch, but limit the comparison to the
-    file "test".
-<3> Compare the version before the last commit and the last commit.
+<1> Az aktuális branch csúcsa helyett a "test" branch csúcsával
+    hasonlít össze.
+<2> A "test" branch csúcsával való összehasonlítás helyett az aktuális
+    branch csúcsával hasonlít össze, de az összehasonlítást a "test"
+    fájlra korlátozza.
+<3> Összehasonlítja az utolsó commit előtti verziót az utolsó committal.
 
-Comparing branches::
+Branchek összehasonlítása::
 +
 ------------
 $ git diff topic master    <1>
@@ -203,12 +205,12 @@ $ git diff topic..master   <2>
 $ git diff topic...master  <3>
 ------------
 +
-<1> Changes between the tips of the topic and the master branches.
-<2> Same as above.
-<3> Changes that occurred on the master branch since when the topic
-    branch was started off it.
+<1> A topic és a master branchek csúcsai közötti változások.
+<2> Ugyanaz, mint fent.
+<3> A master branchen történt változások azóta, hogy a topic branch
+    onnan elindult.
 
-Limiting the diff output::
+A diff kimenetének korlátozása::
 +
 ------------
 $ git diff --diff-filter=MRC            <1>
@@ -216,22 +218,22 @@ $ git diff --name-status                <2>
 $ git diff arch/i386 include/asm-i386   <3>
 ------------
 +
-<1> Show only modification, rename, and copy, but not addition
-    or deletion.
-<2> Show only names and the nature of change, but not actual
-    diff output.
-<3> Limit diff output to named subtrees.
+<1> Csak a módosítást, átnevezést és másolást mutatja, a hozzáadást
+    vagy törlést nem.
+<2> Csak a neveket és a változás jellegét mutatja, a tényleges diff
+    kimenetét nem.
+<3> A diff kimenetét a megnevezett alfákra korlátozza.
 
-Munging the diff output::
+A diff kimenetének átalakítása::
 +
 ------------
 $ git diff --find-copies-harder -B -C  <1>
 $ git diff -R                          <2>
 ------------
 +
-<1> Spend extra cycles to find renames, copies and complete
-    rewrites (very expensive).
-<2> Output diff in reverse.
+<1> Extra ciklusokat fordít átnevezések, másolások és teljes
+    újraírások felderítésére (nagyon költséges).
+<2> A diffet fordított sorrendben írja ki.
 
 CONFIGURATION
 -------------
@@ -253,4 +255,4 @@ linkgit:git-show[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

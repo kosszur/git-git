@@ -3,7 +3,7 @@ git-diff-tree(1)
 
 NAME
 ----
-git-diff-tree - Compares the content and mode of blobs found via two tree objects
+git-diff-tree - Két fa (tree) objektumon keresztül talált blobok tartalmának és módjának összehasonlítása
 
 
 SYNOPSIS
@@ -15,111 +15,112 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Compare the content and mode of blobs found via two tree objects.
+Két fa (tree) objektumon keresztül talált blobok tartalmát és módját hasonlítja össze.
 
-If there is only one <tree-ish> given, the commit is compared with its parents
-(see --stdin below).
+Ha csak egyetlen <tree-ish> van megadva, a commit a szüleivel kerül összehasonlításra
+(lásd lent a --stdin opciót).
 
-Note that 'git diff-tree' can use the tree encapsulated in a commit object.
+Vegyük figyelembe, hogy a 'git diff-tree' képes felhasználni a commit objektumba
+zárt fát is.
 
 OPTIONS
 -------
 include::diff-options.adoc[]
 
 <tree-ish>::
-	The id of a tree object.
+	Egy fa objektum azonosítója.
 
 <path>...::
-	If provided, the results are limited to a subset of files
-	matching one of the provided pathspecs.
+	Ha meg van adva, az eredmények a megadott pathspecek valamelyikére
+	illeszkedő fájlok részhalmazára korlátozódnak.
 
 -r::
-	Recurse into sub-trees.
+	Rekurzió az alfákba.
 
 -t::
-	Show tree entry itself as well as subtrees.  Implies -r.
+	Magát a fa-bejegyzést is megjeleníti, az alfákon kívül. A -r-t
+	implikálja.
 
 --root::
-	When `--root` is specified the initial commit will be shown as a big
-	creation event. This is equivalent to a diff against the NULL tree.
+	Ha a `--root` meg van adva, a kezdeti commit egy nagy létrehozási
+	eseményként jelenik meg. Ez egyenértékű a NULL fával szembeni diffel.
 
 --merge-base::
-	Instead of comparing the <tree-ish>s directly, use the merge
-	base between the two <tree-ish>s as the "before" side.  There
-	must be two <tree-ish>s given and they must both be commits.
+	Ahelyett, hogy közvetlenül hasonlítaná össze a <tree-ish>-eket, a
+	két <tree-ish> közötti merge-alapot használja "előtte" oldalként.
+	Két <tree-ish>-t kell megadni, és mindkettőnek commitnak kell lennie.
 
 --stdin::
-	When `--stdin` is specified, the command does not take
-	<tree-ish> arguments from the command line.  Instead, it
-	reads lines containing either two <tree>, one <commit>, or a
-	list of <commit> from its standard input.  (Use a single space
-	as separator.)
+	Ha a `--stdin` meg van adva, a parancs nem a parancssorból veszi a
+	<tree-ish> argumentumokat. Ehelyett a standard bemenetéről olvas be
+	sorokat, amelyek vagy két <tree>-t, egy <commit>-ot, vagy egy
+	<commit>-lista tartalmaznak. (Elválasztóként egyetlen szóközt
+	használj.)
 +
-When two trees are given, it compares the first tree with the second.
-When a single commit is given, it compares the commit with its
-parents.  The remaining commits, when given, are used as if they are
-parents of the first commit.
+Ha két fa van megadva, az elsőt a másodikkal hasonlítja össze. Ha egyetlen
+commit van megadva, a commitot a szüleivel hasonlítja össze. A további,
+megadott commitok úgy kerülnek felhasználásra, mintha az első commit
+szülei lennének.
 +
-When comparing two trees, the ID of both trees (separated by a space
-and terminated by a newline) is printed before the difference.  When
-comparing commits, the ID of the first (or only) commit, followed by a
-newline, is printed.
+Két fa összehasonlításakor mindkét fa azonosítója (szóközzel elválasztva,
+és sortöréssel lezárva) kiíródik a különbség előtt. Commitok
+összehasonlításakor az első (vagy egyetlen) commit azonosítója kerül
+kiírásra, majd egy sortörés.
 +
-The following flags further affect the behavior when comparing
-commits (but not trees).
+Az alábbi kapcsolók további hatással vannak a viselkedésre commitok
+összehasonlításakor (de fák esetén nem).
 
 -m::
-	By default, 'git diff-tree --stdin' does not show
-	differences for merge commits.  With this flag, it shows
-	differences to that commit from all of its parents. See
-	also `-c`.
+	Alapértelmezés szerint a 'git diff-tree --stdin' nem mutatja a merge
+	commitok különbségeit. E kapcsolóval megmutatja az adott commithoz
+	tartozó, az összes szülőjéhez viszonyított különbségeket. Lásd még
+	a `-c`-t is.
 
 -s::
-	By default, 'git diff-tree --stdin' shows differences,
-	either in machine-readable form (without `-p`) or in patch
-	form (with `-p`).  This output can be suppressed.  It is
-	only useful with the `-v` flag.
+	Alapértelmezés szerint a 'git diff-tree --stdin' megmutatja a
+	különbségeket, akár géppel olvasható formában (a `-p` nélkül), akár
+	patch formában (a `-p`-vel). Ez a kimenet elnyomható. Csak a `-v`
+	kapcsolóval együtt hasznos.
 
 -v::
-	This flag causes 'git diff-tree --stdin' to also show
-	the commit message before the differences.
+	E kapcsoló hatására a 'git diff-tree --stdin' a különbségek előtt a
+	commit-üzenetet is megjeleníti.
 
 include::pretty-options.adoc[]
 
 --no-commit-id::
-	'git diff-tree' outputs a line with the commit ID when
-	applicable.  This flag suppresses the commit ID output.
+	A 'git diff-tree' adott esetben egy sort ír ki a commit
+	azonosítójával. Ez a kapcsoló elnyomja a commit-azonosító kiírását.
 
 -c::
-	This flag changes the way a merge commit is displayed
-	(which means it is useful only when the command is given
-	one <tree-ish>, or `--stdin`).  It shows the differences
-	from each of the parents to the merge result simultaneously
-	instead of showing pairwise diff between a parent and the
-	result one at a time (which is what the `-m` option does).
-	Furthermore, it lists only files which were modified
-	from all parents.
+	Ez a kapcsoló megváltoztatja a merge commit megjelenítésének módját
+	(ami azt jelenti, hogy csak akkor hasznos, ha a parancsnak egyetlen
+	<tree-ish>, vagy a `--stdin` van megadva). Egyidejűleg mutatja a
+	különbségeket az egyes szülőktől a merge eredményéig, ahelyett hogy
+	páronként, egyszerre egy szülő és az eredmény közötti diffet mutatná
+	(ahogy azt a `-m` opció teszi). Továbbá csak azokat a fájlokat
+	sorolja fel, amelyek az összes szülőhöz képest módosultak.
 
 --cc::
-	This flag changes the way a merge commit patch is displayed,
-	in a similar way to the `-c` option. It implies the `-c`
-	and `-p` options and further compresses the patch output
-	by omitting uninteresting hunks whose contents in the parents
-	have only two variants and the merge result picks one of them
-	without modification.  When all hunks are uninteresting, the commit
-	itself and the commit log message are not shown, just like in any other
-	"empty diff" case.
+	Ez a kapcsoló a `-c` opcióhoz hasonló módon megváltoztatja a merge
+	commit patch-jének megjelenítését. Implikálja a `-c` és a `-p`
+	opciókat, és tovább tömöríti a patch kimenetét azáltal, hogy kihagyja
+	azokat az érdektelen hunkokat, amelyek tartalmának a szülőkben csak
+	két változata van, és a merge eredménye módosítás nélkül az egyiket
+	választja. Ha minden hunk érdektelen, sem maga a commit, sem a
+	napló-üzenete nem jelenik meg, ahogy bármelyik másik "üres diff"
+	esetben sem.
 
 --combined-all-paths::
-	This flag causes combined diffs (used for merge commits) to
-	list the name of the file from all parents.  It thus only has
-	effect when -c or --cc are specified, and is likely only
-	useful if filename changes are detected (i.e. when either
-	rename or copy detection have been requested).
+	Ez a kapcsoló hatására a kombinált diffek (amelyeket a merge
+	commitoknál használ) az összes szülőtől megjelenítik a fájl nevét.
+	Ezért csak akkor van hatása, ha a -c vagy a --cc meg van adva, és
+	valószínűleg csak akkor hasznos, ha fájlnév-változásokat észlel
+	(azaz ha átnevezés- vagy másolás-észlelést kértek).
 
 --always::
-	Show the commit itself and the commit log message even
-	if the diff itself is empty.
+	Megjeleníti magát a commitot és a napló-üzenetét akkor is, ha maga
+	a diff üres.
 
 
 include::pretty-formats.adoc[]
@@ -128,4 +129,4 @@ include::diff-format.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-diff-files(1)
 
 NAME
 ----
-git-diff-files - Compares files in the working tree and the index
+git-diff-files - Összehasonlítja a munkakönyvtárban és az indexben lévő fájlokat
 
 
 SYNOPSIS
@@ -13,10 +13,11 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Compares the files in the working tree and the index.  When paths
-are specified, compares only those named paths.  Otherwise all
-entries in the index are compared.  The output format is the
-same as for 'git diff-index' and 'git diff-tree'.
+Összehasonlítja a munkakönyvtárban és az indexben lévő fájlokat.  Ha
+útvonalak vannak megadva, csak a megnevezett útvonalakat hasonlítja
+össze.  Egyébként az index összes bejegyzését összehasonlítja.  A
+kimeneti formátum megegyezik a 'git diff-index' és a 'git diff-tree'
+parancséval.
 
 OPTIONS
 -------
@@ -26,27 +27,28 @@ include::diff-options.adoc[]
 -2 --ours::
 -3 --theirs::
 -0::
-	Diff against the "base" version, "our branch", or "their
-	branch" respectively.  With these options, diffs for
-	merged entries are not shown.
+	A diffet rendre a "base" verzióhoz, a "saját branch"-hez vagy a
+	"másik branch"-hez képest készíti.  Ezekkel az opciókkal a
+	merge-elt bejegyzésekhez tartozó diffek nem jelennek meg.
 +
-The default is to diff against our branch (-2) and the
-cleanly resolved paths.  The option -0 can be given to
-omit diff output for unmerged entries and just show "Unmerged".
+Alapértelmezés szerint a diff a saját branch-hez (-2) és a tisztán
+feloldott útvonalakhoz képest készül.  A -0 opció megadásával a
+merge-eletlen bejegyzésekhez tartozó diff-kimenet elhagyható, és
+helyette csak az "Unmerged" felirat jelenik meg.
 
 -c::
 --cc::
-	This compares stage 2 (our branch), stage 3 (their
-	branch), and the working tree file and outputs a combined
-	diff, similar to the way 'diff-tree' shows a merge
-	commit with these flags.
+	Ez összehasonlítja a 2. stage-et (saját branch), a 3. stage-et
+	(másik branch) és a munkakönyvtárbeli fájlt, majd egy kombinált
+	diffet ír ki, hasonlóan ahhoz, ahogyan a 'diff-tree' ezekkel a
+	kapcsolókkal egy merge-commitot megjelenít.
 
 -q::
-	Remain silent even for nonexistent files
+	Csendben marad még a nem létező fájlok esetén is
 
 
 include::diff-format.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

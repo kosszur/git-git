@@ -3,7 +3,7 @@ git-diagnose(1)
 
 NAME
 ----
-git-diagnose - Generate a zip archive of diagnostic information
+git-diagnose - Zip archívum generálása diagnosztikai információkból
 
 SYNOPSIS
 --------
@@ -13,53 +13,54 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Collects detailed information about the user's machine, Git client, and
-repository state and packages that information into a zip archive. The
-generated archive can then, for example, be shared with the Git mailing list to
-help debug an issue or serve as a reference for independent debugging.
+Részletes információt gyűjt a felhasználó gépéről, a Git klienséről és a
+repository állapotáról, majd ezt az információt egy zip archívumba csomagolja.
+A létrehozott archívum ezután például megosztható a Git levelezőlistán egy
+hiba felderítésének segítésére, vagy referenciaként szolgálhat a független
+hibakereséshez.
 
-By default, the following information is captured in the archive:
+Alapértelmezés szerint a következő információk kerülnek be az archívumba:
 
   * 'git version --build-options'
-  * The path to the repository root
-  * The available disk space on the filesystem
-  * The name and size of each packfile, including those in alternate object
-    stores
-  * The total count of loose objects, as well as counts broken down by
-    `.git/objects` subdirectory
+  * A repository gyökerének útvonala
+  * A fájlrendszeren elérhető szabad lemezterület
+  * Az egyes packfile-ok neve és mérete, beleértve az alternatív
+    objektumtárolókban lévőket is
+  * A laza objektumok teljes száma, valamint a `.git/objects` alkönyvtárak
+    szerinti bontásban is
 
-Additional information can be collected by selecting a different diagnostic mode
-using the `--mode` option.
+A `--mode` opcióval kiválasztott másik diagnosztikai mód segítségével további
+információ is gyűjthető.
 
-This tool differs from linkgit:git-bugreport[1] in that it collects much more
-detailed information with a greater focus on reporting the size and data shape
-of repository contents.
+Ez az eszköz abban különbözik a linkgit:git-bugreport[1] parancstól, hogy
+jóval részletesebb információt gyűjt, nagyobb hangsúlyt fektetve a repository
+tartalmának méretére és adatformájára vonatkozó jelentésre.
 
 OPTIONS
 -------
 -o <path>::
 --output-directory <path>::
-	Place the resulting diagnostics archive in `<path>` instead of the
-	current directory.
+	A létrejövő diagnosztikai archívumot a `<path>` helyre teszi az aktuális
+	könyvtár helyett.
 
 -s <format>::
 --suffix <format>::
-	Specify an alternate suffix for the diagnostics archive name, to create
-	a file named 'git-diagnostics-<formatted-suffix>'. This should take the
-	form of a strftime(3) format string; the current local time will be
-	used.
+	A diagnosztikai archívum nevéhez alternatív utótagot ad meg, hogy egy
+	'git-diagnostics-<formázott-utótag>' nevű fájl jöjjön létre. Ennek egy
+	strftime(3) formátumú karakterlánc alakját kell felvennie; a jelenlegi
+	helyi idő kerül felhasználásra.
 
 --mode=(stats|all)::
-	Specify the type of diagnostics that should be collected. The default behavior
-	of 'git diagnose' is equivalent to `--mode=stats`.
+	Megadja a gyűjtendő diagnosztika típusát. A 'git diagnose' alapértelmezett
+	viselkedése megegyezik a `--mode=stats` opcióéval.
 +
-The `--mode=all` option collects everything included in `--mode=stats`, as well
-as copies of `.git`, `.git/hooks`, `.git/info`, `.git/logs`, and
-`.git/objects/info` directories. This additional information may be sensitive,
-as it can be used to reconstruct the full contents of the diagnosed repository.
-Users should exercise caution when sharing an archive generated with
-`--mode=all`.
+A `--mode=all` opció mindent begyűjt, amit a `--mode=stats`, ezen felül a
+`.git`, `.git/hooks`, `.git/info`, `.git/logs` és `.git/objects/info`
+könyvtárak másolatait is. Ez a további információ érzékeny lehet, mivel
+felhasználható a diagnosztizált repository teljes tartalmának
+rekonstruálására. A felhasználóknak óvatosnak kell lenniük, amikor egy
+`--mode=all` opcióval létrehozott archívumot megosztanak.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
