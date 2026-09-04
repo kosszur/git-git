@@ -3,7 +3,7 @@ git-checkout(1)
 
 NAME
 ----
-git-checkout - Switch branches or restore working tree files
+git-checkout - Branchek váltása vagy munkakönyvtár-fájlok visszaállítása
 
 SYNOPSIS
 --------
@@ -21,362 +21,385 @@ git checkout (-p|--patch) [<tree-ish>] [--] [<pathspec>...]
 DESCRIPTION
 -----------
 
-`git checkout` has two main modes:
+A `git checkout`-nak két fő módja van:
 
-1. **Switch branches**, with `git checkout <branch>`
-2. **Restore a different version of a file**, for example with
-   `git checkout <commit> <filename>` or `git checkout <filename>`
+1. **Branchváltás**, a `git checkout <branch>` paranccsal
+2. **Egy fájl másik verziójának visszaállítása**, például a
+   `git checkout <commit> <filename>` vagy a `git checkout <filename>` paranccsal
 
-See ARGUMENT DISAMBIGUATION below for how Git decides which one to do.
+Lásd lentebb az ARGUMENT DISAMBIGUATION szakaszt, hogy megtudd, hogyan
+dönti el a Git, melyiket teszi.
 
 `git checkout [<branch>]`::
-	Switch to _<branch>_. This sets the current branch to _<branch>_ and
-	updates the files in your working directory. The checkout will fail
-	if there are uncommitted changes to any files where _<branch>_ and
-	your current commit have different content. Uncommitted changes will
-	otherwise be kept.
+	Átváltás a(z) _<branch>_ branchre. Ez beállítja az aktuális branchet
+	a(z) _<branch>_-re, és frissíti a munkakönyvtárad fájljait. A checkout
+	meghiúsul, ha vannak nem commitolt módosítások olyan fájlokban,
+	amelyeknél a(z) _<branch>_ és a jelenlegi commitod tartalma eltér.
+	Egyéb esetben a nem commitolt módosítások megmaradnak.
 +
-If _<branch>_ is not found but there does exist a tracking branch in
-exactly one remote (call it _<remote>_) with a matching name and
-`--no-guess` is not specified, treat as equivalent to
+Ha a(z) _<branch>_ nem található, de pontosan egy remote-on (nevezzük
+_<remote>_-nak) létezik egy egyező nevű tracking branch, és a
+`--no-guess` nincs megadva, ez ezzel egyenértékűnek tekintendő:
 +
 ------------
 $ git checkout -b <branch> --track <remote>/<branch>
 ------------
 +
-Running `git checkout` without specifying a branch has no effect except
-to print out the tracking information for the current branch.
+A `git checkout` branch megadása nélküli futtatásának nincs más hatása,
+mint hogy kiírja az aktuális branch tracking-információját.
 
 `git checkout -b <new-branch> [<start-point>]`::
 
-	Create a new branch named _<new-branch>_, start it at _<start-point>_
-	(defaults to the current commit), and check out the new branch.
-	You can use the `--track` or `--no-track` options to set the branch's
-	upstream tracking information.
+	Létrehoz egy _<new-branch>_ nevű új branchet, elindítja a
+	_<start-point>_-nál (alapértelmezés szerint az aktuális commitnál),
+	és átvált az új branchre. A `--track` vagy a `--no-track` opciókkal
+	beállíthatod a branch upstream tracking-információját.
 +
-This will fail if there's an error checking out _<new-branch>_, for
-example if checking out the `<start-point>` commit would overwrite your
-uncommitted changes.
+Ez meghiúsul, ha hiba történik a _<new-branch>_ checkoutolásakor, például
+ha a `<start-point>` commit checkoutolása felülírná a nem commitolt
+módosításaidat.
 
 `git checkout -B <branch> [<start-point>]`::
 
-	The same as `-b`, except that if the branch already exists it
-	resets _<branch>_ to the start point instead of failing.
+	Ugyanaz, mint a `-b`, azzal a különbséggel, hogy ha a branch már
+	létezik, a _<branch>_-et a kezdőpontra állítja vissza, ahelyett
+	hogy meghiúsulna.
 
 `git checkout --detach [<branch>]`::
 `git checkout [--detach] <commit>`::
 
-	The same as `git checkout <branch>`, except that instead of pointing
-	`HEAD` at the branch, it points `HEAD` at the commit ID.
-	See the "DETACHED HEAD" section below for more.
+	Ugyanaz, mint a `git checkout <branch>`, azzal a különbséggel, hogy
+	nem a branchre mutatja a `HEAD`-et, hanem a commit ID-ra.
+	Lásd lentebb a „DETACHED HEAD" szakaszt a részletekért.
 +
-Omitting _<branch>_ detaches `HEAD` at the tip of the current branch.
+A _<branch>_ elhagyása leválasztja a `HEAD`-et az aktuális branch
+csúcsánál.
 
 `git checkout <tree-ish> [--] <pathspec>...`::
 `git checkout <tree-ish> --pathspec-from-file=<file> [--pathspec-file-nul]`::
 
-	Replace the specified files and/or directories with the version from
-	the given commit or tree and add them to the index
-	(also known as "staging area").
+	Lecseréli a megadott fájlokat és/vagy könyvtárakat a megadott
+	commitból vagy fából származó verzióra, és hozzáadja őket az
+	indexhez (más néven „staging area"-hoz).
 +
-For example, `git checkout main file.txt` will replace `file.txt`
-with the version from `main`.
+Például a `git checkout main file.txt` a `file.txt`-t a `main`-ből
+származó verzióra cseréli.
 
 `git checkout [-f|--ours|--theirs|-m|--conflict=<style>] [--] <pathspec>...`::
 `git checkout [-f|--ours|--theirs|-m|--conflict=<style>] --pathspec-from-file=<file> [--pathspec-file-nul]`::
 
-	Replace the specified files and/or directories with the version from
-	the index.
+	Lecseréli a megadott fájlokat és/vagy könyvtárakat az indexből
+	származó verzióra.
 +
-For example, if you check out a commit, edit `file.txt`, and then
-decide those changes were a mistake, `git checkout file.txt` will
-discard any unstaged changes to `file.txt`.
+Például, ha checkoutolsz egy commitot, szerkeszted a `file.txt`-t, majd
+úgy döntesz, hogy ezek a módosítások tévesek voltak, a `git checkout
+file.txt` eldobja a `file.txt` staging area-ba nem került módosításait.
 +
-This will fail if the file has a merge conflict and you haven't yet run
-`git add file.txt` (or something equivalent) to mark it as resolved.
-You can use `-f` to ignore the unmerged files instead of failing, use
-`--ours` or `--theirs` to replace them with the version from a specific
-side of the merge, or use `-m` to replace them with the original
-conflicted merge result.
+Ez meghiúsul, ha a fájlnak merge-konfliktusa van, és még nem futtattad
+a `git add file.txt`-t (vagy valami hasonlót), hogy megjelöld
+megoldottként. A `-f` opcióval hiba helyett figyelmen kívül hagyhatod
+az egyesítetlen fájlokat, a `--ours` vagy a `--theirs` opcióval a merge
+egy adott oldaláról származó verzióra cserélheted őket, vagy a `-m`
+opcióval az eredeti, konfliktusos merge-eredményre cserélheted őket.
 
 `git checkout (-p|--patch) [<tree-ish>] [--] [<pathspec>...]`::
-	This is similar to the previous two modes, but lets you use the
-	interactive interface to show the "diff" output and choose which
-	hunks to use in the result.  See below for the description of
-	`--patch` option.
+	Hasonló az előző két módhoz, de lehetővé teszi, hogy az interaktív
+	felülettel megjelenítsd a „diff" kimenetet, és kiválaszd, mely
+	hunkokat használod az eredményben. A `--patch` opció leírását
+	lásd lentebb.
 
 OPTIONS
 -------
 `-q`::
 `--quiet`::
-	Quiet, suppress feedback messages.
+	Csendes mód, elnyomja a visszajelző üzeneteket.
 
 `--progress`::
 `--no-progress`::
-	Progress status is reported on the standard error stream
-	by default when it is attached to a terminal, unless `--quiet`
-	is specified. This flag enables progress reporting even if not
-	attached to a terminal, regardless of `--quiet`.
+	A folyamat állapota alapértelmezés szerint a standard hibakimeneti
+	folyamon jelenik meg, ha az terminálhoz van csatlakoztatva, hacsak
+	a `--quiet` nincs megadva. Ez a kapcsoló a folyamatjelzést akkor is
+	engedélyezi, ha a kimenet nincs terminálhoz csatlakoztatva, a
+	`--quiet`-től függetlenül.
 
 `-f`::
 `--force`::
-	When switching branches, proceed even if the index or the
-	working tree differs from `HEAD`, and even if there are untracked
-	files in the way.  This is used to throw away local changes and
-	any untracked files or directories that are in the way.
+	Branchváltáskor akkor is folytatja, ha az index vagy a
+	munkakönyvtár eltér a `HEAD`-től, és akkor is, ha nem követett
+	fájlok vannak útban. Ezzel eldobhatók a helyi módosítások és az
+	útban lévő nem követett fájlok vagy könyvtárak.
 +
-When checking out paths from the index, do not fail upon unmerged
-entries; instead, unmerged entries are ignored.
+Az index útvonalainak checkoutolásakor nem hiúsul meg egyesítetlen
+bejegyzések esetén; ehelyett az egyesítetlen bejegyzések figyelmen
+kívül maradnak.
 
 `--ours`::
 `--theirs`::
-	When checking out paths from the index, check out stage #2
-	(`ours`) or #3 (`theirs`) for unmerged paths.
+	Az index útvonalainak checkoutolásakor az egyesítetlen útvonalaknál
+	a #2. (`ours`) vagy a #3. (`theirs`) stage-et checkoutolja.
 +
-Note that during `git rebase` and `git pull --rebase`, `ours` and
-`theirs` may appear swapped; `--ours` gives the version from the
-branch the changes are rebased onto, while `--theirs` gives the
-version from the branch that holds your work that is being rebased.
+Vedd figyelembe, hogy a `git rebase` és a `git pull --rebase` során az
+`ours` és a `theirs` felcserélve tűnhet: a `--ours` azt a verziót adja,
+amely arról a branchről származik, amelyre a módosítások rebase-elve
+lettek, míg a `--theirs` azt a verziót adja, amely arról a branchről
+származik, amely a rebase-elés alatt álló munkádat tartalmazza.
 +
-This is because `rebase` is used in a workflow that treats the
-history at the remote as the shared canonical one, and treats the
-work done on the branch you are rebasing as the third-party work to
-be integrated, and you are temporarily assuming the role of the
-keeper of the canonical history during the rebase.  As the keeper of
-the canonical history, you need to view the history from the remote
-as `ours` (i.e. "our shared canonical history"), while what you did
-on your side branch as `theirs` (i.e. "one contributor's work on top
-of it").
+Ennek az az oka, hogy a `rebase`-t olyan munkafolyamatban használják,
+amely a remote-on lévő történetet közös, kanonikus történetként
+kezeli, a rebase-elt branchen végzett munkát pedig harmadik féltől
+származó, integrálandó munkaként, és a rebase alatt te ideiglenesen a
+kanonikus történet őrzőjének szerepét veszed fel. A kanonikus történet
+őrzőjeként a remote-ról származó történetet `ours`-ként kell látnod
+(azaz „a közös kanonikus történetünk"), míg a saját oldalágadon
+végzett munkát `theirs`-ként (azaz „az egyik közreműködő munkája
+rátéve").
 
 `-b <new-branch>`::
-	Create a new branch named _<new-branch>_, start it at
-	_<start-point>_, and check the resulting branch out;
-	see linkgit:git-branch[1] for details.
+	Létrehoz egy _<new-branch>_ nevű új branchet, elindítja a
+	_<start-point>_-nál, és checkoutolja az eredményül kapott branchet;
+	a részletekért lásd a linkgit:git-branch[1] parancsot.
 
 `-B <new-branch>`::
-	The same as `-b`, except that if the branch already exists it
-	resets _<branch>_ to the start point instead of failing.
+	Ugyanaz, mint a `-b`, azzal a különbséggel, hogy ha a branch már
+	létezik, a _<branch>_-et a kezdőpontra állítja vissza, ahelyett
+	hogy meghiúsulna.
 
 `-t`::
 `--track[=(direct|inherit)]`::
-	When creating a new branch, set up "upstream" configuration. See
-	`--track` in linkgit:git-branch[1] for details. As a convenience,
-	--track without -b implies branch creation.
+	Új branch létrehozásakor beállítja az „upstream" konfigurációt. A
+	részletekért lásd a `--track`-et a linkgit:git-branch[1] parancsban.
+	Kényelmi megoldásként a --track -b nélkül branch létrehozását
+	vonja maga után.
 +
-If no `-b` option is given, the name of the new branch will be
-derived from the remote-tracking branch, by looking at the local part of
-the refspec configured for the corresponding remote, and then stripping
-the initial part up to the "*".
-This would tell us to use `hack` as the local branch when branching
-off of `origin/hack` (or `remotes/origin/hack`, or even
-`refs/remotes/origin/hack`).  If the given name has no slash, or the above
-guessing results in an empty name, the guessing is aborted.  You can
-explicitly give a name with `-b` in such a case.
+Ha nincs megadva `-b` opció, az új branch neve a remote-tracking
+branchből származik: a megfelelő remote-hoz konfigurált refspec helyi
+részét nézi meg, majd levágja a kezdő részt a „*"-ig.
+Ez azt mondaná nekünk, hogy `hack`-et használjuk helyi branchként, ha az
+`origin/hack`-ből (vagy a `remotes/origin/hack`-ből, vagy akár a
+`refs/remotes/origin/hack`-ből) ágaztatunk le. Ha a megadott névben
+nincs perjel, vagy a fenti tippelés üres nevet eredményez, a tippelés
+megszakad. Ilyen esetben a `-b`-vel explicit módon megadhatsz egy nevet.
 
 `--no-track`::
-	Do not set up "upstream" configuration, even if the
-	`branch.autoSetupMerge` configuration variable is true.
+	Nem állítja be az „upstream" konfigurációt, még akkor sem, ha a
+	`branch.autoSetupMerge` konfigurációs változó igazra van állítva.
 
 `--guess`::
 `--no-guess`::
-	If _<branch>_ is not found but there does exist a tracking
-	branch in exactly one remote (call it _<remote>_) with a
-	matching name, treat as equivalent to
+	Ha a _<branch>_ nem található, de pontosan egy remote-on (nevezzük
+	_<remote>_-nak) létezik egy egyező nevű tracking branch, ezzel
+	egyenértékűnek kezeli:
 +
 ------------
 $ git checkout -b <branch> --track <remote>/<branch>
 ------------
 +
-If the branch exists in multiple remotes and one of them is named by
-the `checkout.defaultRemote` configuration variable, we'll use that
-one for the purposes of disambiguation, even if the _<branch>_ isn't
-unique across all remotes. Set it to
-e.g. `checkout.defaultRemote=origin` to always checkout remote
-branches from there if _<branch>_ is ambiguous but exists on the
-'origin' remote. See also `checkout.defaultRemote` in
-linkgit:git-config[1].
+Ha a branch több remote-on is létezik, és ezek egyikét a
+`checkout.defaultRemote` konfigurációs változó nevezi meg, akkor azt
+fogjuk használni az egyértelműsítéshez, még akkor is, ha a _<branch>_
+nem egyedi az összes remote között. Állítsd be pl.
+`checkout.defaultRemote=origin`-re, hogy mindig onnan checkoutold a
+remote brancheket, ha a _<branch>_ nem egyértelmű, de létezik az
+'origin' remote-on. Lásd még a `checkout.defaultRemote`-ot a
+linkgit:git-config[1] parancsban.
 +
-`--guess` is the default behavior. Use `--no-guess` to disable it.
+A `--guess` az alapértelmezett viselkedés. Használd a `--no-guess`-t a
+kikapcsolásához.
 +
-The default behavior can be set via the `checkout.guess` configuration
-variable.
+Az alapértelmezett viselkedés a `checkout.guess` konfigurációs
+változóval állítható be.
 
 `-l`::
-	Create the new branch's reflog; see linkgit:git-branch[1] for
-	details.
+	Létrehozza az új branch reflogját; a részletekért lásd a
+	linkgit:git-branch[1] parancsot.
 
 `-d`::
 `--detach`::
-	Rather than checking out a branch to work on it, check out a
-	commit for inspection and discardable experiments.
-	This is the default behavior of `git checkout <commit>` when
-	_<commit>_ is not a branch name.  See the "DETACHED HEAD" section
-	below for details.
+	Ahelyett, hogy egy branchet checkoutolna a rajta végzett munkához,
+	egy commitot checkoutol vizsgálatra és eldobható kísérletekhez.
+	Ez a `git checkout <commit>` alapértelmezett viselkedése, ha a
+	_<commit>_ nem branchnév. A részletekért lásd a „DETACHED HEAD"
+	szakaszt lentebb.
 
 `--orphan <new-branch>`::
-	Create a new unborn branch, named _<new-branch>_, started from
-	_<start-point>_ and switch to it.  The first commit made on this
-	new branch will have no parents and it will be the root of a new
-	history totally disconnected from all the other branches and
-	commits.
+	Létrehoz egy _<new-branch>_ nevű új, meg nem született branchet a
+	_<start-point>_-ból kiindulva, és átvált rá. Az ezen az új
+	branchen létrehozott első commitnak nem lesz szülője, és egy, az
+	összes többi branchtől és committól teljesen elválasztott új
+	történet gyökere lesz.
 +
-The index and the working tree are adjusted as if you had previously run
-`git checkout <start-point>`.  This allows you to start a new history
-that records a set of paths similar to _<start-point>_ by easily running
-`git commit -a` to make the root commit.
+Az index és a munkakönyvtár úgy módosul, mintha korábban futtattad
+volna a `git checkout <start-point>` parancsot. Ez lehetővé teszi, hogy
+egy, a _<start-point>_-hoz hasonló útvonalkészletet rögzítő új
+történetet indíts el a `git commit -a` egyszerű futtatásával, hogy
+létrehozd a gyökércommitot.
 +
-This can be useful when you want to publish the tree from a commit
-without exposing its full history. You might want to do this to publish
-an open source branch of a project whose current tree is "clean", but
-whose full history contains proprietary or otherwise encumbered bits of
-code.
+Ez akkor lehet hasznos, ha egy commit fáját szeretnéd publikálni a
+teljes történet felfedése nélkül. Erre szükség lehet egy olyan projekt
+nyílt forráskódú branchének publikálásakor, amelynek aktuális fája
+„tiszta", de a teljes története proprietary vagy más módon
+korlátozott kódrészleteket tartalmaz.
 +
-If you want to start a disconnected history that records a set of paths
-that is totally different from the one of _<start-point>_, then you should
-clear the index and the working tree right after creating the orphan
-branch by running `git rm -rf .` from the top level of the working tree.
-Afterwards you will be ready to prepare your new files, repopulating the
-working tree, by copying them from elsewhere, extracting a tarball, etc.
+Ha egy, a _<start-point>_-étól teljesen eltérő útvonalkészletet
+rögzítő, elválasztott történetet szeretnél indítani, akkor az orphan
+branch létrehozása után azonnal ki kell ürítened az indexet és a
+munkakönyvtárat a `git rm -rf .` futtatásával a munkakönyvtár
+legfelső szintjéről. Ezután készen állsz az új fájljaid előkészítésére,
+a munkakönyvtár újbóli feltöltésére, például máshonnan másolva őket,
+egy tarballt kicsomagolva stb.
 
 `--ignore-skip-worktree-bits`::
-	In sparse checkout mode, `git checkout -- <path>...` would
-	update only entries matched by _<paths>_ and sparse patterns
-	in `$GIT_DIR/info/sparse-checkout`. This option ignores
-	the sparse patterns and adds back any files in `<path>...`.
+	Sparse checkout módban a `git checkout -- <path>...` csak a
+	_<paths>_ és a `$GIT_DIR/info/sparse-checkout`-beli sparse minták
+	által egyezett bejegyzéseket frissítené. Ez az opció figyelmen
+	kívül hagyja a sparse mintákat, és visszaadja a `<path>...`-ban
+	lévő összes fájlt.
 
 `-m`::
 `--merge`::
-	When switching branches,
-	if you have local modifications to one or more files that
-	are different between the current branch and the branch to
-	which you are switching, the command refuses to switch
-	branches in order to preserve your modifications in context.
-	With this option, the conflicting local changes are
-	automatically stashed before the switch and reapplied
-	afterwards.  If the local changes do not overlap with the
-	differences between branches, the switch proceeds without
-	stashing.  If reapplying the stash results in conflicts, the
-	entry is saved to the stash list.  Resolve the conflicts
-	and run `git stash drop` when done, or clear the working
-	tree (e.g. with `git reset --hard`) before running `git stash
-	pop` later to re-apply your changes.
+	Branchváltáskor, ha egy vagy több olyan fájlban vannak helyi
+	módosításaid, amelyek eltérnek az aktuális branch és az az között,
+	amelyre váltasz, a parancs megtagadja a branchváltást, hogy a
+	módosításaidat a kontextusukban megőrizze. Ezzel az opcióval a
+	konfliktusos helyi módosítások automatikusan stashelve lesznek a
+	váltás előtt, majd újra alkalmazva utána. Ha a helyi módosítások
+	nem fedik egymást a branchek közötti eltérésekkel, a váltás
+	stashelés nélkül végbemegy. Ha a stash újbóli alkalmazása
+	konfliktusokat eredményez, a bejegyzés elmentődik a stash-listába.
+	Oldd meg a konfliktusokat, és futtasd a `git stash drop`-ot, ha
+	kész vagy, vagy ürítsd ki a munkakönyvtárat (pl. a `git reset
+	--hard`-dal), mielőtt később futtatnád a `git stash pop`-ot a
+	módosításaid újbóli alkalmazásához.
 +
-When checking out paths from the index, this option lets you recreate
-the conflicted merge in the specified paths.  This option cannot be
-used when checking out paths from a tree-ish.
+Az index útvonalainak checkoutolásakor ez az opció lehetővé teszi a
+konfliktusos merge újralétrehozását a megadott útvonalakban. Ez az
+opció nem használható tree-ish-ből történő útvonal-checkoutoláskor.
 
 `--conflict=<style>`::
-	The same as `--merge` option above, but changes the way the
-	conflicting hunks are presented, overriding the
-	`merge.conflictStyle` configuration variable.  Possible values are
-	`merge` (default), `diff3`, and `zdiff3`.
+	Ugyanaz, mint a fenti `--merge` opció, de megváltoztatja a
+	konfliktusos hunkok megjelenítésének módját, felülírva a
+	`merge.conflictStyle` konfigurációs változót. A lehetséges értékek:
+	`merge` (alapértelmezett), `diff3` és `zdiff3`.
 
 `-p`::
 `--patch`::
-	Interactively select hunks in the difference between the
-	_<tree-ish>_ (or the index, if unspecified) and the working
-	tree.  The chosen hunks are then applied in reverse to the
-	working tree (and if a _<tree-ish>_ was specified, the index).
+	Interaktívan kiválaszthatod a hunkokat a _<tree-ish>_ (vagy, ha
+	nincs megadva, az index) és a munkakönyvtár közötti eltérésben. A
+	kiválasztott hunkok ezután fordítottan kerülnek alkalmazásra a
+	munkakönyvtárra (és ha egy _<tree-ish>_ meg volt adva, az indexre
+	is).
 +
-This means that you can use `git checkout -p` to selectively discard
-edits from your current working tree. See the "Interactive Mode"
-section of linkgit:git-add[1] to learn how to operate the `--patch` mode.
+Ez azt jelenti, hogy a `git checkout -p` paranccsal szelektíven
+eldobhatod a szerkesztéseket az aktuális munkakönyvtáradból. A
+`--patch` mód kezeléséhez lásd a linkgit:git-add[1] „Interaktív mód"
+szakaszát.
 +
-Note that this option uses the no overlay mode by default (see also
-`--overlay`), and currently doesn't support overlay mode.
+Vedd figyelembe, hogy ez az opció alapértelmezés szerint a nem overlay
+módot használja (lásd még a `--overlay`-t), és jelenleg nem támogatja
+az overlay módot.
 
 include::diff-context-options.adoc[]
 
 `--ignore-other-worktrees`::
-	`git checkout` refuses when the wanted branch is already checked
-	out or otherwise in use by another worktree. This option makes
-	it check the branch out anyway. In other words, the branch can
-	be in use by more than one worktree.
+	A `git checkout` megtagadja a checkoutolást, ha a kívánt branch
+	már ki van csekkolva, vagy más módon egy másik worktree használja.
+	Ez az opció ennek ellenére checkoutolja a branchet. Más szóval, a
+	branchet egyszerre több worktree is használhatja.
 
 `--overwrite-ignore`::
 `--no-overwrite-ignore`::
-	Silently overwrite ignored files when switching branches. This
-	is the default behavior. Use `--no-overwrite-ignore` to abort
-	the operation when the new branch contains ignored files.
+	Branchváltáskor csendben felülírja a figyelmen kívül hagyott
+	fájlokat. Ez az alapértelmezett viselkedés. Használd a
+	`--no-overwrite-ignore`-t a művelet megszakításához, ha az új
+	branch figyelmen kívül hagyott fájlokat tartalmaz.
 
 `--recurse-submodules`::
 `--no-recurse-submodules`::
-	Using `--recurse-submodules` will update the content of all active
-	submodules according to the commit recorded in the superproject. If
-	local modifications in a submodule would be overwritten the checkout
-	will fail unless `-f` is used. If nothing (or `--no-recurse-submodules`)
-	is used, submodules working trees will not be updated.
-	Just like linkgit:git-submodule[1], this will detach `HEAD` of the
-	submodule.
+	A `--recurse-submodules` használata frissíti az összes aktív
+	submodule tartalmát a szuperprojektben rögzített commit szerint.
+	Ha egy submodule-ban lévő helyi módosítások felülíródnának, a
+	checkout meghiúsul, hacsak nem használod a `-f`-et. Ha semmi (vagy
+	a `--no-recurse-submodules`) nincs használva, a submodule-ok
+	munkakönyvtárai nem frissülnek. Csakúgy, mint a
+	linkgit:git-submodule[1], ez leválasztja a submodule `HEAD`-jét.
 
 `--overlay`::
 `--no-overlay`::
-	In the default overlay mode, `git checkout` never
-	removes files from the index or the working tree.  When
-	specifying `--no-overlay`, files that appear in the index and
-	working tree, but not in _<tree-ish>_ are removed, to make them
-	match _<tree-ish>_ exactly.
+	Az alapértelmezett overlay módban a `git checkout` soha nem
+	távolít el fájlokat az indexből vagy a munkakönyvtárból. A
+	`--no-overlay` megadásakor azok a fájlok, amelyek szerepelnek az
+	indexben és a munkakönyvtárban, de nem szerepelnek a
+	_<tree-ish>_-ben, eltávolításra kerülnek, hogy pontosan
+	megegyezzenek a _<tree-ish>_-vel.
 
 `--pathspec-from-file=<file>`::
-	Pathspec is passed in _<file>_ instead of commandline args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR_/_LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec parancssori argumentumok helyett a _<file>_-ban van
+	átadva. Ha a _<file>_ pontosan `-`, akkor a standard bemenet
+	kerül felhasználásra. A pathspec elemeket _LF_ vagy _CR_/_LF_
+	választja el. A pathspec elemek idézőjelezhetők a
+	`core.quotePath` konfigurációs változónál leírtak szerint (lásd
+	linkgit:git-config[1]). Lásd még a `--pathspec-file-nul`-t és a
+	globális `--literal-pathspecs`-et.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file`-fal együtt van jelentése. A
+	pathspec elemeket _NUL_ karakter választja el, és minden más
+	karakter szó szerint kerül értelmezésre (beleértve az
+	újsorokat és az idézőjeleket is).
 
 `<branch>`::
-	Branch to checkout; if it refers to a branch (i.e., a name that,
-	when prepended with "refs/heads/", is a valid ref), then that
-	branch is checked out. Otherwise, if it refers to a valid
-	commit, your `HEAD` becomes "detached" and you are no longer on
-	any branch (see below for details).
+	A checkoutolandó branch; ha branchre hivatkozik (azaz olyan névre,
+	amely a „refs/heads/" előtaggal kiegészítve érvényes referencia),
+	akkor az a branch kerül checkoutolásra. Egyébként, ha érvényes
+	commitra hivatkozik, a `HEAD`-ed „leválasztottá" válik, és már
+	nem vagy egyetlen branchen sem (a részletekért lásd lentebb).
 +
-You can use the `@{-N}` syntax to refer to the N-th last
-branch/commit checked out using "git checkout" operation. You may
-also specify `-` which is synonymous to `@{-1}`.
+Használhatod a `@{-N}` szintaxist, hogy az N-edik utoljára
+checkoutolt branchre/commitra hivatkozz a „git checkout" művelettel.
+Megadhatod a `-`-t is, ami a `@{-1}` szinonimája.
 +
-As a special case, you may use `<rev-a>...<rev-b>` as a shortcut for the
-merge base of _<rev-a>_ and _<rev-b>_ if there is exactly one merge base. You can
-leave out at most one of _<rev-a>_ and _<rev-b>_, in which case it defaults to `HEAD`.
+Speciális esetként a `<rev-a>...<rev-b>` alakot használhatod a
+_<rev-a>_ és a _<rev-b>_ merge-alapjának rövidítéseként, ha pontosan
+egy merge-alap létezik. A _<rev-a>_ és a _<rev-b>_ közül legfeljebb
+az egyiket hagyhatod el, ekkor annak alapértelmezése `HEAD` lesz.
 
 _<new-branch>_::
-	Name for the new branch.
+	Az új branch neve.
 
 _<start-point>_::
-	The name of a commit at which to start the new branch; see
-	linkgit:git-branch[1] for details. Defaults to `HEAD`.
+	Annak a commitnak a neve, amelynél az új branch elindul; a
+	részletekért lásd a linkgit:git-branch[1] parancsot. Az
+	alapértelmezés a `HEAD`.
 +
-As a special case, you may use `<rev-a>...<rev-b>` as a shortcut for the
-merge base of _<rev-a>_ and _<rev-b>_ if there is exactly one merge base. You can
-leave out at most one of _<rev-a>_ and _<rev-b>_, in which case it defaults to `HEAD`.
+Speciális esetként a `<rev-a>...<rev-b>` alakot használhatod a
+_<rev-a>_ és a _<rev-b>_ merge-alapjának rövidítéseként, ha pontosan
+egy merge-alap létezik. A _<rev-a>_ és a _<rev-b>_ közül legfeljebb
+az egyiket hagyhatod el, ekkor annak alapértelmezése `HEAD` lesz.
 
 _<tree-ish>_::
-	Tree to checkout from (when paths are given). If not specified,
-	the index will be used.
+	A fa, amelyből checkoutolni kell (ha útvonalak vannak megadva). Ha
+	nincs megadva, az index kerül felhasználásra.
 +
-As a special case, you may use `<rev-a>...<rev-b>` as a shortcut for the
-merge base of _<rev-a>_ and _<rev-b>_ if there is exactly one merge base. You can
-leave out at most one of _<rev-a>_ and _<rev-b>_, in which case it defaults to `HEAD`.
+Speciális esetként a `<rev-a>...<rev-b>` alakot használhatod a
+_<rev-a>_ és a _<rev-b>_ merge-alapjának rövidítéseként, ha pontosan
+egy merge-alap létezik. A _<rev-a>_ és a _<rev-b>_ közül legfeljebb
+az egyiket hagyhatod el, ekkor annak alapértelmezése `HEAD` lesz.
 
 `--`::
-	Do not interpret any more arguments as options.
+	A további argumentumokat ne értelmezze opcióként.
 
 `<pathspec>...`::
-	Limits the paths affected by the operation.
+	Korlátozza a művelet által érintett útvonalakat.
 +
-For more details, see the 'pathspec' entry in linkgit:gitglossary[7].
+A további részletekért lásd a 'pathspec' bejegyzést a
+linkgit:gitglossary[7] parancsban.
 
 DETACHED HEAD
 -------------
-`HEAD` normally refers to a named branch (e.g. `master`). Meanwhile, each
-branch refers to a specific commit. Let's look at a repo with three
-commits, one of them tagged, and with branch `master` checked out:
+A `HEAD` normál esetben egy elnevezett branchre hivatkozik (pl.
+`master`). Eközben minden branch egy konkrét commitra hivatkozik.
+Nézzünk meg egy repository-t három committal, amelyek közül az egyik
+tag-elve van, és amelyben a `master` branch van checkoutolva:
 
 ------------
            HEAD (refers to branch 'master')
@@ -388,11 +411,12 @@ a---b---c  branch 'master' (refers to commit 'c')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-When a commit is created in this state, the branch is updated to refer to
-the new commit. Specifically, `git commit` creates a new commit `d`, whose
-parent is commit `c`, and then updates branch `master` to refer to new
-commit `d`. `HEAD` still refers to branch `master` and so indirectly now refers
-to commit `d`:
+Amikor ebben az állapotban egy commit jön létre, a branch frissül, hogy
+az új commitra hivatkozzon. Konkrétan, a `git commit` létrehoz egy új
+`d` commitot, amelynek szülője a `c` commit, majd frissíti a `master`
+branchet, hogy az új `d` commitra hivatkozzon. A `HEAD` továbbra is a
+`master` branchre hivatkozik, így most közvetve a `d` commitra
+hivatkozik:
 
 ------------
 $ edit; git add; git commit
@@ -406,10 +430,11 @@ a---b---c---d  branch 'master' (refers to commit 'd')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-It is sometimes useful to be able to checkout a commit that is not at
-the tip of any named branch, or even to create a new commit that is not
-referenced by a named branch. Let's look at what happens when we
-checkout commit `b` (here we show two ways this may be done):
+Néha hasznos checkoutolni tudni egy commitot, amely nincs egyetlen
+elnevezett branch csúcsán sem, vagy akár egy olyan új commitot
+létrehozni, amelyre nem hivatkozik elnevezett branch. Nézzük meg, mi
+történik, amikor checkoutoljuk a `b` commitot (itt két módját mutatjuk
+be annak, hogyan lehet ezt megtenni):
 
 ------------
 $ git checkout v2.0  # or
@@ -424,10 +449,12 @@ a---b---c---d  branch 'master' (refers to commit 'd')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-Notice that regardless of which checkout command we use, `HEAD` now refers
-directly to commit `b`. This is known as being in detached `HEAD` state.
-It means simply that `HEAD` refers to a specific commit, as opposed to
-referring to a named branch. Let's see what happens when we create a commit:
+Vedd észre, hogy attól függetlenül, melyik checkout parancsot
+használjuk, a `HEAD` most közvetlenül a `b` commitra hivatkozik. Ezt
+nevezzük leválasztott `HEAD` állapotnak. Egyszerűen azt jelenti, hogy a
+`HEAD` egy konkrét commitra hivatkozik, szemben azzal, hogy egy
+elnevezett branchre hivatkozna. Nézzük meg, mi történik, amikor
+létrehozunk egy commitot:
 
 ------------
 $ edit; git add; git commit
@@ -443,8 +470,8 @@ a---b---c---d  branch 'master' (refers to commit 'd')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-There is now a new commit `e`, but it is referenced only by `HEAD`. We can
-of course add yet another commit in this state:
+Most már van egy új `e` commit, de arra csak a `HEAD` hivatkozik.
+Ebben az állapotban természetesen hozzáadhatunk egy újabb commitot is:
 
 ------------
 $ edit; git add; git commit
@@ -460,8 +487,8 @@ a---b---c---d  branch 'master' (refers to commit 'd')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-In fact, we can perform all the normal Git operations. But, let's look
-at what happens when we then checkout `master`:
+Valójában az összes szokásos Git-műveletet elvégezhetjük. De nézzük
+meg, mi történik, amikor ezután checkoutoljuk a `master`-t:
 
 ------------
 $ git checkout master
@@ -475,29 +502,32 @@ a---b---c---d  branch 'master' (refers to commit 'd')
   tag 'v2.0' (refers to commit 'b')
 ------------
 
-It is important to realize that at this point nothing refers to commit
-`f`. Eventually commit `f` (and by extension commit `e`) will be deleted
-by the routine Git garbage collection process, unless we create a reference
-before that happens. If we have not yet moved away from commit `f`,
-any of these will create a reference to it:
+Fontos felismerni, hogy ezen a ponton semmi nem hivatkozik az `f`
+commitra. Az `f` commit (és ebből következően az `e` commit is) végül
+törlődni fog a rutinszerű Git szemétgyűjtési folyamat során, hacsak
+nem hozunk létre rá egy referenciát, mielőtt ez megtörténne. Ha még
+nem mozdultunk el az `f` commitról, bármelyik alábbi létrehoz rá egy
+referenciát:
 
 ------------
 $ git checkout -b foo  # or "git switch -c foo"  <1>
 $ git branch foo                                 <2>
 $ git tag foo                                    <3>
 ------------
-<1> creates a new branch `foo`, which refers to commit `f`, and then
-    updates `HEAD` to refer to branch `foo`. In other words, we'll no longer
-    be in detached `HEAD` state after this command.
-<2> similarly creates a new branch `foo`, which refers to commit `f`,
-    but leaves `HEAD` detached.
-<3> creates a new tag `foo`, which refers to commit `f`,
-    leaving `HEAD` detached.
+<1> létrehoz egy `foo` nevű új branchet, amely az `f` commitra hivatkozik,
+    majd frissíti a `HEAD`-et, hogy a `foo` branchre hivatkozzon. Más
+    szóval, e parancs után már nem leszünk leválasztott `HEAD`
+    állapotban.
+<2> hasonlóképpen létrehoz egy `foo` nevű új branchet, amely az `f`
+    commitra hivatkozik, de leválasztva hagyja a `HEAD`-et.
+<3> létrehoz egy `foo` nevű új tag-et, amely az `f` commitra
+    hivatkozik, leválasztva hagyva a `HEAD`-et.
 
-If we have moved away from commit `f`, then we must first recover its object
-name (typically by using git reflog), and then we can create a reference to
-it. For example, to see the last two commits to which `HEAD` referred, we
-can use either of these commands:
+Ha elmozdultunk az `f` commitról, akkor először vissza kell nyernünk
+az objektumnevét (jellemzően a git reflog használatával), és utána
+hozhatunk létre rá referenciát. Például, hogy megnézzük azt a két
+utolsó commitot, amelyre a `HEAD` hivatkozott, bármelyik alábbi
+parancsot használhatjuk:
 
 ------------
 $ git reflog -2 HEAD # or
@@ -507,14 +537,15 @@ $ git log -g -2 HEAD
 ARGUMENT DISAMBIGUATION
 -----------------------
 
-When you run `git checkout <something>`, Git tries to guess whether
-_<something>_ is intended to be a branch, a commit, or a set of file(s),
-and then either switches to that branch or commit, or restores the
-specified files.
+Amikor a `git checkout <something>` parancsot futtatod, a Git
+megpróbálja kitalálni, hogy a _<something>_ branchnek, commitnak,
+vagy fájl(ok) halmazának van-e szánva, majd vagy átvált arra a
+branchre vagy commitra, vagy visszaállítja a megadott fájlokat.
 
-If there's any ambiguity, Git will treat `<something>` as a branch or
-commit, but you can use the double dash `--` to force Git to treat the
-parameter as a list of files and/or directories, like this:
+Ha bármilyen kétértelműség van, a Git a `<something>`-et branchként
+vagy commitként fogja kezelni, de a dupla kötőjel `--`-val
+kikényszerítheted, hogy a Git a paramétert fájlok és/vagy könyvtárak
+listájaként kezelje, például így:
 
 ----------
 git checkout -- file.txt
@@ -523,11 +554,12 @@ git checkout -- file.txt
 EXAMPLES
 --------
 
-=== 1. Paths
+[[_1_paths]]
+=== 1. Útvonalak
 
-The following sequence checks out the `master` branch, reverts
-the `Makefile` to two revisions back, deletes `hello.c` by
-mistake, and gets it back from the index.
+Az alábbi parancssorozat checkoutolja a `master` branchet,
+visszaállítja a `Makefile`-t két revízióval korábbra, tévedésből
+törli a `hello.c`-t, majd visszaszerzi az indexből.
 
 ------------
 $ git checkout master             <1>
@@ -535,50 +567,50 @@ $ git checkout master~2 Makefile  <2>
 $ rm -f hello.c
 $ git checkout hello.c            <3>
 ------------
-<1> switch branch
-<2> take a file out of another commit
-<3> restore `hello.c` from the index
+<1> branchváltás
+<2> egy fájl kivétele egy másik commitból
+<3> a `hello.c` visszaállítása az indexből
 
-If you want to check out _all_ C source files out of the index,
-you can say
+Ha az _összes_ C forrásfájlt ki akarod venni az indexből, ezt írhatod:
 
 ------------
 $ git checkout -- '*.c'
 ------------
 
-Note the quotes around `*.c`.  The file `hello.c` will also be
-checked out, even though it is no longer in the working tree,
-because the file globbing is used to match entries in the index
-(not in the working tree by the shell).
+Vedd figyelembe a `*.c` körüli idézőjeleket. A `hello.c` fájl is
+checkoutolva lesz, még ha már nincs is a munkakönyvtárban, mert a
+fájl-globolást az indexbeli bejegyzések egyeztetésére használjuk
+(nem a munkakönyvtárban, a shell által).
 
-If you have an unfortunate branch that is named `hello.c`, this
-step would be confused as an instruction to switch to that branch.
-You should instead write:
+Ha van egy szerencsétlen módon `hello.c`-nek elnevezett brancheded,
+ez a lépés összekeveredne az arra a branchre való átváltás
+utasításával. Ehelyett ezt kellene írnod:
 
 ------------
 $ git checkout -- hello.c
 ------------
 
+[[_2_merge]]
 === 2. Merge
 
-After working in the wrong branch, switching to the correct
-branch would be done using:
+Miután a rossz branchen dolgoztál, a helyes branchre való átváltást
+így végezhetnéd:
 
 ------------
 $ git checkout mytopic
 ------------
 
-However, your "wrong" branch and correct `mytopic` branch may
-differ in files that you have modified locally, in which case
-the above checkout would fail like this:
+A „rossz" brancheded és a helyes `mytopic` branch azonban eltérhet
+azokban a fájlokban, amelyeket helyileg módosítottál, ebben az
+esetben a fenti checkout így hiúsulna meg:
 
 ------------
 $ git checkout mytopic
 error: You have local changes to 'frotz'; not switching branches.
 ------------
 
-You can give the `-m` flag to the command, which will carry your local
-changes to the new branch:
+Megadhatod a `-m` kapcsolót a parancsnak, ami átviszi a helyi
+módosításaidat az új branchre:
 
 ------------
 $ git checkout -m mytopic
@@ -588,17 +620,18 @@ The following paths have local changes:
 M	frotz
 ------------
 
-After the switch, the local modifications are reapplied and are _not_
-registered in your index file, so `git diff` would show you what
-changes you made since the tip of the new branch.
+A váltás után a helyi módosítások újra alkalmazódnak, és _nincsenek_
+regisztrálva az index fájlodban, így a `git diff` megmutatná, mely
+módosításokat tetted az új branch csúcsa óta.
 
-=== 3. Merge conflict
+[[_3_merge_conflict]]
+=== 3. Merge-konfliktus
 
-When the `--merge` (`-m`) option is given and the local changes
-overlap with the changes in the branch we're switching to, the
-changes are stashed and reapplied after the switch.  If this
-process results in conflicts, the stash entry is saved and a
-message is printed:
+Amikor a `--merge` (`-m`) opció meg van adva, és a helyi módosítások
+átfedésben vannak azzal a branchcsel, amelyre váltunk, a módosítások
+stashelve lesznek, majd a váltás után újra alkalmazva. Ha ez a
+folyamat konfliktusokat eredményez, a stash-bejegyzés elmentődik, és
+egy üzenet kerül kiírásra:
 
 ------------
 $ git checkout -m mytopic
@@ -623,4 +656,4 @@ linkgit:git-restore[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

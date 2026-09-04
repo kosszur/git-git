@@ -326,8 +326,8 @@ le a hiba bekövetkezte előtt; az orchestrátor csak a GIT-trailer egységesít
 2009-es blogbejegyzés-stílusú, NEM man page — a főcím és minden alcím fordítandó, aláhúzás-igazítással).
 
 **Még teljesen érintetlen:** `git-blame.adoc`,
-`git-checkout.adoc`, `git-clone.adoc`, `git-commit-graph.adoc`, `git-commit.adoc`, `git-config.adoc`,
-`git-describe.adoc`.
+`git-clone.adoc`, `git-commit-graph.adoc`, `git-commit.adoc`, `git-config.adoc`,
+`git-describe.adoc`. (`git-checkout.adoc` a 10. blokkban elkészült.)
 
 **„CSERE-NNN" placeholder-kísérlet (felhasználói ötlet, API-hiba elleni mitigáció):** mivel a
 `content filtering policy` hiba nem mutatott egyértelmű szókulcs-korrelációt (olyan fájloknál is
@@ -723,3 +723,127 @@ hosszra nincs hatás, mert a token nem címsorban van.
 - A dokumentum-cím két sora (`git-config(1)` / `=============`) érintetlen (a NAME-mel megegyező
   precedens szerint a man page cím-sora nem fordul).
 - A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti egységesített forma).
+
+## 10. blokk — `git-checkout.adoc` — 2026-09-04
+
+**Módszer:** egyetlen munkamenet, célzott `Edit`-ekkel. A fájl NAME + DESCRIPTION szakaszának első fele
+(1–49. sor, a `git checkout [<branch>]` leírásáig) **már le volt fordítva** egy korábbi munkamenetből;
+innen folytatva a fájl (627 sor) hátralévő része (OPTIONS, DETACHED HEAD, ARGUMENT DISAMBIGUATION,
+EXAMPLES, CONFIGURATION, SEE ALSO, GIT) készült el ebben a blokkban.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| unstaged changes (staging area-ba nem került módosítások) | **„staging area-ba nem került módosítások"** | körülírva, mert a „unstaged" szónak nincs bevett külön magyar terminusa a glossaryban |
+| checked out (branchnév-vitában, „ez a branch már ki van csekkolva") | **„ki van csekkolva"** | a `--ignore-other-worktrees` leírásában; a `checkoutol` ige (0. blokk) passzív/állapot-változatának egyenes folytatása, konzisztens a `git-archimport.adoc`-beli „checkoutolt" (2. blokk) mintájával |
+| unborn branch | **„meg nem született branch"** | `--orphan` leírásában |
+| proprietary (kód jelzőként) | **marad „proprietary"** angolul | nincs a glossaryban rögzített magyar megfelelője, a `code` szóval együtt („proprietary vagy más módon korlátozott kódrészletek") |
+
+### Címsor-anchorok
+
+- A fájlban **nincs** explicit `[[...]]` anchor és **nincs** `<<...>>` xref sem a fájlon belül, sem
+  máshonnan a `Documentation/` fában a nem-man-page alcímeire (grep-pel ellenőrizve). Defenzív anchorok
+  kerültek a három EXAMPLES-alcím elé (autogen slug az **eredeti angol** címszövegből, a lefordított cím
+  szövegétől függetlenül, a skill szabálya szerint): `[[_1_paths]]` (cím: „1. Útvonalak"), `[[_2_merge]]`
+  (cím: „2. Merge" — a „Merge" szó maga nem fordul, l. lent), `[[_3_merge_conflict]]` (cím:
+  „3. Merge-konfliktus").
+- A `DETACHED HEAD` és az `ARGUMENT DISAMBIGUATION` kétsoros, csupa nagybetűs alcímek **nem** szerepelnek
+  a skill kanonikus man-page-szekció listáján, de **bájtazonosan angolul maradtak** — l. lent a következő
+  szakaszt, ez a döntés az érdemi ok.
+
+### Man-page címként/man-page-stílusúként ANGOLUL hagyott, indokolt címsorok
+
+- **`DETACHED HEAD`**, **`ARGUMENT DISAMBIGUATION`** — nem szerepelnek a skill kanonikus man-page-szekció
+  listáján, de **ellenőrizve grep-pel**, hogy három **másik, még lefordítatlan** fájl (`git-switch.adoc`,
+  `git-worktree.adoc`, `gitdatamodel.adoc`) idézőjeles prózaszövegben **név szerint** hivatkozik a
+  „DETACHED HEAD" szakaszra (`See the "DETACHED HEAD" section in git-checkout[1]` stb.) — nem `<<...>>`
+  xreffel, hanem szó szerinti idézettel. A fájlon belüli saját hivatkozások (30., 73., 221. sor) is már
+  korábban „DETACHED HEAD" / „ARGUMENT DISAMBIGUATION" alakban lettek lefordítva egy korábbi munkamenetben
+  (l. az 51. sor előtti, már kész DESCRIPTION-részt). A konzisztencia és a döntő többségében `technical/`
+  és `Documentation/` gyökér fájlokban követett „nem kanonikus, csupa nagybetűs, xref-kockázatos cím →
+  angolul hagyva" precedens (1., 2., 6., 8. blokk: `See Also`, `MERGES`, `BACKEND EXTRA OPTIONS`,
+  `SERVICES`, `COMMANDS`, `DEPRECATED MODES`, `SCOPES`) miatt **mindkettő angolul maradt**. **Eldöntendő**,
+  ha a felhasználó megerősíti, hogy a három hivatkozó fájl fordításakor is konzisztensen angolul kell
+  hagyni a saját idézett hivatkozásukat (ajánlott, hogy egyszerre konzisztensek maradjanak).
+
+### Megőrzött markup / megjegyzések
+
+- 17 pár `------------` (12 kötőjel) körülhatárolt kódblokk/ASCII-art-diagram (a DETACHED HEAD szakasz
+  commit-gráf rajzai, EXAMPLES parancspéldák) és 1 pár `----------` (10 kötőjel) blokk (ARGUMENT
+  DISAMBIGUATION) bájtazonos; a `HEAD (refers to branch 'master')` stílusú ASCII-art feliratok, a
+  `$ git checkout ...` parancssorok és a szó szerinti program-kimenetek (`error: You have local changes
+  to 'frotz'; not switching branches.`, `Applied autostash.`, `Switched to branch 'mytopic'`, `Your local
+  changes are stashed, however applying them resulted in conflicts. …`) **mindegyike bájtazonosan angolul
+  maradt** (lokalizálatlan program-kimenet, a `git-clean.adoc`/`git-daemon.adoc` precedensét követve).
+- A `<1>`/`<2>`/`<3>` callout-jelölők két helyen fordulnak elő a fájlban (a „git checkout -b foo" gráf
+  alatt, illetve az EXAMPLES 1. blokkjában); mindkét helyen a jelölő szám és a hozzá tartozó magyarázat
+  száma egyezik, csak a magyarázat prózája fordult.
+- `include::diff-context-options.adoc[]`, `include::includes/cmd-config-section-all.adoc[]`,
+  `include::config/checkout.adoc[]` sorok változatlanok (nem ebben a blokkban fordítandó fájlok).
+- A `linkgit:git-branch[1]` (4×), `linkgit:git-config[1]`, `linkgit:git-submodule[1]`,
+  `linkgit:git-add[1]`, `linkgit:gitglossary[7]`, `linkgit:git-switch[1]`, `linkgit:git-restore[1]`
+  makrók változatlanok; a `linkgit:git-add[1]` „Interactive Mode" idézőjeles szakaszcím-hivatkozása
+  (prózaszöveg, nem `<<...>>` xref, a `git-add.adoc` saját, még csak részlegesen — l. 4. blokk — kész
+  szakaszcímére mutat) angolul maradt.
+- A dokumentum-cím két sora (`git-checkout(1)` / `===============`) érintetlen.
+- A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti egységesített forma).
+- Szintaxis-ellenőrzés: `------------`-számláló 34 (17 pár), `----------`-számláló 2 (1 pár) — mindkettő
+  páros; `ifdef::`/`endif::` nincs a fájlban; `<<...>>` xref nincs a fájlban; a három hozzáadott
+  `[[...]]` anchoron kívül nincs más anchor.
+
+**Utólagos konzisztencia-javítás (orchestrátor, 2026-09-04):** a fenti „Interactive Mode" idézőjeles
+hivatkozás (786–788. sor) tévesen maradt angolul — a `git-add.adoc` időközben elkészült, és a saját
+alcíme ténylegesen **„Interaktív mód"**-ra lett fordítva (l. `git-add.adoc` 99., 110., 268. sor). A
+`git-checkout.adoc` 294. sorát ennek megfelelően javítottuk `„Interactive Mode"` → `„Interaktív mód"`-ra,
+hogy konzisztens legyen a ténylegesen létező magyar címmel.
+
+## 11. blokk — `git-commit.adoc` — 2026-09-04
+
+**Módszer:** egyetlen munkamenet, célzott `Edit`-ekkel, a fájl (595 sor) teljes egészében lefordítva
+(korábban teljesen angol volt).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| log message | **„napló-üzenet"** | megkülönböztetve a „commit-üzenet"-től (commit message); a két fogalom egymás mellett fordul elő a fájlban, a 2. blokk (`git-commit-tree.adoc`) precedensét folytatva |
+| trailer (`git commit trailer`, `--trailer` opció) | **marad „trailer"** angolul | nincs bevett magyar megfelelője a projektben eddig |
+| „fixup!"/„amend!" commit (program-generált commit-cím-előtag) | **bájtazonosan angolul, idézőjelben** | lokalizálatlan, szó szerinti Git-kimenet, a `git-clean.adoc`/`git-daemon.adoc` precedensét követi |
+
+### Címsor-anchorok
+
+- Nincs a fájlban `[[...]]` anchor és `<<...>>` xref sem (grep-pel ellenőrizve); nincs is rá hivatkozás
+  máshonnan a fában a nem-man-page alcímeire.
+- **Konzisztencia-javítás:** a git-add.adoc „Interaktív mód" szakaszára mutató prózai hivatkozás
+  (kb. 55. sor) `„Interactive Mode"` helyett `„Interaktív mód"`-ra lett fordítva, mert a `git-add.adoc`
+  saját címe eközben ténylegesen elkészült ilyen alakban (l. fent, a 10. blokk utólagos javítása).
+  A `git-rebase.adoc` „RECOVERING FROM UPSTREAM REBASE" szakaszára mutató hivatkozás (kb. 314. sor)
+  **angolul maradt**, mert a `git-rebase.adoc` maga még nincs lefordítva — ha elkészül, ellenőrizni kell,
+  hogy ez a cím lefordítva marad-e vagy angolul (a `DETACHED HEAD`-mintát követve valószínűleg angolul).
+
+### Man-page címként/man-page-stílusúként ANGOLUL hagyott, eldöntendő címsorok
+
+- **`COMMIT INFORMATION`**, **`HOOKS`**, **`ENVIRONMENT AND CONFIGURATION VARIABLES`** — csupa nagybetűs,
+  kétsoros, man-page-stílusú alcímek, nincsenek a skill kanonikus listáján, nincs rájuk `<<...>>` xref
+  sehol a fában. A korábbi blokkok (`MERGES`, `BACKEND EXTRA OPTIONS`, `SERVICES`, `COMMANDS`,
+  `DEPRECATED MODES`, `SCOPES`, `SUBMODULES`, `DETACHED HEAD`, `ARGUMENT DISAMBIGUATION`) precedensét
+  követve **bájtazonosan angolul maradtak**. Ez már a **kilencedik** ilyen visszatérő eset — **erősen
+  ajánlott egyszer véglegesen eldönteni a felhasználóval**, hogy ez a kategória (kanonikus listán kívüli,
+  de xref-kockázat nélküli, csupa nagybetűs man-page-stílusú alcím) egységesen fordítható-e a jövőben,
+  ahelyett hogy blokkonként újra „eldöntendő"-ként kerülne rögzítésre.
+
+### Megőrzött markup / megjegyzések
+
+- 6 pár `------------` (EXAMPLES kódblokkok), 1 pár `------` (amend-ekvivalens parancsblokk), 3 pár
+  `--`/`--` nyitott blokk (cleanup-mode, amend, untracked-files felsorolások) — mind bájtazonos, párban.
+  `ifdef::`/`endif::` nincs a fájlban. 6 `include::` sor és a `:git-commit: 1` attribútum-sor változatlan.
+- A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti egységesített forma).
+
+---
+
+**A `Documentation/` gyökér `git-*.adoc` man page-táblázat (170 fájl) ezzel a blokkal 40/40 fájlon
+KÉSZ** (a batch, amit ez a munkamenet a felhasználó „fordítsd a Documentation gyökérben lévő adoc
+állományokat" kérésére elkezdett — a táblázat többi, `git-diagnose.adoc`-tól kezdődő ~130 fájlja és a
+„Gyökér — egyéb .adoc" tábla még hátravan, ~83 fájl). Lásd a `progress-git-git-docs.md` batch-naplóját
+az összefoglalóért.

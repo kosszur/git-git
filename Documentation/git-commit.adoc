@@ -3,7 +3,7 @@ git-commit(1)
 
 NAME
 ----
-git-commit - Record changes to the repository
+git-commit - Változtatások rögzítése a repository-ban
 
 SYNOPSIS
 --------
@@ -19,46 +19,48 @@ git commit [-a | --interactive | --patch] [-s] [-v] [-u[<mode>]] [--amend]
 
 DESCRIPTION
 -----------
-Create a new commit containing the current contents of the index and
-the given log message describing the changes. The new commit is a
-direct child of HEAD, usually the tip of the current branch, and the
-branch is updated to point to it (unless no branch is associated with
-the working tree, in which case `HEAD` is "detached" as described in
-linkgit:git-checkout[1]).
+Új commit létrehozása, amely az index jelenlegi tartalmát és a
+változtatásokat leíró, megadott napló-üzenetet tartalmazza. Az új
+commit a HEAD közvetlen gyermeke, általában az aktuális branch csúcsa,
+és a branch frissül, hogy erre mutasson (kivéve, ha nincs branch
+társítva a munkakönyvtárhoz, ebben az esetben a `HEAD` "leválasztott",
+ahogy azt a linkgit:git-checkout[1] leírja).
 
-The content to be committed can be specified in several ways:
+A commitolandó tartalom többféleképpen megadható:
 
-1. by using linkgit:git-add[1] to incrementally "add" changes to the
-   index before using the `commit` command (Note: even modified files
-   must be "added");
+1. a linkgit:git-add[1] használatával, hogy fokozatosan "hozzáadd"
+   (add) a változtatásokat az indexhez a `commit` parancs használata
+   előtt (Megjegyzés: még a módosított fájlokat is "hozzá kell adni");
 
-2. by using linkgit:git-rm[1] to remove files from the working tree
-   and the index, again before using the `commit` command;
+2. a linkgit:git-rm[1] használatával, hogy fájlokat távolíts el a
+   munkakönyvtárból és az indexből, szintén a `commit` parancs
+   használata előtt;
 
-3. by listing files as arguments to the `commit` command
-   (without `--interactive` or `--patch` switch), in which
-   case the commit will ignore changes staged in the index, and instead
-   record the current content of the listed files (which must already
-   be known to Git);
+3. ha fájlokat sorolsz fel a `commit` parancs argumentumaként (a
+   `--interactive` vagy a `--patch` kapcsoló nélkül), ebben az esetben
+   a commit figyelmen kívül hagyja az indexben stage-elt
+   változtatásokat, és ehelyett a felsorolt fájlok jelenlegi tartalmát
+   rögzíti (amelyeknek már ismertnek kell lenniük a Git számára);
 
-4. by using the `-a` switch with the `commit` command to automatically
-   "add" changes from all known files (i.e. all files that are already
-   listed in the index) and to automatically "rm" files in the index
-   that have been removed from the working tree, and then perform the
-   actual commit;
+4. a `commit` paranccsal használt `-a` kapcsolóval, hogy automatikusan
+   "hozzáadj" (add) minden ismert fájlból (azaz minden olyan fájlból,
+   amely már szerepel az indexben) származó változtatást, és
+   automatikusan "eltávolítsd" (rm) az indexből azokat a fájlokat,
+   amelyeket eltávolítottak a munkakönyvtárból, majd elvégezd a tényleges
+   commitolást;
 
-5. by using the `--interactive` or `--patch` switches with the `commit` command
-   to decide one by one which files or hunks should be part of the commit
-   in addition to contents in the index,
-   before finalizing the operation. See the ``Interactive Mode'' section of
-   linkgit:git-add[1] to learn how to operate these modes.
+5. a `commit` paranccsal használt `--interactive` vagy `--patch`
+   kapcsolóval, hogy egyenként eldöntsd, mely fájlok vagy hunkok legyenek
+   részei a commitnak az index tartalma mellett, mielőtt véglegesítenéd
+   a műveletet. Lásd a linkgit:git-add[1] „Interaktív mód" szakaszát,
+   hogy megtudd, hogyan kell működtetni ezeket a módokat.
 
-The `--dry-run` option can be used to obtain a
-summary of what is included by any of the above for the next
-commit by giving the same set of parameters (options and paths).
+A `--dry-run` opció segítségével összefoglaló kapható arról, hogy a
+fentiek bármelyike mit foglalna bele a következő commitba, ugyanazon
+paraméterhalmaz (opciók és útvonalak) megadásával.
 
-If you make a commit and then find a mistake immediately after
-that, you can recover from it with `git reset`.
+Ha commitolsz, majd közvetlenül utána hibát találsz, a `git reset`
+paranccsal tudsz belőle helyreállni.
 
 :git-commit: 1
 
@@ -66,364 +68,386 @@ OPTIONS
 -------
 `-a`::
 `--all`::
-	Automatically stage files that have
-	been modified and deleted, but new files you have not
-	told Git about are not affected.
+	Automatikusan stage-eli azokat a fájlokat, amelyeket
+	módosítottak vagy töröltek, de az új fájlokra, amelyekről
+	még nem tudtál a Gitnek, ez nincs hatással.
 
 `-p`::
 `--patch`::
-	Use the interactive patch selection interface to choose
-	which changes to commit. See linkgit:git-add[1] for
-	details.
+	Az interaktív patch-kiválasztási felület használata, hogy
+	kiválaszd, mely változtatásokat kívánod commitolni. Részletekért
+	lásd a linkgit:git-add[1] leírását.
 
 include::diff-context-options.adoc[]
 
 `-C <commit>`::
 `--reuse-message=<commit>`::
-	Take an existing _<commit>_ object, and reuse the log message
-	and the authorship information (including the timestamp)
-	when creating the commit.
+	Egy meglévő _<commit>_ objektum felhasználásával a napló-üzenet
+	és a szerzőségi információk (beleértve az időbélyeget is)
+	újrafelhasználása a commit létrehozásakor.
 
 `-c <commit>`::
 `--reedit-message=<commit>`::
-	Like `-C`, but with `-c` the editor is invoked, so that
-	the user can further edit the commit message.
+	Mint a `-C`, de a `-c` esetén a szerkesztő elindul, hogy a
+	felhasználó tovább szerkeszthesse a commit-üzenetet.
 
 `--fixup=[(amend|reword):]<commit>`::
-	Create a new commit which "fixes up" _<commit>_ when applied with
-	`git rebase --autosquash`. Plain `--fixup=<commit>` creates a
-	"fixup!" commit which changes the content of _<commit>_ but leaves
-	its log message untouched. `--fixup=amend:<commit>` is similar but
-	creates an "amend!" commit which also replaces the log message of
-	_<commit>_ with the log message of the "amend!" commit.
-	`--fixup=reword:<commit>` creates an "amend!" commit which
-	replaces the log message of _<commit>_ with its own log message
-	but makes no changes to the content of _<commit>_.
+	Új commit létrehozása, amely "kijavítja" ("fixes up") a
+	_<commit>_-ot, amikor a `git rebase --autosquash` alkalmazza.
+	Az egyszerű `--fixup=<commit>` egy "fixup!" commitot hoz létre,
+	amely megváltoztatja a _<commit>_ tartalmát, de a napló-üzenetét
+	érintetlenül hagyja. A `--fixup=amend:<commit>` hasonló, de egy
+	"amend!" commitot hoz létre, amely a _<commit>_ napló-üzenetét is
+	lecseréli az "amend!" commit napló-üzenetére. A
+	`--fixup=reword:<commit>` egy "amend!" commitot hoz létre, amely
+	a _<commit>_ napló-üzenetét a saját napló-üzenetére cseréli, de
+	nem változtat a _<commit>_ tartalmán.
 +
-The commit created by plain `--fixup=<commit>` has a title
-composed of "fixup!" followed by the title of _<commit>_,
-and is recognized specially by `git rebase --autosquash`. The `-m`
-option may be used to supplement the log message of the created
-commit, but the additional commentary will be thrown away once the
-"fixup!" commit is squashed into _<commit>_ by
-`git rebase --autosquash`.
+Az egyszerű `--fixup=<commit>` által létrehozott commit címe
+"fixup!"-ból és az azt követő _<commit>_ címéből áll össze, és a
+`git rebase --autosquash` külön felismeri. A `-m` opció
+használható a létrehozott commit napló-üzenetének kiegészítésére,
+de a kiegészítő megjegyzés elvész, amint a "fixup!" commitot a
+`git rebase --autosquash` beleolvasztja ("squasheli") a
+_<commit>_-ba.
 +
-The commit created by `--fixup=amend:<commit>` is similar but its
-title is instead prefixed with "amend!". The log message of
-_<commit>_ is copied into the log message of the "amend!" commit and
-opened in an editor so it can be refined. When `git rebase
---autosquash` squashes the "amend!" commit into _<commit>_, the
-log message of _<commit>_ is replaced by the refined log message
-from the "amend!" commit. It is an error for the "amend!" commit's
-log message to be empty unless `--allow-empty-message` is
-specified.
+A `--fixup=amend:<commit>` által létrehozott commit hasonló, de a
+címe helyette "amend!" előtaggal kezdődik. A _<commit>_
+napló-üzenete átmásolódik az "amend!" commit napló-üzenetébe, és
+megnyílik egy szerkesztőben, hogy finomítható legyen. Amikor a
+`git rebase --autosquash` az "amend!" commitot beleolvasztja a
+_<commit>_-ba, a _<commit>_ napló-üzenete lecserélődik az "amend!"
+commit finomított napló-üzenetére. Hiba, ha az "amend!" commit
+napló-üzenete üres, kivéve, ha az `--allow-empty-message` meg van
+adva.
 +
-`--fixup=reword:<commit>` is shorthand for `--fixup=amend:<commit>
- --only`. It creates an "amend!" commit with only a log message
-(ignoring any changes staged in the index). When squashed by `git
-rebase --autosquash`, it replaces the log message of _<commit>_
-without making any other changes.
+A `--fixup=reword:<commit>` a `--fixup=amend:<commit> --only`
+rövidítése. Egy csak napló-üzenetet tartalmazó "amend!" commitot
+hoz létre (figyelmen kívül hagyva az indexben stage-elt
+változtatásokat). Amikor a `git rebase --autosquash` beleolvasztja,
+lecseréli a _<commit>_ napló-üzenetét, minden más változtatás
+nélkül.
 +
-Neither "fixup!" nor "amend!" commits change authorship of
-_<commit>_ when applied by `git rebase --autosquash`.
-See linkgit:git-rebase[1] for details.
+Sem a "fixup!", sem az "amend!" commitok nem változtatják meg a
+_<commit>_ szerzőségét, amikor a `git rebase --autosquash`
+alkalmazza őket. Részletekért lásd a linkgit:git-rebase[1] leírását.
 
 `--squash=<commit>`::
-	Construct a commit message for use with `git rebase --autosquash`.
-	The commit message title is taken from the specified
-	commit with a prefix of "squash! ".  Can be used with additional
-	commit message options (`-m`/`-c`/`-C`/`-F`). See
-	linkgit:git-rebase[1] for details.
+	Commit-üzenet összeállítása a `git rebase --autosquash` paranccsal
+	való használatra. A commit-üzenet címe a megadott commitból
+	származik, "squash! " előtaggal. Használható további
+	commit-üzenet opciókkal is (`-m`/`-c`/`-C`/`-F`). Részletekért
+	lásd a linkgit:git-rebase[1] leírását.
 
 `--reset-author`::
-	When used with `-C`/`-c`/`--amend` options, or when committing after a
-	conflicting cherry-pick, declare that the authorship of the
-	resulting commit now belongs to the committer. This also renews
-	the author timestamp.
+	Amikor a `-C`/`-c`/`--amend` opciókkal együtt használják, vagy
+	amikor egy ütköző cherry-pick után commitolsz, kijelenti, hogy a
+	létrejövő commit szerzősége mostantól a commiterhez tartozik. Ez
+	emellett megújítja a szerzői időbélyeget is.
 
 `--short`::
-	When doing a dry-run, give the output in the short-format. See
-	linkgit:git-status[1] for details. Implies `--dry-run`.
+	Dry-run esetén az output rövid formátumban ("short-format") jelenjen
+	meg. Részletekért lásd a linkgit:git-status[1] leírását. Ez
+	maga után vonja a `--dry-run`-t.
 
 `--branch`::
-	Show the branch and tracking info even in short-format. See
-	linkgit:git-status[1] for details.
+	A branch és a tracking-információ megjelenítése akkor is, ha
+	rövid formátumú a kimenet. Részletekért lásd a
+	linkgit:git-status[1] leírását.
 
 `--porcelain`::
-	When doing a dry-run, give the output in a porcelain-ready
-	format. See linkgit:git-status[1] for details. Implies
-	`--dry-run`.
+	Dry-run esetén az output porcelain-kész formátumban jelenjen
+	meg. Részletekért lásd a linkgit:git-status[1] leírását. Ez
+	maga után vonja a `--dry-run`-t.
 
 `--long`::
-	When doing a dry-run, give the output in the long-format. This
-	is the default output of linkgit:git-status[1]. Implies
-	`--dry-run`.
+	Dry-run esetén az output hosszú formátumban ("long-format")
+	jelenjen meg. Ez a linkgit:git-status[1] alapértelmezett
+	kimenete. Ez maga után vonja a `--dry-run`-t.
 
 `-z`::
 `--null`::
-	When showing `short` or `porcelain` linkgit:git-status[1] output, print the
-	filename verbatim and terminate the entries with _NUL_, instead of _LF_.
-	If no format is given, implies the `--porcelain` output format.
-	Without the `-z` option, filenames with "unusual" characters are
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]).
+	Amikor `short` vagy `porcelain` linkgit:git-status[1] kimenetet
+	mutat, a fájlnév szó szerinti kiírása, és a bejegyzések
+	lezárása _NUL_-lal _LF_ helyett. Ha nincs formátum megadva, ez
+	maga után vonja a `--porcelain` kimeneti formátumot. A `-z`
+	opció nélkül a "szokatlan" karaktereket tartalmazó fájlnevek
+	idézőjelbe kerülnek, ahogy azt a `core.quotePath`
+	konfigurációs változó leírja (lásd a linkgit:git-config[1]
+	leírását).
 
 `-F <file>`::
 `--file=<file>`::
-	Take the commit message from _<file>_.  Use '-' to
-	read the message from the standard input.
+	A commit-üzenet átvétele a _<file>_-ból. Használj '-'-t, hogy
+	az üzenetet a standard bemenetről olvasd be.
 
 `--author=<author>`::
-	Override the commit author. Specify an explicit author using the
-	standard `A U Thor <author@example.com>` format. Otherwise _<author>_
-	is assumed to be a pattern and is used to search for an existing
-	commit by that author (i.e. `git rev-list --all -i --author=<author>`);
-	the commit author is then copied from the first such commit found.
+	A commit szerzőjének felülbírálása. Adj meg egy explicit
+	szerzőt a szabványos `A U Thor <author@example.com>` formátum
+	használatával. Egyébként a _<author>_ egy mintának tekintendő,
+	és egy már létező, ilyen szerzőjű commit keresésére szolgál
+	(azaz `git rev-list --all -i --author=<author>`); a commit
+	szerzője ezután az így talált első commitból kerül átmásolásra.
 
 `--date=<date>`::
-	Override the author date used in the commit.
+	A commitban használt szerzői dátum felülbírálása.
 
 `-m <msg>`::
 `--message=<msg>`::
-	Use _<msg>_ as the commit message.
-	If multiple `-m` options are given, their values are
-	concatenated as separate paragraphs.
+	A _<msg>_ használata commit-üzenetként.
+	Ha több `-m` opció is meg van adva, az értékeik külön
+	bekezdésekként lesznek összefűzve.
 +
-The `-m` option is mutually exclusive with `-c`, `-C`, and `-F`.
+A `-m` opció kölcsönösen kizárja a `-c`, `-C` és `-F` opciókat.
 
 `-t <file>`::
 `--template=<file>`::
-	When editing the commit message, start the editor with the
-	contents in _<file>_.  The `commit.template` configuration
-	variable is often used to give this option implicitly to the
-	command.  This mechanism can be used by projects that want to
-	guide participants with some hints on what to write in the message
-	in what order.  If the user exits the editor without editing the
-	message, the commit is aborted.  This has no effect when a message
-	is given by other means, e.g. with the `-m` or `-F` options.
+	A commit-üzenet szerkesztésekor a szerkesztő a _<file>_
+	tartalmával induljon el. A `commit.template` konfigurációs
+	változót gyakran használják arra, hogy ezt az opciót
+	implicit módon adják meg a parancsnak. Ez a mechanizmus olyan
+	projekteknél használható, amelyek néhány tippel szeretnék
+	irányítani a résztvevőket, hogy mit és milyen sorrendben
+	írjanak az üzenetbe. Ha a felhasználó az üzenet szerkesztése
+	nélkül lép ki a szerkesztőből, a commit megszakad. Ennek nincs
+	hatása, ha az üzenet más módon van megadva, például a `-m` vagy
+	a `-F` opcióval.
 
 include::signoff-option.adoc[]
 
 `--trailer <token>[(=|:)<value>]`::
-	Specify a (_<token>_, _<value>_) pair that should be applied as a
-	trailer. (e.g. `git commit --trailer "Signed-off-by:C O Mitter \
+	Egy (_<token>_, _<value>_) pár megadása, amelyet trailerként kell
+	alkalmazni. (Például a `git commit --trailer "Signed-off-by:C O Mitter \
 	<committer@example.com>" --trailer "Helped-by:C O Mitter \
-	<committer@example.com>"` will add the `Signed-off-by` trailer
-	and the `Helped-by` trailer to the commit message.)
-	The `trailer.*` configuration variables
-	(linkgit:git-interpret-trailers[1]) can be used to define if
-	a duplicated trailer is omitted, where in the run of trailers
-	each trailer would appear, and other details.
+	<committer@example.com>"` hozzáadja a `Signed-off-by` és a
+	`Helped-by` trailert a commit-üzenethez.)
+	A `trailer.*` konfigurációs változók
+	(linkgit:git-interpret-trailers[1]) használhatók annak
+	meghatározására, hogy egy duplikált trailer kimarad-e, hol
+	jelenjen meg az adott trailer a trailerek sorában, és egyéb
+	részletek megadására.
 
 `-n`::
 `--verify`::
 `--no-verify`::
-	Bypass the `pre-commit` and `commit-msg` hooks.
-	See also linkgit:githooks[5].
+	A `pre-commit` és a `commit-msg` hookok megkerülése.
+	Lásd még a linkgit:githooks[5] leírását.
 
 `--allow-empty`::
-	Usually recording a commit that has the exact same tree as its
-	sole parent commit is a mistake, and the command prevents you
-	from making such a commit.  This option bypasses the safety, and
-	is primarily for use by foreign SCM interface scripts.
+	Általában hiba, ha olyan commitot rögzítesz, amelynek fája
+	pontosan megegyezik az egyetlen szülő commitjáéval, és a parancs
+	megakadályozza, hogy ilyen commitot hozz létre. Ez az opció
+	megkerüli ezt a biztonsági ellenőrzést, és elsősorban idegen
+	SCM-interfész szkriptek általi használatra szolgál.
 
 `--allow-empty-message`::
-	Create a commit with an empty commit message without using plumbing
-	commands like linkgit:git-commit-tree[1]. Like `--allow-empty`, this
-	command is primarily for use by foreign SCM interface scripts.
+	Commit létrehozása üres commit-üzenettel, plumbing parancsok
+	(mint a linkgit:git-commit-tree[1]) használata nélkül. Az
+	`--allow-empty`-hez hasonlóan ez a parancs is elsősorban idegen
+	SCM-interfész szkriptek általi használatra szolgál.
 
 `--cleanup=<mode>`::
-	Determine how the supplied commit message should be
-	cleaned up before committing.  The '<mode>' can be `strip`,
-	`whitespace`, `verbatim`, `scissors` or `default`.
+	Meghatározza, hogyan legyen megtisztítva a megadott commit-üzenet
+	a commitolás előtt. A '<mode>' lehet `strip`, `whitespace`,
+	`verbatim`, `scissors` vagy `default`.
 +
 --
 `strip`::
-	Strip leading and trailing empty lines, trailing whitespace,
-	commentary and collapse consecutive empty lines.
+	A kezdő és záró üres sorok, a sorvégi whitespace, a megjegyzések
+	eltávolítása, és az egymást követő üres sorok összevonása.
 `whitespace`::
-	Same as `strip` except #commentary is not removed.
+	Ugyanaz, mint a `strip`, azzal a különbséggel, hogy a
+	#-megjegyzések nem kerülnek eltávolításra.
 `verbatim`::
-	Do not change the message at all.
+	Az üzenet egyáltalán nem változik.
 `scissors`::
-	Same as `whitespace` except that everything from (and including)
-	the line found below is truncated, if the message is to be edited.
-	"`#`" can be customized with `core.commentChar`.
+	Ugyanaz, mint a `whitespace`, azzal a különbséggel, hogy minden,
+	ami a lent található sortól kezdve (azt is beleértve) szerepel,
+	levágásra kerül, ha az üzenetet szerkeszteni kell. A "`#`"
+	testre szabható a `core.commentChar` beállítással.
 
 		# ------------------------ >8 ------------------------
 
 `default`::
-	Same as `strip` if the message is to be edited.
-	Otherwise `whitespace`.
+	Ugyanaz, mint a `strip`, ha az üzenetet szerkeszteni kell.
+	Egyébként ugyanaz, mint a `whitespace`.
 --
 +
-The default can be changed by the `commit.cleanup` configuration
-variable (see linkgit:git-config[1]).
+Az alapértelmezés megváltoztatható a `commit.cleanup`
+konfigurációs változóval (lásd a linkgit:git-config[1] leírását).
 
 `-e`::
 `--edit`::
-	Let the user further edit the message taken from _<file>_
-	with `-F <file>`, command line with `-m <message>`, and
-	from _<commit>_ with `-C <commit>`.
+	Lehetővé teszi a felhasználónak, hogy tovább szerkessze a
+	_<file>_-ból (`-F <file>`), a parancssorból (`-m <message>`)
+	vagy a _<commit>_-ból (`-C <commit>`) átvett üzenetet.
 
 `--no-edit`::
-	Use the selected commit message without launching an editor.
-	For example, `git commit --amend --no-edit` amends a commit
-	without changing its commit message.
+	A kiválasztott commit-üzenet használata szerkesztő indítása
+	nélkül. Például a `git commit --amend --no-edit` amendel egy
+	commitot anélkül, hogy megváltoztatná a commit-üzenetét.
 
 `--amend`::
-	Replace the tip of the current branch by creating a new
-	commit. The recorded tree is prepared as usual (including
-	the effect of the `-i` and `-o` options and explicit
-	pathspec), and the message from the original commit is used
-	as the starting point, instead of an empty message, when no
-	other message is specified from the command line via options
-	such as `-m`, `-F`, `-c`, etc.  The new commit has the same
-	parents and author as the current one (the `--reset-author`
-	option can countermand this).
+	Az aktuális branch csúcsának lecserélése egy új commit
+	létrehozásával. A rögzített fa a szokásos módon készül el
+	(beleértve a `-i` és a `-o` opciók hatását és az explicit
+	pathspecet is), és az eredeti commit üzenete kerül felhasználásra
+	kiindulópontként üres üzenet helyett, ha a parancssorból nincs
+	más üzenet megadva olyan opciókkal, mint a `-m`, `-F`, `-c`
+	stb. Az új commitnak ugyanazok a szülei és ugyanaz a szerzője,
+	mint az aktuálisnak (ezt a `--reset-author` opció
+	felülbírálhatja).
 +
 --
-It is a rough equivalent for:
+Ez nagyjából egyenértékű az alábbival:
 
 ------
 	$ git reset --soft HEAD^
-	$ ... do something else to come up with the right tree ...
+	$ ... csinálj valami mást, hogy előálljon a megfelelő fa ...
 	$ git commit -c ORIG_HEAD
 
 ------
-but can be used to amend a merge commit.
+de egy merge commit amendelésére is használható.
 --
 +
-You should understand the implications of rewriting history if you
-amend a commit that has already been published.  (See the "RECOVERING
-FROM UPSTREAM REBASE" section in linkgit:git-rebase[1].)
+Meg kell értened az előzmények átírásának következményeit, ha egy
+már publikált commitot amendelsz. (Lásd a "RECOVERING FROM UPSTREAM
+REBASE" szakaszt a linkgit:git-rebase[1] leírásában.)
 
 `--no-post-rewrite`::
-	Bypass the `post-rewrite` hook.
+	A `post-rewrite` hook megkerülése.
 
 `-i`::
 `--include`::
-	Before making a commit out of staged contents so far,
-	stage the contents of paths given on the command line
-	as well.  This is usually not what you want unless you
-	are concluding a conflicted merge.
+	Mielőtt az eddig stage-elt tartalomból commitot készítenél, a
+	parancssorban megadott útvonalak tartalmának stage-elése is.
+	Ez általában nem az, amit szeretnél, hacsak nem egy ütköző
+	merge lezárásáról van szó.
 
 `-o`::
 `--only`::
-	Make a commit by taking the updated working tree contents
-	of the paths specified on the
-	command line, disregarding any contents that have been
-	staged for other paths. This is the default mode of operation of
-	`git commit` if any paths are given on the command line,
-	in which case this option can be omitted.
-	If this option is specified together with `--amend`, then
-	no paths need to be specified, which can be used to amend
-	the last commit without committing changes that have
-	already been staged. If used together with `--allow-empty`
-	paths are also not required, and an empty commit will be created.
+	Commit létrehozása a parancssorban megadott útvonalak frissített
+	munkakönyvtár-tartalmának felhasználásával, figyelmen kívül
+	hagyva minden más útvonalra stage-elt tartalmat. Ez a `git
+	commit` alapértelmezett működési módja, ha bármilyen útvonal
+	meg van adva a parancssorban, ebben az esetben ez az opció
+	elhagyható. Ha ez az opció a `--amend`-del együtt van megadva,
+	akkor nem szükséges útvonalakat megadni, ami arra használható,
+	hogy az utolsó commitot amendeld anélkül, hogy commitolnád a
+	már stage-elt változtatásokat. Ha az `--allow-empty`-vel együtt
+	van használva, útvonalak szintén nem szükségesek, és egy üres
+	commit jön létre.
 
 `--pathspec-from-file=<file>`::
-	Pass pathspec in _<file>_ instead of commandline args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR_/_LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec átadása a _<file>_-ban a parancssori argumentumok
+	helyett. Ha a _<file>_ pontosan `-`, akkor a standard bemenet
+	kerül felhasználásra. A pathspec elemek _LF_-fel vagy
+	_CR_/_LF_-fel vannak elválasztva. A pathspec elemek idézőjelbe
+	tehetők, ahogy azt a `core.quotePath` konfigurációs változó
+	leírja (lásd a linkgit:git-config[1] leírását). Lásd még a
+	`--pathspec-file-nul` és a globális `--literal-pathspecs`
+	opciókat.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file`-lal együtt van jelentése. A
+	pathspec elemek _NUL_ karakterrel vannak elválasztva, és minden
+	más karakter szó szerint értendő (beleértve a sortöréseket és
+	az idézőjeleket is).
 
 `-u[<mode>]`::
 `--untracked-files[=<mode>]`::
-	Show untracked files.
+	Nem követett fájlok megjelenítése.
 +
 --
-The _<mode>_ parameter is optional (defaults to `all`), and is used to
-specify the handling of untracked files; when `-u` is not used, the
-default is `normal`, i.e. show untracked files and directories.
+A _<mode>_ paraméter opcionális (alapértelmezés: `all`), és a nem
+követett fájlok kezelésének megadására szolgál; ha a `-u` nincs
+használva, az alapértelmezés `normal`, azaz a nem követett fájlok
+és könyvtárak megjelennek.
 
-The possible options are:
+A lehetséges opciók:
 
-`no`:: Show no untracked files
-`normal`:: Shows untracked files and directories
-`all`:: Also shows individual files in untracked directories.
+`no`:: Nem jelenít meg nem követett fájlokat
+`normal`:: Megjeleníti a nem követett fájlokat és könyvtárakat
+`all`:: A nem követett könyvtárakon belüli egyes fájlokat is megjeleníti.
 
-All usual spellings for Boolean value `true` are taken as `normal`
-and `false` as `no`.
-The default can be changed using the `status.showUntrackedFiles`
-configuration variable documented in linkgit:git-config[1].
+A `true` logikai érték minden szokásos írásmódja `normal`-ként,
+a `false` pedig `no`-ként értendő.
+Az alapértelmezés a `status.showUntrackedFiles` konfigurációs
+változóval változtatható meg, amelyet a linkgit:git-config[1]
+dokumentál.
 --
 
 `-v`::
 `--verbose`::
-	Show unified diff between the `HEAD` commit and what
-	would be committed at the bottom of the commit message
-	template to help the user describe the commit by reminding
-	what changes the commit has.
-	Note that this diff output doesn't have its
-	lines prefixed with `#`. This diff will not be a part
-	of the commit message. See the `commit.verbose` configuration
-	variable in linkgit:git-config[1].
+	Egyesített diff megjelenítése a `HEAD` commit és a commitolásra
+	kerülő tartalom között, a commit-üzenet sablon alján, hogy
+	segítse a felhasználót a commit leírásában, emlékeztetve arra,
+	milyen változtatásokat tartalmaz a commit.
+	Vedd figyelembe, hogy ennek a diffnek a sorai nincsenek
+	`#`-lal ellátva. Ez a diff nem lesz része a commit-üzenetnek.
+	Lásd a `commit.verbose` konfigurációs változót a
+	linkgit:git-config[1] leírásában.
 +
-If specified twice, show in addition the unified diff between
-what would be committed and the worktree files, i.e. the unstaged
-changes to tracked files.
+Ha kétszer van megadva, emellett az egyesített diffet is megjeleníti
+a commitolásra kerülő tartalom és a munkakönyvtár fájljai között,
+azaz a követett fájlok unstaged változtatásait.
 
 `-q`::
 `--quiet`::
-	Suppress commit summary message.
+	A commit-összefoglaló üzenet elnyomása.
 
 `--dry-run`::
-	Do not create a commit, but show a list of paths that are
-	to be committed, paths with local changes that will be left
-	uncommitted and paths that are untracked.
+	Nem hoz létre commitot, hanem megjeleníti a commitolandó
+	útvonalak listáját, a helyi változtatásokkal rendelkező, de
+	commit nélkül maradó útvonalakat, valamint a nem követett
+	útvonalakat.
 
 `--status`::
-	Include the output of linkgit:git-status[1] in the commit
-	message template when using an editor to prepare the commit
-	message.  Defaults to on, but can be used to override
-	configuration variable `commit.status`.
+	A linkgit:git-status[1] kimenetének belefoglalása a commit-üzenet
+	sablonjába, amikor egy szerkesztő segítségével készül a
+	commit-üzenet. Alapértelmezésben be van kapcsolva, de a
+	`commit.status` konfigurációs változóval felülbírálható.
 
 `--no-status`::
-	Do not include the output of linkgit:git-status[1] in the
-	commit message template when using an editor to prepare the
-	default commit message.
+	A linkgit:git-status[1] kimenetének kihagyása a commit-üzenet
+	sablonjából, amikor egy szerkesztő segítségével készül az
+	alapértelmezett commit-üzenet.
 
 `-S[<key-id>]`::
 `--gpg-sign[=<key-id>]`::
 `--no-gpg-sign`::
-	GPG-sign commits. The _<key-id>_ is optional and
-	defaults to the committer identity; if specified, it must be
-	stuck to the option without a space. `--no-gpg-sign` is useful to
-	countermand both `commit.gpgSign` configuration variable, and
-	earlier `--gpg-sign`.
+	Commitok GPG-aláírása. A _<key-id>_ opcionális, és
+	alapértelmezésben a commiter identitása; ha meg van adva, a
+	kapcsolóhoz kell tapadnia szóköz nélkül. A `--no-gpg-sign`
+	hasznos mind a `commit.gpgSign` konfigurációs változó, mind
+	egy korábbi `--gpg-sign` felülbírálására.
 
 `--`::
-	Do not interpret any more arguments as options.
+	Az ezt követő argumentumok ne opcióként legyenek értelmezve.
 
 `<pathspec>...`::
-	When _<pathspec>_ is given on the command line, commit the contents of
-	the files that match the pathspec without recording the changes
-	already added to the index. The contents of these files are also
-	staged for the next commit on top of what have been staged before.
+	Amikor a _<pathspec>_ meg van adva a parancssorban, a
+	pathspecnek megfelelő fájlok tartalmának commitolása, az
+	indexhez már hozzáadott változtatások rögzítése nélkül. Ezeknek
+	a fájloknak a tartalma emellett stage-elődik a következő
+	commithoz is, a korábban stage-elt tartalom tetejére.
 +
-For more details, see the 'pathspec' entry in linkgit:gitglossary[7].
+További részletekért lásd a 'pathspec' szócikket a
+linkgit:gitglossary[7] leírásában.
 
 EXAMPLES
 --------
-When recording your own work, the contents of modified files in
-your working tree are temporarily stored to a staging area
-called the "index" with `git add`.  A file can be
-reverted back, only in the index but not in the working tree,
-to that of the last commit with `git restore --staged <file>`,
-which effectively reverts `git add` and prevents the changes to
-this file from participating in the next commit.  After building
-the state to be committed incrementally with these commands,
-`git commit` (without any pathname parameter) is used to record what
-has been staged so far.  This is the most basic form of the
-command.  An example:
+Amikor a saját munkádat rögzíted, a munkakönyvtáradban módosított
+fájlok tartalma ideiglenesen egy "index" nevű staging area-ba kerül
+tárolásra a `git add` paranccsal. Egy fájl visszaállítható – csak
+az indexben, de a munkakönyvtárban nem – az utolsó commit
+állapotára a `git restore --staged <file>` paranccsal, amely
+gyakorlatilag visszavonja a `git add`-et, és megakadályozza, hogy e
+fájl változtatásai részt vegyenek a következő commitban. Miután
+ezekkel a parancsokkal fokozatosan felépítetted a commitolandó
+állapotot, a `git commit` (útvonalnév-paraméter nélkül) segítségével
+rögzítheted, ami eddig stage-elve lett. Ez a parancs legalapvetőbb
+formája. Egy példa:
 
 ------------
 $ edit hello.c
@@ -432,12 +456,12 @@ $ git add hello.c
 $ git commit
 ------------
 
-Instead of staging files after each individual change, you can
-tell `git commit` to notice the changes to the files whose
-contents are tracked in
-your working tree and do corresponding `git add` and `git rm`
-for you.  That is, this example does the same as the earlier
-example if there is no other change in your working tree:
+Ahelyett, hogy minden egyes változtatás után külön stage-elnéd a
+fájlokat, megkérheted a `git commit`-ot, hogy vegye észre a
+munkakönyvtáradban követett tartalmú fájlok változtatásait, és
+végezze el helyetted a megfelelő `git add` és `git rm` műveleteket.
+Vagyis ez a példa ugyanazt teszi, mint a korábbi példa, ha nincs
+más változtatás a munkakönyvtáradban:
 
 ------------
 $ edit hello.c
@@ -445,14 +469,16 @@ $ rm goodbye.c
 $ git commit -a
 ------------
 
-The command `git commit -a` first looks at your working tree,
-notices that you have modified `hello.c` and removed `goodbye.c`,
-and performs necessary `git add` and `git rm` for you.
+A `git commit -a` parancs először megnézi a munkakönyvtáradat,
+észreveszi, hogy módosítottad a `hello.c`-t és eltávolítottad a
+`goodbye.c`-t, majd elvégzi helyetted a szükséges `git add` és
+`git rm` műveleteket.
 
-After staging changes to many files, you can alter the order the
-changes are recorded in, by giving pathnames to `git commit`.
-When pathnames are given, the command makes a commit that
-only records the changes made to the named paths:
+Miután sok fájl változtatásait stage-elted, megváltoztathatod azt a
+sorrendet, amelyben a változtatások rögzülnek, ha útvonalneveket adsz
+meg a `git commit`-nak. Ha útvonalnevek vannak megadva, a parancs
+olyan commitot készít, amely csak a megnevezett útvonalakon végzett
+változtatásokat rögzíti:
 
 ------------
 $ edit hello.c hello.h
@@ -461,26 +487,27 @@ $ edit Makefile
 $ git commit Makefile
 ------------
 
-This makes a commit that records the modification to `Makefile`.
-The changes staged for `hello.c` and `hello.h` are not included
-in the resulting commit.  However, their changes are not lost --
-they are still staged and merely held back.  After the above
-sequence, if you do:
+Ez egy olyan commitot készít, amely a `Makefile` módosítását
+rögzíti. A `hello.c`-hez és a `hello.h`-hoz stage-elt változtatások
+nem kerülnek bele a létrejövő commitba. Ugyanakkor a
+változtatásaik nem vesznek el – továbbra is stage-elve maradnak,
+csak visszatartva. A fenti sorozat után, ha a következőt teszed:
 
 ------------
 $ git commit
 ------------
 
-this second commit would record the changes to `hello.c` and
-`hello.h` as expected.
+ez a második commit a várt módon rögzíti a `hello.c` és a
+`hello.h` változtatásait.
 
-After a merge (initiated by `git merge` or `git pull`) stops
-because of conflicts, cleanly merged
-paths are already staged to be committed for you, and paths that
-conflicted are left in unmerged state.  You would have to first
-check which paths are conflicting with `git status`
-and after fixing them manually in your working tree, you would
-stage the result as usual with `git add`:
+Miután egy merge (a `git merge` vagy a `git pull` által
+kezdeményezve) ütközések miatt megáll, a tisztán merge-elt
+útvonalak már stage-elve vannak neked commitolásra, az ütközött
+útvonalak pedig unmerged állapotban maradnak. Először a `git
+status` paranccsal kellene ellenőrizned, mely útvonalak
+ütköznek, és miután manuálisan javítottad őket a
+munkakönyvtáradban, a szokásos módon, a `git add` paranccsal
+stage-elnéd az eredményt:
 
 ------------
 $ git status | grep unmerged
@@ -489,26 +516,28 @@ $ edit hello.c
 $ git add hello.c
 ------------
 
-After resolving conflicts and staging the result, `git ls-files -u`
-would stop mentioning the conflicted path.  When you are done,
-run `git commit` to finally record the merge:
+Az ütközések feloldása és az eredmény stage-elése után a `git
+ls-files -u` már nem említi az ütközött útvonalat. Amikor
+végeztél, futtasd a `git commit` parancsot, hogy végül rögzítsd a
+merge-öt:
 
 ------------
 $ git commit
 ------------
 
-As with the case to record your own changes, you can use `-a`
-option to save typing.  One difference is that during a merge
-resolution, you cannot use `git commit` with pathnames to
-alter the order the changes are committed, because the merge
-should be recorded as a single commit.  In fact, the command
-refuses to run when given pathnames (but see `-i` option).
+Ahogy a saját változtatásaid rögzítésénél, itt is használhatod a
+`-a` opciót, hogy gépelést spórolj meg. Az egyik különbség az, hogy
+egy merge feloldása közben nem használhatod a `git commit`-ot
+útvonalnevekkel a változtatások commitolási sorrendjének
+megváltoztatására, mert a merge-öt egyetlen commitként kell
+rögzíteni. Valójában a parancs megtagadja a futást, ha útvonalnevek
+vannak megadva (de lásd a `-i` opciót).
 
 COMMIT INFORMATION
 ------------------
 
-Author and committer information is taken from the following environment
-variables, if set:
+A szerzői és a commiter információ a következő környezeti
+változókból származik, ha be vannak állítva:
 
  * `GIT_AUTHOR_NAME`
  * `GIT_AUTHOR_EMAIL`
@@ -517,27 +546,32 @@ variables, if set:
  * `GIT_COMMITTER_EMAIL`
  * `GIT_COMMITTER_DATE`
 
-(nb "<", ">" and "\n"s are stripped)
+(megjegyzés: a "<", ">" és "\n" karakterek eltávolításra kerülnek)
 
-The author and committer names are by convention some form of a personal name
-(that is, the name by which other humans refer to you), although Git does not
-enforce or require any particular form. Arbitrary Unicode may be used, subject
-to the constraints listed above. This name has no effect on authentication; for
-that, see the `credential.username` variable in linkgit:git-config[1].
+A szerzői és a commiter nevek megállapodás szerint valamilyen
+személynév-formát öltenek (azaz azt a nevet, amellyel más emberek
+rád hivatkoznak), bár a Git nem kényszerít vagy követel meg
+semmilyen konkrét formát. Tetszőleges Unicode használható, a fent
+felsorolt megkötéseknek megfelelően. Ennek a névnek nincs hatása a
+hitelesítésre; ehhez lásd a `credential.username` változót a
+linkgit:git-config[1] leírásában.
 
-In case (some of) these environment variables are not set, the information
-is taken from the configuration items `user.name` and `user.email`, or, if not
-present, the environment variable `EMAIL`, or, if that is not set,
-system user name and the hostname used for outgoing mail (taken
-from `/etc/mailname` and falling back to the fully qualified hostname when
-that file does not exist).
+Ha ezek a környezeti változók (részben) nincsenek beállítva, az
+információ a `user.name` és `user.email` konfigurációs elemekből
+származik, vagy ha ezek sincsenek jelen, akkor az `EMAIL` környezeti
+változóból, vagy ha ez sincs beállítva, a rendszer felhasználónevéből
+és a kimenő levelekhez használt hosztnévből (amelyet az
+`/etc/mailname` fájlból vesz, és a teljesen minősített hosztnévre
+esik vissza, ha ez a fájl nem létezik).
 
-The `author.name` and `committer.name` and their corresponding email options
-override `user.name` and `user.email` if set and are overridden themselves by
-the environment variables.
+Az `author.name` és a `committer.name`, valamint a hozzájuk tartozó
+e-mail-opciók felülbírálják a `user.name`-et és a `user.email`-t, ha
+be vannak állítva, és őket magukat a környezeti változók bírálják
+felül.
 
-The typical usage is to set just the `user.name` and `user.email` variables;
-the other options are provided for more complex use cases.
+A tipikus használat az, hogy csak a `user.name` és a `user.email`
+változókat állítod be; a többi opció bonyolultabb használati
+esetekhez áll rendelkezésre.
 
 :git-commit: 1
 include::date-formats.adoc[]
@@ -545,22 +579,24 @@ include::date-formats.adoc[]
 DISCUSSION
 ----------
 
-Though not required, it's a good idea to begin the commit message
-with a single short (no more than 50 characters) line summarizing the
-change, followed by a blank line and then a more thorough description.
-The text up to the first blank line in a commit message is treated
-as the commit title, and that title is used throughout Git.
-For example, linkgit:git-format-patch[1] turns a commit into email, and it uses
-the title on the Subject line and the rest of the commit in the body.
+Bár nem kötelező, jó ötlet a commit-üzenetet egyetlen rövid
+(legfeljebb 50 karakteres) sorral kezdeni, amely összefoglalja a
+változtatást, majd egy üres sorral, és ezt követően egy alaposabb
+leírással folytatni. A commit-üzenetben az első üres sorig terjedő
+szöveg a commit címeként kezelendő, és ezt a címet a Git mindenhol
+felhasználja. Például a linkgit:git-format-patch[1] e-mail-lé
+alakítja a commitot, és a címet a Subject sorban, a commit többi
+részét pedig a törzsben használja fel.
 
 include::i18n.adoc[]
 
 ENVIRONMENT AND CONFIGURATION VARIABLES
 ---------------------------------------
-The editor used to edit the commit log message will be chosen from the
-`GIT_EDITOR` environment variable, the `core.editor` configuration variable, the
-`VISUAL` environment variable, or the `EDITOR` environment variable (in that
-order).  See linkgit:git-var[1] for details.
+A commit napló-üzenetének szerkesztésére használt szerkesztő a
+`GIT_EDITOR` környezeti változóból, a `core.editor` konfigurációs
+változóból, a `VISUAL` környezeti változóból vagy az `EDITOR`
+környezeti változóból kerül kiválasztásra (ebben a sorrendben).
+Részletekért lásd a linkgit:git-var[1] leírását.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -568,19 +604,20 @@ include::config/commit.adoc[]
 
 HOOKS
 -----
-This command can run `commit-msg`, `prepare-commit-msg`, `pre-commit`,
-`post-commit` and `post-rewrite` hooks.  See linkgit:githooks[5] for more
-information.
+Ez a parancs futtathatja a `commit-msg`, a `prepare-commit-msg`, a
+`pre-commit`, a `post-commit` és a `post-rewrite` hookokat. További
+információért lásd a linkgit:githooks[5] leírását.
 
 FILES
 -----
 
 `$GIT_DIR/COMMIT_EDITMSG`::
-	This file contains the commit message of a commit in progress.
-	If `git commit` exits due to an error before creating a commit,
-	any commit message that has been provided by the user (e.g., in
-	an editor session) will be available in this file, but will be
-	overwritten by the next invocation of `git commit`.
+	Ez a fájl egy folyamatban lévő commit commit-üzenetét
+	tartalmazza. Ha a `git commit` hiba miatt lép ki a commit
+	létrehozása előtt, a felhasználó által megadott (pl. egy
+	szerkesztő-munkamenetben beírt) commit-üzenet elérhető lesz
+	ebben a fájlban, de a `git commit` következő meghívásakor
+	felülíródik.
 
 SEE ALSO
 --------
@@ -592,4 +629,4 @@ linkgit:git-commit-tree[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

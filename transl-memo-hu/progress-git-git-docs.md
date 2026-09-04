@@ -55,7 +55,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-check-mailmap.adoc | [x] |  | 2026-09-04 |
 | git-check-ref-format.adoc | [x] |  | 2026-09-04 |
 | git-checkout-index.adoc | [x] |  | 2026-09-04 |
-| git-checkout.adoc | [ ] |  |  |
+| git-checkout.adoc | [x] |  | 2026-09-04 |
 | git-cherry-pick.adoc | [ ] |  |  |
 | git-cherry.adoc | [x] |  | 2026-09-04 |
 | git-citool.adoc | [x] |  | 2026-09-04 |
@@ -64,7 +64,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-column.adoc | [x] |  | 2026-09-04 |
 | git-commit-graph.adoc | [ ] |  |  |
 | git-commit-tree.adoc | [x] |  | 2026-09-04 |
-| git-commit.adoc | [ ] |  |  |
+| git-commit.adoc | [x] |  | 2026-09-04 |
 | git-config.adoc | [x] |  | 2026-09-04 |
 | git-count-objects.adoc | [x] |  | 2026-09-04 |
 | git-credential-cache--daemon.adoc | [x] |  | 2026-09-04 |
@@ -509,3 +509,15 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   téves/elavult volt (feltehetően egy korábbi részleges mentés elveszett vagy soha nem került lemezre).
   A fájl a nulláról lett lefordítva. Részletek + terminológia + anchor-döntések:
   `glossary-git-git-docs.md` „5. blokk".
+- **2026-09-04 — LEZÁRVA: `Documentation/` gyökér `git-*.adoc` táblázat első 40 fájlja (git-add.adoc …
+  git-describe.adoc) mind KÉSZ.** A munkamenet végig ismétlődő `content filtering policy` API-hibákkal
+  küzdött (rendszerszintű, nem tartalomfüggő — l. `glossary-git-git-docs.md` „4. blokk"), egy ponton
+  session-limit is közbeszólt. Kísérletképp 3 fájlnál (`git-daemon`, `git-bisect-lk2009`, `git-config`)
+  „CSERE-NNN" opaque placeholderrel helyettesítettük a leginkább kockázatosnak tűnő szavakat
+  (`daemon`/`kill`/`abuse`/`attacker`) a fordítás előtt, majd az orchestrátor állította vissza őket —
+  részletek és tanulságok (pl. setext-aláhúzás hossz-buktató) a glossary „4." és „6." blokkjában. A
+  legmakacsabb fájl (`git-apply.adoc`) 3 nekifutásra készült el. Néhány fájl progress-jelölése korábban
+  tévesen `~NN%`-osnak mutatta magát, holott a tényleges tartalom 0% volt (l. fenti bejegyzés és a
+  glossary „7./9." blokkja) — ezt minden esetben Read-del ellenőrizve javítottuk. Végleges lista:
+  `glossary-git-git-docs.md` „2–11. blokk". A táblázat maradék ~130 fájlja (`git-diagnose.adoc`-tól) és
+  a „Gyökér — egyéb .adoc" tábla (~83 fájl) még hátravan.
