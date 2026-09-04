@@ -3,7 +3,7 @@ git-cvsserver(1)
 
 NAME
 ----
-git-cvsserver - A CVS server emulator for Git
+git-cvsserver - CVS szerver-emulátor a Githez
 
 SYNOPSIS
 --------
@@ -19,7 +19,7 @@ pserver (/etc/inetd.conf):
 [verse]
 cvspserver stream tcp nowait nobody /usr/bin/git-cvsserver git-cvsserver pserver
 
-Usage:
+Használat:
 
 [verse]
 'git-cvsserver' [<options>] [pserver|server] [<directory> ...]
@@ -27,81 +27,86 @@ Usage:
 DESCRIPTION
 -----------
 
-This application is a CVS emulation layer for Git.
+Ez az alkalmazás egy CVS-emulációs réteg a Git számára.
 
-It is highly functional. However, not all methods are implemented,
-and for those methods that are implemented,
-not all switches are implemented.
+Erősen funkcionális. Azonban nem minden metódus van megvalósítva, és
+azoknál a metódusoknál, amelyek meg vannak valósítva, nem minden
+kapcsoló van megvalósítva.
 
-Testing has been done using both the CLI CVS client, and the Eclipse CVS
-plugin. Most functionality works fine with both of these clients.
+A tesztelés mind a CLI CVS-kliens, mind az Eclipse CVS-plugin
+használatával megtörtént. A legtöbb funkció mindkét klienssel jól
+működik.
 
 OPTIONS
 -------
 
-All these options obviously only make sense if enforced by the server side.
-They have been implemented to resemble the linkgit:git-daemon[1] options as
-closely as possible.
+Ezeknek az opcióknak nyilvánvalóan csak akkor van értelme, ha a
+szerveroldal kikényszeríti őket. Úgy lettek megvalósítva, hogy a
+lehető legjobban hasonlítsanak a linkgit:git-daemon[1] opcióira.
 
 --base-path <path>::
-Prepend 'path' to requested CVSROOT
+A 'path' hozzáfűzése a kért CVSROOT elé.
 
 --strict-paths::
-Don't allow recursing into subdirectories
+Nem engedélyezi az alkönyvtárakba való rekurzív bejárást.
 
 --export-all::
-Don't check for `gitcvs.enabled` in config. You also have to specify a list
-of allowed directories (see below) if you want to use this option.
+Ne ellenőrizze a `gitcvs.enabled` beállítást a konfigurációban. Ennek
+az opciónak a használatához meg kell adnod az engedélyezett
+könyvtárak listáját is (lásd lent).
 
 -V::
 --version::
-Print version information and exit
+Verzióinformáció kiírása és kilépés.
 
 -h::
 -H::
 --help::
-Print usage information and exit
+Használati útmutató kiírása és kilépés.
 
 <directory>::
-The remaining arguments provide a list of directories. If no directories
-are given, then all are allowed. Repositories within these directories
-still require the `gitcvs.enabled` config option, unless `--export-all`
-is specified.
+A fennmaradó argumentumok egy könyvtárlistát adnak meg. Ha nincs
+megadva könyvtár, akkor mindegyik engedélyezett. Az ezeken a
+könyvtárakon belüli repository-k továbbra is megkövetelik a
+`gitcvs.enabled` konfigurációs opciót, hacsak nincs megadva a
+`--export-all`.
 
 LIMITATIONS
 -----------
 
-CVS clients cannot tag, branch or perform Git merges.
+A CVS-kliensek nem tudnak tag-elni, branch-elni vagy Git merge-eket
+végrehajtani.
 
-'git-cvsserver' maps Git branches to CVS modules. This is very different
-from what most CVS users would expect since in CVS modules usually represent
-one or more directories.
+A 'git-cvsserver' a Git branch-eket CVS modulokra képezi le. Ez nagyon
+eltér attól, amit a legtöbb CVS-felhasználó elvárna, mivel a CVS-ben a
+modulok jellemzően egy vagy több könyvtárat reprezentálnak.
 
-INSTALLATION
-------------
+TELEPÍTÉS
+---------
 
-1. If you are going to offer CVS access via pserver, add a line in
-   /etc/inetd.conf like
+1. Ha CVS-elérést szeretnél biztosítani pserveren keresztül, adj hozzá
+   egy sort az /etc/inetd.conf-hoz, valahogy így:
 +
 --
 ------
    cvspserver stream tcp nowait nobody git-cvsserver pserver
 
 ------
-Note: Some inetd servers let you specify the name of the executable
-independently of the value of argv[0] (i.e. the name the program assumes
-it was executed with). In this case the correct line in /etc/inetd.conf
-looks like
+Megjegyzés: néhány inetd szerver lehetővé teszi a végrehajtható fájl
+nevének megadását az argv[0] értékétől függetlenül (azaz attól a
+névtől, amellyel a program szerint elindították). Ebben az esetben a
+helyes sor az /etc/inetd.conf-ban így néz ki:
 
 ------
    cvspserver stream tcp nowait nobody /usr/bin/git-cvsserver git-cvsserver pserver
 
 ------
 
-Only anonymous access is provided by pserver by default. To commit you
-will have to create pserver accounts, simply add a gitcvs.authdb
-setting in the config file of the repositories you want the cvsserver
-to allow writes to, for example:
+A pserver alapértelmezetten csak anonim hozzáférést biztosít. A
+commitoláshoz létre kell hoznod pserver-fiókokat: egyszerűen adj hozzá
+egy gitcvs.authdb beállítást azoknak a repository-knak a config
+fájljában, amelyekhez engedélyezni szeretnéd az írást a cvsserveren
+keresztül, például:
 
 ------
 
@@ -109,46 +114,50 @@ to allow writes to, for example:
 	authdb = /etc/cvsserver/passwd
 
 ------
-The format of these files is username followed by the encrypted password,
-for example:
+Ezeknek a fájloknak a formátuma a felhasználónév, amelyet a titkosított
+jelszó követ, például:
 
 ------
    myuser:sqkNi8zPf01HI
    myuser:$1$9K7FzU28$VfF6EoPYCJEYcVQwATgOP/
    myuser:$5$.NqmNH1vwfzGpV8B$znZIcumu1tNLATgV2l6e1/mY8RzhUDHMOaVOeL1cxV3
 ------
-You can use the 'htpasswd' facility that comes with Apache to make these
-files, but only with the -d option (or -B if your system supports it).
+Ezeknek a fájloknak az elkészítéséhez használhatod az Apache-hoz
+mellékelt 'htpasswd' eszközt, de csak a -d opcióval (vagy -B-vel, ha a
+rendszered támogatja).
 
-Preferably use the system specific utility that manages password hash
-creation in your platform (e.g. mkpasswd in Linux, encrypt in OpenBSD or
-pwhash in NetBSD) and paste it in the right location.
+Lehetőleg a platformodon a jelszó-hash létrehozását kezelő,
+rendszerspecifikus segédprogramot használd (pl. mkpasswd Linuxon,
+encrypt OpenBSD-n, vagy pwhash NetBSD-n), és illeszd be a megfelelő
+helyre.
 
-Then provide your password via the pserver method, for example:
+Ezután add meg a jelszavadat a pserver metóduson keresztül, például:
 
 ------
    cvs -d:pserver:someuser:somepassword@server:/path/repo.git co <HEAD_name>
 ------
 
-No special setup is needed for SSH access, other than having Git tools
-in the PATH. If you have clients that do not accept the CVS_SERVER
-environment variable, you can rename 'git-cvsserver' to `cvs`.
+SSH-eléréshez nincs szükség speciális beállításra, azon kívül, hogy a
+Git eszközöknek szerepelniük kell a PATH-ban. Ha vannak olyan
+klienseid, amelyek nem fogadják el a CVS_SERVER környezeti változót,
+átnevezheted a 'git-cvsserver'-t `cvs`-re.
 
-Note: Newer CVS versions (>= 1.12.11) also support specifying
-CVS_SERVER directly in CVSROOT like
+Megjegyzés: az újabb CVS-verziók (>= 1.12.11) azt is támogatják, hogy a
+CVS_SERVER-t közvetlenül a CVSROOT-ban add meg, így:
 
 ------
    cvs -d ":ext;CVS_SERVER=git cvsserver:user@server/path/repo.git" co <HEAD_name>
 ------
 
-This has the advantage that it will be saved in your 'CVS/Root' files and
-you don't need to worry about always setting the correct environment
-variable.  SSH users restricted to 'git-shell' don't need to override the default
-with CVS_SERVER (and shouldn't) as 'git-shell' understands `cvs` to mean
-'git-cvsserver' and pretends that the other end runs the real 'cvs' better.
+Ennek az az előnye, hogy elmentődik a 'CVS/Root' fájljaidban, és nem
+kell mindig aggódnod a megfelelő környezeti változó beállítása miatt.
+A 'git-shell'-re korlátozott SSH-felhasználóknak nem kell felülírniuk
+az alapértelmezést a CVS_SERVER-rel (és nem is szabad), mivel a
+'git-shell' a `cvs`-t úgy érti, mint a 'git-cvsserver'-t, és úgy tesz,
+mintha a másik oldal a valódi 'cvs'-t futtatná, jobban.
 --
-2. For each repo that you want accessible from CVS you need to edit config in
-   the repo and add the following section.
+2. Minden egyes repóhoz, amelyet CVS-ből elérhetővé szeretnél tenni, szerkesztened
+   kell a config-ot a repóban, és hozzá kell adnod a következő szakaszt.
 +
 --
 ------
@@ -158,19 +167,22 @@ with CVS_SERVER (and shouldn't) as 'git-shell' understands `cvs` to mean
 	logFile=/path/to/logfile
 
 ------
-Note: you need to ensure each user that is going to invoke 'git-cvsserver' has
-write access to the log file and to the database (see
-<<dbbackend,Database Backend>>. If you want to offer write access over
-SSH, the users of course also need write access to the Git repository itself.
+Megjegyzés: gondoskodnod kell arról, hogy minden felhasználó, aki
+meghívja a 'git-cvsserver'-t, írási jogosultsággal rendelkezzen a
+naplófájlhoz és az adatbázishoz is (lásd <<dbbackend,Adatbázis backend>>.
+Ha SSH-n keresztül szeretnél írási hozzáférést biztosítani, a
+felhasználóknak természetesen magához a Git repository-hoz is írási
+jogosultsággal kell rendelkezniük.
 
-You also need to ensure that each repository is "bare" (without a Git index
-file) for `cvs commit` to work. See linkgit:gitcvs-migration[7].
+Arról is gondoskodnod kell, hogy minden repository "bare" legyen
+(Git-index fájl nélkül), hogy a `cvs commit` működjön. Lásd a
+linkgit:gitcvs-migration[7] leírást.
 
 [[configaccessmethod]]
-All configuration variables can also be overridden for a specific method of
-access. Valid method names are "ext" (for SSH access) and "pserver". The
-following example configuration would disable pserver access while still
-allowing access over SSH.
+Minden konfigurációs változó felülírható egy adott elérési módra
+vonatkozóan is. Érvényes metódusnevek az "ext" (SSH-eléréshez) és a
+"pserver". Az alábbi példakonfiguráció letiltaná a pserver-elérést,
+miközben továbbra is engedélyezné az SSH-n keresztüli elérést.
 
 ------
    [gitcvs]
@@ -180,11 +192,13 @@ allowing access over SSH.
         enabled=1
 ------
 --
-3. If you didn't specify the CVSROOT/CVS_SERVER directly in the checkout command,
-   automatically saving it in your 'CVS/Root' files, then you need to set them
-   explicitly in your environment.  CVSROOT should be set as per normal, but the
-   directory should point at the appropriate Git repo.  As above, for SSH clients
-   _not_ restricted to 'git-shell', CVS_SERVER should be set to 'git-cvsserver'.
+3. Ha nem adtad meg közvetlenül a CVSROOT/CVS_SERVER-t a checkout
+   parancsban, ami automatikusan elmentette volna a 'CVS/Root'
+   fájljaidban, akkor explicit módon be kell állítanod ezeket a
+   környezetedben. A CVSROOT-ot a szokásos módon kell beállítani, de a
+   könyvtárnak a megfelelő Git repóra kell mutatnia. Mint fent, a
+   'git-shell'-re _nem_ korlátozott SSH-kliensek esetén a CVS_SERVER-t
+   'git-cvsserver'-re kell állítani.
 +
 --
 ------
@@ -192,246 +206,261 @@ allowing access over SSH.
    export CVS_SERVER="git cvsserver"
 ------
 --
-4. For SSH clients that will make commits, make sure their server-side
-   .ssh/environment files (or .bashrc, etc., according to their specific shell)
-   export appropriate values for GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
-   GIT_COMMITTER_NAME, and GIT_COMMITTER_EMAIL.  For SSH clients whose login
-   shell is bash, .bashrc may be a reasonable alternative.
+4. Azoknál az SSH-klienseknél, amelyek commitolni fognak, győződj meg
+   róla, hogy a szerveroldali .ssh/environment fájljaik (vagy a
+   .bashrc, stb., a saját shelljüknek megfelelően) exportálják a
+   megfelelő értékeket a GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
+   GIT_COMMITTER_NAME és GIT_COMMITTER_EMAIL számára. Azoknál az
+   SSH-klienseknél, amelyeknek a bejelentkezési shellje bash, a
+   .bashrc ésszerű alternatíva lehet.
 
-5. Clients should now be able to check out the project. Use the CVS 'module'
-   name to indicate what Git 'head' you want to check out.  This also sets the
-   name of your newly checked-out directory, unless you tell it otherwise with
-   `-d <dir-name>`.  For example, this checks out 'master' branch to the
-   `project-master` directory:
+5. A kliensek mostantól ki tudják checkoutolni a projektet. A CVS
+   'module' nevét használd annak jelzésére, hogy melyik Git 'head'-et
+   szeretnéd checkoutolni. Ez az újonnan checkoutolt könyvtárad nevét
+   is beállítja, hacsak nem adsz meg mást a `-d <dir-name>` kapcsolóval.
+   Például ez a 'master' branch-et checkoutolja a `project-master`
+   könyvtárba:
 +
 ------
    cvs co -d project-master master
 ------
 
 [[dbbackend]]
-DATABASE BACKEND
-----------------
+ADATBÁZIS BACKEND
+-----------------
 
-'git-cvsserver' uses one database per Git head (i.e. CVS module) to
-store information about the repository to maintain consistent
-CVS revision numbers. The database needs to be
-updated (i.e. written to) after every commit.
+A 'git-cvsserver' Git head-enként (azaz CVS modulonként) egy
+adatbázist használ a repositoryra vonatkozó információk tárolására, a
+konzisztens CVS revíziószámok fenntartása érdekében. Az adatbázist
+minden commit után frissíteni kell (azaz írni kell bele).
 
-If the commit is done directly by using `git` (as opposed to
-using 'git-cvsserver') the update will need to happen on the
-next repository access by 'git-cvsserver', independent of
-access method and requested operation.
+Ha a commit közvetlenül a `git` használatával történik (a
+'git-cvsserver' használata helyett), a frissítésnek a 'git-cvsserver'
+következő repository-elérésekor kell megtörténnie, az elérési módtól
+és a kért művelettől függetlenül.
 
-That means that even if you offer only read access (e.g. by using
-the pserver method), 'git-cvsserver' should have write access to
-the database to work reliably (otherwise you need to make sure
-that the database is up to date any time 'git-cvsserver' is executed).
+Ez azt jelenti, hogy még ha csak olvasási hozzáférést biztosítasz is
+(pl. a pserver metódus használatával), a 'git-cvsserver'-nek írási
+hozzáféréssel kell rendelkeznie az adatbázishoz a megbízható
+működéshez (ellenkező esetben gondoskodnod kell arról, hogy az
+adatbázis mindig naprakész legyen, amikor a 'git-cvsserver' fut).
 
-By default it uses SQLite databases in the Git directory, named
-`gitcvs.<module-name>.sqlite`. Note that the SQLite backend creates
-temporary files in the same directory as the database file on
-write so it might not be enough to grant the users using
-'git-cvsserver' write access to the database file without granting
-them write access to the directory, too.
+Alapértelmezetten SQLite adatbázisokat használ a Git könyvtárban,
+`gitcvs.<module-name>.sqlite` néven. Vedd figyelembe, hogy az SQLite
+backend íráskor ideiglenes fájlokat hoz létre ugyanabban a
+könyvtárban, mint az adatbázisfájl, ezért lehet, hogy nem elég az
+adatbázisfájlra vonatkozó írási jogosultságot megadni a
+'git-cvsserver'-t használó felhasználóknak, hanem magára a könyvtárra
+vonatkozó írási jogosultságot is meg kell adni nekik.
 
-The database cannot be reliably regenerated in a
-consistent form after the branch it is tracking has changed.
-Example: For merged branches, 'git-cvsserver' only tracks
-one branch of development, and after a 'git merge' an
-incrementally updated database may track a different branch
-than a database regenerated from scratch, causing inconsistent
-CVS revision numbers. `git-cvsserver` has no way of knowing which
-branch it would have picked if it had been run incrementally
-pre-merge. So if you have to fully or partially (from old
-backup) regenerate the database, you should be suspicious
-of pre-existing CVS sandboxes.
+Az adatbázis nem regenerálható megbízhatóan, konzisztens formában,
+miután a követett branch megváltozott. Példa: merge-elt branch-ek
+esetén a 'git-cvsserver' csak a fejlesztés egyetlen branch-ét követi,
+és egy 'git merge' után egy fokozatosan frissített adatbázis egy más
+branch-et követhet, mint egy nulláról regenerált adatbázis, ami
+inkonzisztens CVS revíziószámokat okoz. A `git-cvsserver`-nek nincs
+módja megtudni, hogy melyik branch-et választotta volna, ha
+fokozatosan futtatták volna a merge előtt. Tehát ha teljesen vagy
+részlegesen (régi biztonsági mentésből) regenerálnod kell az
+adatbázist, gyanakodnod kell a már meglévő CVS sandboxokra.
 
-You can configure the database backend with the following
-configuration variables:
+Az adatbázis backendet a következő konfigurációs változókkal
+állíthatod be:
 
-Configuring database backend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Az adatbázis backend beállítása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-'git-cvsserver' uses the Perl DBI module. Please also read
-its documentation if changing these variables, especially
-about `DBI->connect()`.
+A 'git-cvsserver' a Perl DBI modult használja. Kérjük, ha megváltoztatod
+ezeket a változókat, olvasd el annak dokumentációját is, különösen a
+`DBI->connect()`-tel kapcsolatban.
 
 gitcvs.dbName::
-	Database name. The exact meaning depends on the
-	selected database driver, for SQLite this is a filename.
-	Supports variable substitution (see below). May
-	not contain semicolons (`;`).
-	Default: '%Ggitcvs.%m.sqlite'
+	Adatbázisnév. A pontos jelentés a kiválasztott adatbázis-
+	drivertől függ, SQLite esetén ez egy fájlnév. Támogatja a
+	változó-behelyettesítést (lásd lent). Nem tartalmazhat
+	pontosvesszőt (`;`).
+	Alapértelmezés: '%Ggitcvs.%m.sqlite'
 
 gitcvs.dbDriver::
-	Used DBI driver. You can specify any available driver
-	for this here, but it might not work. cvsserver is tested
-	with 'DBD::SQLite', reported to work with
-	'DBD::Pg', and reported *not* to work with 'DBD::mysql'.
-	Please regard this as an experimental feature. May not
-	contain colons (`:`).
-	Default: 'SQLite'
+	A használt DBI driver. Bármilyen elérhető drivert megadhatsz
+	itt, de lehet, hogy nem fog működni. A cvsserver a
+	'DBD::SQLite'-tal van tesztelve, jelentések szerint működik a
+	'DBD::Pg'-vel, és jelentések szerint *nem* működik a
+	'DBD::mysql'-lel. Kérjük, kísérleti funkcióként kezeld. Nem
+	tartalmazhat kettőspontot (`:`).
+	Alapértelmezés: 'SQLite'
 
 gitcvs.dbuser::
-	Database user. Only useful if setting `dbDriver`, since
-	SQLite has no concept of database users. Supports variable
-	substitution (see below).
+	Adatbázis-felhasználó. Csak akkor hasznos, ha a `dbDriver` be van
+	állítva, mivel az SQLite-nak nincs fogalma adatbázis-
+	felhasználókról. Támogatja a változó-behelyettesítést (lásd
+	lent).
 
 gitcvs.dbPass::
-	Database password.  Only useful if setting `dbDriver`, since
-	SQLite has no concept of database passwords.
+	Adatbázis-jelszó. Csak akkor hasznos, ha a `dbDriver` be van
+	állítva, mivel az SQLite-nak nincs fogalma adatbázis-
+	jelszavakról.
 
 gitcvs.dbTableNamePrefix::
-	Database table name prefix.  Supports variable substitution
-	(see below).  Any non-alphabetic characters will be replaced
-	with underscores.
+	Adatbázistábla-név-előtag. Támogatja a változó-behelyettesítést
+	(lásd lent). Minden nem alfabetikus karakter aláhúzásjelre
+	cserélődik.
 
-All variables can also be set per access method, see <<configaccessmethod,above>>.
+Minden változó beállítható elérési módonként is, lásd <<configaccessmethod,fent>>.
 
-Variable substitution
-^^^^^^^^^^^^^^^^^^^^^
-In `dbDriver` and `dbUser` you can use the following variables:
+Változó-behelyettesítés
+^^^^^^^^^^^^^^^^^^^^^^^
+A `dbDriver`-ben és a `dbUser`-ben a következő változókat használhatod:
 
 %G::
-	Git directory name
+	Git-könyvtárnév
 %g::
-	Git directory name, where all characters except for
-	alphanumeric ones, `.`, and `-` are replaced with
-	`_` (this should make it easier to use the directory
-	name in a filename if wanted)
+	Git-könyvtárnév, amelyben minden karakter, az alfanumerikusak, a
+	`.` és a `-` kivételével, `_`-ra cserélődik (ez megkönnyítheti a
+	könyvtárnév fájlnévben való felhasználását, ha szükséges)
 %m::
-	CVS module/Git head name
+	CVS modul/Git head neve
 %a::
-	access method (one of "ext" or "pserver")
+	elérési mód (az "ext" vagy "pserver" egyike)
 %u::
-	Name of the user running 'git-cvsserver'.
-	If no name can be determined, the
-	numeric uid is used.
+	A 'git-cvsserver'-t futtató felhasználó neve.
+	Ha nem határozható meg a név, a
+	numerikus uid kerül felhasználásra.
 
 ENVIRONMENT
 -----------
 
-These variables obviate the need for command-line options in some
-circumstances, allowing easier restricted usage through git-shell.
+Ezek a változók bizonyos esetekben feleslegessé teszik a parancssori
+opciók használatát, megkönnyítve a git-shellen keresztüli, korlátozott
+használatot.
 
 GIT_CVSSERVER_BASE_PATH::
-	This variable replaces the argument to --base-path.
+	Ez a változó helyettesíti a --base-path argumentumát.
 
 GIT_CVSSERVER_ROOT::
-	This variable specifies a single directory, replacing the
-	`<directory>...` argument list. The repository still requires the
-	`gitcvs.enabled` config option, unless `--export-all` is specified.
+	Ez a változó egyetlen könyvtárat ad meg, helyettesítve a
+	`<directory>...` argumentumlistát. A repository továbbra is
+	megköveteli a `gitcvs.enabled` konfigurációs opciót, hacsak
+	nincs megadva a `--export-all`.
 
-When these environment variables are set, the corresponding
-command-line arguments may not be used.
+Amikor ezek a környezeti változók be vannak állítva, a megfelelő
+parancssori argumentumok nem használhatók.
 
-ECLIPSE CVS CLIENT NOTES
+ECLIPSE CVS-KLIENS MEGJEGYZÉSEK
+-------------------------------
+
+Egy checkout elkészítéséhez az Eclipse CVS-kliensével:
+
+1. Válaszd a "Create a new project -> From CVS checkout" lehetőséget.
+2. Hozz létre egy új helyet. A megfelelő protokoll kiválasztásának
+   részleteiért lásd a lenti megjegyzéseket.
+3. Böngészd az elérhető 'modules'-okat. Ez megadja a repository-ban
+   lévő head-ek listáját. Onnan nem tudod böngészni a fát. Csak a
+   head-eket.
+4. Válaszd a `HEAD`-et, amikor megkérdezi, melyik branch-et/tag-et
+   szeretnéd checkoutolni. Kapcsold ki a "launch commit wizard"
+   opciót, hogy elkerüld a .project fájl commitolását.
+
+Protokoll-megjegyzések: ha anonim hozzáférést használsz pserveren
+keresztül, egyszerűen azt válaszd. Azoknak, akik SSH-elérést
+használnak, az 'ext' protokollt kell választaniuk, és be kell
+állítaniuk az 'ext' elérést a Preferences->Team->CVS->ExtConnection
+panelen. Állítsd be a CVS_SERVER-t "`git cvsserver`"-re. Vedd
+figyelembe, hogy a jelszótámogatás nem jó 'ext' használatakor,
+mindenképpen SSH-kulcsokat érdemes beállítanod.
+
+Alternatívaként egyszerűen használhatod az Eclipse által kínált, nem
+szabványos extssh protokollt. Ebben az esetben a CVS_SERVER figyelmen
+kívül marad, és le kell cserélned a cvs segédprogramot a szerveren
+'git-cvsserver'-re, vagy módosítanod kell a `.bashrc`-det, hogy a
+'cvs' meghívása valójában a 'git-cvsserver'-t hívja meg.
+
+ISMERTEN MŰKÖDŐ KLIENSEK
 ------------------------
 
-To get a checkout with the Eclipse CVS client:
-
-1. Select "Create a new project -> From CVS checkout"
-2. Create a new location. See the notes below for details on how to choose the
-   right protocol.
-3. Browse the 'modules' available. It will give you a list of the heads in
-   the repository. You will not be able to browse the tree from there. Only
-   the heads.
-4. Pick `HEAD` when it asks what branch/tag to check out. Untick the
-   "launch commit wizard" to avoid committing the .project file.
-
-Protocol notes: If you are using anonymous access via pserver, just select that.
-Those using SSH access should choose the 'ext' protocol, and configure 'ext'
-access on the Preferences->Team->CVS->ExtConnection pane. Set CVS_SERVER to
-"`git cvsserver`". Note that password support is not good when using 'ext',
-you will definitely want to have SSH keys setup.
-
-Alternatively, you can just use the non-standard extssh protocol that Eclipse
-offer. In that case CVS_SERVER is ignored, and you will have to replace
-the cvs utility on the server with 'git-cvsserver' or manipulate your `.bashrc`
-so that calling 'cvs' effectively calls 'git-cvsserver'.
-
-CLIENTS KNOWN TO WORK
----------------------
-
-- CVS 1.12.9 on Debian
-- CVS 1.11.17 on MacOSX (from Fink package)
-- Eclipse 3.0, 3.1.2 on MacOSX (see Eclipse CVS Client Notes)
+- CVS 1.12.9 Debianon
+- CVS 1.11.17 MacOSX-en (Fink csomagból)
+- Eclipse 3.0, 3.1.2 MacOSX-en (lásd az Eclipse CVS-kliens megjegyzéseket)
 - TortoiseCVS
 
-OPERATIONS SUPPORTED
+TÁMOGATOTT MŰVELETEK
 --------------------
 
-All the operations required for normal use are supported, including
-checkout, diff, status, update, log, add, remove, commit.
+A normál használathoz szükséges összes művelet támogatott, beleértve
+a checkout, diff, status, update, log, add, remove, commit
+parancsokat.
 
-Most CVS command arguments that read CVS tags or revision numbers
-(typically -r) work, and also support any git refspec
-(tag, branch, commit ID, etc).
-However, CVS revision numbers for non-default branches are not well
-emulated, and cvs log does not show tags or branches at
-all.  (Non-main-branch CVS revision numbers superficially resemble CVS
-revision numbers, but they actually encode a git commit ID directly,
-rather than represent the number of revisions since the branch point.)
+A legtöbb, CVS tag-eket vagy revíziószámokat beolvasó CVS
+parancsargumentum (jellemzően -r) működik, és bármilyen git refspec-et
+is támogat (tag, branch, commit-azonosító, stb.). Azonban a
+nem-alapértelmezett branch-ek CVS revíziószámai nincsenek jól
+emulálva, és a cvs log egyáltalán nem mutat tag-eket vagy branch-eket.
+(A nem fő branch-en lévő CVS revíziószámok felszínesen hasonlítanak a
+CVS revíziószámokra, de valójában közvetlenül egy git commit-
+azonosítót kódolnak, ahelyett hogy a branch-pont óta eltelt revíziók
+számát reprezentálnák.)
 
-Note that there are two ways to checkout a particular branch.
-As described elsewhere on this page, the "module" parameter
-of cvs checkout is interpreted as a branch name, and it becomes
-the main branch.  It remains the main branch for a given sandbox
-even if you temporarily make another branch sticky with
-cvs update -r.  Alternatively, the -r argument can indicate
-some other branch to actually checkout, even though the module
-is still the "main" branch.  Tradeoffs (as currently
-implemented): Each new "module" creates a new database on disk with
-a history for the given module, and after the database is created,
-operations against that main branch are fast.  Or alternatively,
--r doesn't take any extra disk space, but may be significantly slower for
-many operations, like cvs update.
+Vedd figyelembe, hogy két módja van egy adott branch checkoutolásának.
+Ahogy máshol is le van írva ezen az oldalon, a cvs checkout "module"
+paramétere branch-névként kerül értelmezésre, és ez lesz a fő
+branch. Ez marad a fő branch egy adott sandbox esetén, még akkor is,
+ha ideiglenesen egy másik branch-et teszel sticky-vé a cvs
+update -r paranccsal. Alternatívaként a -r argumentum jelezhet egy
+másik branch-et, amelyet ténylegesen checkoutolni kell, még akkor is,
+ha a modul továbbra is a "main" branch. Kompromisszumok (a jelenlegi
+megvalósítás szerint): minden új "module" új adatbázist hoz létre a
+lemezen, az adott modul előzményeivel, és az adatbázis létrehozása
+után az adott fő branch elleni műveletek gyorsak. Vagy alternatívaként
+a -r nem foglal extra lemezterületet, de jelentősen lassabb lehet sok
+művelethez, mint például a cvs update.
 
-If you want to refer to a git refspec that has characters that are
-not allowed by CVS, you have two options.  First, it may just work
-to supply the git refspec directly to the appropriate CVS -r argument;
-some CVS clients don't seem to do much sanity checking of the argument.
-Second, if that fails, you can use a special character escape mechanism
-that only uses characters that are valid in CVS tags.  A sequence
-of 4 or 5 characters of the form (underscore (`"_"`), dash (`"-"`),
-one or two characters, and dash (`"-"`)) can encode various characters based
-on the one or two letters: `"s"` for slash (`"/"`), `"p"` for
-period (`"."`), `"u"` for underscore (`"_"`), or two hexadecimal digits
-for any byte value at all (typically an ASCII number, or perhaps a part
-of a UTF-8 encoded character).
+Ha egy olyan git refspecre szeretnél hivatkozni, amely a CVS által
+nem engedélyezett karaktereket tartalmaz, két lehetőséged van. Először
+is, előfordulhat, hogy egyszerűen működik, ha közvetlenül megadod a
+git refspecet a megfelelő CVS -r argumentumnak; úgy tűnik, néhány
+CVS-kliens nem sokat ellenőrzi az argumentumot. Másodszor, ha ez nem
+sikerül, használhatsz egy speciális karakter-escape mechanizmust,
+amely csak a CVS tag-ekben érvényes karaktereket használja. Egy 4
+vagy 5 karakterből álló, (aláhúzásjel (`"_"`), kötőjel (`"-"`), egy
+vagy két karakter, és kötőjel (`"-"`)) formájú szekvencia különböző
+karaktereket kódolhat az egy vagy két betű alapján: `"s"` a perjelhez
+(`"/"`), `"p"` a ponthoz (`"."`), `"u"` az aláhúzásjelhez (`"_"`),
+vagy két hexadecimális számjegy bármilyen bájtértékhez (jellemzően
+egy ASCII-szám, vagy esetleg egy UTF-8 kódolású karakter része).
 
-Legacy monitoring operations are not supported (edit, watch and related).
-Exports and tagging (tags and branches) are not supported at this stage.
+A régi típusú felügyeleti műveletek nem támogatottak (edit, watch és
+kapcsolódók). Az exportok és a tag-elés (tag-ek és branch-ek) ezen a
+ponton nem támogatottak.
 
-CRLF Line Ending Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CRLF sorvég-konverziók
+~~~~~~~~~~~~~~~~~~~~~~
 
-By default the server leaves the `-k` mode blank for all files,
-which causes the CVS client to treat them as a text files, subject
-to end-of-line conversion on some platforms.
+Alapértelmezetten a szerver üresen hagyja a `-k` módot minden fájlnál,
+ami miatt a CVS-kliens szöveges fájlként kezeli őket, egyes
+platformokon a sorvég-konverziónak alávetve.
 
-You can make the server use the end-of-line conversion attributes to
-set the `-k` modes for files by setting the `gitcvs.usecrlfattr`
-config variable.  See linkgit:gitattributes[5] for more information
-about end-of-line conversion.
+Beállíthatod, hogy a szerver a sorvég-konverziós attribútumokat
+használja a fájlok `-k` módjának beállításához, a `gitcvs.usecrlfattr`
+konfigurációs változó beállításával. A sorvég-konverzióról további
+információért lásd a linkgit:gitattributes[5] leírást.
 
-Alternatively, if `gitcvs.usecrlfattr` config is not enabled
-or the attributes do not allow automatic detection for a filename, then
-the server uses the `gitcvs.allBinary` config for the default setting.
-If `gitcvs.allBinary` is set, then file not otherwise
-specified will default to '-kb' mode. Otherwise the `-k` mode
-is left blank. But if `gitcvs.allBinary` is set to "guess", then
-the correct `-k` mode will be guessed based on the contents of
-the file.
+Alternatívaként, ha a `gitcvs.usecrlfattr` konfiguráció nincs
+engedélyezve, vagy az attribútumok nem teszik lehetővé az automatikus
+felismerést egy fájlnévhez, akkor a szerver a `gitcvs.allBinary`
+konfigurációt használja az alapértelmezett beállításhoz. Ha a
+`gitcvs.allBinary` be van állítva, akkor az egyébként meg nem adott
+fájl alapértelmezetten '-kb' módba kerül. Egyébként a `-k` mód
+üresen marad. De ha a `gitcvs.allBinary` "guess"-re van állítva, akkor
+a helyes `-k` mód a fájl tartalma alapján kerül kitalálásra.
 
-For best consistency with 'cvs', it is probably best to override the
-defaults by setting `gitcvs.usecrlfattr` to true,
-and `gitcvs.allBinary` to "guess".
+A 'cvs'-szel való legjobb konzisztencia érdekében valószínűleg a
+legjobb felülírni az alapértelmezéseket, a `gitcvs.usecrlfattr`
+igazra állításával, és a `gitcvs.allBinary` "guess"-re állításával.
 
-DEPENDENCIES
-------------
-'git-cvsserver' depends on DBD::SQLite.
+FÜGGŐSÉGEK
+----------
+A 'git-cvsserver' a DBD::SQLite-tól függ.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-cat-file(1)
 
 NAME
 ----
-git-cat-file - Provide contents or details of repository objects
+git-cat-file - Repository-objektumok tartalmának vagy részleteinek megjelenítése
 
 SYNOPSIS
 --------
@@ -18,249 +18,268 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Output the contents or other properties such as size, type or delta
-information of one or more objects.
+Kiírja egy vagy több objektum tartalmát, vagy egyéb tulajdonságait,
+mint a méret, a típus vagy a delta-információ.
 
-This command can operate in two modes, depending on whether an option
-from the `--batch` family is specified.
+Ez a parancs két módban tud működni, attól függően, hogy meg van-e
+adva egy opció a `--batch` családból.
 
-In non-batch mode, the command provides information on an object
-named on the command line.
+Nem-batch módban a parancs a parancssorban megnevezett objektumról ad
+információt.
 
-In batch mode, arguments are read from standard input.
+Batch módban az argumentumok a standard bemenetről kerülnek beolvasásra.
 
 OPTIONS
 -------
 <object>::
-	The name of the object to show.
-	For a more complete list of ways to spell object names, see
-	the "SPECIFYING REVISIONS" section in linkgit:gitrevisions[7].
+	A megjelenítendő objektum neve.
+	Az objektumnevek megadási módjainak teljesebb listájáért lásd a
+	"SPECIFYING REVISIONS" szakaszt a linkgit:gitrevisions[7]-ben.
 
 -t::
-	Instead of the content, show the object type identified by
-	`<object>`.
+	A tartalom helyett a `<object>` által azonosított objektumtípust
+	mutatja.
 
 -s::
-	Instead of the content, show the object size identified by
-	`<object>`. If used with `--use-mailmap` option, will show
-	the size of updated object after replacing idents using the
-	mailmap mechanism.
+	A tartalom helyett a `<object>` által azonosított objektum
+	méretét mutatja. Ha a `--use-mailmap` opcióval együtt van
+	használva, a frissített objektum méretét mutatja azután, hogy a
+	mailmap mechanizmus lecserélte az identitásokat.
 
 -e::
-	Exit with zero status if `<object>` exists and is a valid
-	object. If `<object>` is of an invalid format, exit with non-zero
-	status and emit an error on stderr.
+	Nulla státusszal lép ki, ha a `<object>` létezik és érvényes
+	objektum. Ha a `<object>` érvénytelen formátumú, nem nulla
+	státusszal lép ki, és hibát ad ki a stderr-re.
 
 -p::
-	Pretty-print the contents of `<object>` based on its type.
+	Szépen kiírja a `<object>` tartalmát a típusa alapján.
 
 <type>::
-	Typically this matches the real type of `<object>` but asking
-	for a type that can trivially be dereferenced from the given
-	`<object>` is also permitted.  An example is to ask for a
-	"tree" with `<object>` being a commit object that contains it,
-	or to ask for a "blob" with `<object>` being a tag object that
-	points at it.
+	Ez jellemzően megegyezik a `<object>` valós típusával, de olyan
+	típus kérése is megengedett, amely triviálisan
+	feloldható a megadott `<object>`-ből. Példa erre egy "tree"
+	kérése, ahol a `<object>` egy azt tartalmazó commit objektum,
+	vagy egy "blob" kérése, ahol a `<object>` egy arra mutató tag
+	objektum.
 
 --mailmap::
 --no-mailmap::
 --use-mailmap::
 --no-use-mailmap::
-       Use mailmap file to map author, committer and tagger names
-       and email addresses to canonical real names and email addresses.
-       See linkgit:git-shortlog[1].
+       A mailmap fájlt használja a szerző-, committer- és tagelő-nevek,
+       valamint az e-mail-címek kanonikus valódi nevekre és
+       e-mail-címekre való leképezéséhez.
+       Lásd linkgit:git-shortlog[1].
 
 --textconv::
-	Show the content as transformed by a textconv filter. In this case,
-	`<object>` has to be of the form `<tree-ish>:<path>`, or `:<path>` in
-	order to apply the filter to the content recorded in the index at
-	`<path>`.
+	A tartalmat egy textconv filter által átalakított formában
+	mutatja. Ebben az esetben a `<object>`-nek `<tree-ish>:<path>`
+	vagy `:<path>` alakúnak kell lennie, hogy a filter alkalmazható
+	legyen az indexben a `<path>`-nál rögzített tartalomra.
 
 --filters::
-	Show the content as converted by the filters configured in
-	the current working tree for the given `<path>` (i.e. smudge filters,
-	end-of-line conversion, etc). In this case, `<object>` has to be of
-	the form `<tree-ish>:<path>`, or `:<path>`.
+	A tartalmat az aktuális munkakönyvtárban a megadott `<path>`-hoz
+	konfigurált filterek (azaz smudge filterek, sorvég-konverzió,
+	stb.) által konvertált formában mutatja. Ebben az esetben a
+	`<object>`-nek `<tree-ish>:<path>` vagy `:<path>` alakúnak kell
+	lennie.
 
 --filter=<filter-spec>::
 --no-filter::
-	Omit objects from the list of printed objects. This can only be used in
-	combination with one of the batched modes. Excluded objects that have
-	been explicitly requested via any of the batch modes that read objects
-	via standard input (`--batch`, `--batch-check`) will be reported as
-	"filtered". Excluded objects in `--batch-all-objects` mode will not be
-	printed at all. The '<filter-spec>' may be one of the following:
+	Kihagyja az objektumokat a kiírt objektumok listájából. Ez csak a
+	batch módok egyikével kombinálva használható. Azok a kizárt
+	objektumok, amelyeket a standard bemeneten keresztül objektumokat
+	olvasó batch módok bármelyikén keresztül (`--batch`,
+	`--batch-check`) explicit módon kértek, "filtered"-ként lesznek
+	jelentve. A `--batch-all-objects` módban a kizárt objektumok
+	egyáltalán nem kerülnek kiírásra. A '<filter-spec>' a következők
+	egyike lehet:
 +
-The form '--filter=blob:none' omits all blobs.
+A '--filter=blob:none' alak minden blobot kihagy.
 +
-The form '--filter=blob:limit=<n>[kmg]' omits blobs of size at least n
-bytes or units.  n may be zero.  The suffixes k, m, and g can be used to name
-units in KiB, MiB, or GiB.  For example, 'blob:limit=1k' is the same as
+A '--filter=blob:limit=<n>[kmg]' alak azokat a blobokat hagyja ki,
+amelyek mérete legalább n byte vagy egység. Az n lehet nulla. A k, m
+és g utótagok a KiB, MiB vagy GiB egységek megnevezésére
+használhatók. Például a 'blob:limit=1k' ugyanaz, mint a
 'blob:limit=1024'.
 +
-The form '--filter=object:type=(tag|commit|tree|blob)' omits all objects which
-are not of the requested type.
+A '--filter=object:type=(tag|commit|tree|blob)' alak minden olyan
+objektumot kihagy, amely nem a kért típusú.
 
 --path=<path>::
-	For use with `--textconv` or `--filters`, to allow specifying an object
-	name and a path separately, e.g. when it is difficult to figure out
-	the revision from which the blob came.
+	A `--textconv`-vel vagy a `--filters`-szel együtt használva, hogy
+	lehetővé tegye egy objektumnév és egy útvonal külön-külön
+	megadását, pl. amikor nehéz kideríteni, melyik revízióból
+	származik a blob.
 
 --batch::
 --batch=<format>::
-	Print object information and contents for each object provided
-	on stdin. May not be combined with any other options or arguments
-	except `--textconv`, `--filters`, or `--use-mailmap`.
+	Kiírja az objektum-információt és a tartalmat minden, a stdinen
+	megadott objektumhoz. Nem kombinálható más opciókkal vagy
+	argumentumokkal, kivéve a `--textconv`-et, a `--filters`-t vagy a
+	`--use-mailmap`-et.
 +
 --
-	* When used with `--textconv` or `--filters`, the input lines
-	  must specify the path, separated by whitespace. See the section
-	  `BATCH OUTPUT` below for details.
+	* A `--textconv`-vel vagy a `--filters`-szel használva, a
+	  bemeneti soroknak meg kell adniuk az útvonalat, whitespace-szel
+	  elválasztva. A részletekért lásd az alábbi `BATCH OUTPUT`
+	  szakaszt.
 
-	* When used with `--use-mailmap`, for commit and tag objects, the
-	  contents part of the output shows the identities replaced using the
-	  mailmap mechanism, while the information part of the output shows
-	  the size of the object as if it actually recorded the replacement
-	  identities.
+	* A `--use-mailmap`-pel használva, commit- és tag-objektumoknál
+	  a kimenet tartalom-része a mailmap mechanizmus által
+	  lecserélt identitásokat mutatja, míg a kimenet
+	  információ-része az objektum méretét úgy mutatja, mintha az
+	  ténylegesen a lecserélt identitásokat rögzítette volna.
 --
 
 --batch-check::
 --batch-check=<format>::
-	Print object information for each object provided on stdin. May not be
-	combined with any other options or arguments except `--textconv`, `--filters`
-	or `--use-mailmap`.
+	Kiírja az objektum-információt minden, a stdinen megadott
+	objektumhoz. Nem kombinálható más opciókkal vagy
+	argumentumokkal, kivéve a `--textconv`-et, a `--filters`-t vagy a
+	`--use-mailmap`-et.
 +
 --
-	* When used with `--textconv` or `--filters`, the input lines must
-	 specify the path, separated by whitespace. See the section
-	 `BATCH OUTPUT` below for details.
+	* A `--textconv`-vel vagy a `--filters`-szel használva, a
+	 bemeneti soroknak meg kell adniuk az útvonalat, whitespace-szel
+	 elválasztva. A részletekért lásd az alábbi `BATCH OUTPUT`
+	 szakaszt.
 
-	* When used with `--use-mailmap`, for commit and tag objects, the
-	  printed object information shows the size of the object as if the
-	  identities recorded in it were replaced by the mailmap mechanism.
+	* A `--use-mailmap`-pel használva, commit- és tag-objektumoknál
+	  a kiírt objektum-információ úgy mutatja az objektum méretét,
+	  mintha a benne rögzített identitásokat a mailmap mechanizmus
+	  lecserélte volna.
 --
 
 --batch-command::
 --batch-command=<format>::
-	Enter a command mode that reads commands and arguments from stdin. May
-	only be combined with `--buffer`, `--textconv`, `--use-mailmap` or
-	`--filters`.
+	Belép egy parancsmódba, amely parancsokat és argumentumokat
+	olvas be a stdinről. Csak a `--buffer`-rel, a `--textconv`-vel, a
+	`--use-mailmap`-pel vagy a `--filters`-szel kombinálható.
 +
 --
-	* When used with `--textconv` or `--filters`, the input lines must
-	  specify the path, separated by whitespace. See the section
-	  `BATCH OUTPUT` below for details.
+	* A `--textconv`-vel vagy a `--filters`-szel használva, a
+	  bemeneti soroknak meg kell adniuk az útvonalat, whitespace-szel
+	  elválasztva. A részletekért lásd az alábbi `BATCH OUTPUT`
+	  szakaszt.
 
-	* When used with `--use-mailmap`, for commit and tag objects, the
-	  `contents` command shows the identities replaced using the
-	  mailmap mechanism, while the `info` command shows the size
-	  of the object as if it actually recorded the replacement
-	  identities.
+	* A `--use-mailmap`-pel használva, commit- és tag-objektumoknál
+	  a `contents` parancs a mailmap mechanizmus által lecserélt
+	  identitásokat mutatja, míg az `info` parancs az objektum
+	  méretét úgy mutatja, mintha az ténylegesen a lecserélt
+	  identitásokat rögzítette volna.
 --
 +
-`--batch-command` recognizes the following commands:
+A `--batch-command` a következő parancsokat ismeri fel:
 +
 --
 contents <object>::
-	Print object contents for object reference `<object>`. This corresponds to
-	the output of `--batch`.
+	Kiírja az objektum tartalmát a `<object>` objektumreferenciához.
+	Ez a `--batch` kimenetének felel meg.
 
 info <object>::
-	Print object info for object reference `<object>`. This corresponds to the
-	output of `--batch-check`.
+	Kiírja az objektum-információt a `<object>` objektumreferenciához.
+	Ez a `--batch-check` kimenetének felel meg.
 
 remote-object-info <remote> <object>...::
-	Print object info for object references `<object>` at specified
-	`<remote>` without downloading objects from the remote.
-	Raise an error when the `object-info` capability is not supported by the remote.
-	Raise an error when no object references are provided.
-	This command may be combined with `--buffer`.
+	Kiírja az objektum-információt a `<object>` objektumreferenciákhoz
+	a megadott `<remote>`-nál, anélkül, hogy objektumokat töltene le a
+	remote-ról. Hibát ad, ha a remote nem támogatja az
+	`object-info` képességet. Hibát ad, ha nincs megadva egyetlen
+	objektumreferencia sem. Ez a parancs kombinálható a `--buffer`-rel.
 
 flush::
-	Used with `--buffer` to execute all preceding commands that were issued
-	since the beginning or since the last flush was issued. When `--buffer`
-	is used, no output will come until a `flush` is issued. When `--buffer`
-	is not used, commands are flushed each time without issuing `flush`.
+	A `--buffer`-rel használva végrehajtja az összes megelőző
+	parancsot, amely az elejétől vagy az utolsó flush kiadása óta
+	érkezett. Amikor a `--buffer` van használva, nem érkezik kimenet,
+	amíg egy `flush` ki nem lett adva. Amikor a `--buffer` nincs
+	használva, a parancsok minden alkalommal flush-olva vannak,
+	`flush` kiadása nélkül is.
 
 `mailmap (<bool>)`::
-	Enable or disable mailmap for subsequent commands. The `<bool>`
-	argument accepts the same boolean values as linkgit:git-config[1].
-	The mailmap data is read upon the first use and only once.
+	Be- vagy kikapcsolja a mailmapet a következő parancsokhoz. A
+	`<bool>` argumentum ugyanazokat a logikai értékeket fogadja el,
+	mint a linkgit:git-config[1]. A mailmap-adatok az első
+	használatkor, csak egyszer kerülnek beolvasásra.
 --
 +
 
 --batch-all-objects::
-	Instead of reading a list of objects on stdin, perform the
-	requested batch operation on all objects in the repository and
-	any alternate object stores (not just reachable objects).
-	Requires `--batch` or `--batch-check` be specified. By default,
-	the objects are visited in order sorted by their hashes; see
-	also `--unordered` below. Objects are presented as-is, without
-	respecting the "replace" mechanism of linkgit:git-replace[1].
+	Ahelyett, hogy a stdinen egy objektumlistát olvasna be, a kért
+	batch műveletet a repository összes objektumán és bármely
+	alternatív objektumtárolón hajtja végre (nem csak az elérhető
+	objektumokon). A `--batch` vagy a `--batch-check` megadását
+	igényli. Alapértelmezésben az objektumok bejárása a hash-eik
+	szerint rendezett sorrendben történik; lásd még az alábbi
+	`--unordered`-et. Az objektumok úgy jelennek meg, ahogy vannak,
+	a linkgit:git-replace[1] "replace" mechanizmusát figyelmen kívül
+	hagyva.
 
 --buffer::
-	Normally batch output is flushed after each object is output, so
-	that a process can interactively read and write from
-	`cat-file`. With this option, the output uses normal stdio
-	buffering; this is much more efficient when invoking
-	`--batch-check` or `--batch-command` on a large number of objects.
+	Normál esetben a batch kimenet minden objektum kiírása után
+	flush-olva van, hogy egy folyamat interaktívan tudjon olvasni és
+	írni a `cat-file`-hoz. Ezzel az opcióval a kimenet a normál stdio
+	pufferelést használja; ez sokkal hatékonyabb, amikor a
+	`--batch-check`-et vagy a `--batch-command`-ot nagyszámú
+	objektumon hívjuk meg.
 
 --unordered::
-	When `--batch-all-objects` is in use, visit objects in an
-	order which may be more efficient for accessing the object
-	contents than hash order. The exact details of the order are
-	unspecified, but if you do not require a specific order, this
-	should generally result in faster output, especially with
-	`--batch`.  Note that `cat-file` will still show each object
-	only once, even if it is stored multiple times in the
-	repository.
+	Amikor a `--batch-all-objects` van használva, az objektumok
+	bejárása olyan sorrendben történik, amely hatékonyabb lehet az
+	objektumtartalom eléréséhez, mint a hash-sorrend. A sorrend
+	pontos részletei nincsenek meghatározva, de ha nincs szükséged
+	konkrét sorrendre, ez általában gyorsabb kimenetet eredményez,
+	különösen a `--batch`-tel. Vedd figyelembe, hogy a `cat-file`
+	továbbra is csak egyszer mutatja meg mindegyik objektumot, még
+	akkor is, ha az több példányban van tárolva a repository-ban.
 
 --follow-symlinks::
-	With `--batch` or `--batch-check`, follow symlinks inside the
-	repository when requesting objects with extended SHA-1
-	expressions of the form tree-ish:path-in-tree.  Instead of
-	providing output about the link itself, provide output about
-	the linked-to object.  If a symlink points outside the
-	tree-ish (e.g. a link to `/foo` or a root-level link to `../foo`),
-	the portion of the link which is outside the tree will be
-	printed.
+	A `--batch`-tel vagy a `--batch-check`-kel együtt követi a
+	repositoryban lévő szimbolikus linkeket, amikor objektumokat kér
+	tree-ish:path-in-tree alakú kiterjesztett SHA-1-kifejezésekkel.
+	Ahelyett, hogy magáról a linkről adna kimenetet, a link által
+	mutatott objektumról ad kimenetet. Ha egy szimbolikus link a
+	tree-ish-en kívülre mutat (pl. egy `/foo`-ra mutató link, vagy
+	egy gyökérszintű link a `../foo`-ra), a link tree-n kívüli
+	része kerül kiírásra.
 +
-This option does not (currently) work correctly when an object in the
-index is specified (e.g. `:link` instead of `HEAD:link`) rather than
-one in the tree.
+Ez az opció (jelenleg) nem működik helyesen, amikor egy indexben
+lévő objektum van megadva (pl. `:link` a `HEAD:link` helyett) a
+tree-ben lévő helyett.
 +
-This option cannot (currently) be used unless `--batch` or
-`--batch-check` is used.
+Ez az opció (jelenleg) nem használható, hacsak nincs használva a
+`--batch` vagy a `--batch-check`.
 +
-For example, consider a git repository containing:
+Vegyünk például egy git repository-t, amely a következőket tartalmazza:
 +
 --
-	f: a file containing "hello\n"
-	link: a symlink to f
-	dir/link: a symlink to ../f
-	plink: a symlink to ../f
-	alink: a symlink to /etc/passwd
+	f: egy fájl "hello\n" tartalommal
+	link: egy szimbolikus link az f-re
+	dir/link: egy szimbolikus link a ../f-re
+	plink: egy szimbolikus link a ../f-re
+	alink: egy szimbolikus link a /etc/passwd-re
 --
 +
-For a regular file `f`, `echo HEAD:f | git cat-file --batch` would print
+Egy `f` reguláris fájlhoz az `echo HEAD:f | git cat-file --batch` a
+következőt írná ki
 +
 --
 	ce013625030ba8dba906f756967f9e9ca394464a blob 6
 --
 +
-And `echo HEAD:link | git cat-file --batch --follow-symlinks` would
-print the same thing, as would `HEAD:dir/link`, as they both point at
-`HEAD:f`.
+Az `echo HEAD:link | git cat-file --batch --follow-symlinks` ugyanezt
+írná ki, ahogy a `HEAD:dir/link` is, mivel mindkettő a `HEAD:f`-re
+mutat.
 +
-Without `--follow-symlinks`, these would print data about the symlink
-itself.  In the case of `HEAD:link`, you would see
+A `--follow-symlinks` nélkül ezek magáról a szimbolikus linkről
+mutatnának adatot. A `HEAD:link` esetében a következőt látnád
 +
 --
 	4d1ae35ba2c8ec712fa2a379db44ad639ca277bd blob 1
 --
 +
-Both `plink` and `alink` point outside the tree, so they would
-respectively print:
+Mind a `plink`, mind az `alink` a tree-n kívülre mutat, így ezeket
+írnák ki, rendre:
 +
 --
 	symlink 4
@@ -271,200 +290,214 @@ respectively print:
 --
 
 -Z::
-	Only meaningful with `--batch`, `--batch-check`, or
-	`--batch-command`; input and output is NUL-delimited instead of
-	newline-delimited.
+	Csak a `--batch`-tel, a `--batch-check`-kel vagy a
+	`--batch-command`-dal együtt van jelentősége; a bemenet és a
+	kimenet NUL-lal határolt, nem újsor-határolt.
 
 -z::
-	Only meaningful with `--batch`, `--batch-check`, or
-	`--batch-command`; input is NUL-delimited instead of
-	newline-delimited. This option is deprecated in favor of
-	`-Z` as the output can otherwise be ambiguous.
+	Csak a `--batch`-tel, a `--batch-check`-kel vagy a
+	`--batch-command`-dal együtt van jelentősége; a bemenet NUL-lal
+	határolt, nem újsor-határolt. Ez az opció elavult a `-Z` javára,
+	mivel a kimenet enélkül félreérthető lehet.
 
 
 OUTPUT
 ------
-If `-t` is specified, one of the `<type>`.
+Ha a `-t` van megadva, a `<type>` egyike.
 
-If `-s` is specified, the size of the `<object>` in bytes.
+Ha a `-s` van megadva, a `<object>` mérete byte-okban.
 
-If `-e` is specified, no output, unless the `<object>` is malformed.
+Ha a `-e` van megadva, nincs kimenet, hacsak a `<object>` nem
+hibásan formázott.
 
-If `-p` is specified, the contents of `<object>` are pretty-printed.
+Ha a `-p` van megadva, a `<object>` tartalma szépen kiírva.
 
-If `<type>` is specified, the raw (though uncompressed) contents of the `<object>`
-will be returned.
+Ha a `<type>` van megadva, a `<object>` nyers (bár tömörítetlen)
+tartalma kerül visszaadásra.
 
 BATCH OUTPUT
 ------------
 
-If `--batch` or `--batch-check` is given, `cat-file` will read objects
-from stdin, one per line, and print information about them in the same
-order as they have been read. By default, the whole line is
-considered as an object, as if it were fed to linkgit:git-rev-parse[1].
+Ha a `--batch` vagy a `--batch-check` van megadva, a `cat-file`
+objektumokat olvas be a stdinről, soronként egyet, és ugyanabban a
+sorrendben ír ki róluk információt, ahogyan beolvasásra kerültek.
+Alapértelmezésben a teljes sor objektumnak számít, mintha a
+linkgit:git-rev-parse[1]-nek adták volna át.
 
-When `--batch-command` is given, `cat-file` will read commands from stdin,
-one per line, and print information based on the command given. With
-`--batch-command`, the `info` command followed by an object will print
-information about the object the same way `--batch-check` would, and the
-`contents` command followed by an object prints contents in the same way
-`--batch` would. The `remote-object-info` command followed by a remote and
-object IDs prints object info from the remote without downloading the objects.
+Ha a `--batch-command` van megadva, a `cat-file` parancsokat olvas be
+a stdinről, soronként egyet, és a megadott parancs alapján ír ki
+információt. A `--batch-command`-dal az `info` parancs, amelyet egy
+objektum követ, ugyanúgy ír ki információt az objektumról, ahogyan a
+`--batch-check` tenné, a `contents` parancs pedig, amelyet egy
+objektum követ, ugyanúgy írja ki a tartalmat, ahogyan a `--batch`
+tenné. A `remote-object-info` parancs, amelyet egy remote és
+objektumazonosítók követnek, objektum-információt ír ki a remote-ról,
+anélkül, hogy letöltené az objektumokat.
 
-You can specify the information shown for each object by using a custom
-`<format>`. The `<format>` is copied literally to stdout for each
-object, with placeholders of the form `%(atom)` expanded, followed by a
-newline. The available atoms are:
+Egy egyéni `<format>` használatával megadhatod, milyen információ
+jelenjen meg az egyes objektumokhoz. A `<format>` szó szerint kerül
+másolásra a stdoutra minden egyes objektumhoz, a `%(atom)` alakú
+helyőrzők kifejtésével, amelyet egy újsor követ. Az elérhető atomok:
 
 `objectname`::
-	The full hex representation of the object name.
+	Az objektumnév teljes hexadecimális reprezentációja.
 
 `objecttype`::
-	The type of the object (the same as `cat-file -t` reports).
+	Az objektum típusa (ugyanaz, amit a `cat-file -t` jelent).
 
 `objectmode`::
-	If the specified object has mode information (such as a tree or
-	index entry), the mode expressed as an octal integer. Otherwise,
-	empty string.
+	Ha a megadott objektumnak van mode-információja (mint egy tree
+	vagy index bejegyzés), a mode oktális egész számként kifejezve.
+	Egyébként üres string.
 
 `objectsize`::
-	The size, in bytes, of the object (the same as `cat-file -s`
-	reports).
+	Az objektum mérete byte-okban (ugyanaz, amit a `cat-file -s`
+	jelent).
 
 `objectsize:disk`::
-	The size, in bytes, that the object takes up on disk. See the
-	note about on-disk sizes in the `CAVEATS` section below.
+	Az a méret byte-okban, amelyet az objektum a lemezen elfoglal.
+	Lásd a lemezen elfoglalt méretekről szóló megjegyzést az alábbi
+	`CAVEATS` szakaszban.
 
 `deltabase`::
-	If the object is stored as a delta on-disk, this expands to the
-	full hex representation of the delta base object name.
-	Otherwise, expands to the null OID (all zeroes). See `CAVEATS`
-	below.
+	Ha az objektum a lemezen deltaként van tárolva, ez a delta-alap
+	objektum nevének teljes hexadecimális reprezentációjára fejtődik
+	ki. Egyébként a null OID-ra (csupa nulla) fejtődik ki. Lásd
+	alább a `CAVEATS`-t.
 
 `rest`::
-	If this atom is used in the output string, input lines are split
-	at the first whitespace boundary. All characters before that
-	whitespace are considered to be the object name; characters
-	after that first run of whitespace (i.e., the "rest" of the
-	line) are output in place of the `%(rest)` atom.
+	Ha ez az atom van használva a kimeneti stringben, a bemeneti
+	sorok az első whitespace-határnál kerülnek felosztásra. Az azt
+	a whitespace-t megelőző összes karakter az objektumnévnek
+	számít; az első whitespace-sorozat utáni karakterek (azaz a sor
+	"maradéka") a `%(rest)` atom helyén kerülnek kiírásra.
 
-The command `remote-object-info` only supports the `%(objectname)`,
-`%(objectsize)` and `%(objecttype)` placeholders. See `CAVEATS` below for more
-information.
+A `remote-object-info` parancs csak a `%(objectname)`, a
+`%(objectsize)` és a `%(objecttype)` helyőrzőket támogatja. Bővebb
+információért lásd alább a `CAVEATS`-t.
 
-If no format is specified, the default format is `%(objectname)
-%(objecttype) %(objectsize)`.
+Ha nincs formátum megadva, az alapértelmezett formátum a
+`%(objectname) %(objecttype) %(objectsize)`.
 
-If `--batch` is specified, or if `--batch-command` is used with the `contents`
-command, the object information is followed by the object contents (consisting
-of `%(objectsize)` bytes), followed by a newline.
+Ha a `--batch` van megadva, vagy ha a `--batch-command` van használva
+a `contents` paranccsal, az objektum-információt az objektum tartalma
+követi (amely `%(objectsize)` byte-ból áll), amit egy újsor követ.
 
-For example, `--batch` without a custom format would produce:
+Például a `--batch` egyéni formátum nélkül a következőt produkálná:
 
 -----------
 <oid> SP <type> SP <size> LF
 <contents> LF
 -----------
 
-Whereas `--batch-check='%(objectname) %(objecttype)'` would produce:
+Míg a `--batch-check='%(objectname) %(objecttype)'` a következőt
+produkálná:
 
 ------------
 <oid> SP <type> LF
 ------------
 
-If a name is specified on stdin that cannot be resolved to an object in
-the repository, then `cat-file` will ignore any custom format and print:
+Ha a stdinen egy olyan név van megadva, amely nem oldható fel egy
+objektumra a repository-ban, a `cat-file` figyelmen kívül hagy minden
+egyéni formátumot és a következőt írja ki:
 
 ------------
 <object> SP missing LF
 ------------
 
-If a name is specified on stdin that is filtered out via `--filter=`,
-then `cat-file` will ignore any custom format and print:
+Ha a stdinen egy olyan név van megadva, amely a `--filter=` révén ki
+van szűrve, a `cat-file` figyelmen kívül hagy minden egyéni formátumot
+és a következőt írja ki:
 
 ------------
 <object> SP excluded LF
 ------------
 
-If a name is specified that might refer to more than one object (an ambiguous short sha), then `cat-file` will ignore any custom format and print:
+Ha egy olyan név van megadva, amely egynél több objektumra utalhat
+(egy nem egyértelmű rövid sha), a `cat-file` figyelmen kívül hagy
+minden egyéni formátumot és a következőt írja ki:
 
 ------------
 <object> SP ambiguous LF
 ------------
 
-If a name is specified that refers to a submodule entry in a tree and the
-target object does not exist in the repository, then `cat-file` will ignore
-any custom format and print (with the object ID of the submodule):
+Ha egy olyan név van megadva, amely egy tree-ben lévő submodule
+bejegyzésre utal, és a célobjektum nem létezik a repository-ban, a
+`cat-file` figyelmen kívül hagy minden egyéni formátumot, és a
+következőt írja ki (a submodule objektumazonosítójával):
 
 ------------
 <oid> SP submodule LF
 ------------
 
-If `--follow-symlinks` is used, and a symlink in the repository points
-outside the repository, then `cat-file` will ignore any custom format
-and print:
+Ha a `--follow-symlinks` van használva, és egy szimbolikus link a
+repository-ban a repository-n kívülre mutat, a `cat-file` figyelmen
+kívül hagy minden egyéni formátumot, és a következőt írja ki:
 
 ------------
 symlink SP <size> LF
 <symlink> LF
 ------------
 
-The symlink will either be absolute (beginning with a `/`), or relative
-to the tree root.  For instance, if dir/link points to `../../foo`, then
-`<symlink>` will be `../foo`.  `<size>` is the size of the symlink in bytes.
+A szimbolikus link vagy abszolút (`/`-vel kezdődik), vagy a tree
+gyökeréhez relatív. Például ha a dir/link a `../../foo`-ra mutat,
+akkor a `<symlink>` `../foo` lesz. A `<size>` a szimbolikus link
+mérete byte-okban.
 
-If `--follow-symlinks` is used, the following error messages will be
-displayed:
+Ha a `--follow-symlinks` van használva, a következő hibaüzenetek
+jelenhetnek meg:
 
 ------------
 <object> SP missing LF
 ------------
-is printed when the initial symlink requested does not exist.
+akkor kerül kiírásra, amikor a kért kezdeti szimbolikus link nem létezik.
 
 ------------
 dangling SP <size> LF
 <object> LF
 ------------
-is printed when the initial symlink exists, but something that
-it (transitive-of) points to does not.
+akkor kerül kiírásra, amikor a kezdeti szimbolikus link létezik, de
+valami, amire (közvetve) mutat, nem.
 
 ------------
 loop SP <size> LF
 <object> LF
 ------------
-is printed for symlink loops (or any symlinks that
-require more than 40 link resolutions to resolve).
+szimbolikus link-hurkok esetén kerül kiírásra (vagy bármely olyan
+szimbolikus linknél, amelynek feloldásához több mint 40 link-feloldás
+szükséges).
 
 ------------
 notdir SP <size> LF
 <object> LF
 ------------
-is printed when, during symlink resolution, a file is used as a
-directory name.
+akkor kerül kiírásra, amikor a szimbolikus link feloldása során egy
+fájlt könyvtárnévként használnak.
 
-Alternatively, when `-Z` is passed, the line feeds in any of the above examples
-are replaced with NUL terminators. This ensures that output will be parsable if
-the output itself would contain a linefeed and is thus recommended for
-scripting purposes.
+Alternatívaként, ha a `-Z` van átadva, a fenti példák bármelyikében a
+sortörések NUL-terminátorokra cserélődnek. Ez biztosítja, hogy a
+kimenet elemezhető maradjon, ha maga a kimenet sortörést tartalmazna,
+így szkriptelési célokra ajánlott.
 
 CAVEATS
 -------
 
-Note that only `%(objectname)`, `%(objectsize)` and `%(objecttype)` are
-currently supported by the `remote-object-info` command. Using any other
-placeholder in the format string will return an empty string in its position.
+Vedd figyelembe, hogy a `remote-object-info` parancs jelenleg csak a
+`%(objectname)`-t, a `%(objectsize)`-ot és a `%(objecttype)`-ot
+támogatja. Bármely más helyőrző használata a formátumstringben üres
+stringet ad vissza a helyén.
 
-Note that the sizes of objects on disk are reported accurately, but care
-should be taken in drawing conclusions about which refs or objects are
-responsible for disk usage. The size of a packed non-delta object may be
-much larger than the size of objects which delta against it, but the
-choice of which object is the base and which is the delta is arbitrary
-and is subject to change during a repack.
+Vedd figyelembe, hogy az objektumok lemezen elfoglalt mérete pontosan
+kerül jelentésre, de óvatosan kell levonni a következtetéseket arról,
+mely refek vagy objektumok felelősek a lemezhasználatért. Egy
+csomagolt, nem delta objektum mérete sokkal nagyobb lehet, mint az
+ellene deltázó objektumok mérete, de az, hogy melyik objektum az alap
+és melyik a delta, önkényes, és egy repack során változhat.
 
-Note also that multiple copies of an object may be present in the object
-database; in this case, it is undefined which copy's size or delta base
-will be reported.
+Azt is vedd figyelembe, hogy egy objektum több példánya is jelen
+lehet az objektumadatbázisban; ebben az esetben nem meghatározott,
+melyik példány mérete vagy delta-alapja kerül jelentésre.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

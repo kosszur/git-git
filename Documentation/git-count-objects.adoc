@@ -3,7 +3,7 @@ git-count-objects(1)
 
 NAME
 ----
-git-count-objects - Count unpacked number of objects and their disk consumption
+git-count-objects - A be nem csomagolt objektumok számának és lemezterület-felhasználásának megszámolása
 
 SYNOPSIS
 --------
@@ -12,45 +12,46 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Counts the number of unpacked object files and disk space consumed by
-them, to help you decide when it is a good time to repack.
+Megszámolja a be nem csomagolt objektumfájlok számát és az általuk
+elfoglalt lemezterületet, hogy segítsen eldönteni, mikor van itt az
+ideje az újracsomagolásnak.
 
 
 OPTIONS
 -------
 -v::
 --verbose::
-	Provide more detailed reports:
+	Részletesebb jelentés megadása:
 +
-count: the number of loose objects
+count: a laza objektumok száma
 +
-size: disk space consumed by loose objects, in KiB (unless -H is specified)
+size: a laza objektumok által elfoglalt lemezterület, KiB-ban (hacsak nincs megadva a -H)
 +
-in-pack: the number of in-pack objects
+in-pack: a pack-fájlokban lévő objektumok száma
 +
-packs: the number of pack files
+packs: a pack-fájlok száma
 +
-size-pack: disk space consumed by the packs, in KiB (unless -H is specified)
+size-pack: a packok által elfoglalt lemezterület, KiB-ban (hacsak nincs megadva a -H)
 +
-prune-packable: the number of loose objects that are also present in
-the packs. These objects could be pruned using `git prune-packed`.
+prune-packable: azon laza objektumok száma, amelyek a packokban is
+megtalálhatók. Ezek az objektumok eltávolíthatók a `git prune-packed` paranccsal.
 +
-garbage: the number of files in the object database that are neither valid loose
-objects nor valid packs
+garbage: az objektumadatbázisban lévő azon fájlok száma, amelyek sem
+érvényes laza objektumok, sem érvényes packok
 +
-size-garbage: disk space consumed by garbage files, in KiB (unless -H is
-specified)
+size-garbage: a szemétfájlok (garbage) által elfoglalt lemezterület,
+KiB-ban (hacsak nincs megadva a -H)
 +
-alternate: absolute path of alternate object databases; may appear
-multiple times, one line per path. Note that if the path contains
-non-printable characters, it may be surrounded by double-quotes and
-contain C-style backslashed escape sequences.
+alternate: az alternatív objektumadatbázisok abszolút útvonala; többször
+is megjelenhet, soronként egy útvonallal. Vedd figyelembe, hogy ha az
+útvonal nem nyomtatható karaktereket tartalmaz, dupla idézőjelek közé
+kerülhet, és C-stílusú backslash escape-szekvenciákat tartalmazhat.
 
 -H::
 --human-readable::
 
-Print sizes in human readable format
+Méretek kiírása emberi szemmel olvasható formátumban
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

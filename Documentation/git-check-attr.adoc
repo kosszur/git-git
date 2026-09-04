@@ -3,7 +3,7 @@ git-check-attr(1)
 
 NAME
 ----
-git-check-attr - Display gitattributes information
+git-check-attr - A gitattributes-információ megjelenítése
 
 
 SYNOPSIS
@@ -14,69 +14,72 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-For every pathname, this command will list if each attribute is 'unspecified',
-'set', or 'unset' as a gitattribute on that pathname.
+Minden egyes útvonalnévhez ez a parancs felsorolja, hogy az egyes
+attribútumok 'unspecified', 'set' vagy 'unset' állapotúak-e
+gitattribútumként az adott útvonalnévnél.
 
 OPTIONS
 -------
 -a::
 --all::
-	List all attributes that are associated with the specified
-	paths.  If this option is used, then 'unspecified' attributes
-	will not be included in the output.
+	Felsorolja az összes attribútumot, amely a megadott
+	útvonalakhoz van társítva. Ha ez az opció van használva, akkor
+	az 'unspecified' attribútumok nem kerülnek bele a kimenetbe.
 
 --cached::
-	Consider `.gitattributes` in the index only, ignoring the working tree.
+	Csak az indexben lévő `.gitattributes`-t veszi figyelembe, a
+	munkakönyvtárat figyelmen kívül hagyva.
 
 --stdin::
-	Read pathnames from the standard input, one per line,
-	instead of from the command line.
+	Útvonalneveket olvas be a standard bemenetről, soronként egyet,
+	a parancssor helyett.
 
 -z::
-	The output format is modified to be machine-parsable.
-	If `--stdin` is also given, input paths are separated
-	with a NUL character instead of a linefeed character.
+	A kimeneti formátum géppel elemezhetővé van módosítva.
+	Ha a `--stdin` is meg van adva, a bemeneti útvonalak NUL
+	karakterrel vannak elválasztva a sortörés karakter helyett.
 
 --source=<tree-ish>::
-	Check attributes against the specified tree-ish. It is common to
-	specify the source tree by naming a commit, branch, or tag associated
-	with it.
+	Az attribútumokat a megadott tree-ish alapján ellenőrzi. Gyakori
+	a forrás-tree-t egy hozzá tartozó commit, branch vagy tag
+	megnevezésével megadni.
 
 \--::
-	Interpret all preceding arguments as attributes and all following
-	arguments as path names.
+	Az összes megelőző argumentumot attribútumként, az összes
+	következő argumentumot pedig útvonalnévként értelmezi.
 
-If none of `--stdin`, `--all`, or `--` is used, the first argument
-will be treated as an attribute and the rest of the arguments as
-pathnames.
+Ha sem a `--stdin`, sem a `--all`, sem a `--` nincs használva, az első
+argumentum attribútumként lesz kezelve, a többi argumentum pedig
+útvonalnévként.
 
 OUTPUT
 ------
 
-The output is of the form:
+A kimenet alakja:
 <path> COLON SP <attribute> COLON SP <info> LF
 
-unless `-z` is in effect, in which case NUL is used as delimiter:
+hacsak a `-z` nincs érvényben, ekkor NUL kerül határolóként
+használatra:
 <path> NUL <attribute> NUL <info> NUL
 
 
-<path> is the path of a file being queried, <attribute> is an attribute
-being queried, and <info> can be either:
+A <path> a lekérdezett fájl útvonala, az <attribute> a lekérdezett
+attribútum, az <info> pedig a következők egyike lehet:
 
-'unspecified';; when the attribute is not defined for the path.
-'unset';;	when the attribute is defined as false.
-'set';;		when the attribute is defined as true.
-<value>;;	when a value has been assigned to the attribute.
+'unspecified';; amikor az attribútum nincs meghatározva az útvonalhoz.
+'unset';;	amikor az attribútum hamisként van meghatározva.
+'set';;		amikor az attribútum igazként van meghatározva.
+<value>;;	amikor egy érték van hozzárendelve az attribútumhoz.
 
-Buffering happens as documented under the `GIT_FLUSH` option in
-linkgit:git[1].  The caller is responsible for avoiding deadlocks
-caused by overfilling an input buffer or reading from an empty output
-buffer.
+A pufferelés a `GIT_FLUSH` opciónál dokumentáltak szerint történik a
+linkgit:git[1]-ben. A hívó felelős azért, hogy elkerülje a
+holtpontokat, amelyeket egy bemeneti puffer túltöltése vagy egy üres
+kimeneti pufferből való olvasás okoz.
 
 EXAMPLES
 --------
 
-In the examples, the following '.gitattributes' file is used:
+A példákban a következő '.gitattributes' fájl van használva:
 
 ---------------
 *.java diff=java -crlf myAttr
@@ -84,14 +87,14 @@ NoMyAttr.java !myAttr
 README caveat=unspecified
 ---------------
 
-* Listing a single attribute:
+* Egyetlen attribútum listázása:
 +
 ---------------
 $ git check-attr diff org/example/MyClass.java
 org/example/MyClass.java: diff: java
 ---------------
 
-* Listing multiple attributes for a file:
+* Több attribútum listázása egy fájlhoz:
 +
 ---------------
 $ git check-attr crlf diff myAttr -- org/example/MyClass.java
@@ -100,7 +103,7 @@ org/example/MyClass.java: diff: java
 org/example/MyClass.java: myAttr: set
 ---------------
 
-* Listing all attributes for a file:
+* Az összes attribútum listázása egy fájlhoz:
 +
 ---------------
 $ git check-attr --all -- org/example/MyClass.java
@@ -108,7 +111,7 @@ org/example/MyClass.java: diff: java
 org/example/MyClass.java: myAttr: set
 ---------------
 
-* Listing an attribute for multiple files:
+* Egy attribútum listázása több fájlhoz:
 +
 ---------------
 $ git check-attr myAttr -- org/example/MyClass.java org/example/NoMyAttr.java
@@ -116,7 +119,7 @@ org/example/MyClass.java: myAttr: set
 org/example/NoMyAttr.java: myAttr: unspecified
 ---------------
 
-* Not all values are equally unambiguous:
+* Nem minden érték egyformán egyértelmű:
 +
 ---------------
 $ git check-attr caveat README
@@ -129,4 +132,4 @@ linkgit:gitattributes[5].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

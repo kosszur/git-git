@@ -37,7 +37,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | fájl | kész | forrás-SHA | utolsó-ellenőrzés |
 |---|---|---|---|
 | git-add.adoc | [ ] |  |  |
-| git-am.adoc | [ ] |  |  |
+| git-am.adoc | [x] |  | 2026-09-04 |
 | git-annotate.adoc | [ ] |  |  |
 | git-apply.adoc | [ ] |  |  |
 | git-archimport.adoc | [x] |  | 2026-09-04 |
@@ -46,18 +46,18 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-bisect-lk2009.adoc | [ ] |  |  |
 | git-bisect.adoc | [ ] |  |  |
 | git-blame.adoc | [ ] |  |  |
-| git-branch.adoc | [ ] |  |  |
-| git-bugreport.adoc | [ ] |  |  |
-| git-bundle.adoc | [ ] |  |  |
-| git-cat-file.adoc | [ ] |  |  |
-| git-check-attr.adoc | [ ] |  |  |
+| git-branch.adoc | [x] |  | 2026-09-04 |
+| git-bugreport.adoc | [x] |  | 2026-09-04 |
+| git-bundle.adoc | [x] |  | 2026-09-04 |
+| git-cat-file.adoc | [x] |  | 2026-09-04 |
+| git-check-attr.adoc | [x] |  | 2026-09-04 |
 | git-check-ignore.adoc | [ ] |  |  |
 | git-check-mailmap.adoc | [x] |  | 2026-09-04 |
 | git-check-ref-format.adoc | [x] |  | 2026-09-04 |
 | git-checkout-index.adoc | [x] |  | 2026-09-04 |
 | git-checkout.adoc | [ ] |  |  |
 | git-cherry-pick.adoc | [ ] |  |  |
-| git-cherry.adoc | [ ] |  |  |
+| git-cherry.adoc | [x] |  | 2026-09-04 |
 | git-citool.adoc | [ ] |  |  |
 | git-clean.adoc | [ ] |  |  |
 | git-clone.adoc | [ ] |  |  |
@@ -66,14 +66,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-commit-tree.adoc | [x] |  | 2026-09-04 |
 | git-commit.adoc | [ ] |  |  |
 | git-config.adoc | [ ] |  |  |
-| git-count-objects.adoc | [ ] |  |  |
-| git-credential-cache--daemon.adoc | [ ] |  |  |
-| git-credential-cache.adoc | [ ] |  |  |
-| git-credential-store.adoc | [ ] |  |  |
-| git-credential.adoc | [ ] |  |  |
-| git-cvsexportcommit.adoc | [ ] |  |  |
-| git-cvsimport.adoc | [ ] |  |  |
-| git-cvsserver.adoc | [ ] |  |  |
+| git-count-objects.adoc | [x] |  | 2026-09-04 |
+| git-credential-cache--daemon.adoc | [x] |  | 2026-09-04 |
+| git-credential-cache.adoc | [x] |  | 2026-09-04 |
+| git-credential-store.adoc | [x] |  | 2026-09-04 |
+| git-credential.adoc | [x] |  | 2026-09-04 |
+| git-cvsexportcommit.adoc | [x] |  | 2026-09-04 |
+| git-cvsimport.adoc | [x] |  | 2026-09-04 |
+| git-cvsserver.adoc | [x] |  | 2026-09-04 |
 | git-daemon.adoc | [ ] |  |  |
 | git-describe.adoc | [ ] |  |  |
 | git-diagnose.adoc | [ ] |  |  |
@@ -492,4 +492,15 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   félbeszakadtak), az orchestrátor fejezte be helyben. Részletek + terminológia + anchor-döntések +
   eldöntendő pontok: `glossary-git-git-docs.md` „1. blokk". Setext-aláhúzások utólag a fordított
   címhosszhoz igazítva 5 fájlban. `forrás-SHA` nincs kitöltve (import-alapvonal érvényes).
+- **2026-09-04 — `Documentation/` gyökér, 1. kör: 22 fájl kész, 6 részleges, 11 érintetlen (a 40
+  megkezdett fájlból).** Több párhuzamos subagent (10-es, majd 3-4 fájlos blokkokban) rendszeresen
+  `content filtering policy` API-hibával szakadt félbe (részletek: `glossary-git-git-docs.md` „4. blokk").
+  Kész: `git-am`, `git-archimport`, `git-archive`, `git-backfill`, `git-branch`, `git-bugreport`,
+  `git-bundle`, `git-cat-file`, `git-check-attr`, `git-check-mailmap`, `git-check-ref-format`,
+  `git-checkout-index`, `git-cherry`, `git-column`, `git-commit-tree`, `git-count-objects`,
+  `git-credential`, `git-credential-cache--daemon`, `git-credential-cache`, `git-credential-store`,
+  `git-cvsexportcommit`, `git-cvsimport`, `git-cvsserver`. Részleges (folytatásra vár, l. progress-tábla
+  `~NN%` jelölés): `git-add`, `git-apply`, `git-bisect-lk2009`, `git-check-ignore`,
+  `git-cherry-pick`. Érintetlen (ekkor): `git-annotate`, `git-citool`, `git-blame`, `git-clean`,
+  `git-checkout`, `git-clone`, `git-commit-graph`, `git-commit`, `git-config`, `git-daemon`, `git-describe`.
 

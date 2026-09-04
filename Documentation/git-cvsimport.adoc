@@ -3,7 +3,7 @@ git-cvsimport(1)
 
 NAME
 ----
-git-cvsimport - Salvage your data out of another SCM people love to hate
+git-cvsimport - Mentsd ki az adataidat egy másik, mindenki által gyűlölt SCM-ből
 
 
 SYNOPSIS
@@ -18,133 +18,143 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-*WARNING:* `git cvsimport` uses cvsps version 2, which is considered
-deprecated; it does not work with cvsps version 3 and later.  If you are
-performing a one-shot import of a CVS repository consider using
-http://cvs2svn.tigris.org/cvs2git.html[cvs2git] or
-https://gitlab.com/esr/cvs-fast-export[cvs-fast-export].
+*WARNING:* a `git cvsimport` a cvsps 2-es verzióját használja, amely
+elavultnak számít; nem működik a cvsps 3-as és későbbi verzióival. Ha
+egy CVS repository egyszeri importálását végzed, fontold meg a
+http://cvs2svn.tigris.org/cvs2git.html[cvs2git] vagy a
+https://gitlab.com/esr/cvs-fast-export[cvs-fast-export] használatát.
 
-Imports a CVS repository into Git. It will either create a new
-repository, or incrementally import into an existing one.
+Egy CVS repository-t importál a Gitbe. Vagy egy új repository-t hoz
+létre, vagy fokozatosan importál egy meglévőbe.
 
-Splitting the CVS log into patch sets is done by 'cvsps'.
-At least version 2.1 is required.
+A CVS log patch-halmazokra bontását a 'cvsps' végzi. Legalább a 2.1-es
+verzió szükséges.
 
-*WARNING:* for certain situations the import leads to incorrect results.
-Please see the section <<issues,ISSUES>> for further reference.
+*WARNING:* bizonyos helyzetekben az importálás helytelen eredményekre
+vezet. További információért lásd a <<issues,ISMERT PROBLÉMÁK>> szakaszt.
 
-You should *never* do any work of your own on the branches that are
-created by 'git cvsimport'.  By default initial import will create and populate a
-"master" branch from the CVS repository's main branch which you're free
-to work with; after that, you need to 'git merge' incremental imports, or
-any CVS branches, yourself.  It is advisable to specify a named remote via
--r to separate and protect the incoming branches.
+*Sohase* végezz saját munkát a 'git cvsimport' által létrehozott
+branch-eken. Alapértelmezés szerint a kezdeti importálás létrehoz és
+feltölt egy "master" branch-et a CVS repository fő branch-éből,
+amellyel szabadon dolgozhatsz; ezután a fokozatos importálásokat, vagy
+bármely CVS branch-et, neked kell 'git merge'-elned. Ajánlott egy
+elnevezett remote megadása a -r kapcsolóval, hogy elkülönítsd és
+megvédd a bejövő branch-eket.
 
-If you intend to set up a shared public repository that all developers can
-read/write, or if you want to use linkgit:git-cvsserver[1], then you
-probably want to make a bare clone of the imported repository,
-and use the clone as the shared repository.
-See linkgit:gitcvs-migration[7].
+Ha egy megosztott, nyilvános repository-t szeretnél létrehozni,
+amelyet minden fejlesztő olvashat/írhat, vagy ha a
+linkgit:git-cvsserver[1] parancsot szeretnéd használni, akkor
+valószínűleg egy bare klónt szeretnél készíteni az importált
+repository-ból, és azt a klónt használni megosztott repository-ként.
+Lásd a linkgit:gitcvs-migration[7] leírást.
 
 
 OPTIONS
 -------
 -v::
-	Verbosity: let 'cvsimport' report what it is doing.
+	Bőbeszédűség: a 'cvsimport' jelentse, mit csinál éppen.
 
 -d <CVSROOT>::
-	The root of the CVS archive. May be local (a simple path) or remote;
-	currently, only the :local:, :ext: and :pserver: access methods
-	are supported. If not given, 'git cvsimport' will try to read it
-	from `CVS/Root`. If no such file exists, it checks for the
-	`CVSROOT` environment variable.
+	A CVS archívum gyökere. Lehet helyi (egyszerű útvonal) vagy
+	remote; jelenleg csak a :local:, :ext: és :pserver: elérési
+	módok támogatottak. Ha nincs megadva, a 'git cvsimport'
+	megpróbálja beolvasni a `CVS/Root` fájlból. Ha nem létezik ilyen
+	fájl, a `CVSROOT` környezeti változót ellenőrzi.
 
 <CVS-module>::
-	The CVS module you want to import. Relative to <CVSROOT>.
-	If not given, 'git cvsimport' tries to read it from
-	`CVS/Repository`.
+	A CVS modul, amelyet importálni szeretnél. A <CVSROOT>-hoz
+	viszonyítva. Ha nincs megadva, a 'git cvsimport' megpróbálja
+	beolvasni a `CVS/Repository` fájlból.
 
 -C <target-dir>::
-	The Git repository to import to.  If the directory doesn't
-        exist, it will be created.  Default is the current directory.
+	A Git repository, amelybe importálni kell. Ha a könyvtár nem
+        létezik, létrejön. Alapértelmezés az aktuális könyvtár.
 
 -r <remote>::
-	The Git remote to import this CVS repository into.
-	Moves all CVS branches into remotes/<remote>/<branch>
-	akin to the way 'git clone' uses 'origin' by default.
+	A Git remote, amelybe ezt a CVS repository-t importálni kell.
+	Az összes CVS branch-et átmozgatja a remotes/<remote>/<branch>
+	helyre, hasonlóan ahhoz, ahogy a 'git clone' alapértelmezetten
+	az 'origin' nevet használja.
 
 -o <branch-for-HEAD>::
-	When no remote is specified (via -r) the `HEAD` branch
-	from CVS is imported to the 'origin' branch within the Git
-	repository, as `HEAD` already has a special meaning for Git.
-	When a remote is specified the `HEAD` branch is named
-	remotes/<remote>/master mirroring 'git clone' behaviour.
-	Use this option if you want to import into a different
-	branch.
+	Ha nincs remote megadva (a -r kapcsolóval), a CVS `HEAD` branch-e
+	az 'origin' branch-be kerül importálásra a Git repository-n
+	belül, mivel a `HEAD`-nek már különleges jelentése van a Git
+	számára. Ha meg van adva egy remote, a `HEAD` branch a
+	remotes/<remote>/master nevet kapja, a 'git clone' viselkedését
+	tükrözve. Használd ezt az opciót, ha egy másik branch-be
+	szeretnél importálni.
 +
-Use '-o master' for continuing an import that was initially done by
-the old cvs2git tool.
+Használd a '-o master' opciót egy olyan importálás folytatásához,
+amelyet eredetileg a régi cvs2git eszközzel végeztek.
 
 -i::
-	Import-only: don't perform a checkout after importing.  This option
-	ensures the working directory and index remain untouched and will
-	not create them if they do not exist.
+	Csak importálás: ne végezzen checkoutot az importálás után. Ez
+	az opció biztosítja, hogy a munkakönyvtár és az index
+	érintetlenek maradjanak, és nem hozza létre őket, ha még nem
+	léteznek.
 
 -k::
-	Kill keywords: will extract files with '-kk' from the CVS archive
-	to avoid noisy changesets. Highly recommended, but off by default
-	to preserve compatibility with early imported trees.
+	Kulcsszavak kiölése: '-kk' kapcsolóval fogja kinyerni a fájlokat
+	a CVS archívumból, hogy elkerülje a zajos changeseteket. Erősen
+	ajánlott, de alapértelmezetten ki van kapcsolva, hogy megőrizze
+	a kompatibilitást a korábban importált fákkal.
 
 -u::
-	Convert underscores in tag and branch names to dots.
+	Az aláhúzásjeleket pontokra alakítja a tag- és branch-nevekben.
 
 -s <subst>::
-	Substitute the character "/" in branch names with <subst>
+	A "/" karakter helyettesítése <subst>-tel a branch-nevekben.
 
 -p <options-for-cvsps>::
-	Additional options for cvsps.
-	The options `-u` and '-A' are implicit and should not be used here.
+	További opciók a cvsps számára.
+	A `-u` és '-A' opciók implicitek, és itt nem szabad használni őket.
 +
-If you need to pass multiple options, separate them with a comma.
+Ha több opciót kell átadnod, vesszővel válaszd el őket.
 
 -z <fuzz>::
-	Pass the timestamp fuzz factor to cvsps, in seconds. If unset,
-	cvsps defaults to 300s.
+	Átadja az időbélyeg-tűrési tényezőt a cvsps-nek, másodpercben.
+	Ha nincs beállítva, a cvsps alapértelmezetten 300s-ot használ.
 
 -P <cvsps-output-file>::
-	Instead of calling cvsps, read the provided cvsps output file. Useful
-	for debugging or when cvsps is being handled outside cvsimport.
+	A cvsps meghívása helyett a megadott cvsps-kimenetfájlt olvassa
+	be. Hasznos hibakereséshez, vagy amikor a cvsps-t a cvsimporton
+	kívül kezelik.
 
 -m::
-	Attempt to detect merges based on the commit message. This option
-	will enable default regexes that try to capture the source
-	branch name from the commit message.
+	Megpróbálja felismerni a merge-eket a commit-üzenet alapján. Ez
+	az opció bekapcsolja az alapértelmezett reguláris kifejezéseket,
+	amelyek megpróbálják kinyerni a forrás branch nevét a
+	commit-üzenetből.
 
 -M <regex>::
-	Attempt to detect merges based on the commit message with a custom
-	regex. It can be used with `-m` to enable the default regexes
-	as well. You must escape forward slashes.
+	Megpróbálja felismerni a merge-eket a commit-üzenet alapján,
+	egy egyéni reguláris kifejezéssel. A `-m` kapcsolóval együtt is
+	használható, hogy az alapértelmezett reguláris kifejezések is
+	bekapcsolódjanak. A perjeleket escape-elned kell.
 +
-The regex must capture the source branch name in $1.
+A reguláris kifejezésnek a $1-ben kell befognia a forrás branch nevét.
 +
-This option can be used several times to provide several detection regexes.
+Ez az opció többször is használható, hogy több felismerő reguláris
+kifejezést adj meg.
 
 -S <regex>::
-	Skip paths matching the regex.
+	Kihagyja a reguláris kifejezésre illeszkedő útvonalakat.
 
 -a::
-	Import all commits, including recent ones. cvsimport by default
-	skips commits that have a timestamp less than 10 minutes ago.
+	Minden commitot importál, a legutóbbiakat is beleértve. A
+	cvsimport alapértelmezetten kihagyja azokat a commitokat,
+	amelyek időbélyege kevesebb, mint 10 perccel ezelőtti.
 
 -L <limit>::
-	Limit the number of commits imported. Workaround for cases where
-	cvsimport leaks memory.
+	Korlátozza az importált commitok számát. Megoldás azokra az
+	esetekre, amikor a cvsimport memóriát szivárogtat.
 
 -A <author-conv-file>::
-	CVS by default uses the Unix username when writing its
-	commit logs. Using this option and an author-conv-file
-	maps the name recorded in CVS to author name, e-mail and
-	optional time zone:
+	A CVS alapértelmezetten a Unix felhasználónevet használja a
+	commit-naplói írásakor. Ennek az opciónak és egy
+	author-conv-file-nak a használatával a CVS-ben rögzített nevet
+	szerzői névre, e-mail-re és opcionális időzónára képezheted le:
 +
 ---------
 	exon=Andreas Ericsson <ae@op5.se>
@@ -152,77 +162,84 @@ This option can be used several times to provide several detection regexes.
 
 ---------
 +
-'git cvsimport' will make it appear as those authors had
-their GIT_AUTHOR_NAME and GIT_AUTHOR_EMAIL set properly
-all along.  If a time zone is specified, GIT_AUTHOR_DATE will
-have the corresponding offset applied.
+A 'git cvsimport' úgy fogja feltüntetni, mintha ezeknek a szerzőknek
+mindvégig helyesen be lett volna állítva a GIT_AUTHOR_NAME és
+GIT_AUTHOR_EMAIL értéke. Ha meg van adva időzóna, a GIT_AUTHOR_DATE
+a megfelelő eltolással kerül alkalmazásra.
 +
-For convenience, this data is saved to `$GIT_DIR/cvs-authors`
-each time the '-A' option is provided and read from that same
-file each time 'git cvsimport' is run.
+Kényelmi okokból ez az adat elmentésre kerül a `$GIT_DIR/cvs-authors`
+fájlba minden alkalommal, amikor a '-A' opció meg van adva, és
+ugyanabból a fájlból kerül beolvasásra minden alkalommal, amikor a
+'git cvsimport' fut.
 +
-It is not recommended to use this feature if you intend to
-export changes back to CVS again later with
-'git cvsexportcommit'.
+Nem ajánlott ezt a funkciót használni, ha később a változtatásokat
+vissza szeretnéd exportálni a CVS-be a 'git cvsexportcommit'
+paranccsal.
 
 -R::
-	Generate a `$GIT_DIR/cvs-revisions` file containing a mapping from CVS
-	revision numbers to newly-created Git commit IDs.  The generated file
-	will contain one line for each (filename, revision) pair imported;
-	each line will look like
+	Létrehoz egy `$GIT_DIR/cvs-revisions` fájlt, amely a CVS
+	revíziószámok és az újonnan létrehozott Git commit-azonosítók
+	közötti leképezést tartalmazza. A létrehozott fájl minden
+	importált (fájlnév, revízió) párhoz egy sort fog tartalmazni;
+	minden sor így fog kinézni:
 +
 ---------
 src/widget.c 1.1 1d862f173cdc7325b6fa6d2ae1cfd61fd1b512b7
 ---------
 +
-The revision data is appended to the file if it already exists, for use when
-doing incremental imports.
+A revízióadat hozzáfűzésre kerül a fájlhoz, ha az már létezik,
+fokozatos importáláskor való felhasználásra.
 +
-This option may be useful if you have CVS revision numbers stored in commit
-messages, bug-tracking systems, email archives, and the like.
+Ez az opció akkor lehet hasznos, ha CVS revíziószámokat tárolsz
+commit-üzenetekben, hibakövető rendszerekben, e-mail archívumokban és
+hasonlókban.
 
 -h::
-	Print a short usage message and exit.
+	Rövid használati útmutató kiírása és kilépés.
 
-OUTPUT
-------
-If `-v` is specified, the script reports what it is doing.
+KIMENET
+-------
+Ha a `-v` opció meg van adva, a szkript jelenti, mit csinál.
 
-Otherwise, success is indicated the Unix way, i.e. by simply exiting with
-a zero exit status.
+Egyébként a sikert Unix-módra jelzi, azaz egyszerűen nulla
+kilépési státusszal lép ki.
 
 [[issues]]
-ISSUES
-------
-Problems related to timestamps:
+ISMERT PROBLÉMÁK
+----------------
+Az időbélyegekkel kapcsolatos problémák:
 
- * If timestamps of commits in the CVS repository are not stable enough
-   to be used for ordering commits changes may show up in the wrong
-   order.
- * If any files were ever "cvs import"ed more than once (e.g., import of
-   more than one vendor release) the HEAD contains the wrong content.
- * If the timestamp order of different files cross the revision order
-   within the commit matching time window the order of commits may be
-   wrong.
+ * Ha a CVS repository-ban lévő commitok időbélyegei nem elég
+   stabilak ahhoz, hogy a változtatások sorrendjének
+   meghatározására használhatók legyenek, a változtatások rossz
+   sorrendben jelenhetnek meg.
+ * Ha bármely fájlt valaha egynél többször "cvs import"-áltak
+   (pl. egynél több beszállítói kiadás importálásakor), a HEAD
+   helytelen tartalmat tartalmaz.
+ * Ha a különböző fájlok időbélyeg-sorrendje keresztezi a
+   revízió-sorrendet a commit-illesztési időablakon belül, a
+   commitok sorrendje helytelen lehet.
 
-Problems related to branches:
+A branch-ekkel kapcsolatos problémák:
 
- * Branches on which no commits have been made are not imported.
- * All files from the branching point are added to a branch even if
-   never added in CVS.
- * This applies to files added to the source branch *after* a daughter
-   branch was created: if previously no commit was made on the daughter
-   branch they will erroneously be added to the daughter branch in git.
+ * Azok a branch-ek, amelyeken nem történt commit, nem kerülnek
+   importálásra.
+ * A branch-elési pontról az összes fájl hozzáadásra kerül egy
+   branch-hez, még akkor is, ha az soha nem lett hozzáadva a CVS-ben.
+ * Ez azokra a fájlokra vonatkozik, amelyeket egy leány branch
+   létrehozása *után* adtak hozzá a forrás branch-hez: ha korábban
+   nem történt commit a leány branch-en, ezek tévesen hozzá lesznek
+   adva a leány branch-hez a gitben.
 
-Problems related to tags:
+A tag-ekkel kapcsolatos problémák:
 
-* Multiple tags on the same revision are not imported.
+* Ugyanazon a revízión lévő több tag nem kerül importálásra.
 
-If you suspect that any of these issues may apply to the repository you
-want to import, consider using cvs2git:
+Ha úgy gondolod, hogy ezen problémák bármelyike érintheti az
+importálni kívánt repository-t, fontold meg a cvs2git használatát:
 
-* cvs2git (part of cvs2svn), `https://subversion.apache.org/`
+* cvs2git (a cvs2svn része), `https://subversion.apache.org/`
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
