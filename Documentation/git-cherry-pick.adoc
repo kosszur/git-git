@@ -3,7 +3,7 @@ git-cherry-pick(1)
 
 NAME
 ----
-git-cherry-pick - Apply the changes introduced by some existing commits
+git-cherry-pick - Néhány létező commit által bevezetett változtatások alkalmazása
 
 SYNOPSIS
 --------
@@ -15,162 +15,167 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Given one or more existing commits, apply the change each one
-introduces, recording a new commit for each.  This requires your
-working tree to be clean (no modifications from the HEAD commit).
+Egy vagy több létező commit esetén alkalmazza az egyes commitok által
+bevezetett változtatást, és mindegyikhez felvesz egy új commitot. Ehhez
+a munkakönyvtárnak tisztának kell lennie (nincs eltérés a HEAD commithoz
+képest).
 
-When it is not obvious how to apply a change, the following
-happens:
+Ha nem egyértelmű, hogyan kell alkalmazni egy változtatást, a következő
+történik:
 
-1. The current branch and `HEAD` pointer stay at the last commit
-   successfully made.
-2. The `CHERRY_PICK_HEAD` ref is set to point at the commit that
-   introduced the change that is difficult to apply.
-3. Paths in which the change applied cleanly are updated both
-   in the index file and in your working tree.
-4. For conflicting paths, the index file records up to three
-   versions, as described in the "TRUE MERGE" section of
-   linkgit:git-merge[1].  The working tree files will include
-   a description of the conflict bracketed by the usual
-   conflict markers `<<<<<<<` and `>>>>>>>`.
-5. No other modifications are made.
+1. Az aktuális branch és a `HEAD` mutató az utoljára sikeresen létrehozott
+   commitnál marad.
+2. A `CHERRY_PICK_HEAD` ref arra a commitra mutat, amely bevezette a
+   nehezen alkalmazható változtatást.
+3. Azok az útvonalak, amelyeken a változtatás tisztán alkalmazódott,
+   frissülnek mind az index fájlban, mind a munkakönyvtáradban.
+4. Az ütköző útvonalak esetén az index fájl legfeljebb három verziót
+   rögzít, ahogy azt a linkgit:git-merge[1] "TRUE MERGE" szakasza
+   leírja. A munkakönyvtár fájljai tartalmazni fogják az ütközés
+   leírását, a szokásos `<<<<<<<` és `>>>>>>>` ütközésjelölők közé
+   zárva.
+5. Más módosítás nem történik.
 
-See linkgit:git-merge[1] for some hints on resolving such
-conflicts.
+Az ilyen ütközések megoldásához lásd a linkgit:git-merge[1] néhány
+tippjét.
 
 OPTIONS
 -------
 <commit>...::
-	Commits to cherry-pick.
-	For a more complete list of ways to spell commits, see
-	linkgit:gitrevisions[7].
-	Sets of commits can be passed but no traversal is done by
-	default, as if the `--no-walk` option was specified, see
-	linkgit:git-rev-list[1]. Note that specifying a range will
-	feed all <commit>... arguments to a single revision walk
-	(see a later example that uses 'maint master..next').
+	A cherry-pickelendő commitok.
+	A commitok megadásának teljesebb listájáért lásd a
+	linkgit:gitrevisions[7] oldalt.
+	Commit-halmazok is megadhatók, de alapértelmezés szerint nem
+	történik bejárás, mintha a `--no-walk` opció lett volna
+	megadva, lásd linkgit:git-rev-list[1]. Vedd figyelembe, hogy
+	egy tartomány megadása az összes <commit>... argumentumot egy
+	közös revízióbejáráshoz adja (lásd egy későbbi példát, amely
+	a 'maint master..next' alakot használja).
 
 -e::
 --edit::
-	With this option, 'git cherry-pick' will let you edit the commit
-	message prior to committing.
+	Ezzel az opcióval a 'git cherry-pick' lehetővé teszi, hogy
+	commitolás előtt szerkeszd a commit-üzenetet.
 
 --cleanup=<mode>::
-	This option determines how the commit message will be cleaned up before
-	being passed on to the commit machinery. See linkgit:git-commit[1] for more
-	details. In particular, if the '<mode>' is given a value of `scissors`,
-	scissors will be appended to `MERGE_MSG` before being passed on in the case
-	of a conflict.
+	Ez az opció meghatározza, hogyan tisztuljon meg a commit-üzenet, mielőtt
+	továbbadásra kerül a commit-gépezetnek. További részletekért lásd a
+	linkgit:git-commit[1] oldalt. Ha a '<mode>' értéke `scissors`, akkor
+	ütközés esetén egy olló-jelzés kerül a `MERGE_MSG` végére a továbbadás
+	előtt.
 
 -x::
-	When recording the commit, append a line that says
-	"(cherry picked from commit ...)" to the original commit
-	message in order to indicate which commit this change was
-	cherry-picked from.  This is done only for cherry
-	picks without conflicts.  Do not use this option if
-	you are cherry-picking from your private branch because
-	the information is useless to the recipient.  If on the
-	other hand you are cherry-picking between two publicly
-	visible branches (e.g. backporting a fix to a
-	maintenance branch for an older release from a
-	development branch), adding this information can be
-	useful.
+	A commit rögzítésekor fűzz hozzá egy sort, amely azt mondja:
+	"(cherry picked from commit ...)" az eredeti commit-üzenethez,
+	hogy jelezze, melyik commitból lett ez a változtatás
+	cherry-pickelve. Ez csak ütközés nélküli cherry-pickek esetén
+	történik meg. Ne használd ezt az opciót, ha a saját privát
+	branchedről cherry-pickelsz, mert ez az információ haszontalan
+	a fogadó fél számára. Ha viszont két nyilvánosan látható branch
+	között cherry-pickelsz (pl. egy javítás visszaportolása egy régebbi
+	kiadás karbantartási branchére egy fejlesztési branchről), akkor
+	ennek az információnak a hozzáadása hasznos lehet.
 
 -r::
-	It used to be that the command defaulted to do `-x`
-	described above, and `-r` was to disable it.  Now the
-	default is not to do `-x` so this option is a no-op.
+	Régebben a parancs alapértelmezésben elvégezte a fent leírt
+	`-x`-et, és a `-r` volt hivatott ezt kikapcsolni. Mostanra az
+	alapértelmezés az, hogy nem hajtja végre a `-x`-et, így ez az
+	opció hatástalan.
 
 -m <parent-number>::
 --mainline <parent-number>::
-	Usually you cannot cherry-pick a merge because you do not know which
-	side of the merge should be considered the mainline.  This
-	option specifies the parent number (starting from 1) of
-	the mainline and allows cherry-pick to replay the change
-	relative to the specified parent.
+	Általában nem lehet cherry-pickelni egy merge-öt, mert nem
+	tudni, a merge melyik oldalát kell mainline-nak tekinteni.
+	Ez az opció megadja a mainline szülő sorszámát (1-től számozva),
+	és lehetővé teszi, hogy a cherry-pick a megadott szülőhöz
+	viszonyítva játssza le a változtatást.
 
 -n::
 --no-commit::
-	Usually the command automatically creates a sequence of commits.
-	This flag applies the changes necessary to cherry-pick
-	each named commit to your working tree and the index,
-	without making any commit.  In addition, when this
-	option is used, your index does not have to match the
-	HEAD commit.  The cherry-pick is done against the
-	beginning state of your index.
+	Általában a parancs automatikusan létrehoz egy commit-sorozatot.
+	Ez a kapcsoló az egyes megnevezett commitok cherry-pickeléséhez
+	szükséges változtatásokat a munkakönyvtáradra és az indexre
+	alkalmazza, anélkül hogy bármilyen commitot létrehozna. Emellett
+	ennek az opciónak a használatakor az indexednek nem kell
+	megegyeznie a HEAD committal. A cherry-pick az indexed kezdeti
+	állapotához képest történik.
 +
-This is useful when cherry-picking more than one commits'
-effect to your index in a row.
+Ez akkor hasznos, ha egynél több commit hatását akarod egymás után
+az indexedbe cherry-pickelni.
 
 -s::
 --signoff::
-	Add a `Signed-off-by` trailer at the end of the commit message.
-	See the signoff option in linkgit:git-commit[1] for more information.
+	Egy `Signed-off-by` trailert ad a commit-üzenet végéhez.
+	További információért lásd a signoff opciót a linkgit:git-commit[1]
+	oldalon.
 
 -S[<keyid>]::
 --gpg-sign[=<keyid>]::
 --no-gpg-sign::
-	GPG-sign commits. The `keyid` argument is optional and
-	defaults to the committer identity; if specified, it must be
-	stuck to the option without a space. `--no-gpg-sign` is useful to
-	countermand both `commit.gpgSign` configuration variable, and
-	earlier `--gpg-sign`.
+	GPG-vel aláírja a commitokat. A `keyid` argumentum opcionális, és
+	alapértelmezés szerint a committer identitása; ha meg van adva,
+	szóköz nélkül kell az opcióhoz tapadnia. A `--no-gpg-sign` arra
+	hasznos, hogy felülbírálja mind a `commit.gpgSign` konfigurációs
+	változót, mind egy korábbi `--gpg-sign`-t.
 
 --ff::
-	If the current HEAD is the same as the parent of the
-	cherry-pick'ed commit, then a fast forward to this commit will
-	be performed.
+	Ha az aktuális HEAD megegyezik a cherry-pickelt commit szülőjével,
+	akkor egy fast-forward történik erre a commitra.
 
 --allow-empty::
-	By default, cherry-picking an empty commit will fail,
-	indicating that an explicit invocation of `git commit
-	--allow-empty` is required. This option overrides that
-	behavior, allowing empty commits to be preserved automatically
-	in a cherry-pick. Note that when "--ff" is in effect, empty
-	commits that meet the "fast-forward" requirement will be kept
-	even without this option.  Note also, that use of this option only
-	keeps commits that were initially empty (i.e. the commit recorded the
-	same tree as its parent).  Commits which are made empty due to a
-	previous commit will cause the cherry-pick to fail.  To force the
-	inclusion of those commits, use `--empty=keep`.
+	Alapértelmezés szerint egy üres commit cherry-pickelése
+	meghiúsul, jelezve, hogy a `git commit --allow-empty` explicit
+	meghívására van szükség. Ez az opció felülbírálja ezt a
+	viselkedést, lehetővé téve, hogy az üres commitok automatikusan
+	megmaradjanak egy cherry-pick során. Vedd figyelembe, hogy amikor
+	a "--ff" érvényben van, a "fast-forward" követelménynek megfelelő
+	üres commitok e nélkül az opció nélkül is megmaradnak. Azt is
+	vedd figyelembe, hogy ez az opció csak azokat a commitokat tartja
+	meg, amelyek eredetileg is üresek voltak (azaz a commit ugyanazt
+	a fát rögzítette, mint a szülője). Azok a commitok, amelyek egy
+	korábbi commit miatt válnak üressé, meghiúsítják a cherry-picket.
+	Ezeknek a commitoknak a kényszerített felvételéhez használd a
+	`--empty=keep` opciót.
 
 --allow-empty-message::
-	By default, cherry-picking a commit with an empty message will fail.
-	This option overrides that behavior, allowing commits with empty
-	messages to be cherry picked.
+	Alapértelmezés szerint egy üres üzenetű commit cherry-pickelése
+	meghiúsul. Ez az opció felülbírálja ezt a viselkedést, lehetővé
+	téve, hogy az üres üzenetű commitok is cherry-pickelhetők legyenek.
 
 --empty=(drop|keep|stop)::
-	How to handle commits being cherry-picked that are redundant with
-	changes already in the current history.
+	Hogyan kezelje azokat a cherry-pickelt commitokat, amelyek
+	redundánsak az aktuális történetben már meglévő változtatásokkal.
 +
 --
 `drop`;;
-	The commit will be dropped.
+	A commit el lesz dobva.
 `keep`;;
-	The commit will be kept. Implies `--allow-empty`.
+	A commit megmarad. Ez maga után vonja a `--allow-empty`-t.
 `stop`;;
-	The cherry-pick will stop when the commit is applied, allowing
-	you to examine the commit. This is the default behavior.
+	A cherry-pick megáll, amikor a commit alkalmazásra kerül, így
+	lehetőséget adva a commit megvizsgálására. Ez az alapértelmezett
+	viselkedés.
 --
 +
-Note that `--empty=drop` and `--empty=stop` only specify how to handle a
-commit that was not initially empty, but rather became empty due to a previous
-commit. Commits that were initially empty will still cause the cherry-pick to
-fail unless one of `--empty=keep` or `--allow-empty` are specified.
+Vedd figyelembe, hogy a `--empty=drop` és a `--empty=stop` csak azt adja
+meg, hogyan kell kezelni egy olyan commitot, amely nem eredetileg volt
+üres, hanem egy korábbi commit miatt vált azzá. Az eredetileg üres
+commitok továbbra is meghiúsítják a cherry-picket, hacsak nincs megadva
+a `--empty=keep` vagy a `--allow-empty` valamelyike.
 +
 
 --keep-redundant-commits::
-	Deprecated synonym for `--empty=keep`.
+	Elavult szinonimája a `--empty=keep`-nek.
 
 --strategy=<strategy>::
-	Use the given merge strategy.  Should only be used once.
-	See the MERGE STRATEGIES section in linkgit:git-merge[1]
-	for details.
+	A megadott merge-stratégia használata. Csak egyszer szabad
+	megadni. A részletekért lásd a linkgit:git-merge[1] oldal
+	MERGE STRATEGIES szakaszát.
 
 -X<option>::
 --strategy-option=<option>::
-	Pass the merge strategy-specific option through to the
-	merge strategy.  See linkgit:git-merge[1] for details.
+	Átadja a merge-stratégia-specifikus opciót a merge-stratégiának.
+	A részletekért lásd a linkgit:git-merge[1] oldalt.
 
 include::rerere-options.adoc[]
 
@@ -182,55 +187,61 @@ EXAMPLES
 --------
 `git cherry-pick master`::
 
-	Apply the change introduced by the commit at the tip of the
-	master branch and create a new commit with this change.
+	A master branch csúcsán lévő commit által bevezetett
+	változtatás alkalmazása, és egy új commit létrehozása ezzel a
+	változtatással.
 
 `git cherry-pick ..master`::
 `git cherry-pick ^HEAD master`::
 
-	Apply the changes introduced by all commits that are ancestors
-	of master but not of HEAD to produce new commits.
+	Az összes olyan commit által bevezetett változtatás
+	alkalmazása, amely a master őse, de a HEAD-nek nem, új
+	commitok létrehozásához.
 
 `git cherry-pick maint next ^master`::
 `git cherry-pick maint master..next`::
 
-	Apply the changes introduced by all commits that are
-	ancestors of maint or next, but not master or any of its
-	ancestors.  Note that the latter does not mean `maint` and
-	everything between `master` and `next`; specifically,
-	`maint` will not be used if it is included in `master`.
+	Az összes olyan commit által bevezetett változtatás
+	alkalmazása, amely a maint vagy a next őse, de a master-nek
+	vagy annak bármely ősének nem. Vedd figyelembe, hogy az
+	utóbbi nem azt jelenti, hogy `maint` és minden, ami `master`
+	és `next` között van; konkrétan a `maint` nem lesz
+	felhasználva, ha az benne van a `master`-ben.
 
 `git cherry-pick master~4 master~2`::
 
-	Apply the changes introduced by the fifth and third last
-	commits pointed to by master and create 2 new commits with
-	these changes.
+	A master által mutatott ötödik és harmadik utolsó commit által
+	bevezetett változtatások alkalmazása, és 2 új commit
+	létrehozása ezekkel a változtatásokkal.
 
 `git cherry-pick -n master~1 next`::
 
-	Apply to the working tree and the index the changes introduced
-	by the second last commit pointed to by master and by the last
-	commit pointed to by next, but do not create any commit with
-	these changes.
+	A master által mutatott utolsó előtti commit és a next által
+	mutatott utolsó commit által bevezetett változtatások
+	alkalmazása a munkakönyvtárra és az indexre, de commit
+	létrehozása nélkül ezekkel a változtatásokkal.
 
 `git cherry-pick --ff ..next`::
 
-	If history is linear and HEAD is an ancestor of next, update
-	the working tree and advance the HEAD pointer to match next.
-	Otherwise, apply the changes introduced by those commits that
-	are in next but not HEAD to the current branch, creating a new
-	commit for each new change.
+	Ha a történet lineáris, és a HEAD a next őse, akkor a
+	munkakönyvtár frissítése, és a HEAD mutató előreléptetése,
+	hogy megegyezzen a next-tel. Egyébként azoknak a commitoknak a
+	bevezetett változtatásait alkalmazza, amelyek a next-ben benne
+	vannak, de a HEAD-ben nem, az aktuális branchre, minden új
+	változtatáshoz új commitot hozva létre.
 
 `git rev-list --reverse master -- README | git cherry-pick -n --stdin`::
 
-	Apply the changes introduced by all commits on the master
-	branch that touched README to the working tree and index,
-	so the result can be inspected and made into a single new
-	commit if suitable.
+	Az összes olyan commit által bevezetett változtatás
+	alkalmazása a munkakönyvtárra és az indexre, amely a master
+	branchen a README-t érintette, hogy az eredmény
+	megvizsgálható, és ha megfelelő, egyetlen új committá
+	alakítható legyen.
 
-The following sequence attempts to backport a patch, bails out because
-the code the patch applies to has changed too much, and then tries
-again, this time exercising more care about matching up context lines.
+A következő sorozat megpróbál visszaportolni egy patchet, meghiúsul,
+mert a kód, amelyre a patch vonatkozik, túl sokat változott, majd
+újra megpróbálja, ezúttal nagyobb gondossággal ügyelve a
+kontextussorok illesztésére.
 
 ------------
 $ git cherry-pick topic^             <1>
@@ -238,17 +249,18 @@ $ git diff                           <2>
 $ git cherry-pick --abort            <3>
 $ git cherry-pick -Xpatience topic^  <4>
 ------------
-<1> apply the change that would be shown by `git show topic^`.
-    In this example, the patch does not apply cleanly, so
-    information about the conflict is written to the index and
-    working tree and no new commit results.
-<2> summarize changes to be reconciled
-<3> cancel the cherry-pick.  In other words, return to the
-    pre-cherry-pick state, preserving any local modifications
-    you had in the working tree.
-<4> try to apply the change introduced by `topic^` again,
-    spending extra time to avoid mistakes based on incorrectly
-    matching context lines.
+<1> annak a változtatásnak az alkalmazása, amelyet a
+    `git show topic^` mutatna. Ebben a példában a patch nem
+    alkalmazódik tisztán, ezért az ütközésről szóló információ
+    bekerül az indexbe és a munkakönyvtárba, és nem keletkezik új
+    commit.
+<2> az összeegyeztetendő változtatások összegzése
+<3> a cherry-pick megszakítása. Más szóval visszatérés a
+    cherry-pick előtti állapotba, megőrizve a munkakönyvtárban
+    lévő esetleges helyi módosításokat.
+<4> a `topic^` által bevezetett változtatás újbóli alkalmazásának
+    megkísérlése, extra időt fordítva arra, hogy elkerülje a
+    kontextussorok helytelen illesztéséből eredő hibákat.
 
 SEE ALSO
 --------
@@ -256,4 +268,4 @@ linkgit:git-revert[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

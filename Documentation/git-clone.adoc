@@ -3,7 +3,7 @@ git-clone(1)
 
 NAME
 ----
-git-clone - Clone a repository into a new directory
+git-clone - Repository klónozása egy új könyvtárba
 
 
 SYNOPSIS
@@ -22,361 +22,378 @@ git clone [--template=<template-directory>]
 DESCRIPTION
 -----------
 
-Clones a repository into a newly created directory, creates
-remote-tracking branches for each branch in the cloned repository
-(visible using `git branch --remotes`), and creates and checks out an
-initial branch that is forked from the cloned repository's
-currently active branch.
+Egy repository-t klónoz egy újonnan létrehozott könyvtárba, remote-tracking
+branchet hoz létre a klónozott repository minden egyes branchéhez
+(a `git branch --remotes` paranccsal láthatók), majd létrehoz és
+checkoutol egy kiinduló branchet, amely a klónozott repository
+aktuálisan aktív branchéből ágazik le.
 
-After the clone, a plain `git fetch` without arguments will update
-all the remote-tracking branches, and a `git pull` without
-arguments will in addition merge the remote master branch into the
-current master branch, if any (this is untrue when `--single-branch`
-is given; see below).
+A klónozás után egy egyszerű, argumentum nélküli `git fetch` az
+összes remote-tracking branchet frissíti, egy argumentum nélküli
+`git pull` pedig ezenfelül a remote master branchet is összemerge-eli
+a jelenlegi master branchbe, ha van ilyen (ez nem igaz, ha a
+`--single-branch` meg van adva; lásd lentebb).
 
-This default configuration is achieved by creating references to
-the remote branch heads under `refs/remotes/origin` and
-by initializing `remote.origin.url` and `remote.origin.fetch`
-configuration variables.
+Ezt az alapértelmezett beállítást úgy éri el, hogy referenciákat hoz
+létre a remote branch fejekhez a `refs/remotes/origin` alatt, és
+inicializálja a `remote.origin.url` és a `remote.origin.fetch`
+konfigurációs változókat.
 
 
 OPTIONS
 -------
 `-l`::
 `--local`::
-	When the repository to clone from is on a local machine,
-	this flag bypasses the normal "Git aware" transport
-	mechanism and clones the repository by making a copy of
-	`HEAD` and everything under objects and refs directories.
-	The files under `.git/objects/` directory are hardlinked
-	to save space when possible.
+	Ha a klónozandó repository egy helyi gépen van, ez a kapcsoló
+	kihagyja a szokásos „Git-tudatos" transzportmechanizmust, és úgy
+	klónozza a repository-t, hogy másolatot készít a `HEAD`-ről és az
+	objects és refs könyvtárak alatt mindenről.
+	A `.git/objects/` könyvtár alatti fájlok hardlinkeltek, hogy
+	lehetőség szerint helyet takarítsanak meg.
 +
-If the repository is specified as a local path (e.g., `/path/to/repo`),
-this is the default, and `--local` is essentially a no-op.  If the
-repository is specified as a URL, then this flag is ignored (and we
-never use the local optimizations).  Specifying `--no-local` will
-override the default when `/path/to/repo` is given, using the regular
-Git transport instead.
+Ha a repository egy helyi elérési útként van megadva (pl. `/path/to/repo`),
+ez az alapértelmezett, és a `--local` lényegében no-op. Ha a repository
+URL-ként van megadva, akkor ezt a kapcsolót figyelmen kívül hagyja (és
+soha nem használja a helyi optimalizációkat). A `--no-local` megadása
+felülírja az alapértelmezést, ha `/path/to/repo` van megadva, és helyette
+a szokásos Git-transzportot használja.
 +
-If the repository's `$GIT_DIR/objects` has symbolic links or is a
-symbolic link, the clone will fail. This is a security measure to
-prevent the unintentional copying of files by dereferencing the symbolic
-links.
+Ha a repository `$GIT_DIR/objects` könyvtára szimbolikus linkeket
+tartalmaz, vagy maga is szimbolikus link, a klónozás sikertelen lesz.
+Ez egy biztonsági intézkedés, amely megakadályozza fájlok nem szándékos
+másolását a szimbolikus linkek feloldásával.
 +
-This option does not work with repositories owned by other users for security
-reasons, and `--no-local` must be specified for the clone to succeed.
+Ez az opció biztonsági okokból nem működik más felhasználók tulajdonában
+lévő repository-kkal, és a klónozás sikeréhez a `--no-local`-t kell megadni.
 +
-*NOTE*: this operation can race with concurrent modification to the
-source repository, similar to running `cp -r <src> <dst>` while modifying
-_<src>_.
+*MEGJEGYZÉS*: ez a művelet versenyhelyzetbe kerülhet a forrás-repository
+egyidejű módosításával, hasonlóan ahhoz, mintha `cp -r <src> <dst>`-t
+futtatnál, miközben módosítod a _<src>_-t.
 
 `--no-hardlinks`::
-	Force the cloning process from a repository on a local
-	filesystem to copy the files under the `.git/objects`
-	directory instead of using hardlinks. This may be desirable
-	if you are trying to make a back-up of your repository.
+	Kikényszeríti, hogy egy helyi fájlrendszeren lévő repository-ból
+	történő klónozási folyamat a `.git/objects` könyvtár alatti
+	fájlokat hardlinkek helyett másolja. Ez akkor lehet kívánatos, ha
+	biztonsági másolatot próbálsz készíteni a repository-dról.
 
 `-s`::
 `--shared`::
-	When the repository to clone is on the local machine,
-	instead of using hard links, automatically setup
-	`.git/objects/info/alternates` to share the objects
-	with the source repository.  The resulting repository
-	starts out without any object of its own.
+	Ha a klónozandó repository a helyi gépen van, hardlinkek
+	használata helyett automatikusan beállítja a
+	`.git/objects/info/alternates` fájlt, hogy megossza az objektumokat
+	a forrás-repository-val. Az eredményül kapott repository saját
+	objektum nélkül indul.
 +
-NOTE: this is a possibly dangerous operation; do *not* use
-it unless you understand what it does. If you clone your
-repository using this option and then delete branches (or use any
-other Git command that makes any existing commit unreferenced) in the
-source repository, some objects may become unreferenced (or dangling).
-These objects may be removed by normal Git operations (such as `git commit`)
-which automatically call `git maintenance run --auto`. (See
-linkgit:git-maintenance[1].) If these objects are removed and were referenced
-by the cloned repository, then the cloned repository will become corrupt.
+MEGJEGYZÉS: ez egy potenciálisan veszélyes művelet; *ne* használd,
+hacsak nem érted, mit csinál. Ha ezzel az opcióval klónozod a
+repository-dat, majd brancheket törölsz (vagy bármilyen más olyan Git
+parancsot használsz, amely bármely létező commitot referencia nélkülivé
+tesz) a forrás-repository-ban, egyes objektumok referencia nélkülivé
+(vagy „dangling"-gá) válhatnak. Ezeket az objektumokat a normál Git
+műveletek (például a `git commit`) eltávolíthatják, amelyek automatikusan
+meghívják a `git maintenance run --auto` parancsot. (Lásd:
+linkgit:git-maintenance[1].) Ha ezeket az objektumokat eltávolítják, és
+azokra a klónozott repository hivatkozott, akkor a klónozott repository
+sérültté válik.
 +
-Note that running `git repack` without the `--local` option in a repository
-cloned with `--shared` will copy objects from the source repository into a pack
-in the cloned repository, removing the disk space savings of `clone --shared`.
-It is safe, however, to run `git gc`, which uses the `--local` option by
-default.
+Vedd figyelembe, hogy a `git repack` `--local` opció nélküli futtatása
+egy `--shared`-del klónozott repository-ban objektumokat másol a
+forrás-repository-ból egy packbe a klónozott repository-ban, ezzel
+megszüntetve a `clone --shared` lemezterület-megtakarítását. Biztonságos
+azonban a `git gc` futtatása, amely alapértelmezetten a `--local` opciót
+használja.
 +
-If you want to break the dependency of a repository cloned with `--shared` on
-its source repository, you can simply run `git repack -a` to copy all
-objects from the source repository into a pack in the cloned repository.
+Ha meg akarod szüntetni egy `--shared`-del klónozott repository
+függőségét a forrás-repository-jától, egyszerűen futtathatod a
+`git repack -a` parancsot, hogy az összes objektumot átmásold a
+forrás-repository-ból egy packbe a klónozott repository-ban.
 
 `--reference=<repository>`::
 `--reference-if-able=<repository>`::
-	If the reference _<repository>_ is on the local machine,
-	automatically setup `.git/objects/info/alternates` to
-	obtain objects from the reference _<repository>_.  Using
-	an already existing repository as an alternate will
-	require fewer objects to be copied from the repository
-	being cloned, reducing network and local storage costs.
-	When using the `--reference-if-able`, a non existing
-	directory is skipped with a warning instead of aborting
-	the clone.
+	Ha a referencia-_<repository>_ a helyi gépen van, automatikusan
+	beállítja a `.git/objects/info/alternates` fájlt, hogy objektumokat
+	szerezzen be a referencia-_<repository>_-ból. Egy már létező
+	repository alternate-ként való használata kevesebb objektum
+	másolását igényli a klónozandó repository-ból, ami csökkenti a
+	hálózati és a helyi tárolási költségeket. A `--reference-if-able`
+	használatakor egy nem létező könyvtár figyelmeztetéssel átugrásra
+	kerül, ahelyett hogy megszakítaná a klónozást.
 +
-NOTE: see the NOTE for the `--shared` option, and also the
-`--dissociate` option.
+MEGJEGYZÉS: lásd a `--shared` opcióhoz tartozó megjegyzést, valamint a
+`--dissociate` opciót.
 
 `--dissociate`::
-	Borrow the objects from reference repositories specified
-	with the `--reference` options only to reduce network
-	transfer, and stop borrowing from them after a clone is made
-	by making necessary local copies of borrowed objects.  This
-	option can also be used when cloning locally from a
-	repository that already borrows objects from another
-	repository--the new repository will borrow objects from the
-	same repository, and this option can be used to stop the
-	borrowing.
+	A `--reference` opciókkal megadott referencia-repository-któl csak
+	azért kölcsönöz objektumokat, hogy csökkentse a hálózati
+	adatátvitelt, majd a klónozás elkészülte után abbahagyja a tőlük
+	való kölcsönzést azáltal, hogy a szükséges helyi másolatokat
+	elkészíti a kölcsönzött objektumokról. Ez az opció akkor is
+	használható, ha helyileg klónozol egy olyan repository-ból, amely
+	már maga is objektumokat kölcsönöz egy másik repository-tól — az
+	új repository ugyanattól a repository-tól fog kölcsönözni, és ez
+	az opció használható a kölcsönzés leállítására.
 
 `-q`::
 `--quiet`::
-	Operate quietly.  Progress is not reported to the standard
-	error stream.
+	Csendes működés. A folyamat nem kerül jelentésre a szabványos
+	hibafolyamon.
 
 `-v`::
 `--verbose`::
-	Run verbosely. Does not affect the reporting of progress status
-	to the standard error stream.
+	Bőbeszédű futás. Nincs hatással a folyamatállapot szabványos
+	hibafolyamra való jelentésére.
 
 `--progress`::
-	Report progress status on the standard error stream
-	by default when attached to a terminal, unless `--quiet`
-	is specified. This flag forces progress status even if the
-	standard error stream is not directed to a terminal.
+	A folyamatállapotot alapértelmezetten a szabványos hibafolyamon
+	jelenti, ha az egy terminálhoz van csatolva, hacsak a `--quiet`
+	nincs megadva. Ez a kapcsoló kikényszeríti a folyamatállapot
+	jelentését még akkor is, ha a szabványos hibafolyam nem egy
+	terminálra irányul.
 
 `--server-option=<option>`::
-	Transmit the given string to the server when communicating using
-	protocol version 2.  The given string must not contain a _NUL_ or _LF_
-	character.  The server's handling of server options, including
-	unknown ones, is server-specific.
-	When multiple `--server-option=<option>` are given, they are all
-	sent to the other side in the order listed on the command line.
-	When no `--server-option=<option>` is given from the command
-	line, the values of configuration variable `remote.<name>.serverOption`
-	are used instead.
+	A megadott karakterláncot elküldi a szervernek a 2-es protokollverzió
+	használatával történő kommunikáció során. A megadott karakterlánc nem
+	tartalmazhat _NUL_ vagy _LF_ karaktert. A szerveropciók kezelése, az
+	ismeretleneket is beleértve, szerverfüggő.
+	Ha több `--server-option=<option>` van megadva, mindegyik a
+	parancssorban felsorolt sorrendben kerül elküldésre a másik oldalra.
+	Ha a parancssorból nincs `--server-option=<option>` megadva, akkor
+	helyette a `remote.<name>.serverOption` konfigurációs változó
+	értékei kerülnek felhasználásra.
 
 `-n`::
 `--no-checkout`::
-	Do not checkout `HEAD` after the clone is complete.
+	A klónozás befejezése után nem checkoutolja a `HEAD`-et.
 
 `--no-reject-shallow`::
 `--reject-shallow`::
-	Fail if the source repository is a shallow repository.
-	The `clone.rejectShallow` configuration variable can be used to
-	specify the default.
+	Hibával leáll, ha a forrás-repository egy shallow repository.
+	Az alapértelmezés a `clone.rejectShallow` konfigurációs változóval
+	adható meg.
 
 `--bare`::
-	Make a 'bare' Git repository.  That is, instead of
-	creating _<directory>_ and placing the administrative
-	files in `<directory>/.git`, make the _<directory>_
-	itself the `$GIT_DIR`. This obviously implies the `--no-checkout`
-	because there is nowhere to check out the working tree.
-	Also the branch heads at the remote are copied directly
-	to corresponding local branch heads, without mapping
-	them to `refs/remotes/origin/`.  When this option is
-	used, neither remote-tracking branches nor the related
-	configuration variables are created.
+	'Bare' Git repository-t hoz létre. Vagyis a _<directory>_
+	létrehozása és az adminisztratív fájlok `<directory>/.git`
+	alá helyezése helyett magát a _<directory>_-t teszi
+	`$GIT_DIR`-ré. Ez nyilvánvalóan magával vonja a `--no-checkout`-ot,
+	mivel nincs hova checkoutolni a munkakönyvtárat.
+	Emellett a remote branch fejeit közvetlenül a megfelelő helyi
+	branch fejekbe másolja, anélkül hogy leképezné őket a
+	`refs/remotes/origin/` alá. Ha ez az opció használatban van, sem
+	remote-tracking branchek, sem a hozzájuk kapcsolódó konfigurációs
+	változók nem jönnek létre.
 
 `--sparse`::
-	Employ a sparse-checkout, with only files in the toplevel
-	directory initially being present.  The
-	linkgit:git-sparse-checkout[1] command can be used to grow the
-	working directory as needed.
+	Sparse-checkoutot alkalmaz, kezdetben csak a legfelső szintű
+	könyvtárban lévő fájlok lesznek jelen. A
+	linkgit:git-sparse-checkout[1] parancs használható a munkakönyvtár
+	igény szerinti bővítésére.
 
 `--filter=<filter-spec>`::
-	Use the partial clone feature and request that the server sends
-	a subset of reachable objects according to a given object filter.
-	When using `--filter`, the supplied _<filter-spec>_ is used for
-	the partial clone filter.
+	A partial clone funkciót használja, és kéri, hogy a szerver egy
+	adott objektumszűrő szerinti részhalmazát küldje el az elérhető
+	objektumoknak. A `--filter` használatakor a megadott
+	_<filter-spec>_ kerül felhasználásra a partial clone szűrőjeként.
 +
-If `--filter=auto` is used the filter specification is determined
-automatically through the 'promisor-remote' protocol (see
-linkgit:gitprotocol-v2[5]) by combining the filter specifications
-advertised by the server for the promisor remotes that the client
-accepts (see the `promisor.acceptFromServer` configuration option in
-linkgit:git-config[1]). This allows the server to suggest the optimal
-filter for the available promisor remotes.
+Ha a `--filter=auto` van használva, a szűrő-specifikációt a
+'promisor-remote' protokoll (lásd: linkgit:gitprotocol-v2[5]) határozza
+meg automatikusan, a szerver által a kliens által elfogadott promisor
+remote-okhoz meghirdetett szűrő-specifikációk kombinálásával (lásd a
+`promisor.acceptFromServer` konfigurációs opciót a linkgit:git-config[1]
+parancsban). Ez lehetővé teszi a szerver számára, hogy javasolja az
+optimális szűrőt az elérhető promisor remote-okhoz.
 +
-As with other filter specifications, the "auto" value is persisted in
-the configuration. This ensures that future fetches will continue to
-adapt to the server's current recommendation.
+Más szűrő-specifikációkhoz hasonlóan az „auto" érték is megőrződik a
+konfigurációban. Ez biztosítja, hogy a jövőbeli fetch-ek továbbra is
+alkalmazkodjanak a szerver aktuális ajánlásához.
 +
-For details on all other available filter specifications, see the
-`--filter=<filter-spec>` option in linkgit:git-rev-list[1].
+Az összes többi elérhető szűrő-specifikáció részleteiért lásd a
+`--filter=<filter-spec>` opciót a linkgit:git-rev-list[1] parancsban.
 +
-For example, `--filter=blob:none` will filter out all blobs (file
-contents) until needed by Git. Also, `--filter=blob:limit=<size>` will
-filter out all blobs of size at least _<size>_.
+Például a `--filter=blob:none` kiszűr minden blobot (fájltartalmat)
+addig, amíg a Gitnek szüksége nem lesz rájuk. Emellett a
+`--filter=blob:limit=<size>` kiszűri az összes legalább _<size>_
+méretű blobot.
 
 `--also-filter-submodules`::
-	Also apply the partial clone filter to any submodules in the repository.
-	Requires `--filter` and `--recurse-submodules`. This can be turned on by
-	default by setting the `clone.filterSubmodules` config option.
+	A partial clone szűrőt a repository submodule-jaira is alkalmazza.
+	A `--filter` és a `--recurse-submodules` szükséges hozzá. Ez
+	alapértelmezetten bekapcsolható a `clone.filterSubmodules` konfigurációs
+	opció beállításával.
 
 `--mirror`::
-	Set up a mirror of the source repository.  This implies `--bare`.
-	Compared to `--bare`, `--mirror` not only maps local branches of the
-	source to local branches of the target, it maps all refs (including
-	remote-tracking branches, notes etc.) and sets up a refspec configuration such
-	that all these refs are overwritten by a `git remote update` in the
-	target repository.
+	A forrás-repository egy tükrét (mirror) állítja be. Ez magával
+	vonja a `--bare`-t. A `--bare`-hez képest a `--mirror` nemcsak a
+	forrás helyi branchjeit képezi le a cél helyi branchjeire, hanem
+	az összes referenciát leképezi (remote-tracking brancheket,
+	note-okat stb.), és egy olyan refspec-konfigurációt állít be,
+	amely szerint mindezeket a referenciákat felülírja egy
+	`git remote update` a cél-repository-ban.
 
 `-o<name>`::
 `--origin=<name>`::
-	Instead of using the remote name `origin` to keep track of the upstream
-	repository, use _<name>_.  Overrides `clone.defaultRemoteName` from the
-	config.
+	Az upstream repository nyomon követéséhez az `origin` remote név
+	helyett _<name>_-et használ. Felülírja a config `clone.defaultRemoteName`
+	beállítását.
 
 `-b<name>`::
 `--branch=<name>`::
-	Point the newly created `HEAD` to _<name>_ branch instead of the branch
-	pointed to by the cloned repository's `HEAD`. In a non-bare repository,
-	this is the branch that will be checked out.
-	`--branch` can also take tags and detaches the `HEAD` at that commit
-	in the resulting repository.
+	Az újonnan létrehozott `HEAD`-et a _<name>_ branchre mutatja, a
+	klónozott repository `HEAD`-je által mutatott branch helyett. Egy
+	nem bare repository-ban ez az a branch, amely checkoutolva lesz.
+	A `--branch` tageket is elfogadhat, és ilyenkor a `HEAD`-et az
+	eredményül kapott repository-ban az adott commitnál leválasztja
+	(detacheli).
 
 `--revision=<rev>`::
-	Create a new repository, and fetch the history leading to the given
-	revision _<rev>_ (and nothing else), without making any remote-tracking
-	branch, and without making any local branch, and detach `HEAD` to
-	_<rev>_. The argument can be a ref name (e.g. `refs/heads/main` or
-	`refs/tags/v1.0`) that peels down to a commit, or a hexadecimal object
-	name.
-	This option is incompatible with `--branch` and `--mirror`.
+	Új repository-t hoz létre, és lekéri a megadott _<rev>_
+	revízióhoz vezető történetet (és semmi mást), anélkül hogy
+	bármilyen remote-tracking branchet vagy helyi branchet létrehozna,
+	és leválasztja (detacheli) a `HEAD`-et a _<rev>_-hez. Az
+	argumentum lehet egy ref-név (pl. `refs/heads/main` vagy
+	`refs/tags/v1.0`), amely egy commitig hámozódik le, vagy egy
+	hexadecimális objektumnév.
+	Ez az opció nem kompatibilis a `--branch`-csel és a `--mirror`-ral.
 
 `-u<upload-pack>`::
 `--upload-pack=<upload-pack>`::
-	Specify a non-default path for the command run on the other end when the
-	repository to clone from is accessed via ssh.
+	Nem alapértelmezett elérési utat ad meg a másik végen futtatandó
+	parancshoz, amikor a klónozandó repository ssh-n keresztül érhető el.
 
 `--template=<template-directory>`::
-	Specify the directory from which templates will be used;
-	(See the "TEMPLATE DIRECTORY" section of linkgit:git-init[1].)
+	Megadja azt a könyvtárat, amelyből a sablonok használatosak lesznek;
+	(lásd a linkgit:git-init[1] „TEMPLATE DIRECTORY" szakaszát.)
 
 `-c<key>=<value>`::
 `--config=<key>=<value>`::
-	Set a configuration variable in the newly-created repository;
-	this takes effect immediately after the repository is
-	initialized, but before the remote history is fetched or any
-	files checked out.  The _<key>_ is in the same format as expected by
-	linkgit:git-config[1] (e.g., `core.eol=true`). If multiple
-	values are given for the same key, each value will be written to
-	the config file. This makes it safe, for example, to add
-	additional fetch refspecs to the origin remote.
+	Beállít egy konfigurációs változót az újonnan létrehozott
+	repository-ban; ez azonnal érvénybe lép a repository
+	inicializálása után, de még mielőtt a remote történet lekérésre
+	vagy bármilyen fájl checkoutolásra kerülne. A _<key>_ ugyanolyan
+	formátumú, mint amit a linkgit:git-config[1] elvár (pl.
+	`core.eol=true`). Ha ugyanahhoz a kulcshoz több érték van
+	megadva, mindegyik érték be lesz írva a config fájlba. Ez
+	biztonságossá teszi például további fetch refspecek hozzáadását
+	az origin remote-hoz.
 +
-Due to limitations of the current implementation, some configuration
-variables do not take effect until after the initial fetch and checkout.
-Configuration variables known to not take effect are:
-`remote.<name>.mirror` and `remote.<name>.tagOpt`.  Use the
-corresponding `--mirror` and `--no-tags` options instead.
+A jelenlegi implementáció korlátai miatt egyes konfigurációs
+változók csak a kezdeti fetch és checkout után lépnek érvénybe.
+Az ismerten érvénybe nem lépő konfigurációs változók: a
+`remote.<name>.mirror` és a `remote.<name>.tagOpt`. Ezek helyett
+használd a megfelelő `--mirror` és `--no-tags` opciókat.
 
 `--depth=<depth>`::
-	Create a 'shallow' clone with a history truncated to the
-	specified number of commits. Implies `--single-branch` unless
-	`--no-single-branch` is given to fetch the histories near the
-	tips of all branches. If you want to clone submodules shallowly,
-	also pass `--shallow-submodules`.
+	'Shallow' klónt hoz létre, a történetet a megadott számú commitra
+	csonkítva. Ez magával vonja a `--single-branch`-et, hacsak a
+	`--no-single-branch` nincs megadva az összes branch csúcsai
+	közelében lévő történet lekéréséhez. Ha a submodule-okat is
+	shallow módon szeretnéd klónozni, add meg a
+	`--shallow-submodules`-t is.
 
 `--shallow-since=<date>`::
-	Create a shallow clone with a history after the specified time.
+	Shallow klónt hoz létre, a megadott időpont utáni történettel.
 
 `--shallow-exclude=<ref>`::
-	Create a shallow clone with a history, excluding commits
-	reachable from a specified remote branch or tag.  This option
-	can be specified multiple times.
+	Shallow klónt hoz létre, a történetből kizárva a megadott remote
+	branchről vagy tagről elérhető commitokat. Ez az opció többször
+	is megadható.
 
 `--single-branch`::
 `--no-single-branch`::
-	Clone only the history leading to the tip of a single branch,
-	either specified by the `--branch` option or the primary
-	branch remote's `HEAD` points at.
-	Further fetches into the resulting repository will only update the
-	remote-tracking branch for the branch this option was used for the
-	initial cloning.  If the `HEAD` at the remote did not point at any
-	branch when `--single-branch` clone was made, no remote-tracking
-	branch is created.
+	Csak egyetlen branch csúcsáig vezető történetet klónoz, amelyet
+	vagy a `--branch` opció, vagy az elsődleges branch remote-jának
+	`HEAD`-je jelöl ki.
+	Az eredményül kapott repository-ba történő további fetch-ek csak
+	annak a branchnek a remote-tracking branchjét fogják frissíteni,
+	amelyhez ezt az opciót a kezdeti klónozáshoz használták. Ha a
+	remote-on lévő `HEAD` nem mutatott egyetlen branchre sem, amikor
+	a `--single-branch` klónozás megtörtént, nem jön létre
+	remote-tracking branch.
 
 `--tags`::
 `--no-tags`::
-	Control whether or not tags will be cloned. When `--no-tags` is
-	given, the option will be become permanent by setting the
-	`remote.<remote>.tagOpt=--no-tags` configuration. This ensures that
-	future `git pull` and `git fetch` won't follow any tags. Subsequent
-	explicit tag fetches will still work (see linkgit:git-fetch[1]).
+	Szabályozza, hogy a tagek klónozva legyenek-e. Ha a `--no-tags`
+	meg van adva, ez az opció a `remote.<remote>.tagOpt=--no-tags`
+	konfiguráció beállításával véglegessé válik. Ez biztosítja, hogy a
+	jövőbeli `git pull` és `git fetch` ne kövessen egyetlen taget sem.
+	A későbbi, explicit tag-fetch-ek továbbra is működni fognak (lásd:
+	linkgit:git-fetch[1]).
 +
-By default, tags are cloned and passing `--tags` is thus typically a
-no-op, unless it cancels out a previous `--no-tags`.
+Alapértelmezetten a tagek klónozva vannak, így a `--tags` átadása
+jellemzően no-op, kivéve ha egy korábbi `--no-tags`-et von vissza.
 +
-Can be used in conjunction with `--single-branch` to clone and
-maintain a branch with no references other than a single cloned
-branch. This is useful e.g. to maintain minimal clones of the default
-branch of some repository for search indexing.
+Kombinálható a `--single-branch`-csel, hogy egyetlen klónozott
+branchen kívül más referencia nélküli branchet lehessen klónozni és
+fenntartani. Ez hasznos például egy repository alapértelmezett
+branchjének minimális klónjainak fenntartásához keresőindexelés
+céljából.
 
 `--recurse-submodules[=<pathspec>]`::
-	After the clone is created, initialize and clone submodules
-	within based on the provided _<pathspec>_.  If no `=<pathspec>` is
-	provided, all submodules are initialized and cloned.
-	This option can be given multiple times for pathspecs consisting
-	of multiple entries.  The resulting clone has `submodule.active` set to
-	the provided pathspec, or "`.`" (meaning all submodules) if no
-	pathspec is provided.
+	A klónozás létrehozása után inicializálja és klónozza a benne
+	lévő submodule-okat a megadott _<pathspec>_ alapján. Ha nincs
+	megadva `=<pathspec>`, az összes submodule inicializálva és
+	klónozva lesz. Ez az opció többször is megadható több elemből
+	álló pathspecekhez. Az eredményül kapott klón `submodule.active`
+	beállítása a megadott pathspecre, vagy „`.`"-ra (ami az összes
+	submodule-t jelenti) áll, ha nincs pathspec megadva.
 +
-Submodules are initialized and cloned using their default settings. This is
-equivalent to running
-`git submodule update --init --recursive <pathspec>` immediately after
-the clone is finished. This option is ignored if the cloned repository does
-not have a worktree/checkout (i.e. if any of `--no-checkout`/`-n`, `--bare`,
-or `--mirror` is given)
+A submodule-ok az alapértelmezett beállításaikkal kerülnek
+inicializálásra és klónozásra. Ez egyenértékű azzal, mintha közvetlenül
+a klónozás befejezése után futtatnád a
+`git submodule update --init --recursive <pathspec>` parancsot. Ez az
+opció figyelmen kívül van hagyva, ha a klónozott repository-nak nincs
+worktree-je/checkoutja (azaz ha a `--no-checkout`/`-n`, `--bare` vagy
+`--mirror` bármelyike meg van adva)
 
 `--shallow-submodules`::
 `--no-shallow-submodules`::
-	All submodules which are cloned will be shallow with a depth of 1.
+	Az összes klónozott submodule shallow lesz, 1-es mélységgel.
 
 `--remote-submodules`::
 `--no-remote-submodules`::
-	All submodules which are cloned will use the status of the submodule's
-	remote-tracking branch to update the submodule, rather than the
-	superproject's recorded SHA-1. Equivalent to passing `--remote` to
-	`git submodule update`.
+	Az összes klónozott submodule a submodule remote-tracking
+	branchjének állapotát fogja használni a submodule frissítéséhez,
+	a szuperprojekt rögzített SHA-1-je helyett. Egyenértékű a
+	`--remote` átadásával a `git submodule update` parancsnak.
 
 `--separate-git-dir=<git-dir>`::
-	Instead of placing the cloned repository where it is supposed
-	to be, place the cloned repository at the specified directory,
-	then make a filesystem-agnostic Git symbolic link to there.
-	The result is Git repository can be separated from working
-	tree.
+	Ahelyett hogy a klónozott repository-t a rendeltetési helyére
+	tenné, a klónozott repository-t a megadott könyvtárba helyezi,
+	majd egy fájlrendszer-független Git szimbolikus linket készít
+	oda. Az eredmény az, hogy a Git-repository elválasztható a
+	munkakönyvtártól.
 
 `--ref-format=<ref-format>`::
 
-Specify the given ref storage format for the repository. The valid values are:
+Megadja a repository-hoz használt ref-tárolási formátumot. Az érvényes
+értékek:
 +
 include::ref-storage-format.adoc[]
 
 `-j<n>`::
 `--jobs=<n>`::
-	The number of submodules fetched at the same time.
-	Defaults to the `submodule.fetchJobs` option.
+	Az egyidejűleg lekért submodule-ok száma.
+	Alapértelmezetten a `submodule.fetchJobs` opció értékét veszi fel.
 
 _<repository>_::
-	The (possibly remote) _<repository>_ to clone from.  See the
-	<<URLS,GIT URLS>> section below for more information on specifying
-	repositories.
+	A (esetleg remote) _<repository>_, amelyből klónozni kell. A
+	repository-k megadásáról bővebb információért lásd a lenti
+	<<URLS,GIT URL-ek>> szakaszt.
 
 _<directory>_::
-	The name of a new directory to clone into.  The "humanish"
-	part of the source repository is used if no _<directory>_ is
-	explicitly given (`repo` for `/path/to/repo.git` and `foo`
-	for `host.xz:foo/.git`).  Cloning into an existing directory
-	is only allowed if the directory is empty.
+	Az új könyvtár neve, amelybe klónozni kell. A forrás-repository
+	„humanish" (emberileg olvasható) része kerül felhasználásra, ha
+	nincs explicit módon megadva _<directory>_ (`repo` a
+	`/path/to/repo.git`-hez és `foo` a `host.xz:foo/.git`-hez). Egy
+	létező könyvtárba klónozás csak akkor engedélyezett, ha a
+	könyvtár üres.
 
 `--bundle-uri=<uri>`::
-	Before fetching from the remote, fetch a bundle from the given
-	_<uri>_ and unbundle the data into the local repository. The refs
-	in the bundle will be stored under the hidden `refs/bundle/*`
-	namespace. This option is incompatible with `--depth`,
-	`--shallow-since`, and `--shallow-exclude`.
+	Mielőtt a remote-ról fetchelne, letölt egy bundle-t a megadott
+	_<uri>_-ból, és kicsomagolja az adatokat a helyi repository-ba. A
+	bundle-ben lévő referenciák a rejtett `refs/bundle/*` névtér alatt
+	kerülnek tárolásra. Ez az opció nem kompatibilis a `--depth`, a
+	`--shallow-since` és a `--shallow-exclude` opciókkal.
 
 :git-clone: 1
 include::urls.adoc[]
@@ -384,7 +401,7 @@ include::urls.adoc[]
 EXAMPLES
 --------
 
-* Clone from upstream:
+* Klónozás az upstreamből:
 +
 ------------
 $ git clone git://git.kernel.org/pub/scm/.../linux.git my-linux
@@ -393,7 +410,7 @@ $ make
 ------------
 
 
-* Make a local clone that borrows from the current directory, without checking things out:
+* Helyi klón létrehozása, amely az aktuális könyvtárból kölcsönöz, checkout nélkül:
 +
 ------------
 $ git clone -l -s -n . ../copy
@@ -402,7 +419,7 @@ $ git show-branch
 ------------
 
 
-* Clone from upstream while borrowing from an existing local directory:
+* Klónozás az upstreamből, miközben egy létező helyi könyvtárból kölcsönöz:
 +
 ------------
 $ git clone --reference /git/linux.git \
@@ -412,13 +429,13 @@ $ cd my-linux
 ------------
 
 
-* Create a bare repository to publish your changes to the public:
+* Bare repository létrehozása a változtatások nyilvánosság számára való közzétételéhez:
 +
 ------------
 $ git clone --bare -l /home/proj/.git /pub/scm/proj.git
 ------------
 
-* Clone a local repository from a different user:
+* Helyi repository klónozása egy másik felhasználótól:
 +
 ------------
 $ git clone --no-local /home/otheruser/proj.git /pub/scm/proj.git
@@ -436,4 +453,4 @@ include::config/clone.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

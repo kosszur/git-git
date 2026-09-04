@@ -36,10 +36,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 
 | fájl | kész | forrás-SHA | utolsó-ellenőrzés |
 |---|---|---|---|
-| git-add.adoc | [ ] |  |  |
+| git-add.adoc | [x] |  | 2026-09-04 |
 | git-am.adoc | [x] |  | 2026-09-04 |
 | git-annotate.adoc | [x] |  | 2026-09-04 |
-| git-apply.adoc | [ ] |  |  |
+| git-apply.adoc | [x] |  | 2026-09-04 |
 | git-archimport.adoc | [x] |  | 2026-09-04 |
 | git-archive.adoc | [x] |  | 2026-09-04 |
 | git-backfill.adoc | [x] |  | 2026-09-04 |
@@ -51,18 +51,18 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-bundle.adoc | [x] |  | 2026-09-04 |
 | git-cat-file.adoc | [x] |  | 2026-09-04 |
 | git-check-attr.adoc | [x] |  | 2026-09-04 |
-| git-check-ignore.adoc | [ ] |  |  |
+| git-check-ignore.adoc | [x] |  | 2026-09-04 |
 | git-check-mailmap.adoc | [x] |  | 2026-09-04 |
 | git-check-ref-format.adoc | [x] |  | 2026-09-04 |
 | git-checkout-index.adoc | [x] |  | 2026-09-04 |
 | git-checkout.adoc | [x] |  | 2026-09-04 |
-| git-cherry-pick.adoc | [ ] |  |  |
+| git-cherry-pick.adoc | [x] |  | 2026-09-04 |
 | git-cherry.adoc | [x] |  | 2026-09-04 |
 | git-citool.adoc | [x] |  | 2026-09-04 |
 | git-clean.adoc | [x] |  | 2026-09-04 |
-| git-clone.adoc | [ ] |  |  |
+| git-clone.adoc | [x] |  | 2026-09-04 |
 | git-column.adoc | [x] |  | 2026-09-04 |
-| git-commit-graph.adoc | [ ] |  |  |
+| git-commit-graph.adoc | [x] |  | 2026-09-04 |
 | git-commit-tree.adoc | [x] |  | 2026-09-04 |
 | git-commit.adoc | [x] |  | 2026-09-04 |
 | git-config.adoc | [x] |  | 2026-09-04 |

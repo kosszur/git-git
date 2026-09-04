@@ -3,7 +3,7 @@ git-add(1)
 
 NAME
 ----
-git-add - Add file contents to the index
+git-add - Fájltartalmak hozzáadása az indexhez
 
 SYNOPSIS
 --------
@@ -16,251 +16,264 @@ git add [--verbose | -v] [--dry-run | -n] [--force | -f] [--interactive | -i] [-
 
 DESCRIPTION
 -----------
-Add contents of new or changed files to the index. The "index" (also
-known as the "staging area") is what you use to prepare the contents of
-the next commit.
+Új vagy megváltozott fájlok tartalmának hozzáadása az indexhez. Az
+„index" (más néven a „staging area") az, amivel a következő commit
+tartalmát előkészíted.
 
-When you run `git commit` without any other arguments, it will only
-commit staged changes. For example, if you've edited `file.c` and want
-to commit your changes to that file, you can run:
+Ha a `git commit` parancsot más argumentumok nélkül futtatod, az csak a
+staged változásokat commitolja. Ha például módosítottad a `file.c`
+fájlt, és a rá vonatkozó változásokat szeretnéd commitolni, futtathatod:
 
    git add file.c
    git commit
 
-You can also add only part of your changes to a file with `git add -p`.
+A `git add -p` paranccsal a fájl változásainak csak egy részét is
+hozzáadhatod.
 
-This command can be performed multiple times before a commit.  It only
-adds the content of the specified file(s) at the time the add command is
-run; if you want subsequent changes included in the next commit, then
-you must run `git add` again to add the new content to the index.
+Ez a parancs egy commit előtt többször is végrehajtható. Csak a megadott
+fájl(ok) tartalmát adja hozzá, mégpedig abban az állapotban, amilyen az
+add parancs futtatásának pillanatában volt; ha a következő commitba a
+későbbi módosításokat is bele akarod foglalni, akkor a `git add`
+parancsot újra kell futtatnod, hogy az új tartalmat hozzáadd az
+indexhez.
 
-The `git status` command can be used to obtain a summary of which
-files have changes that are staged for the next commit.
+A `git status` parancs segítségével áttekintheted, mely fájloknak vannak
+a következő commitra staged változásai.
 
-The `git add` command will not add ignored files by default. You can
-use the `--force` option to add ignored files. If you specify the exact
-filename of an ignored file, `git add` will fail with a list of ignored
-files. Otherwise it will silently ignore the file.
+A `git add` parancs alapesetben nem adja hozzá az ignorált fájlokat. A
+`--force` opcióval az ignorált fájlok is hozzáadhatók. Ha egy ignorált
+fájl pontos nevét adod meg, a `git add` meghiúsul, és kiírja az
+ignorált fájlok listáját. Egyébként csendben kihagyja a fájlt.
 
-Please see linkgit:git-commit[1] for alternative ways to add content to a
-commit.
+A commitokhoz való tartalom hozzáadásának alternatív módjaiért lásd a
+linkgit:git-commit[1] parancsot.
 
 
 OPTIONS
 -------
 `<pathspec>...`::
-	Files to add content from.  Fileglobs (e.g. `*.c`) can
-	be given to add all matching files.  Also a
-	leading directory name (e.g. `dir` to add `dir/file1`
-	and `dir/file2`) can be given to update the index to
-	match the current state of the directory as a whole (e.g.
-	specifying `dir` will record not just a file `dir/file1`
-	modified in the working tree, a file `dir/file2` added to
-	the working tree, but also a file `dir/file3` removed from
-	the working tree). Note that older versions of Git used
-	to ignore removed files; use `--no-all` option if you want
-	to add modified or new files but ignore removed ones.
+	Fájlok, amelyek tartalmát hozzá kell adni. Fileglobok (pl. `*.c`)
+	adhatók meg az összes illeszkedő fájl hozzáadásához. Egy vezető
+	könyvtárnév (pl. `dir`, hogy a `dir/file1` és `dir/file2` fájlok
+	hozzáadódjanak) is megadható, hogy az index a könyvtár egészének
+	aktuális állapotához igazodjon (pl. a `dir` megadása nem csak a
+	munkakönyvtárban módosított `dir/file1` fájlt, illetve a
+	munkakönyvtárhoz hozzáadott `dir/file2` fájlt rögzíti, hanem a
+	munkakönyvtárból eltávolított `dir/file3` fájlt is). Megjegyzendő,
+	hogy a Git régebbi verziói figyelmen kívül hagyták az eltávolított
+	fájlokat; használd a `--no-all` opciót, ha a módosított vagy új
+	fájlokat szeretnéd hozzáadni, de az eltávolítottakat mellőzni.
 +
-For more details about the _<pathspec>_ syntax, see the 'pathspec' entry
-in linkgit:gitglossary[7].
+A _<pathspec>_ szintaxisáról bővebben lásd a 'pathspec' szócikket a
+linkgit:gitglossary[7] oldalon.
 
 `-n`::
 `--dry-run`::
-	Don't actually add the file(s), just show if they exist and/or will
-	be ignored.
+	Ne add hozzá ténylegesen a fájl(oka)t, csak mutasd meg, léteznek-e,
+	illetve figyelmen kívül lesznek-e hagyva.
 
 `-v`::
 `--verbose`::
-        Be verbose.
+        Legyen bőbeszédű.
 
 `-f`::
 `--force`::
-	Allow adding otherwise ignored files. The option is also used when
-	`submodule.<name>.ignore=all` is set, but you want to stage an
-	update of the submodule. The `path` to the submodule must be explicitly
-	specified.
+	Egyébként ignorált fájlok hozzáadásának engedélyezése. Ez az opció
+	akkor is használatos, ha a `submodule.<name>.ignore=all` be van
+	állítva, de mégis stage-elni szeretnéd a submodule frissítését. A
+	submodule `path`-ját ekkor explicit módon meg kell adni.
 
 `--sparse`::
-	Allow updating index entries outside of the sparse-checkout cone.
-	Normally, `git add` refuses to update index entries whose paths do
-	not fit within the sparse-checkout cone, since those files might
-	be removed from the working tree without warning. See
-	linkgit:git-sparse-checkout[1] for more details.
+	A sparse-checkout cone-on kívül eső index-bejegyzések frissítésének
+	engedélyezése. Alapesetben a `git add` visszautasítja az olyan
+	útvonalú index-bejegyzések frissítését, amelyek nem férnek bele a
+	sparse-checkout cone-ba, mivel ezek a fájlok figyelmeztetés nélkül
+	is eltávolíthatók a munkakönyvtárból. További részletekért lásd a
+	linkgit:git-sparse-checkout[1] parancsot.
 
 `-i`::
 `--interactive`::
-	Add modified contents in the working tree interactively to
-	the index. Optional path arguments may be supplied to limit
-	operation to a subset of the working tree. See ``Interactive
-	mode'' for details.
+	A munkakönyvtár módosított tartalmának interaktív hozzáadása az
+	indexhez. Opcionális útvonal-argumentumok adhatók meg, hogy a
+	művelet a munkakönyvtár egy részhalmazára korlátozódjon. A
+	részletekért lásd az „Interaktív mód" szakaszt.
 
 `-p`::
 `--patch`::
-	Interactively choose hunks of patch between the index and the
-	work tree and add them to the index. This gives the user a chance
-	to review the difference before adding modified contents to the
-	index.
+	Az index és a munkakönyvtár közti patch hunkjainak interaktív
+	kiválasztása és hozzáadása az indexhez. Ez lehetőséget ad a
+	felhasználónak, hogy áttekintse a különbséget, mielőtt a módosított
+	tartalmat hozzáadná az indexhez.
 +
-This effectively runs `add --interactive`, but bypasses the
-initial command menu and directly jumps to the `patch` subcommand.
-See ``Interactive mode'' for details.
+Ez lényegében az `add --interactive` parancsot futtatja, de kihagyja a
+kezdeti parancsmenüt, és egyenesen a `patch` alparancsra ugrik. A
+részletekért lásd az „Interaktív mód" szakaszt.
 
 include::diff-context-options.adoc[]
 
 `-e`::
 `--edit`::
-	Open the diff vs. the index in an editor and let the user
-	edit it.  After the editor was closed, adjust the hunk headers
-	and apply the patch to the index.
+	Az index és a munkakönyvtár közti diff megnyitása egy
+	szerkesztőben, hogy a felhasználó szerkeszthesse. A szerkesztő
+	bezárása után a hunk-fejlécek igazítása és a patch alkalmazása
+	az indexre.
 +
-The intent of this option is to pick and choose lines of the patch to
-apply, or even to modify the contents of lines to be staged. This can be
-quicker and more flexible than using the interactive hunk selector.
-However, it is easy to confuse oneself and create a patch that does not
-apply to the index. See EDITING PATCHES below.
+Ennek az opciónak az a célja, hogy a felhasználó válogathasson a patch
+sorai közül, sőt akár a stage-elendő sorok tartalmát is módosíthassa.
+Ez gyorsabb és rugalmasabb lehet, mint az interaktív hunk-választó
+használata. Ugyanakkor könnyű összezavarodni, és olyan patch-et
+létrehozni, amely nem alkalmazható az indexre. Lásd az EDITING PATCHES
+szakaszt lentebb.
 
 `-u`::
 `--update`::
-	Update the index just where it already has an entry matching
-	_<pathspec>_.  This removes as well as modifies index entries to
-	match the working tree, but adds no new files.
+	Az index frissítése csak ott, ahol már van egy _<pathspec>_-nek
+	megfelelő bejegyzése. Ez az index-bejegyzéseket a munkakönyvtárhoz
+	igazítva el is távolítja, meg is módosítja, de új fájlokat nem ad
+	hozzá.
 +
-If no _<pathspec>_ is given when `-u` option is used, all
-tracked files in the entire working tree are updated (old versions
-of Git used to limit the update to the current directory and its
-subdirectories).
+Ha a `-u` opció használatakor nincs megadva _<pathspec>_, a teljes
+munkakönyvtárban lévő összes követett fájl frissül (a Git régebbi
+verziói a frissítést az aktuális könyvtárra és annak alkönyvtáraira
+korlátozták).
 
 `-A`::
 `--all`::
 `--no-ignore-removal`::
-	Update the index not only where the working tree has a file
-	matching _<pathspec>_ but also where the index already has an
-	entry. This adds, modifies, and removes index entries to
-	match the working tree.
+	Az index frissítése nemcsak ott, ahol a munkakönyvtárban van a
+	_<pathspec>_-nek megfelelő fájl, hanem ott is, ahol az indexben
+	már van egy bejegyzés. Ez az index-bejegyzéseket a
+	munkakönyvtárhoz igazítva hozzáadja, módosítja és el is
+	távolítja.
 +
-If no _<pathspec>_ is given when `-A` option is used, all
-files in the entire working tree are updated (old versions
-of Git used to limit the update to the current directory and its
-subdirectories).
+Ha a `-A` opció használatakor nincs megadva _<pathspec>_, a teljes
+munkakönyvtárban lévő összes fájl frissül (a Git régebbi
+verziói a frissítést az aktuális könyvtárra és annak alkönyvtáraira
+korlátozták).
 
 `--no-all`::
 `--ignore-removal`::
-	Update the index by adding new files that are unknown to the
-	index and files modified in the working tree, but ignore
-	files that have been removed from the working tree.  This
-	option is a no-op when no _<pathspec>_ is used.
+	Az index frissítése az indexben ismeretlen új fájlok és a
+	munkakönyvtárban módosított fájlok hozzáadásával, de a
+	munkakönyvtárból eltávolított fájlok mellőzésével. Ez az opció
+	nem csinál semmit, ha nincs megadva _<pathspec>_.
 +
-This option is primarily to help users who are used to older
-versions of Git, whose `git add <pathspec>...` was a synonym
-for `git add --no-all <pathspec>...`, i.e. ignored removed files.
+Ez az opció elsősorban azoknak a felhasználóknak segít, akik a Git
+régebbi verzióihoz szoktak hozzá, ahol a `git add <pathspec>...` a
+`git add --no-all <pathspec>...` szinonimája volt, azaz figyelmen
+kívül hagyta az eltávolított fájlokat.
 
 `-N`::
 `--intent-to-add`::
-	Record only the fact that the path will be added later. An entry
-	for the path is placed in the index with no content. This is
-	useful for, among other things, showing the unstaged content of
-	such files with `git diff` and committing them with `git commit
-	-a`.
+	Csak annak a ténynek a rögzítése, hogy az útvonal később hozzá
+	lesz adva. Az útvonalhoz egy tartalom nélküli bejegyzés kerül az
+	indexbe. Ez többek között hasznos az ilyen fájlok unstaged
+	tartalmának megjelenítéséhez a `git diff` paranccsal, és a
+	`git commit -a` paranccsal történő commitolásukhoz.
 
 `--refresh`::
-	Don't add the file(s), but only refresh their stat()
-	information in the index.
+	Ne add hozzá a fájl(oka)t, csak frissítsd a stat()
+	információjukat az indexben.
 
 `--ignore-errors`::
-	If some files could not be added because of errors indexing
-	them, do not abort the operation, but continue adding the
-	others. The command shall still exit with non-zero status.
-	The configuration variable `add.ignoreErrors` can be set to
-	true to make this the default behaviour.
+	Ha néhány fájlt indexelési hiba miatt nem sikerül hozzáadni, ne
+	szakítsd meg a műveletet, hanem folytasd a többi hozzáadásával.
+	A parancs ekkor is nullától eltérő státuszkóddal lép ki. Az
+	`add.ignoreErrors` konfigurációs változó `true`-ra állításával ez
+	tehető alapértelmezett viselkedéssé.
 
 `--ignore-missing`::
-	This option can only be used together with `--dry-run`. By using
-	this option the user can check if any of the given files would
-	be ignored, no matter if they are already present in the work
-	tree or not.
+	Ez az opció csak a `--dry-run` opcióval együtt használható. Ezzel
+	az opcióval a felhasználó ellenőrizheti, hogy a megadott fájlok
+	közül bármelyik figyelmen kívül lenne-e hagyva, függetlenül attól,
+	hogy már jelen vannak-e a munkafában vagy sem.
 
 `--no-warn-embedded-repo`::
-	By default, `git add` will warn when adding an embedded
-	repository to the index without using `git submodule add` to
-	create an entry in `.gitmodules`. This option will suppress the
-	warning (e.g., if you are manually performing operations on
-	submodules).
+	Alapesetben a `git add` figyelmeztet, ha egy beágyazott
+	repository-t ad hozzá az indexhez anélkül, hogy a `git submodule
+	add` paranccsal bejegyzést hozna létre a `.gitmodules` fájlban.
+	Ez az opció elnyomja a figyelmeztetést (pl. ha kézzel végzel
+	műveleteket a submodule-okon).
 
 `--renormalize`::
-	Apply the "clean" process freshly to all tracked files to
-	forcibly add them again to the index.  This is useful after
-	changing `core.autocrlf` configuration or the `text` attribute
-	in order to correct files added with wrong _CRLF/LF_ line endings.
-	This option implies `-u`. Lone CR characters are untouched, thus
-	while a _CRLF_ cleans to _LF_, a _CRCRLF_ sequence is only partially
-	cleaned to _CRLF_.
+	A „clean" folyamat friss alkalmazása az összes követett fájlra,
+	hogy azok erőltetetten újra hozzáadódjanak az indexhez. Ez akkor
+	hasznos, ha a `core.autocrlf` konfiguráció vagy a `text` attribútum
+	megváltoztatása után a hibás _CRLF/LF_ sorvégekkel hozzáadott
+	fájlokat szeretnéd korrigálni. Ez az opció maga után vonja a `-u`
+	opciót. A magányos CR karakterek érintetlenek maradnak, így míg egy
+	_CRLF_ _LF_-re tisztul, egy _CRCRLF_ sorozat csak részben tisztul
+	_CRLF_-re.
 
 `--resolved`::
-	Update the index for unmerged paths matching _<pathspec>_ where
-	no conflict markers remain in the working tree. Unmerged paths
-	without conflict markers (including binary files and file
-	deletions) are staged as resolved, while any path with leftover
-	conflict markers causes the command to refuse to stage any files.
-	Cannot be combined with `-u` or `-A`.
+	Az index frissítése azoknál a _<pathspec>_-nek megfelelő,
+	nem-merge-elt útvonalaknál, ahol a munkakönyvtárban már nem
+	maradt konfliktusjelölő. A konfliktusjelölő nélküli nem-merge-elt
+	útvonalak (beleértve a bináris fájlokat és a fájltörléseket is)
+	megoldottként kerülnek stage-elésre, míg bármely, megmaradt
+	konfliktusjelölővel rendelkező útvonal miatt a parancs
+	megtagadja bármely fájl stage-elését. Nem kombinálható a `-u`
+	vagy a `-A` opcióval.
 
 `--chmod=(+|-)x`::
-	Override the executable bit of the added files.  The executable
-	bit is only changed in the index, the files on disk are left
-	unchanged.
+	A hozzáadott fájlok végrehajthatósági bitjének felülírása. A
+	végrehajthatósági bit csak az indexben változik meg, a lemezen
+	lévő fájlok változatlanok maradnak.
 
 `--pathspec-from-file=<file>`::
-	Pathspec is passed in _<file>_ instead of commandline args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR/LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec a parancssori argumentumok helyett a _<file>_-ban van
+	átadva. Ha a _<file>_ pontosan `-`, akkor a szabványos bemenet
+	kerül felhasználásra. A pathspec-elemeket _LF_ vagy _CR/LF_
+	választja el. A pathspec-elemek idézőjelbe tehetők a
+	`core.quotePath` konfigurációs változónál leírtak szerint (lásd a
+	linkgit:git-config[1] parancsot). Lásd még a `--pathspec-file-nul`
+	opciót és a globális `--literal-pathspecs` opciót.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file` opcióval együtt van jelentése. A
+	pathspec-elemeket _NUL_ karakter választja el, és minden más
+	karakter szó szerint értendő (beleértve az újsorokat és az
+	idézőjeleket is).
 
 `--`::
-	This option can be used to separate command-line options from
-	the list of files, (useful when filenames might be mistaken
-	for command-line options).
+	Ez az opció a parancssori opciók és a fájlok listájának
+	elválasztására használható (akkor hasznos, ha a fájlneveket
+	esetleg parancssori opciónak lehetne nézni).
 
 
 EXAMPLES
 --------
 
-* Adds content from all ++*.txt++ files under `Documentation` directory
-  and its subdirectories:
+* Tartalom hozzáadása a `Documentation` könyvtár és alkönyvtárai
+  alatti összes ++*.txt++ fájlból:
 +
 ------------
 $ git add Documentation/\*.txt
 ------------
 +
-Note that the asterisk ++*++ is quoted from the shell in this
-example; this lets the command include the files from
-subdirectories of `Documentation/` directory.
+Vedd figyelembe, hogy a csillagot (++*++) ebben a példában a shell
+elől idézőjelbe tettük; ez teszi lehetővé, hogy a parancs a
+`Documentation/` könyvtár alkönyvtáraiból is felvegye a fájlokat.
 
-* Considers adding content from all ++git-*.sh++ scripts:
+* Az összes ++git-*.sh++ szkript tartalmának hozzáadását fontolgatja:
 +
 ------------
 $ git add git-*.sh
 ------------
 +
-Because this example lets the shell expand the asterisk (i.e. you are
-listing the files explicitly), it does not consider
-`subdir/git-foo.sh`.
+Mivel ez a példa hagyja, hogy a shell fejtse ki a csillagot (azaz a
+fájlokat explicit módon soroltad fel), a `subdir/git-foo.sh` fájlt nem
+veszi figyelembe.
 
-INTERACTIVE MODE
-----------------
-When the command enters the interactive mode, it shows the
-output of the 'status' subcommand, and then goes into its
-interactive command loop.
+Interaktív mód
+--------------
+Amikor a parancs interaktív módba lép, megjeleníti a 'status'
+alparancs kimenetét, majd belép az interaktív parancs-hurokba.
 
-The command loop shows the list of subcommands available, and
-gives a prompt "What now> ".  In general, when the prompt ends
-with a single '>', you can pick only one of the choices given
-and type return, like this:
+A parancs-hurok megjeleníti az elérhető alparancsok listáját, és
+kiírja a „What now> " promptot. Általában, amikor a prompt egyetlen
+'>' karakterrel végződik, csak egyet választhatsz a felkínált
+lehetőségek közül, és entert nyomsz, így:
 
 ------------
     *** Commands ***
@@ -269,18 +282,18 @@ and type return, like this:
     What now> 1
 ------------
 
-You also could say `s` or `sta` or `status` above as long as the
-choice is unique.
+Fent az `s`, `sta` vagy `status` rövidítést is mondhatod, amíg a
+választás egyértelmű.
 
-The main command loop has 6 subcommands (plus help and quit).
+A fő parancs-huroknak 6 alparancsa van (a help és a quit mellett).
 
 status::
 
-   This shows the change between `HEAD` and index (i.e. what will be
-   committed if you say `git commit`), and between index and
-   working tree files (i.e. what you could stage further before
-   `git commit` using `git add`) for each path.  A sample output
-   looks like this:
+   Ez megmutatja az egyes útvonalak `HEAD` és index közti (azaz amit a
+   `git commit` mondásakor commitolni fogsz), valamint index és
+   munkakönyvtár-fájlok közti (azaz amit a `git commit` előtt a
+   `git add` paranccsal még tovább stage-elhetnél) különbségeit. Egy
+   minta kimenet így néz ki:
 +
 ------------
               staged     unstaged path
@@ -288,28 +301,27 @@ status::
      2:     +403/-35        +1/-1 add-interactive.c
 ------------
 +
-It shows that `foo.png` has differences from `HEAD` (but that is
-binary so line count cannot be shown) and there is no
-difference between indexed copy and the working tree
-version (if the working tree version were also different,
-'binary' would have been shown in place of 'nothing').  The
-other file, `add-interactive.c`, has 403 lines added
-and 35 lines deleted if you commit what is in the index, but
-working tree file has further modifications (one addition and
-one deletion).
+Ez azt mutatja, hogy a `foo.png` eltér a `HEAD`-től (de mivel bináris,
+a sorok száma nem jeleníthető meg), és nincs különbség az indexelt
+másolat és a munkakönyvtár-verzió között (ha a munkakönyvtár-verzió is
+eltérne, 'nothing' helyett 'binary' jelenne meg). A másik fájlnak,
+az `add-interactive.c`-nek, 403 sora lett hozzáadva és 35 sora
+törölve, ha azt commitolod, ami az indexben van, de a
+munkakönyvtár-fájl további módosításokat tartalmaz (egy hozzáadást és
+egy törlést).
 
 update::
 
-   This shows the status information and issues an "Update>>"
-   prompt.  When the prompt ends with double '>>', you can
-   make more than one selection, concatenated with whitespace or
-   comma.  Also you can say ranges.  E.g. "2-5 7,9" to choose
-   2,3,4,5,7,9 from the list.  If the second number in a range is
-   omitted, all remaining patches are taken.  E.g. "7-" to choose
-   7,8,9 from the list.  You can say '*' to choose everything.
+   Ez megjeleníti a státuszinformációt, és kiírja az „Update>>"
+   promptot. Amikor a prompt dupla '>>' karakterrel végződik, egynél
+   több kiválasztást is tehetsz, szóközzel vagy vesszővel
+   összefűzve. Tartományokat is megadhatsz. Pl. „2-5 7,9" a
+   2,3,4,5,7,9 elemek kiválasztásához a listából. Ha egy tartomány
+   második száma hiányzik, az összes hátralévő patch kiválasztásra
+   kerül. Pl. „7-" a 7,8,9 elemek kiválasztásához a listából. A '*'
+   karakterrel az összeset kiválaszthatod.
 +
-What you chose are then highlighted with '*',
-like this:
+Amit kiválasztottál, azt ezután '*' jelöli, így:
 +
 ------------
            staged     unstaged path
@@ -317,34 +329,35 @@ like this:
 * 2:     +403/-35        +1/-1 add-interactive.c
 ------------
 +
-To remove selection, prefix the input with `-`
-like this:
+A kiválasztás megszüntetéséhez a bemenetet `-` előjellel add meg,
+így:
 +
 ------------
 Update>> -2
 ------------
 +
-After making the selection, answer with an empty line to stage the
-contents of working tree files for selected paths in the index.
+A kiválasztás elvégzése után egy üres sorral válaszolva a kiválasztott
+útvonalak munkakönyvtár-fájljainak tartalma stage-elődik az indexbe.
 
 revert::
 
-  This has a very similar UI to 'update', and the staged
-  information for selected paths are reverted to that of the
-  HEAD version.  Reverting new paths makes them untracked.
+  Ennek nagyon hasonló a felülete az 'update'-hez, és a kiválasztott
+  útvonalak staged információja visszaáll a HEAD-verzióéra. Az új
+  útvonalak visszaállítása untracked állapotúvá teszi őket.
 
 add untracked::
 
-  This has a very similar UI to 'update' and
-  'revert', and lets you add untracked paths to the index.
+  Ennek nagyon hasonló a felülete az 'update'-hez és a
+  'revert'-hez, és lehetővé teszi untracked útvonalak hozzáadását az
+  indexhez.
 
 patch::
 
-  This lets you choose one path out of a 'status' like selection.
-  After choosing the path, it presents the diff between the index
-  and the working tree file and asks you if you want to stage
-  the change of each hunk.  You can select one of the following
-  options and type return:
+  Ez lehetővé teszi, hogy egy 'status'-szerű kiválasztásból egyetlen
+  útvonalat válassz ki. Az útvonal kiválasztása után megjeleníti az
+  index és a munkakönyvtár-fájl közti diffet, és megkérdezi, hogy
+  szeretnéd-e stage-elni az egyes hunkok módosítását. A következő
+  opciók közül választhatsz, majd entert nyomsz:
 
        y - stage this hunk
        n - do not stage this hunk
@@ -363,88 +376,96 @@ patch::
        P - print the current hunk using the pager
        ? - print help
 +
-After deciding the fate for all hunks, if there is any hunk
-that was chosen, the index is updated with the selected hunks.
+Miután minden hunk sorsáról döntöttél, ha volt kiválasztott hunk, az
+index frissül a kiválasztott hunkokkal.
 +
-You can omit having to type return here, by setting the configuration
-variable `interactive.singleKey` to `true`.
+Az `interactive.singleKey` konfigurációs változó `true`-ra
+állításával elkerülheted, hogy itt entert kelljen nyomnod.
 
 diff::
 
-  This lets you review what will be committed (i.e. between
-  `HEAD` and index).
+  Ez lehetővé teszi, hogy áttekintsd, mi kerül commitolásra (azaz a
+  `HEAD` és az index közötti különbséget).
 
 
 EDITING PATCHES
 ---------------
 
-Invoking `git add -e` or selecting `e` from the interactive hunk
-selector will open a patch in your editor; after the editor exits, the
-result is applied to the index. You are free to make arbitrary changes
-to the patch, but note that some changes may have confusing results, or
-even result in a patch that cannot be applied.  If you want to abort the
-operation entirely (i.e., stage nothing new in the index), simply delete
-all lines of the patch. The list below describes some common things you
-may see in a patch, and which editing operations make sense on them.
+A `git add -e` meghívása, vagy az `e` kiválasztása az interaktív
+hunk-választóból megnyit egy patchet a szerkesztődben; a szerkesztő
+bezárása után az eredmény alkalmazásra kerül az indexre. Szabadon
+végezhetsz tetszőleges módosításokat a patchen, de vedd figyelembe,
+hogy egyes módosítások zavaros eredményhez vezethetnek, vagy akár
+olyan patchet is eredményezhetnek, amely nem alkalmazható. Ha
+teljesen meg akarod szakítani a műveletet (azaz semmi újat nem akarsz
+stage-elni az indexben), egyszerűen töröld a patch összes sorát. Az
+alábbi lista néhány olyan gyakori dolgot ír le, amellyel egy patchben
+találkozhatsz, és hogy melyik szerkesztési művelet van értelme rajtuk.
 
 --
 added content::
 
-Added content is represented by lines beginning with "{plus}". You can
-prevent staging any addition lines by deleting them.
+A hozzáadott tartalmat a „{plus}" karakterrel kezdődő sorok
+képviselik. Bármely hozzáadási sor stage-elését megakadályozhatod a
+törlésükkel.
 
 removed content::
 
-Removed content is represented by lines beginning with "-". You can
-prevent staging their removal by converting the "-" to a " " (space).
+Az eltávolított tartalmat a „-" karakterrel kezdődő sorok képviselik.
+Az eltávolításuk stage-elését megakadályozhatod a „-" karakter „ "
+(szóköz) karakterré alakításával.
 
 modified content::
 
-Modified content is represented by "-" lines (removing the old content)
-followed by "{plus}" lines (adding the replacement content). You can
-prevent staging the modification by converting "-" lines to " ", and
-removing "{plus}" lines. Beware that modifying only half of the pair is
-likely to introduce confusing changes to the index.
+A módosított tartalmat „-" sorok (a régi tartalom eltávolítása)
+képviselik, amelyeket „{plus}" sorok (a cseretartalom hozzáadása)
+követnek. A módosítás stage-elését megakadályozhatod úgy, hogy a „-"
+sorokat " "-ra alakítod, és eltávolítod a „{plus}" sorokat. Vigyázz,
+mert a párnak csak a felét módosítani valószínűleg zavaró
+módosításokat visz be az indexbe.
 --
 
-There are also more complex operations that can be performed. But beware
-that because the patch is applied only to the index and not the working
-tree, the working tree will appear to "undo" the change in the index.
-For example, introducing a new line into the index that is in neither
-the `HEAD` nor the working tree will stage the new line for commit, but
-the line will appear to be reverted in the working tree.
+Vannak ennél összetettebb műveletek is, amelyeket el lehet végezni. De
+vigyázz, mert mivel a patch csak az indexre kerül alkalmazásra, nem a
+munkakönyvtárra, a munkakönyvtár úgy fog tűnni, mintha „visszavonná" az
+indexbeli módosítást. Ha például egy olyan új sort viszel be az
+indexbe, amely sem a `HEAD`-ben, sem a munkakönyvtárban nincs jelen, az
+staged lesz a commithoz, de a munkakönyvtárban úgy tűnik majd, mintha
+vissza lett volna állítva.
 
-Avoid using these constructs, or do so with extreme caution.
+Kerüld ezeknek a konstrukcióknak a használatát, vagy csak rendkívüli
+óvatossággal alkalmazd őket.
 
 --
 removing untouched content::
 
-Content which does not differ between the index and working tree may be
-shown on context lines, beginning with a " " (space).  You can stage
-context lines for removal by converting the space to a "-". The
-resulting working tree file will appear to re-add the content.
+Az olyan tartalom, amely nem különbözik az index és a munkakönyvtár
+között, kontextussorokon jelenhet meg, amelyek " " (szóköz) karakterrel
+kezdődnek. A kontextussorokat az eltávolításhoz stage-elheted a szóköz
+"-"-ra alakításával. Az eredményül kapott munkakönyvtár-fájl úgy fog
+tűnni, mintha újra hozzáadta volna a tartalmat.
 
 modifying existing content::
 
-One can also modify context lines by staging them for removal (by
-converting " " to "-") and adding a "{plus}" line with the new content.
-Similarly, one can modify "{plus}" lines for existing additions or
-modifications. In all cases, the new modification will appear reverted
-in the working tree.
+A kontextussorokat úgy is módosíthatod, hogy stage-eled őket
+eltávolításra (a " " karaktert "-"-ra alakítva), és hozzáadsz egy
+„{plus}" sort az új tartalommal. Hasonlóképp módosíthatod a meglévő
+hozzáadások vagy módosítások „{plus}" sorait is. Minden esetben az új
+módosítás visszavontnak fog tűnni a munkakönyvtárban.
 
 new content::
 
-You may also add new content that does not exist in the patch; simply
-add new lines, each starting with "{plus}". The addition will appear
-reverted in the working tree.
+Olyan új tartalmat is hozzáadhatsz, amely nem létezik a patchben;
+egyszerűen adj hozzá új sorokat, mindegyiket „{plus}"-szal kezdve. A
+hozzáadás visszavontnak fog tűnni a munkakönyvtárban.
 --
 
-There are also several operations which should be avoided entirely, as
-they will make the patch impossible to apply:
+Vannak továbbá olyan műveletek is, amelyeket teljesen kerülni kell,
+mert lehetetlenné teszik a patch alkalmazását:
 
-* adding context (" ") or removal ("-") lines
-* deleting context or removal lines
-* modifying the contents of context or removal lines
+* kontextus- (" ") vagy eltávolítási ("-") sorok hozzáadása
+* kontextus- vagy eltávolítási sorok törlése
+* kontextus- vagy eltávolítási sorok tartalmának módosítása
 
 CONFIGURATION
 -------------
@@ -465,4 +486,4 @@ linkgit:git-update-index[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

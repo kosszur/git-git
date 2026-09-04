@@ -3,7 +3,7 @@ git-check-ignore(1)
 
 NAME
 ----
-git-check-ignore - Debug gitignore / exclude files
+git-check-ignore - A gitignore / kizárási fájlok hibakeresése
 
 
 SYNOPSIS
@@ -15,108 +15,114 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-For each pathname given via the command-line or from a file via
-`--stdin`, check whether the file is excluded by .gitignore (or other
-input files to the exclude mechanism) and output the path if it is
-excluded.
+Minden, a parancssoron keresztül vagy a `--stdin` révén egy fájlból
+megadott útvonalnévhez ellenőrzi, hogy a fájl ki van-e zárva a
+.gitignore (vagy a kizárási mechanizmus egyéb bemeneti fájljai) által,
+és kiírja az útvonalat, ha az ki van zárva.
 
-By default, tracked files are not shown at all since they are not
-subject to exclude rules; but see `--no-index'.
+Alapértelmezésben a követett fájlok egyáltalán nem kerülnek
+megjelenítésre, mivel rájuk nem vonatkoznak a kizárási szabályok; de
+lásd a `--no-index`-et.
 
 OPTIONS
 -------
 -q::
 --quiet::
-	Don't output anything, just set exit status.  This is only
-	valid with a single pathname.
+	Nem ír ki semmit, csak beállítja a kilépési státuszt. Ez csak
+	egyetlen útvonalnévvel érvényes.
 
 -v::
 --verbose::
-	Instead of printing the paths that are excluded, for each path
-	that matches an exclude pattern, print the exclude pattern
-	together with the path.  (Matching an exclude pattern usually
-	means the path is excluded, but if the pattern begins with "`!`"
-	then it is a negated pattern and matching it means the path is
-	NOT excluded.)
+	A kizárt útvonalak kiírása helyett, minden olyan útvonalhoz,
+	amely illeszkedik egy kizárási mintára, kiírja a kizárási
+	mintát az útvonallal együtt. (Egy kizárási mintára illeszkedés
+	általában azt jelenti, hogy az útvonal ki van zárva, de ha a
+	minta "`!`"-lel kezdődik, az egy negált minta, és a rá való
+	illeszkedés azt jelenti, hogy az útvonal NINCS kizárva.)
 +
-For precedence rules within and between exclude sources, see
-linkgit:gitignore[5].
+A kizárási forrásokon belüli és azok közötti elsőbbségi szabályokért
+lásd linkgit:gitignore[5].
 
 --stdin::
-	Read pathnames from the standard input, one per line,
-	instead of from the command-line.
+	Útvonalneveket olvas be a standard bemenetről, soronként egyet,
+	a parancssor helyett.
 
 -z::
-	The output format is modified to be machine-parsable (see
-	below).  If `--stdin` is also given, input paths are separated
-	with a NUL character instead of a linefeed character.
+	A kimeneti formátum géppel elemezhetővé van módosítva (lásd
+	alább). Ha a `--stdin` is meg van adva, a bemeneti útvonalak
+	NUL karakterrel vannak elválasztva a sortörés karakter helyett.
 
 -n::
 --non-matching::
-	Show given paths which don't match any pattern.  This only
-	makes sense when `--verbose` is enabled, otherwise it would
-	not be possible to distinguish between paths which match a
-	pattern and those which don't.
+	Megjeleníti a megadott útvonalakat, amelyek nem illeszkednek
+	semmilyen mintára. Ennek csak akkor van értelme, ha a
+	`--verbose` engedélyezve van, egyébként nem lenne lehetséges
+	megkülönböztetni a mintára illeszkedő és a nem illeszkedő
+	útvonalakat.
 
 --no-index::
-	Don't look in the index when undertaking the checks. This can
-	be used to debug why a path became tracked by e.g. `git add .`
-	and was not ignored by the rules as expected by the user or when
-	developing patterns including negation to match a path previously
-	added with `git add -f`.
+	Az ellenőrzések elvégzésekor nem néz bele az indexbe. Ez
+	felhasználható annak hibakeresésére, hogy egy útvonal miért
+	vált követetté, pl. a `git add .` révén, és miért nem lett
+	kizárva a szabályok által a felhasználó elvárása szerint, vagy
+	negációt is tartalmazó minták fejlesztésekor egy korábban
+	`git add -f`-fel hozzáadott útvonal illesztéséhez.
 
 OUTPUT
 ------
 
-By default, any of the given pathnames which match an ignore pattern
-will be output, one per line.  If no pattern matches a given path,
-nothing will be output for that path; this means that path will not be
-ignored.
+Alapértelmezésben minden megadott útvonalnév, amely illeszkedik egy
+kizárási mintára, kiírásra kerül, soronként egy. Ha egyetlen minta sem
+illeszkedik egy adott útvonalra, semmi nem kerül kiírásra ehhez az
+útvonalhoz; ez azt jelenti, hogy az útvonal nincs kizárva.
 
-If `--verbose` is specified, the output is a series of lines of the form:
+Ha a `--verbose` meg van adva, a kimenet a következő alakú sorok sorozata:
 
 <source> <COLON> <linenum> <COLON> <pattern> <HT> <pathname>
 
-<pathname> is the path of a file being queried, <pattern> is the
-matching pattern, <source> is the pattern's source file, and <linenum>
-is the line number of the pattern within that source.  If the pattern
-contained a "`!`" prefix or "`/`" suffix, it will be preserved in the
-output.  <source> will be an absolute path when referring to the file
-configured by `core.excludesFile`, or relative to the repository root
-when referring to `.git/info/exclude` or a per-directory exclude file.
+<pathname> a lekérdezett fájl útvonala, <pattern> az illeszkedő minta,
+<source> a minta forrásfájlja, <linenum> pedig a minta sorszáma az
+adott forráson belül. Ha a minta "`!`" előtaggal vagy "`/`" utótaggal
+rendelkezett, az megmarad a kimenetben. A <source> abszolút útvonal
+lesz, ha a `core.excludesFile` által beállított fájlra hivatkozik,
+illetve a repository gyökeréhez képest relatív, ha a
+`.git/info/exclude`-ra vagy egy könyvtárankénti kizárási fájlra
+hivatkozik.
 
-If `-z` is specified, the pathnames in the output are delimited by the
-null character; if `--verbose` is also specified then null characters
-are also used instead of colons and hard tabs:
+Ha a `-z` meg van adva, a kimeneti útvonalneveket a NUL karakter
+választja el; ha a `--verbose` is meg van adva, akkor a kettőspontok
+és a tabkarakterek helyett szintén NUL karakterek kerülnek
+felhasználásra:
 
 <source> <NULL> <linenum> <NULL> <pattern> <NULL> <pathname> <NULL>
 
-If `-n` or `--non-matching` are specified, non-matching pathnames will
-also be output, in which case all fields in each output record except
-for <pathname> will be empty.  This can be useful when running
-non-interactively, so that files can be incrementally streamed to
-STDIN of a long-running check-ignore process, and for each of these
-files, STDOUT will indicate whether that file matched a pattern or
-not.  (Without this option, it would be impossible to tell whether the
-absence of output for a given file meant that it didn't match any
-pattern, or that the output hadn't been generated yet.)
+Ha a `-n` vagy a `--non-matching` meg van adva, a nem illeszkedő
+útvonalnevek is kiírásra kerülnek; ebben az esetben minden mező üres
+lesz az adott kimeneti rekordban, a <pathname> kivételével. Ez akkor
+lehet hasznos, amikor nem interaktív módban futtatjuk, hogy a fájlok
+fokozatosan streamelhetők legyenek egy hosszan futó check-ignore
+folyamat STDIN-jébe, és minden ilyen fájlhoz a STDOUT jelezze, hogy az
+adott fájl illeszkedett-e egy mintára vagy sem. (Ezen opció nélkül
+lehetetlen lenne megállapítani, hogy egy adott fájlhoz tartozó kimenet
+hiánya azt jelenti-e, hogy nem illeszkedett semmilyen mintára, vagy
+azt, hogy a kimenet még nem került legenerálásra.)
 
-Buffering happens as documented under the `GIT_FLUSH` option in
-linkgit:git[1].  The caller is responsible for avoiding deadlocks
-caused by overfilling an input buffer or reading from an empty output
-buffer.
+A pufferelés a linkgit:git[1]-ben dokumentált `GIT_FLUSH` opció
+szerint történik. A hívó felelőssége elkerülni a holtpontokat, amelyeket
+egy bemeneti puffer túltöltése vagy egy üres kimeneti pufferből való
+olvasás okozhat.
 
 EXIT STATUS
 -----------
 
 0::
-	One or more of the provided paths is ignored.
+	Egy vagy több megadott útvonal ki van zárva.
 
 1::
-	None of the provided paths are ignored.
+	A megadott útvonalak egyike sincs kizárva.
 
 128::
-	A fatal error was encountered.
+	Végzetes hiba történt.
 
 SEE ALSO
 --------
@@ -126,4 +132,4 @@ linkgit:git-ls-files[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
