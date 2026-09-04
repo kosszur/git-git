@@ -38,7 +38,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 |---|---|---|---|
 | git-add.adoc | [ ] |  |  |
 | git-am.adoc | [x] |  | 2026-09-04 |
-| git-annotate.adoc | [ ] |  |  |
+| git-annotate.adoc | [x] |  | 2026-09-04 |
 | git-apply.adoc | [ ] |  |  |
 | git-archimport.adoc | [x] |  | 2026-09-04 |
 | git-archive.adoc | [x] |  | 2026-09-04 |
@@ -58,8 +58,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-checkout.adoc | [ ] |  |  |
 | git-cherry-pick.adoc | [ ] |  |  |
 | git-cherry.adoc | [x] |  | 2026-09-04 |
-| git-citool.adoc | [ ] |  |  |
-| git-clean.adoc | [ ] |  |  |
+| git-citool.adoc | [x] |  | 2026-09-04 |
+| git-clean.adoc | [x] |  | 2026-09-04 |
 | git-clone.adoc | [ ] |  |  |
 | git-column.adoc | [x] |  | 2026-09-04 |
 | git-commit-graph.adoc | [ ] |  |  |

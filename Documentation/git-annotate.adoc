@@ -3,7 +3,7 @@ git-annotate(1)
 
 NAME
 ----
-git-annotate - Annotate file lines with commit information
+git-annotate - Fájlsorok annotálása commit-információval
 
 SYNOPSIS
 --------
@@ -12,13 +12,14 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Annotates each line in the given file with information from the commit
-which introduced the line. Optionally annotates from a given revision.
+A megadott fájl minden sorát annotálja az adott sort bevezető commit
+információjával. Opcionálisan egy megadott revíziótól kezdve annotál.
 
-The only difference between this command and linkgit:git-blame[1] is that
-they use slightly different output formats, and this command exists only
-for backward compatibility to support existing scripts, and provide a more
-familiar command name for people coming from other SCM systems.
+Az egyetlen különbség e parancs és a linkgit:git-blame[1] között, hogy
+kissé eltérő kimeneti formátumot használnak, és ez a parancs csak a
+visszafelé kompatibilitás miatt létezik, hogy támogassa a meglévő
+szkripteket, és ismerősebb parancsnevet adjon a más SCM-rendszerekből
+érkezőknek.
 
 OPTIONS
 -------
@@ -30,4 +31,4 @@ linkgit:git-blame[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

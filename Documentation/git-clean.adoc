@@ -3,7 +3,7 @@ git-clean(1)
 
 NAME
 ----
-git-clean - Remove untracked files from the working tree
+git-clean - Nem követett fájlok eltávolítása a munkakönyvtárból
 
 SYNOPSIS
 --------
@@ -13,79 +13,83 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Cleans the working tree by recursively removing files that are not
-under version control, starting from the current directory.
+Megtisztítja a munkakönyvtárat azáltal, hogy rekurzívan eltávolítja azokat a
+fájlokat, amelyek nincsenek verziókövetés alatt, az aktuális könyvtárból kiindulva.
 
-Normally, only files unknown to Git are removed, but if the `-x`
-option is specified, ignored files are also removed. This can, for
-example, be useful to remove all build products.
+Alapesetben csak a Git számára ismeretlen fájlok kerülnek eltávolításra, de ha
+a `-x` opció meg van adva, a figyelmen kívül hagyott fájlok is törlődnek. Ez
+például hasznos lehet az összes build-termék eltávolításához.
 
-If any optional `<pathspec>...` arguments are given, only those paths
-that match the pathspec are affected.
+Ha bármilyen opcionális `<pathspec>...` argumentum meg van adva, csak azok az
+elérési utak érintettek, amelyek illeszkednek a pathspecre.
 
 OPTIONS
 -------
 -d::
-	Normally, when no <pathspec> is specified, git clean will not
-	recurse into untracked directories to avoid removing too much.
-	Specify -d to have it recurse into such directories as well.
-	If a <pathspec> is specified, -d is irrelevant; all untracked
-	files matching the specified paths (with exceptions for nested
-	git directories mentioned under `--force`) will be removed.
+	Alapesetben, ha nincs <pathspec> megadva, a git clean nem rekurzál
+	be a nem követett könyvtárakba, hogy elkerülje a túl sok fájl
+	eltávolítását. Add meg a -d kapcsolót, hogy ilyen könyvtárakba is
+	berekurzáljon. Ha meg van adva <pathspec>, a -d irreleváns; a
+	megadott elérési utakra illeszkedő összes nem követett fájl
+	eltávolításra kerül (a `--force` alatt említett beágyazott git
+	könyvtárak kivételével).
 
 -f::
 --force::
-	If the Git configuration variable clean.requireForce is not set
-	to false, 'git clean' will refuse to delete files or directories
-	unless given -f.  Git will refuse to modify untracked
-	nested git repositories (directories with a .git subdirectory)
-	unless a second -f is given.
+	Ha a clean.requireForce Git konfigurációs változó nincs false-ra
+	állítva, a 'git clean' megtagadja a fájlok vagy könyvtárak törlését,
+	hacsak nem kapja meg a -f kapcsolót. A Git megtagadja a nem követett
+	beágyazott git repository-k (olyan könyvtárak, amelyekben van egy
+	.git alkönyvtár) módosítását, hacsak nem kap egy második -f kapcsolót.
 
 -i::
 --interactive::
-	Show what would be done and clean files interactively. See
-	``Interactive mode'' for details.
-	Configuration variable `clean.requireForce` is ignored, as
-	this mode gives its own safety protection by going interactive.
+	Megmutatja, mi történne, és interaktívan tisztítja meg a fájlokat.
+	A részletekért lásd: „Interaktív mód".
+	A `clean.requireForce` konfigurációs változó figyelmen kívül marad,
+	mivel ez a mód saját biztonsági védelmet nyújt azáltal, hogy
+	interaktívvá válik.
 
 -n::
 --dry-run::
-	Don't actually remove anything, just show what would be done.
-	Configuration variable `clean.requireForce` is ignored, as
-	nothing will be deleted anyway.
+	Ne távolítson el ténylegesen semmit, csak mutassa meg, mi történne.
+	A `clean.requireForce` konfigurációs változó figyelmen kívül marad,
+	mivel úgysem törlődik semmi.
 
 -q::
 --quiet::
-	Be quiet, only report errors, but not the files that are
-	successfully removed.
+	Legyen csendes, csak a hibákat jelentse, de ne azokat a fájlokat,
+	amelyek sikeresen eltávolításra kerültek.
 
 -e <pattern>::
 --exclude=<pattern>::
-	Use the given exclude pattern in addition to the standard ignore rules
-	(see linkgit:gitignore[5]).
+	A megadott kizárási mintát a szabványos figyelmen kívül hagyási
+	szabályok mellett használja (lásd: linkgit:gitignore[5]).
 
 -x::
-	Don't use the standard ignore rules (see linkgit:gitignore[5]), but
-	still use the ignore rules given with `-e` options from the command
-	line.  This allows removing all untracked
-	files, including build products.  This can be used (possibly in
-	conjunction with 'git restore' or 'git reset') to create a pristine
-	working directory to test a clean build.
+	Ne használja a szabványos figyelmen kívül hagyási szabályokat (lásd:
+	linkgit:gitignore[5]), de továbbra is használja a parancssorból `-e`
+	opciókkal megadott figyelmen kívül hagyási szabályokat. Ez lehetővé
+	teszi az összes nem követett fájl eltávolítását, beleértve a
+	build-termékeket is. Ez használható (esetleg a 'git restore' vagy a
+	'git reset' paranccsal együtt) egy tiszta munkakönyvtár létrehozására
+	egy tiszta build teszteléséhez.
 
 -X::
-	Remove only files ignored by Git.  This may be useful to rebuild
-	everything from scratch, but keep manually created files.
+	Csak a Git által figyelmen kívül hagyott fájlokat távolítja el. Ez
+	hasznos lehet, ha mindent a nulláról szeretnél újraépíteni, de meg
+	akarod tartani a manuálisan létrehozott fájlokat.
 
-Interactive mode
-----------------
-When the command enters the interactive mode, it shows the
-files and directories to be cleaned, and goes into its
-interactive command loop.
+Interaktív mód
+--------------
+Amikor a parancs belép az interaktív módba, megmutatja a
+megtisztítandó fájlokat és könyvtárakat, majd belép az
+interaktív parancshurokba.
 
-The command loop shows the list of subcommands available, and
-gives a prompt "What now> ".  In general, when the prompt ends
-with a single '>', you can pick only one of the choices given
-and type return, like this:
+A parancshurok megjeleníti az elérhető alparancsok listáját, és
+egy "What now> " promptot ad. Általában, amikor a prompt egyetlen
+'>' jellel végződik, csak az egyik felkínált lehetőséget
+választhatod ki, és Entert nyomsz, így:
 
 ------------
     *** Commands ***
@@ -94,48 +98,49 @@ and type return, like this:
     What now> 1
 ------------
 
-You also could say `c` or `clean` above as long as the choice is unique.
+Azt is mondhatod, hogy `c` vagy `clean`, amíg a választás egyértelmű.
 
-The main command loop has 6 subcommands.
+A fő parancshuroknak 6 alparancsa van.
 
 clean::
 
-   Start cleaning files and directories, and then quit.
+   Elkezdi megtisztítani a fájlokat és könyvtárakat, majd kilép.
 
 filter by pattern::
 
-   This shows the files and directories to be deleted and issues an
-   "Input ignore patterns>>" prompt. You can input space-separated
-   patterns to exclude files and directories from deletion.
-   E.g. "*.c *.h" will exclude files ending with ".c" and ".h" from
-   deletion. When you are satisfied with the filtered result, press
-   ENTER (empty) back to the main menu.
+   Ez megmutatja a törlendő fájlokat és könyvtárakat, és kiad egy
+   "Input ignore patterns>>" promptot. Szóközzel elválasztott mintákat
+   adhatsz meg, hogy fájlokat és könyvtárakat kizárj a törlésből.
+   Pl. a "*.c *.h" kizárja a ".c"-re és ".h"-ra végződő fájlokat a
+   törlésből. Amikor elégedett vagy a szűrt eredménnyel, nyomj ENTER-t
+   (üresen) a főmenübe való visszatéréshez.
 
 select by numbers::
 
-   This shows the files and directories to be deleted and issues an
-   "Select items to delete>>" prompt. When the prompt ends with double
-   '>>' like this, you can make more than one selection, concatenated
-   with whitespace or comma.  Also you can say ranges.  E.g. "2-5 7,9"
-   to choose 2,3,4,5,7,9 from the list.  If the second number in a
-   range is omitted, all remaining items are selected.  E.g. "7-" to
-   choose 7,8,9 from the list.  You can say '*' to choose everything.
-   Also when you are satisfied with the filtered result, press ENTER
-   (empty) back to the main menu.
+   Ez megmutatja a törlendő fájlokat és könyvtárakat, és kiad egy
+   "Select items to delete>>" promptot. Amikor a prompt dupla '>>'
+   jellel végződik, mint itt, több elemet is kiválaszthatsz,
+   szóközzel vagy vesszővel összefűzve. Tartományokat is megadhatsz.
+   Pl. a "2-5 7,9" a 2,3,4,5,7,9 elemeket választja ki a listából.
+   Ha egy tartomány második száma el van hagyva, az összes hátralévő
+   elem kiválasztásra kerül. Pl. a "7-" a 7,8,9 elemeket választja ki
+   a listából. A '*' karakterrel mindent kiválaszthatsz. Szintén,
+   amikor elégedett vagy a szűrt eredménnyel, nyomj ENTER-t (üresen)
+   a főmenübe való visszatéréshez.
 
 ask each::
 
-  This will start to clean, and you must confirm one by one in order
-  to delete items. Please note that this action is not as efficient
-  as the above two actions.
+  Ez elkezdi a tisztítást, és egyenként kell megerősítened az
+  elemek törlését. Vedd figyelembe, hogy ez a művelet nem olyan
+  hatékony, mint a fenti két művelet.
 
 quit::
 
-  This lets you quit without doing any cleaning.
+  Ez lehetővé teszi, hogy kilépj bármilyen tisztítás elvégzése nélkül.
 
 help::
 
-  Show brief usage of interactive git-clean.
+  Az interaktív git-clean rövid használati útmutatóját mutatja meg.
 
 CONFIGURATION
 -------------
@@ -150,4 +155,4 @@ linkgit:gitignore[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
