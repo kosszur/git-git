@@ -1,42 +1,45 @@
-Git-send-pack internals
-=======================
+[[_git_send_pack_internals]]
+A Git-send-pack belső működése
+==============================
 
-Overall operation
+[[_overall_operation]]
+Általános működés
 -----------------
 
-. Connects to the remote side and invokes git-receive-pack.
+. Csatlakozik a remote oldalhoz, és meghívja a git-receive-pack-et.
 
-. Learns what refs the remote has and what commit they point at.
-  Matches them to the refspecs we are pushing.
+. Megtudja, milyen refjei vannak a remote-nak, és melyik commitra
+  mutatnak.  Párosítja őket az általunk pusholt refspecekkel.
 
-. Checks if there are non-fast-forwards.  Unlike fetch-pack,
-  the repository send-pack runs in is supposed to be a superset
-  of the recipient in fast-forward cases, so there is no need
-  for want/have exchanges, and fast-forward check can be done
-  locally.  Tell the result to the other end.
+. Ellenőrzi, van-e non-fast-forward.  A fetch-pack-kel ellentétben az
+  a repository, amelyben a send-pack fut, fast-forward esetekben a
+  fogadó fél bővebb halmaza kell legyen, ezért nincs szükség
+  want/have cserékre, és a fast-forward ellenőrzés helyben elvégezhető.
+  Az eredményt közli a másik oldallal.
 
-. Calls pack_objects() which generates a packfile and sends it
-  over to the other end.
+. Meghívja a pack_objects() függvényt, amely legenerál egy packfile-t,
+  és átküldi a másik oldalnak.
 
-. If the remote side is new enough (v1.1.0 or later), wait for
-  the unpack and hook status from the other end.
+. Ha a remote oldal elég új (v1.1.0 vagy újabb), megvárja a
+  kicsomagolási és hook-állapotot a másik oldalról.
 
-. Exit with appropriate error codes.
+. Kilép a megfelelő hibakódokkal.
 
 
+[[_pack_objects_pipeline]]
 Pack_objects pipeline
 ---------------------
 
-This function gets one file descriptor (`fd`) which is either a
-socket (over the network) or a pipe (local).  What's written to
-this fd goes to git-receive-pack to be unpacked.
+Ez a függvény egy fájlleírót (`fd`) kap, amely vagy egy socket (a
+hálózaton át), vagy egy pipe (helyi).  Amit erre az fd-re írunk, az a
+git-receive-pack-hez kerül kicsomagolásra.
 
     send-pack ---> fd ---> receive-pack
 
-The function pack_objects creates a pipe and then forks.  The
-forked child execs pack-objects with --revs to receive revision
-parameters from its standard input. This process will write the
-packfile to the other end.
+A pack_objects függvény létrehoz egy pipe-ot, majd forkol.  A
+forkolt gyermek a --revs kapcsolóval exec-eli a pack-objects-et, hogy a
+revízióparamétereket a szabványos bemenetéről kapja. Ez a folyamat a
+packfile-t a másik oldalra írja.
 
     send-pack
        |
@@ -45,11 +48,11 @@ packfile to the other end.
 	  v |
          (child)
 
-The child dup2's to arrange its standard output to go back to
-the other end, and read its standard input to come from the
-pipe.  After that it exec's pack-objects.  On the other hand,
-the parent process, before starting to feed the child pipeline,
-closes the reading side of the pipe and fd to receive-pack.
+A gyermek dup2-vel gondoskodik arról, hogy a szabványos kimenete a
+másik oldalra kerüljön vissza, a szabványos bemenete pedig a pipe-ból
+jöjjön.  Ezután exec-eli a pack-objects-et.  A szülőfolyamat viszont,
+mielőtt elkezdené táplálni a gyermek pipeline-ját, lezárja a pipe
+olvasási oldalát és a receive-pack felé mutató fd-t.
 
     send-pack
        |
@@ -59,5 +62,5 @@ closes the reading side of the pipe and fd to receive-pack.
          pack-objects [0] ---> receive-pack
 
 
-[jc: the pipeline was much more complex and needed documentation before
- I understood an earlier bug, but now it is trivial and straightforward.]
+[jc: a pipeline sokkal bonyolultabb volt, és dokumentációra volt szükség,
+ mielőtt megértettem egy korábbi bugot, de mostanra triviális és egyszerű.]

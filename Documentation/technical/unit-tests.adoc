@@ -1,192 +1,207 @@
-= Unit Testing
+= Egységtesztelés
 
-In our current testing environment, we spend a significant amount of effort
-crafting end-to-end tests for error conditions that could easily be captured by
-unit tests (or we simply forgo some hard-to-setup and rare error conditions).
-Unit tests additionally provide stability to the codebase and can simplify
-debugging through isolation. Writing unit tests in pure C, rather than with our
-current shell/test-tool helper setup, simplifies test setup, simplifies passing
-data around (no shell-isms required), and reduces testing runtime by not
-spawning a separate process for every test invocation.
+A jelenlegi tesztkörnyezetünkben jelentős erőfeszítést fordítunk arra, hogy
+végponttól végpontig tartó teszteket készítsünk olyan hibaállapotokhoz,
+amelyeket egységtesztekkel könnyen le lehetne fedni (vagy egyszerűen lemondunk
+néhány nehezen beállítható és ritka hibaállapotról). Az egységtesztek ezen
+felül stabilitást adnak a kódbázisnak, és az izoláció révén egyszerűsíthetik a
+hibakeresést. Ha az egységteszteket tiszta C-ben írjuk, nem pedig a jelenlegi
+shell/test-tool segédeszközös felállásunkkal, az egyszerűsíti a teszt
+beállítását, egyszerűsíti az adatok körbeadását (nincs szükség
+shell-fordulatokra), és csökkenti a tesztelés futásidejét azzal, hogy nem indít
+külön folyamatot minden egyes tesztfutáshoz.
 
-We believe that a large body of unit tests, living alongside the existing test
-suite, will improve code quality for the Git project.
+Úgy véljük, hogy egy nagy, a meglévő tesztkészlet mellett élő
+egységteszt-állomány javítani fogja a Git projekt kódminőségét.
 
-== Definitions
+[[_definitions]]
+== Definíciók
 
-For the purposes of this document, we'll use *test framework* to refer to
-projects that support writing test cases and running tests within the context
-of a single executable. *Test harness* will refer to projects that manage
-running multiple executables (each of which may contain multiple test cases) and
-aggregating their results.
+E dokumentum céljaira a *test framework* kifejezést olyan projektekre
+használjuk, amelyek támogatják tesztesetek írását és tesztek futtatását egyetlen
+végrehajtható program keretében. A *Test harness* olyan projektekre utal,
+amelyek több végrehajtható program futtatását (amelyek mindegyike több
+tesztesetet is tartalmazhat) és az eredményeik összesítését kezelik.
 
-In reality, these terms are not strictly defined, and many of the projects
-discussed below contain features from both categories.
+A valóságban ezek a kifejezések nincsenek szigorúan meghatározva, és az alább
+tárgyalt projektek közül sok mindkét kategória jellemzőit tartalmazza.
 
-For now, we will evaluate projects solely on their framework features. Since we
-are relying on having TAP output (see below), we can assume that any framework
-can be made to work with a harness that we can choose later.
+Egyelőre a projekteket kizárólag a framework-jellemzőik alapján értékeljük.
+Mivel a TAP-kimenetre támaszkodunk (lásd lent), feltételezhetjük, hogy bármely
+framework működésre bírható egy később kiválasztható harnesszel.
 
 
-== Summary
+[[_summary]]
+== Összefoglalás
 
-We believe the best way forward is to implement a custom TAP framework for the
-Git project. We use a version of the framework originally proposed in
+Úgy véljük, hogy a legjobb továbblépés egy egyedi TAP framework implementálása a
+Git projekthez. A framework egy olyan változatát használjuk, amelyet eredetileg
+itt javasoltak:
 https://lore.kernel.org/git/c902a166-98ce-afba-93f2-ea6027557176@gmail.com/[1].
 
-See the <<framework-selection,Framework Selection>> section below for the
-rationale behind this decision.
+A döntés mögötti indoklásért lásd lent a
+<<framework-selection,A keretrendszer kiválasztása>> szakaszt.
 
 
-== Choosing a test harness
+[[_choosing_a_test_harness]]
+== Tesztfuttató (harness) kiválasztása
 
-During upstream discussion, it was occasionally noted that `prove` provides many
-convenient features, such as scheduling slower tests first, or re-running
-previously failed tests.
+Az upstream megbeszélés során időnként megjegyezték, hogy a `prove` sok kényelmi
+funkciót nyújt, például a lassabb tesztek előre ütemezését vagy a korábban
+elbukott tesztek újrafuttatását.
 
-While we already support the use of `prove` as a test harness for the shell
-tests, it is not strictly required. The t/Makefile allows running shell tests
-directly (though with interleaved output if parallelism is enabled). Git
-developers who wish to use `prove` as a more advanced harness can do so by
-setting DEFAULT_TEST_TARGET=prove in their config.mak.
+Bár a `prove` test harnessként való használatát a shell-tesztekhez már
+támogatjuk, ez nem szigorú követelmény. A t/Makefile lehetővé teszi a
+shell-tesztek közvetlen futtatását (bár egymásba fésült kimenettel, ha a
+párhuzamosítás engedélyezve van). Azok a Git-fejlesztők, akik a `prove`-ot
+fejlettebb harnessként szeretnék használni, ezt megtehetik a
+DEFAULT_TEST_TARGET=prove beállításával a config.mak fájljukban.
 
-We will follow a similar approach for unit tests: by default the test
-executables will be run directly from the t/Makefile, but `prove` can be
-configured with DEFAULT_UNIT_TEST_TARGET=prove.
+Az egységteszteknél hasonló megközelítést követünk: alapértelmezés szerint a
+teszt-végrehajtható programok közvetlenül a t/Makefile-ból futnak, de a `prove`
+beállítható a DEFAULT_UNIT_TEST_TARGET=prove révén.
 
 
 [[framework-selection]]
-== Framework selection
+== A keretrendszer kiválasztása
 
-There are a variety of features we can use to rank the candidate frameworks, and
-those features have different priorities:
+Többféle jellemző alapján rangsorolhatjuk a jelölt frameworköket, és ezeknek a
+jellemzőknek eltérő a prioritásuk:
 
-* Critical features: we probably won't consider a framework without these
-** Can we legally / easily use the project?
-*** <<license,License>>
-*** <<vendorable-or-ubiquitous,Vendorable or ubiquitous>>
-*** <<maintainable-extensible,Maintainable / extensible>>
-*** <<major-platform-support,Major platform support>>
-** Does the project support our bare-minimum needs?
-*** <<tap-support,TAP support>>
-*** <<diagnostic-output,Diagnostic output>>
-*** <<runtime-skippable-tests,Runtime-skippable tests>>
-* Nice-to-have features:
-** <<parallel-execution,Parallel execution>>
-** <<mock-support,Mock support>>
-** <<signal-error-handling,Signal & error-handling>>
-* Tie-breaker stats
-** <<project-kloc,Project KLOC>>
-** <<adoption,Adoption>>
+* Kritikus jellemzők: ezek nélkül valószínűleg nem veszünk fontolóra egy frameworköt
+** Legálisan / könnyen használhatjuk-e a projektet?
+*** <<license,Licenc>>
+*** <<vendorable-or-ubiquitous,Vendorolható vagy mindenütt jelenlévő>>
+*** <<maintainable-extensible,Karbantartható / bővíthető>>
+*** <<major-platform-support,Fő platformok támogatása>>
+** Támogatja-e a projekt a legszükségesebb igényeinket?
+*** <<tap-support,TAP-támogatás>>
+*** <<diagnostic-output,Diagnosztikai kimenet>>
+*** <<runtime-skippable-tests,Futásidőben kihagyható tesztek>>
+* Előnyös, de nem kötelező jellemzők:
+** <<parallel-execution,Párhuzamos végrehajtás>>
+** <<mock-support,Mock-támogatás>>
+** <<signal-error-handling,Szignál- és hibakezelés>>
+* Holtversenyt eldöntő statisztikák
+** <<project-kloc,Projekt KLOC>>
+** <<adoption,Elterjedtség>>
 
 [[license]]
-=== License
+=== Licenc
 
-We must be able to legally use the framework in connection with Git. As Git is
-licensed only under GPLv2, we must eliminate any LGPLv3, GPLv3, or Apache 2.0
-projects.
+Legálisan tudnunk kell használni a frameworköt a Gittel összefüggésben. Mivel a
+Git kizárólag GPLv2 alatt licencelt, ki kell zárnunk minden LGPLv3, GPLv3 vagy
+Apache 2.0 licencű projektet.
 
 [[vendorable-or-ubiquitous]]
-=== Vendorable or ubiquitous
+=== Vendorolható vagy mindenütt jelenlévő
 
-We want to avoid forcing Git developers to install new tools just to run unit
-tests. Any prospective frameworks and harnesses must either be vendorable
-(meaning, we can copy their source directly into Git's repository), or so
-ubiquitous that it is reasonable to expect that most developers will have the
-tools installed already.
+El akarjuk kerülni, hogy a Git-fejlesztőket új eszközök telepítésére
+kényszerítsük pusztán az egységtesztek futtatásához. Minden szóba jöhető
+frameworknek és harnessnek vagy vendorolhatónak kell lennie (azaz a forrásukat
+közvetlenül bemásolhatjuk a Git repository-jába), vagy annyira elterjedtnek,
+hogy ésszerűen elvárható, hogy a legtöbb fejlesztőnél az eszközök már telepítve
+vannak.
 
 [[maintainable-extensible]]
-=== Maintainable / extensible
+=== Karbantartható / bővíthető
 
-It is unlikely that any pre-existing project perfectly fits our needs, so any
-project we select will need to be actively maintained and open to accepting
-changes. Alternatively, assuming we are vendoring the source into our repo, it
-must be simple enough that Git developers can feel comfortable making changes as
-needed to our version.
+Nem valószínű, hogy bármely meglévő projekt tökéletesen illeszkedne az
+igényeinkhez, így minden kiválasztott projektnek aktívan karbantartottnak és a
+változtatások befogadására nyitottnak kell lennie. Alternatívaként, feltéve,
+hogy a forrást a repónkba vendoroljuk, elég egyszerűnek kell lennie ahhoz, hogy
+a Git-fejlesztők nyugodtan elvégezhessék a mi verziónkon a szükséges
+változtatásokat.
 
-In the comparison table below, "True" means that the framework seems to have
-active developers, that it is simple enough that Git developers can make changes
-to it, and that the project seems open to accepting external contributions (or
-that it is vendorable). "Partial" means that at least one of the above
-conditions holds.
+Az alábbi összehasonlító táblázatban a „True" azt jelenti, hogy a frameworknek
+láthatóan vannak aktív fejlesztői, hogy elég egyszerű ahhoz, hogy a
+Git-fejlesztők változtatásokat végezzenek rajta, és hogy a projekt láthatóan
+nyitott a külső hozzájárulások befogadására (vagy hogy vendorolható). A
+„Partial" azt jelenti, hogy a fenti feltételek közül legalább egy teljesül.
 
 [[major-platform-support]]
-=== Major platform support
+=== Fő platformok támogatása
 
-At a bare minimum, unit-testing must work on Linux, MacOS, and Windows.
+Legalább minimálisan az egységtesztelésnek működnie kell Linuxon, MacOS-en és
+Windowson.
 
-In the comparison table below, "True" means that it works on all three major
-platforms with no issues. "Partial" means that there may be annoyances on one or
-more platforms, but it is still usable in principle.
+Az alábbi összehasonlító táblázatban a „True" azt jelenti, hogy mindhárom fő
+platformon gond nélkül működik. A „Partial" azt jelenti, hogy egy vagy több
+platformon lehetnek kellemetlenségek, de elvben még használható.
 
 [[tap-support]]
-=== TAP support
+=== TAP-támogatás
 
-The https://testanything.org/[Test Anything Protocol] is a text-based interface
-that allows tests to communicate with a test harness. It is already used by
-Git's integration test suite. Supporting TAP output is a mandatory feature for
-any prospective test framework.
+A https://testanything.org/[Test Anything Protocol] egy szöveges alapú felület,
+amely lehetővé teszi, hogy a tesztek kommunikáljanak egy test harnesszel. A Git
+integrációs tesztkészlete már használja. A TAP-kimenet támogatása kötelező
+jellemző minden szóba jöhető test framework számára.
 
-In the comparison table below, "True" means this is natively supported.
-"Partial" means TAP output must be generated by post-processing the native
-output.
+Az alábbi összehasonlító táblázatban a „True" azt jelenti, hogy ezt natívan
+támogatja. A „Partial" azt jelenti, hogy a TAP-kimenetet a natív kimenet
+utófeldolgozásával kell előállítani.
 
-Frameworks that do not have at least Partial support will not be evaluated
-further.
+Azokat a frameworköket, amelyeknek nincs legalább Partial szintű támogatásuk,
+nem értékeljük tovább.
 
 [[diagnostic-output]]
-=== Diagnostic output
+=== Diagnosztikai kimenet
 
-When a test case fails, the framework must generate enough diagnostic output to
-help developers find the appropriate test case in source code in order to debug
-the failure.
+Amikor egy teszteset elbukik, a frameworknek elegendő diagnosztikai kimenetet
+kell előállítania ahhoz, hogy a fejlesztők megtalálják a megfelelő tesztesetet a
+forráskódban a hiba felderítéséhez.
 
 [[runtime-skippable-tests]]
-=== Runtime-skippable tests
+=== Futásidőben kihagyható tesztek
 
-Test authors may wish to skip certain test cases based on runtime circumstances,
-so the framework should support this.
+A tesztek szerzői bizonyos teszteseteket futásidejű körülmények alapján
+szeretnének kihagyni, ezért a frameworknek ezt támogatnia kell.
 
 [[parallel-execution]]
-=== Parallel execution
+=== Párhuzamos végrehajtás
 
-Ideally, we will build up a significant collection of unit test cases, most
-likely split across multiple executables. It will be necessary to run these
-tests in parallel to enable fast develop-test-debug cycles.
+Ideális esetben az egységtesztesetek jelentős gyűjteményét építjük fel, amely
+nagy valószínűséggel több végrehajtható program között oszlik meg. Ezeket a
+teszteket párhuzamosan kell futtatni a gyors fejlesztés-teszt-hibakeresés
+ciklusok érdekében.
 
-In the comparison table below, "True" means that individual test cases within a
-single test executable can be run in parallel. We assume that executable-level
-parallelism can be handled by the test harness.
+Az alábbi összehasonlító táblázatban a „True" azt jelenti, hogy egyetlen
+teszt-végrehajtható programon belül az egyes tesztesetek párhuzamosan
+futtathatók. Feltételezzük, hogy a végrehajtható programok szintjén a
+párhuzamosságot a test harness képes kezelni.
 
 [[mock-support]]
-=== Mock support
+=== Mock-támogatás
 
-Unit test authors may wish to test code that interacts with objects that may be
-inconvenient to handle in a test (e.g. interacting with a network service).
-Mocking allows test authors to provide a fake implementation of these objects
-for more convenient tests.
+Az egységtesztek szerzői olyan kódot is szeretnének tesztelni, amely olyan
+objektumokkal lép kapcsolatba, amelyeket kényelmetlen lehet egy tesztben kezelni
+(pl. hálózati szolgáltatással való kommunikáció). A mockolás lehetővé teszi a
+tesztek szerzőinek, hogy ezekhez az objektumokhoz hamis implementációt adjanak a
+kényelmesebb tesztek érdekében.
 
 [[signal-error-handling]]
-=== Signal & error handling
+=== Szignál- és hibakezelés
 
-The test framework should fail gracefully when test cases are themselves buggy
-or when they are interrupted by signals during runtime.
+A test frameworknek elegánsan kell hibáznia, amikor a tesztesetek maguk hibásak,
+vagy amikor futásidőben szignálok szakítják meg őket.
 
 [[project-kloc]]
-=== Project KLOC
+=== Projekt KLOC
 
-The size of the project, in thousands of lines of code as measured by
-https://dwheeler.com/sloccount/[sloccount] (rounded up to the next multiple of
-1,000). As a tie-breaker, we probably prefer a project with fewer LOC.
+A projekt mérete ezer kódsorokban, a
+https://dwheeler.com/sloccount/[sloccount] mérése szerint (felkerekítve a
+következő 1000-es többszörösre). Holtverseny esetén valószínűleg a kevesebb
+kódsorral rendelkező projektet részesítjük előnyben.
 
 [[adoption]]
-=== Adoption
+=== Elterjedtség
 
-As a tie-breaker, we prefer a more widely-used project. We use the number of
-GitHub / GitLab stars to estimate this.
+Holtverseny esetén a szélesebb körben használt projektet részesítjük előnyben.
+Ezt a GitHub / GitLab csillagok számával becsüljük.
 
 
-=== Comparison
+[[_comparison]]
+=== Összehasonlítás
 
 :true: [lime-background]#True#
 :false: [red-background]#False#
@@ -207,7 +222,7 @@ GitHub / GitLab stars to estimate this.
 
 [format="csv",options="header",width="33%",subs="specialcharacters,attributes,quotes,macros"]
 |=====
-Framework,"<<license,License>>","<<vendorable-or-ubiquitous,Vendorable or ubiquitous>>","<<maintainable-extensible,Maintainable / extensible>>","<<major-platform-support,Major platform support>>","<<tap-support,TAP support>>","<<diagnostic-output,Diagnostic output>>","<<runtime--skippable-tests,Runtime- skippable tests>>","<<parallel-execution,Parallel execution>>","<<mock-support,Mock support>>","<<signal-error-handling,Signal & error handling>>","<<project-kloc,Project KLOC>>","<<adoption,Adoption>>"
+Keretrendszer,"<<license,Licenc>>","<<vendorable-or-ubiquitous,Vendorolható vagy mindenütt jelenlévő>>","<<maintainable-extensible,Karbantartható / bővíthető>>","<<major-platform-support,Fő platformok támogatása>>","<<tap-support,TAP-támogatás>>","<<diagnostic-output,Diagnosztikai kimenet>>","<<runtime--skippable-tests,Futásidőben kihagyható tesztek>>","<<parallel-execution,Párhuzamos végrehajtás>>","<<mock-support,Mock-támogatás>>","<<signal-error-handling,Szignál- és hibakezelés>>","<<project-kloc,Projekt KLOC>>","<<adoption,Elterjedtség>>"
 {custom-impl},{gpl},{true},{true},{true},{true},{true},{true},{false},{false},{false},1,0
 {greatest},{isc},{true},{partial},{true},{partial},{true},{true},{false},{false},{false},3,1400
 {criterion},{mit},{false},{partial},{true},{true},{true},{true},{true},{false},{true},19,1800
@@ -216,15 +231,16 @@ Framework,"<<license,License>>","<<vendorable-or-ubiquitous,Vendorable or ubiqui
 {clar},{isc},{false},{partial},{true},{true},{true},{true},{false},{false},{true},1,192
 |=====
 
-=== Additional framework candidates
+[[_additional_framework_candidates]]
+=== További keretrendszer-jelöltek
 
-Several suggested frameworks have been eliminated from consideration:
+Több javasolt frameworköt kizártunk a mérlegelésből:
 
-* Incompatible licenses:
+* Nem kompatibilis licencek:
 ** https://github.com/zorgnax/libtap[libtap] (LGPL v3)
 ** https://cmocka.org/[cmocka] (Apache 2.0)
-* Missing source: https://www.kindahl.net/mytap/doc/index.html[MyTap]
-* No TAP support:
+* Hiányzó forrás: https://www.kindahl.net/mytap/doc/index.html[MyTap]
+* Nincs TAP-támogatás:
 ** https://nemequ.github.io/munit/[µnit]
 ** https://github.com/google/cmockery[cmockery]
 ** https://github.com/lpabon/cmockery2[cmockery2]
@@ -233,10 +249,11 @@ Several suggested frameworks have been eliminated from consideration:
 ** https://cunit.sourceforge.net/[CUnit]
 
 
-== Milestones
+[[_milestones]]
+== Mérföldkövek
 
-* Add useful tests of library-like code
-* Integrate with
+* Hasznos tesztek hozzáadása a könyvtárszerű kódhoz
+* Integráció a
   https://lore.kernel.org/git/20230502211454.1673000-1-calvinwan@google.com/[stdlib
-  work]
-* Run alongside regular `make test` target
+  munkával]
+* Futtatás a szokásos `make test` cél mellett

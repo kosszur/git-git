@@ -1,45 +1,47 @@
 = Trace2 API
 
-The Trace2 API can be used to print debug, performance, and telemetry
-information to stderr or a file.  The Trace2 feature is inactive unless
-explicitly enabled by enabling one or more Trace2 Targets.
+A Trace2 API hibakeresési, teljesítmény- és telemetriai információk
+stderr-re vagy fájlba írására használható. A Trace2 funkció inaktív, hacsak
+nem engedélyezik kifejezetten egy vagy több Trace2 cél engedélyezésével.
 
-The Trace2 API is intended to replace the existing (Trace1)
-`printf()`-style tracing provided by the existing `GIT_TRACE` and
-`GIT_TRACE_PERFORMANCE` facilities.  During initial implementation,
-Trace2 and Trace1 may operate in parallel.
+A Trace2 API célja a meglévő (Trace1) `printf()`-stílusú nyomkövetés
+lecserélése, amelyet a meglévő `GIT_TRACE` és `GIT_TRACE_PERFORMANCE`
+szolgáltatások nyújtanak. A kezdeti megvalósítás során a Trace2 és a
+Trace1 párhuzamosan működhet.
 
-The Trace2 API defines a set of high-level messages with known fields,
-such as (`start`: `argv`) and (`exit`: {`exit-code`, `elapsed-time`}).
+A Trace2 API magas szintű üzenetek halmazát definiálja ismert mezőkkel,
+mint például (`start`: `argv`) és (`exit`: {`exit-code`, `elapsed-time`}).
 
-Trace2 instrumentation throughout the Git code base sends Trace2
-messages to the enabled Trace2 Targets.  Targets transform these
-messages content into purpose-specific formats and write events to
-their data streams.  In this manner, the Trace2 API can drive
-many different types of analysis.
+A Git kódbázisában elhelyezett Trace2 műszerezés Trace2 üzeneteket küld az
+engedélyezett Trace2 céloknak. A célok ezen üzenetek tartalmát célspecifikus
+formátumokká alakítják, és eseményeket írnak az adatfolyamaikba. Ily módon
+a Trace2 API sokféle elemzést tud kiszolgálni.
 
-Targets are defined using a VTable allowing easy extension to other
-formats in the future.  This might be used to define a binary format,
-for example.
+A célokat egy VTable segítségével definiálják, amely lehetővé teszi a
+jövőben más formátumokra való egyszerű kiterjesztést. Ezt például egy
+bináris formátum definiálására lehetne használni.
 
-Trace2 is controlled using `trace2.*` config values in the system and
-global config files and `GIT_TRACE2*` environment variables.  Trace2 does
-not read from repo local or worktree config files, nor does it respect
-`-c` command line config settings.
+A Trace2-t a rendszer- és globális konfigurációs fájlokban lévő `trace2.*`
+konfigurációs értékekkel és a `GIT_TRACE2*` környezeti változókkal
+vezérlik. A Trace2 nem olvas a repó-lokális vagy working tree konfigurációs
+fájlokból, és nem veszi figyelembe a `-c` parancssori konfigurációs
+beállításokat sem.
 
-== Trace2 Targets
+[[_trace2_targets]]
+== Trace2 célok
 
-Trace2 defines the following set of Trace2 Targets.
-Format details are given in a later section.
+A Trace2 a Trace2 célok következő halmazát definiálja.
+A formátum részleteit egy későbbi szakasz tartalmazza.
 
-=== The Normal Format Target
+[[_the_normal_format_target]]
+=== A normál formátumú cél
 
-The normal format target is a traditional `printf()` format and similar
-to the `GIT_TRACE` format.  This format is enabled with the `GIT_TRACE2`
-environment variable or the `trace2.normalTarget` system or global
-config setting.
+A normál formátumú cél egy hagyományos `printf()` formátum, és hasonló a
+`GIT_TRACE` formátumhoz. Ezt a formátumot a `GIT_TRACE2` környezeti
+változóval vagy a `trace2.normalTarget` rendszer- vagy globális
+konfigurációs beállítással engedélyezik.
 
-For example
+Például
 
 ------------
 $ export GIT_TRACE2=~/log.normal
@@ -47,7 +49,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-or
+vagy
 
 ------------
 $ git config --global trace2.normalTarget ~/log.normal
@@ -55,7 +57,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-yields
+ez az eredménye:
 
 ------------
 $ cat ~/log.normal
@@ -66,15 +68,17 @@ $ cat ~/log.normal
 12:28:42.621250 trace2/tr2_tgt_normal.c:124       atexit elapsed:0.001265 code:0
 ------------
 
-=== The Performance Format Target
+[[_the_performance_format_target]]
+=== A teljesítmény formátumú cél
 
-The performance format target (PERF) is a column-based format to
-replace `GIT_TRACE_PERFORMANCE` and is suitable for development and
-testing, possibly to complement tools like `gprof`.  This format is
-enabled with the `GIT_TRACE2_PERF` environment variable or the
-`trace2.perfTarget` system or global config setting.
+A teljesítmény formátumú cél (PERF) egy oszlopalapú formátum a
+`GIT_TRACE_PERFORMANCE` lecserélésére, és fejlesztéshez, valamint
+teszteléshez alkalmas, esetleg olyan eszközök kiegészítésére, mint a
+`gprof`. Ezt a formátumot a `GIT_TRACE2_PERF` környezeti változóval vagy a
+`trace2.perfTarget` rendszer- vagy globális konfigurációs beállítással
+engedélyezik.
 
-For example
+Például
 
 ------------
 $ export GIT_TRACE2_PERF=~/log.perf
@@ -82,7 +86,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-or
+vagy
 
 ------------
 $ git config --global trace2.perfTarget ~/log.perf
@@ -90,7 +94,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-yields
+ez az eredménye:
 
 ------------
 $ cat ~/log.perf
@@ -101,14 +105,15 @@ $ cat ~/log.perf
 12:28:42.621259 trace2/tr2_tgt_perf.c:211         | d0 | main                     | atexit       |     |  0.001265 |           |            | code:0
 ------------
 
-=== The Event Format Target
+[[_the_event_format_target]]
+=== Az esemény formátumú cél
 
-The event format target is a JSON-based format of event data suitable
-for telemetry analysis.  This format is enabled with the `GIT_TRACE2_EVENT`
-environment variable or the `trace2.eventTarget` system or global config
-setting.
+Az esemény formátumú cél az eseményadatok JSON-alapú formátuma, amely
+telemetriai elemzéshez alkalmas. Ezt a formátumot a `GIT_TRACE2_EVENT`
+környezeti változóval vagy a `trace2.eventTarget` rendszer- vagy globális
+konfigurációs beállítással engedélyezik.
 
-For example
+Például
 
 ------------
 $ export GIT_TRACE2_EVENT=~/log.event
@@ -116,7 +121,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-or
+vagy
 
 ------------
 $ git config --global trace2.eventTarget ~/log.event
@@ -124,7 +129,7 @@ $ git version
 git version 2.20.1.155.g426c96fcdb
 ------------
 
-yields
+ez az eredménye:
 
 ------------
 $ cat ~/log.event
@@ -135,48 +140,53 @@ $ cat ~/log.event
 {"event":"atexit","sid":"20190408T191610.507018Z-H9b68c35f-P000059a8","thread":"main","time":"2019-01-16T17:28:42.621268Z","file":"trace2/tr2_tgt_event.c","line":163,"t_abs":0.001265,"code":0}
 ------------
 
-=== Enabling a Target
+[[_enabling_a_target]]
+=== Egy cél engedélyezése
 
-To enable a target, set the corresponding environment variable or
-system or global config value to one of the following:
+Egy cél engedélyezéséhez állítsd a megfelelő környezeti változót vagy
+rendszer- vagy globális konfigurációs értéket a következők egyikére:
 
 include::../trace2-target-values.adoc[]
 
-When trace files are written to a target directory, they will be named according
-to the last component of the SID (optionally followed by a counter to avoid
-filename collisions).
+Amikor a nyomkövetési fájlokat egy célkönyvtárba írják, a SID utolsó
+komponense szerint kapnak nevet (opcionálisan egy számlálóval kiegészítve
+a fájlnév-ütközések elkerülésére).
 
+[[_trace2_api]]
 == Trace2 API
 
-The Trace2 public API is defined and documented in `trace2.h`; refer to it for
-more information.  All public functions and macros are prefixed
-with `trace2_` and are implemented in `trace2.c`.
+A Trace2 publikus API-ját a `trace2.h` definiálja és dokumentálja; további
+információért nézd meg azt. Minden publikus függvény és makró `trace2_`
+előtaggal rendelkezik, és a `trace2.c`-ben van megvalósítva.
 
-There are no public Trace2 data structures.
+Nincsenek publikus Trace2 adatszerkezetek.
 
-The Trace2 code also defines a set of private functions and data types
-in the `trace2/` directory.  These symbols are prefixed with `tr2_`
-and should only be used by functions in `trace2.c` (or other private
-source files in `trace2/`).
+A Trace2 kód privát függvények és adattípusok halmazát is definiálja a
+`trace2/` könyvtárban. Ezek a szimbólumok `tr2_` előtaggal rendelkeznek,
+és csak a `trace2.c`-beli függvények (vagy más, `trace2/`-beli privát
+forrásfájlok) használhatják őket.
 
-=== Conventions for Public Functions and Macros
+[[_conventions_for_public_functions_and_macros]]
+=== Konvenciók a publikus függvényekhez és makrókhoz
 
-Some functions have a `_fl()` suffix to indicate that they take `file`
-and `line-number` arguments.
+Egyes függvények `_fl()` utótaggal rendelkeznek, jelezve, hogy `file` és
+`line-number` argumentumokat vesznek át.
 
-Some functions have a `_va_fl()` suffix to indicate that they also
-take a `va_list` argument.
+Egyes függvények `_va_fl()` utótaggal rendelkeznek, jelezve, hogy egy
+`va_list` argumentumot is átvesznek.
 
-Some functions have a `_printf_fl()` suffix to indicate that they also
-take a `printf()` style format with a variable number of arguments.
+Egyes függvények `_printf_fl()` utótaggal rendelkeznek, jelezve, hogy egy
+`printf()` stílusú, változó számú argumentumú formátumot is átvesznek.
 
-CPP wrapper macros are defined to hide most of these details.
+CPP burkoló makrók vannak definiálva, hogy elrejtsék e részletek nagy részét.
 
-== Trace2 Target Formats
+[[_trace2_target_formats]]
+== Trace2 célformátumok
 
-=== NORMAL Format
+[[_normal_format]]
+=== NORMAL formátum
 
-Events are written as lines of the form:
+Az események a következő alakú sorokként íródnak:
 
 ------------
 [<time> SP <filename>:<line> SP+] <event-name> [[SP] <event-message>] LF
@@ -184,24 +194,27 @@ Events are written as lines of the form:
 
 `<event-name>`::
 
-	is the event name.
+	az esemény neve.
 
 `<event-message>`::
-	is a free-form `printf()` message intended for human consumption.
+	egy szabad formátumú `printf()` üzenet, amelyet emberi fogyasztásra
+	szánnak.
 +
-Note that this may contain embedded LF or CRLF characters that are
-not escaped, so the event may spill across multiple lines.
+Vedd figyelembe, hogy ez tartalmazhat beágyazott LF vagy CRLF
+karaktereket, amelyek nincsenek escape-elve, így az esemény több sorra
+is kiterjedhet.
 
-If `GIT_TRACE2_BRIEF` or `trace2.normalBrief` is true, the `time`, `filename`,
-and `line` fields are omitted.
+Ha a `GIT_TRACE2_BRIEF` vagy a `trace2.normalBrief` igaz, a `time`,
+`filename` és `line` mezők kimaradnak.
 
-This target is intended to be more of a summary (like GIT_TRACE) and
-less detailed than the other targets.  It ignores thread, region, and
-data messages, for example.
+Ez a cél inkább összefoglaló jellegű (mint a GIT_TRACE), és kevésbé
+részletes, mint a többi cél. Például figyelmen kívül hagyja a szál-,
+régió- és adatüzeneteket.
 
-=== PERF Format
+[[_perf_format]]
+=== PERF formátum
 
-Events are written as lines of the form:
+Az események a következő alakú sorokként íródnak:
 
 ------------
 [<time> SP <filename>:<line> SP+
@@ -217,74 +230,78 @@ Events are written as lines of the form:
 ------------
 
 `<depth>`::
-	is the git process depth.  This is the number of parent
-	git processes.  A top-level git command has depth value "d0".
-	A child of it has depth value "d1".  A second level child
-	has depth value "d2" and so on.
+	a git folyamat mélysége. Ez a szülő git folyamatok száma. Egy
+	legfelső szintű git parancs mélységértéke "d0". Egy gyermekének
+	mélységértéke "d1". Egy második szintű gyermeknek "d2" a
+	mélységértéke, és így tovább.
 
 `<thread-name>`::
-	is a unique name for the thread.  The primary thread
-	is called "main".  Other thread names are of the form "th%d:%s"
-	and include a unique number and the name of the thread-proc.
+	a szál egyedi neve. Az elsődleges szál neve "main". A többi szál
+	neve "th%d:%s" alakú, és egy egyedi számot, valamint a thread-proc
+	nevét tartalmazza.
 
 `<event-name>`::
-	is the event name.
+	az esemény neve.
 
 `<repo-id>`::
-	when present, is a number indicating the repository
-	in use.  A `def_repo` event is emitted when a repository is
-	opened.  This defines the repo-id and associated worktree.
-	Subsequent repo-specific events will reference this repo-id.
+	ha jelen van, egy szám, amely a használatban lévő repository-t
+	jelzi. Egy `def_repo` esemény kerül kibocsátásra, amikor egy
+	repository-t megnyitnak. Ez definiálja a repo-id-t és a hozzá
+	tartozó working tree-t. A későbbi repository-specifikus események
+	erre a repo-id-ra fognak hivatkozni.
 +
-Currently, this is always "r1" for the main repository.
-This field is in anticipation of in-proc submodules in the future.
+Jelenleg ez mindig "r1" a fő repository esetén.
+Ez a mező a jövőbeli, folyamaton belüli submodule-ok előrejelzése.
 
 `<t_abs>`::
-	when present, is the absolute time in seconds since the
-	program started.
+	ha jelen van, a program indulása óta eltelt abszolút idő
+	másodpercben.
 
 `<t_rel>`::
-	when present, is time in seconds relative to the start of
-	the current region.  For a thread-exit event, it is the elapsed
-	time of the thread.
+	ha jelen van, az aktuális régió kezdetéhez viszonyított idő
+	másodpercben. Egy thread-exit esemény esetén ez a szál eltelt
+	ideje.
 
 `<category>`::
-	is present on region and data events and is used to
-	indicate a broad category, such as "index" or "status".
+	a régió- és adateseményeken jelenik meg, és egy tág kategória
+	jelzésére szolgál, mint például "index" vagy "status".
 
 `<perf-event-message>`::
-	is a free-form `printf()` message intended for human consumption.
+	egy szabad formátumú `printf()` üzenet, amelyet emberi fogyasztásra
+	szánnak.
 
 ------------
 15:33:33.532712 wt-status.c:2310                  | d0 | main                     | region_enter | r1  |  0.126064 |           | status     | label:print
 15:33:33.532712 wt-status.c:2331                  | d0 | main                     | region_leave | r1  |  0.127568 |  0.001504 | status     | label:print
 ------------
 
-If `GIT_TRACE2_PERF_BRIEF` or `trace2.perfBrief` is true, the `time`, `file`,
-and `line` fields are omitted.
+Ha a `GIT_TRACE2_PERF_BRIEF` vagy a `trace2.perfBrief` igaz, a `time`,
+`file` és `line` mezők kimaradnak.
 
 ------------
 d0 | main                     | region_leave | r1  |  0.011717 |  0.009122 | index      | label:preload
 ------------
 
-The PERF target is intended for interactive performance analysis
-during development and is quite noisy.
+A PERF cél fejlesztés közbeni interaktív teljesítményelemzéshez való, és
+meglehetősen zajos.
 
-=== EVENT Format
+[[_event_format]]
+=== EVENT formátum
 
-Each event is a JSON-object containing multiple key/value pairs
-written as a single line and followed by a LF.
+Minden esemény egy JSON-objektum, amely több kulcs/érték párt tartalmaz,
+egyetlen sorba írva, amelyet egy LF követ.
 
 ------------
 '{' <key> ':' <value> [',' <key> ':' <value>]* '}' LF
 ------------
 
-Some key/value pairs are common to all events and some are
-event-specific.
+Egyes kulcs/érték párok minden eseményre közösek, mások
+eseményspecifikusak.
 
-==== Common Key/Value Pairs
+[[_common_key_value_pairs]]
+==== Közös kulcs/érték párok
 
-The following key/value pairs are common to all events:
+A következő kulcs/érték párok minden eseményre közösek:
 
 ------------
 {
@@ -299,46 +316,48 @@ The following key/value pairs are common to all events:
 ------------
 
 `"event":<event>`::
-	is the event name.
+	az esemény neve.
 
 `"sid":<sid>`::
-	is the session-id.  This is a unique string to identify the
-	process instance to allow all events emitted by a process to
-	be identified.  A session-id is used instead of a PID because
-	PIDs are recycled by the OS.  For child git processes, the
-	session-id is prepended with the session-id of the parent git
-	process to allow parent-child relationships to be identified
-	during post-processing.
+	a session-id. Ez egy egyedi sztring a folyamatpéldány
+	azonosítására, amely lehetővé teszi egy folyamat által kibocsátott
+	összes esemény azonosítását. Session-id-t használunk PID helyett,
+	mert a PID-eket az operációs rendszer újrahasznosítja. Gyermek git
+	folyamatok esetén a session-id elé kerül a szülő git folyamat
+	session-id-ja, hogy a szülő-gyermek kapcsolatok azonosíthatók
+	legyenek az utófeldolgozás során.
 
 `"thread":<thread>`::
-	is the thread name.
+	a szál neve.
 
 `"time":<time>`::
-	is the UTC time of the event.
+	az esemény UTC-ideje.
 
 `"file":<filename>`::
-	is source file generating the event.
+	az eseményt generáló forrásfájl.
 
 `"line":<line-number>`::
-	is the integer source line number generating the event.
+	az eseményt generáló egész számú forrássor száma.
 
 `"repo":<repo-id>`::
-	when present, is the integer repo-id as described previously.
+	ha jelen van, a korábban leírt egész számú repo-id.
 
-If `GIT_TRACE2_EVENT_BRIEF` or `trace2.eventBrief` is true, the `file`
-and `line` fields are omitted from all events and the `time` field is
-only present on the "start" and "atexit" events.
+Ha a `GIT_TRACE2_EVENT_BRIEF` vagy a `trace2.eventBrief` igaz, a `file` és
+`line` mezők minden eseményből kimaradnak, a `time` mező pedig csak a
+"start" és az "atexit" eseményeken van jelen.
 
-==== Event-Specific Key/Value Pairs
+[[_event_specific_key_value_pairs]]
+==== Eseményspecifikus kulcs/érték párok
 
 `"version"`::
-	This event gives the version of the executable and the EVENT format. It
-	should always be the first event in a trace session. The EVENT format
-	version will be incremented if new event types are added, if existing
-	fields are removed, or if there are significant changes in
-	interpretation of existing events or fields. Smaller changes, such as
-	adding a new field to an existing event, will not require an increment
-	to the EVENT format version.
+	Ez az esemény megadja a futtatható állomány és az EVENT formátum
+	verzióját. Mindig ez legyen az első esemény egy nyomkövetési
+	munkamenetben. Az EVENT formátum verziója növekszik, ha új
+	eseménytípusokat adnak hozzá, ha meglévő mezőket távolítanak el, vagy
+	ha jelentős változás történik a meglévő események vagy mezők
+	értelmezésében. A kisebb változások, mint egy új mező hozzáadása egy
+	meglévő eseményhez, nem igénylik az EVENT formátum verziójának
+	növelését.
 +
 ------------
 {
@@ -350,9 +369,9 @@ only present on the "start" and "atexit" events.
 ------------
 
 `"too_many_files"`::
-	This event is written to the git-trace2-discard sentinel file if there
-	are too many files in the target trace directory (see the
-	trace2.maxFiles config option).
+	Ez az esemény a git-trace2-discard őrszemfájlba íródik, ha túl sok
+	fájl van a cél nyomkövetési könyvtárban (lásd a trace2.maxFiles
+	konfigurációs opciót).
 +
 ------------
 {
@@ -362,7 +381,7 @@ only present on the "start" and "atexit" events.
 ------------
 
 `"start"`::
-	This event contains the complete argv received by main().
+	Ez az esemény a main() által kapott teljes argv-t tartalmazza.
 +
 ------------
 {
@@ -374,7 +393,8 @@ only present on the "start" and "atexit" events.
 ------------
 
 `"exit"`::
-	This event is emitted when git calls `exit()`.
+	Ez az esemény akkor kerül kibocsátásra, amikor a git meghívja az
+	`exit()`-et.
 +
 ------------
 {
@@ -386,13 +406,11 @@ only present on the "start" and "atexit" events.
 ------------
 
 `"atexit"`::
-	This event is emitted by the Trace2 `atexit` routine during
-	final shutdown.  It should be the last event emitted by the
-	process.
+	Ezt az eseményt a Trace2 `atexit` rutin bocsátja ki a végső leállítás
+	során. Ez legyen az utolsó esemény, amelyet a folyamat kibocsát.
 +
-(The elapsed time reported here is greater than the time reported in
-the "exit" event because it runs after all other atexit tasks have
-completed.)
+(Az itt jelentett eltelt idő nagyobb, mint az "exit" eseményben jelentett
+idő, mert az összes többi atexit feladat befejezése után fut.)
 +
 ------------
 {
@@ -404,9 +422,9 @@ completed.)
 ------------
 
 `"signal"`::
-	This event is emitted when the program is terminated by a user
-	signal.  Depending on the platform, the signal event may
-	prevent the "atexit" event from being generated.
+	Ez az esemény akkor kerül kibocsátásra, amikor a programot egy
+	felhasználói szignál leállítja. A platformtól függően a szignálesemény
+	megakadályozhatja az "atexit" esemény generálását.
 +
 ------------
 {
@@ -418,8 +436,9 @@ completed.)
 ------------
 
 `"error"`::
-	This event is emitted when one of the `BUG()`, `bug()`, `error()`,
-	`die()`, `warning()`, or `usage()` functions are called.
+	Ez az esemény akkor kerül kibocsátásra, amikor a `BUG()`, `bug()`,
+	`error()`, `die()`, `warning()` vagy `usage()` függvények egyikét
+	meghívják.
 +
 ------------
 {
@@ -430,13 +449,14 @@ completed.)
 }
 ------------
 +
-The error event may be emitted more than once.  The format string
-allows post-processors to group errors by type without worrying
-about specific error arguments.
+Az error esemény többször is kibocsátásra kerülhet. A formátumsztring
+lehetővé teszi az utófeldolgozók számára, hogy típus szerint csoportosítsák
+a hibákat anélkül, hogy a konkrét hibaargumentumokkal foglalkoznának.
 
 `"cmd_path"`::
-	This event contains the discovered full path of the git
-	executable (on platforms that are configured to resolve it).
+	Ez az esemény a git futtatható állomány felfedezett teljes elérési
+	útját tartalmazza (azokon a platformokon, amelyek úgy vannak
+	konfigurálva, hogy feloldják).
 +
 ------------
 {
@@ -447,10 +467,10 @@ about specific error arguments.
 ------------
 
 `"cmd_ancestry"`::
-	This event contains the text command name for the parent (and earlier
-	generations of parents) of the current process, in an array ordered from
-	nearest parent to furthest great-grandparent. It may not be implemented
-	on all platforms.
+	Ez az esemény az aktuális folyamat szülőjének (és a szülők korábbi
+	generációinak) szöveges parancsnevét tartalmazza, egy tömbben, a
+	legközelebbi szülőtől a legtávolabbi dédszülőig rendezve. Lehet, hogy
+	nem minden platformon van megvalósítva.
 +
 ------------
 {
@@ -461,8 +481,8 @@ about specific error arguments.
 ------------
 
 `"cmd_name"`::
-	This event contains the command name for this git process
-	and the hierarchy of commands from parent git processes.
+	Ez az esemény ennek a git folyamatnak a parancsnevét, valamint a
+	szülő git folyamatoktól származó parancsok hierarchiáját tartalmazza.
 +
 ------------
 {
@@ -473,9 +493,8 @@ about specific error arguments.
 }
 ------------
 +
-Normally, the "name" field contains the canonical name of the
-command.  When a canonical name is not available, one of
-these special values are used:
+Általában a "name" mező a parancs kanonikus nevét tartalmazza. Amikor
+nincs elérhető kanonikus név, ezen speciális értékek egyikét használjuk:
 +
 ------------
 "_query_"            # "git --html-path"
@@ -486,8 +505,8 @@ these special values are used:
 ------------
 
 `"cmd_mode"`::
-	This event, when present, describes the command variant. This
-	event may be emitted more than once.
+	Ez az esemény, ha jelen van, a parancs változatát írja le. Ez az
+	esemény többször is kibocsátásra kerülhet.
 +
 ------------
 {
@@ -497,13 +516,13 @@ these special values are used:
 }
 ------------
 +
-The "name" field is an arbitrary string to describe the command mode.
-For example, checkout can checkout a branch or an individual file.
-And these variations typically have different performance
-characteristics that are not comparable.
+A "name" mező egy tetszőleges sztring a parancsmód leírására. Például a
+checkout ki tud checkoutolni egy branchet vagy egy egyedi fájlt. Ezeknek
+a változatoknak jellemzően eltérő, nem összehasonlítható
+teljesítményjellemzőik vannak.
 
 `"alias"`::
-	This event is present when an alias is expanded.
+	Ez az esemény akkor van jelen, amikor egy aliast kibontanak.
 +
 ------------
 {
@@ -515,8 +534,8 @@ characteristics that are not comparable.
 ------------
 
 `"child_start"`::
-	This event describes a child process that is about to be
-	spawned.
+	Ez az esemény egy gyermekfolyamatot ír le, amelyet éppen létre fognak
+	hozni.
 +
 ------------
 {
@@ -532,17 +551,16 @@ characteristics that are not comparable.
 }
 ------------
 +
-The "child_id" field can be used to match this child_start with the
-corresponding child_exit event.
+A "child_id" mező használható ennek a child_start-nak a megfelelő
+child_exit eseménnyel való párosítására.
 +
-The "child_class" field is a rough classification, such as "editor",
-"pager", "transport/*", and "hook".  Unclassified children are classified
-with "?".
+A "child_class" mező egy durva besorolás, mint például "editor", "pager",
+"transport/*" és "hook". A besorolatlan gyermekeket "?" jelöli.
 
 `"child_exit"`::
-	This event is generated after the current process has returned
-	from the `waitpid()` and collected the exit information from the
-	child.
+	Ez az esemény azután generálódik, hogy az aktuális folyamat
+	visszatért a `waitpid()`-ből, és összegyűjtötte a gyermek kilépési
+	információit.
 +
 ------------
 {
@@ -555,20 +573,21 @@ with "?".
 }
 ------------
 +
-Note that the session-id of the child process is not available to
-the current/spawning process, so the child's PID is reported here as
-a hint for post-processing.  (But it is only a hint because the child
-process may be a shell script which doesn't have a session-id.)
+Vedd figyelembe, hogy a gyermekfolyamat session-id-ja nem elérhető az
+aktuális/létrehozó folyamat számára, ezért a gyermek PID-jét jelentjük itt
+az utófeldolgozás segítéséhez. (De ez csak egy támpont, mert a
+gyermekfolyamat lehet egy shell szkript, amelynek nincs session-id-ja.)
 +
-Note that the `t_rel` field contains the observed run time in seconds
-for the child process (starting before the fork/exec/spawn and
-stopping after the `waitpid()` and includes OS process creation overhead).
-So this time will be slightly larger than the atexit time reported by
-the child process itself.
+Vedd figyelembe, hogy a `t_rel` mező a gyermekfolyamat megfigyelt
+futásidejét tartalmazza másodpercben (a fork/exec/spawn előtt indulva és a
+`waitpid()` után megállva, és tartalmazza az OS folyamatlétrehozási
+többletköltségét). Így ez az idő valamivel nagyobb lesz, mint a
+gyermekfolyamat által jelentett atexit idő.
 
 `"child_ready"`::
-	This event is generated after the current process has started
-	a background process and released all handles to it.
+	Ez az esemény azután generálódik, hogy az aktuális folyamat elindított
+	egy háttérfolyamatot, és felszabadította az összes rá mutató
+	leírót.
 +
 ------------
 {
@@ -581,34 +600,34 @@ the child process itself.
 }
 ------------
 +
-Note that the session-id of the child process is not available to
-the current/spawning process, so the child's PID is reported here as
-a hint for post-processing.  (But it is only a hint because the child
-process may be a shell script which doesn't have a session-id.)
+Vedd figyelembe, hogy a gyermekfolyamat session-id-ja nem elérhető az
+aktuális/létrehozó folyamat számára, ezért a gyermek PID-jét jelentjük itt
+az utófeldolgozás segítéséhez. (De ez csak egy támpont, mert a
+gyermekfolyamat lehet egy shell szkript, amelynek nincs session-id-ja.)
 +
-This event is generated after the child is started in the background
-and given a little time to boot up and start working.  If the child
-starts up normally while the parent is still waiting, the "ready"
-field will have the value "ready".
-If the child is too slow to start and the parent times out, the field
-will have the value "timeout".
-If the child starts but the parent is unable to probe it, the field
-will have the value "error".
+Ez az esemény azután generálódik, hogy a gyermeket a háttérben elindították,
+és egy kevés időt kapott a felállásra és a munka megkezdésére. Ha a gyermek
+normálisan elindul, miközben a szülő még vár, a "ready" mező értéke "ready"
+lesz.
+Ha a gyermek túl lassan indul, és a szülő túllépi az időkorlátot, a mező
+értéke "timeout" lesz.
+Ha a gyermek elindul, de a szülő nem tudja megvizsgálni, a mező értéke
+"error" lesz.
 +
-After the parent process emits this event, it will release all of its
-handles to the child process and treat the child as a background
-daemon.  So even if the child does eventually finish booting up,
-the parent will not emit an updated event.
+Miután a szülőfolyamat kibocsátja ezt az eseményt, felszabadítja az összes
+gyermekfolyamatra mutató leíróját, és a gyermeket háttér-daemonként kezeli.
+Így még ha a gyermek végül be is fejezi a felállást, a szülő nem bocsát ki
+frissített eseményt.
 +
-Note that the `t_rel` field contains the observed run time in seconds
-when the parent released the child process into the background.
-The child is assumed to be a long-running daemon process and may
-outlive the parent process.  So the parent's child event times should
-not be compared to the child's atexit times.
+Vedd figyelembe, hogy a `t_rel` mező azt a megfigyelt futásidőt tartalmazza
+másodpercben, amikor a szülő a háttérbe engedte a gyermekfolyamatot.
+A gyermekről feltételezzük, hogy hosszú életű daemon folyamat, és túlélheti
+a szülőfolyamatot. Ezért a szülő gyermekeseményeinek idejét nem szabad
+összehasonlítani a gyermek atexit idejével.
 
 `"exec"`::
-	This event is generated before git attempts to `exec()`
-	another command rather than starting a child process.
+	Ez az esemény azelőtt generálódik, hogy a git megkísérelné egy másik
+	parancs `exec()`-elését, ahelyett, hogy gyermekfolyamatot indítana.
 +
 ------------
 {
@@ -620,12 +639,13 @@ not be compared to the child's atexit times.
 }
 ------------
 +
-The "exec_id" field is a command-unique id and is only useful if the
-`exec()` fails and a corresponding exec_result event is generated.
+Az "exec_id" mező egy parancsonként egyedi azonosító, és csak akkor
+hasznos, ha az `exec()` sikertelen, és egy megfelelő exec_result esemény
+generálódik.
 
 `"exec_result"`::
-	This event is generated if the `exec()` fails and control
-	returns to the current git command.
+	Ez az esemény akkor generálódik, ha az `exec()` sikertelen, és a
+	vezérlés visszatér az aktuális git parancshoz.
 +
 ------------
 {
@@ -637,9 +657,9 @@ The "exec_id" field is a command-unique id and is only useful if the
 ------------
 
 `"thread_start"`::
-	This event is generated when a thread is started.  It is
-	generated from *within* the new thread's thread-proc (because
-	it needs to access data in the thread's thread-local storage).
+	Ez az esemény akkor generálódik, amikor egy szál elindul. Az új szál
+	thread-procján *belül* generálódik (mert hozzá kell férnie a szál
+	szál-lokális tárolójában lévő adatokhoz).
 +
 ------------
 {
@@ -650,8 +670,8 @@ The "exec_id" field is a command-unique id and is only useful if the
 ------------
 
 `"thread_exit"`::
-	This event is generated when a thread exits.  It is generated
-	from *within* the thread's thread-proc.
+	Ez az esemény akkor generálódik, amikor egy szál kilép. A szál
+	thread-procján *belül* generálódik.
 +
 ------------
 {
@@ -663,8 +683,9 @@ The "exec_id" field is a command-unique id and is only useful if the
 ------------
 
 `"def_param"`::
-	This event is generated to log a global parameter, such as a config
-	setting, command-line flag, or environment variable.
+	Ez az esemény egy globális paraméter naplózására generálódik, mint
+	például egy konfigurációs beállítás, parancssori jelző vagy környezeti
+	változó.
 +
 ------------
 {
@@ -677,8 +698,8 @@ The "exec_id" field is a command-unique id and is only useful if the
 ------------
 
 `"def_repo"`::
-	This event defines a repo-id and associates it with the root
-	of the worktree.
+	Ez az esemény definiál egy repo-id-t, és a working tree gyökeréhez
+	társítja.
 +
 ------------
 {
@@ -689,13 +710,13 @@ The "exec_id" field is a command-unique id and is only useful if the
 }
 ------------
 +
-As stated earlier, the repo-id is currently always 1, so there will
-only be one def_repo event.  Later, if in-proc submodules are
-supported, a def_repo event should be emitted for each submodule
-visited.
+Ahogy korábban említettük, a repo-id jelenleg mindig 1, így csak egy
+def_repo esemény lesz. Később, ha a folyamaton belüli submodule-ok
+támogatottak lesznek, minden meglátogatott submodule-hoz egy def_repo
+eseményt kell kibocsátani.
 
 `"region_enter"`::
-	This event is generated when entering a region.
+	Ez az esemény egy régióba való belépéskor generálódik.
 +
 ------------
 {
@@ -709,14 +730,15 @@ visited.
 }
 ------------
 +
-The `category` field may be used in a future enhancement to
-do category-based filtering.
+A `category` mező egy jövőbeli fejlesztésben kategóriaalapú szűrésre
+használható.
 +
-`GIT_TRACE2_EVENT_NESTING` or `trace2.eventNesting` can be used to
-filter deeply nested regions and data events.  It defaults to "2".
+A `GIT_TRACE2_EVENT_NESTING` vagy a `trace2.eventNesting` a mélyen
+egymásba ágyazott régiók és adatesemények szűrésére használható. Az
+alapértéke "2".
 
 `"region_leave"`::
-	This event is generated when leaving a region.
+	Ez az esemény egy régióból való kilépéskor generálódik.
 +
 ------------
 {
@@ -732,8 +754,8 @@ filter deeply nested regions and data events.  It defaults to "2".
 ------------
 
 `"data"`::
-	This event is generated to log a thread- and region-local
-	key/value pair.
+	Ez az esemény egy szál- és régió-lokális kulcs/érték pár naplózására
+	generálódik.
 +
 ------------
 {
@@ -749,11 +771,11 @@ filter deeply nested regions and data events.  It defaults to "2".
 }
 ------------
 +
-The "value" field may be an integer or a string.
+A "value" mező lehet egész szám vagy sztring.
 
 `"data-json"`::
-	This event is generated to log a pre-formatted JSON string
-	containing structured data.
+	Ez az esemény egy előre formázott, strukturált adatokat tartalmazó
+	JSON-sztring naplózására generálódik.
 +
 ------------
 {
@@ -770,9 +792,10 @@ The "value" field may be an integer or a string.
 ------------
 
 `"th_timer"`::
-	This event logs the amount of time that a stopwatch timer was
-	running in the thread.  This event is generated when a thread
-	exits for timers that requested per-thread events.
+	Ez az esemény azt az időmennyiséget naplózza, ameddig egy stopper
+	időzítő futott a szálban. Ez az esemény akkor generálódik, amikor egy
+	szál kilép, azon időzítők esetében, amelyek szálankénti eseményeket
+	kértek.
 +
 ------------
 {
@@ -788,9 +811,9 @@ The "value" field may be an integer or a string.
 ------------
 
 `"timer"`::
-	This event logs the amount of time that a stopwatch timer was
-	running aggregated across all threads.  This event is generated
-	when the process exits.
+	Ez az esemény azt az időmennyiséget naplózza, ameddig egy stopper
+	időzítő futott, az összes szálon összesítve. Ez az esemény a folyamat
+	kilépésekor generálódik.
 +
 ------------
 {
@@ -806,9 +829,9 @@ The "value" field may be an integer or a string.
 ------------
 
 `"th_counter"`::
-	This event logs the value of a counter variable in a thread.
-	This event is generated when a thread exits for counters that
-	requested per-thread events.
+	Ez az esemény egy számlálóváltozó értékét naplózza egy szálban. Ez az
+	esemény akkor generálódik, amikor egy szál kilép, azon számlálók
+	esetében, amelyek szálankénti eseményeket kértek.
 +
 ------------
 {
@@ -821,9 +844,9 @@ The "value" field may be an integer or a string.
 ------------
 
 `"counter"`::
-	This event logs the value of a counter variable across all threads.
-	This event is generated when the process exits.  The total value
-	reported here is the sum across all threads.
+	Ez az esemény egy számlálóváltozó értékét naplózza az összes szálon.
+	Ez az esemény a folyamat kilépésekor generálódik. Az itt jelentett
+	teljes érték az összes szálon vett összeg.
 +
 ------------
 {
@@ -836,8 +859,8 @@ The "value" field may be an integer or a string.
 ------------
 
 `"printf"`::
-	This event logs a human-readable message with no particular formatting
-	guidelines.
+	Ez az esemény egy ember által olvasható üzenetet naplóz, konkrét
+	formázási irányelvek nélkül.
 +
 ------------
 {
@@ -849,15 +872,16 @@ The "value" field may be an integer or a string.
 ------------
 
 
-== Example Trace2 API Usage
+[[_example_trace2_api_usage]]
+== Példa a Trace2 API használatára
 
-Here is a hypothetical usage of the Trace2 API showing the intended
-usage (without worrying about the actual Git details).
+Íme a Trace2 API egy hipotetikus használata, amely a szándékolt
+használatot mutatja (a tényleges Git-részletekkel való törődés nélkül).
 
-Initialization::
+Inicializálás::
 
-	Initialization happens in `main()`.  Behind the scenes, an
-	`atexit` and `signal` handler are registered.
+	Az inicializálás a `main()`-ben történik. A háttérben egy `atexit`
+	és egy `signal` kezelő kerül regisztrálásra.
 +
 ----------------
 int main(int argc, const char **argv)
@@ -875,10 +899,10 @@ int main(int argc, const char **argv)
 }
 ----------------
 
-Command Details::
+Parancsrészletek::
 
-	After the basics are established, additional command
-	information can be sent to Trace2 as it is discovered.
+	Miután az alapok megvannak, további parancsinformáció küldhető a
+	Trace2-nek, ahogy azt felfedezik.
 +
 ----------------
 int cmd_checkout(int argc, const char **argv)
@@ -897,9 +921,9 @@ int cmd_checkout(int argc, const char **argv)
 }
 ----------------
 
-Child Processes::
+Gyermekfolyamatok::
 
-	Wrap code spawning child processes.
+	Csomagold be a gyermekfolyamatokat létrehozó kódot.
 +
 ----------------
 void run_child(...)
@@ -915,9 +939,9 @@ void run_child(...)
 }
 ----------------
 +
-For example, the following fetch command spawned ssh, index-pack,
-rev-list, and gc.  This example also shows that fetch took
-5.199 seconds and of that 4.932 was in ssh.
+Például a következő fetch parancs elindította az ssh, index-pack,
+rev-list és gc folyamatokat. Ez a példa azt is mutatja, hogy a fetch
+5,199 másodpercig tartott, és ebből 4,932 az ssh-ban telt.
 +
 ----------------
 $ export GIT_TRACE2_BRIEF=1
@@ -947,13 +971,13 @@ exit elapsed:5.198503 code:0
 atexit elapsed:5.198541 code:0
 ----------------
 +
-When a git process is a (direct or indirect) child of another
-git process, it inherits Trace2 context information.  This
-allows the child to print the command hierarchy.  This example
-shows gc as child[3] of fetch.  When the gc process reports
-its name as "gc", it also reports the hierarchy as "fetch/gc".
-(In this example, trace2 messages from the child process is
-indented for clarity.)
+Amikor egy git folyamat egy másik git folyamat (közvetlen vagy közvetett)
+gyermeke, örökli a Trace2 kontextusinformációkat. Ez lehetővé teszi a
+gyermek számára a parancshierarchia kiírását. Ez a példa a gc-t a fetch
+child[3]-jaként mutatja. Amikor a gc folyamat a nevét "gc"-ként jelenti,
+a hierarchiát "fetch/gc"-ként is jelenti. (Ebben a példában a
+gyermekfolyamat trace2 üzenetei az áttekinthetőség kedvéért be vannak
+húzva.)
 +
 ----------------
 $ export GIT_TRACE2_BRIEF=1
@@ -981,9 +1005,9 @@ exit elapsed:3.868938 code:0
 atexit elapsed:3.868970 code:0
 ----------------
 
-Regions::
+Régiók::
 
-	Regions can be used to time an interesting section of code.
+	A régiók a kód egy érdekes szakaszának időzítésére használhatók.
 +
 ----------------
 void wt_status_collect(struct wt_status *s)
@@ -1011,8 +1035,8 @@ void wt_status_print(struct wt_status *s)
 }
 ----------------
 +
-In this example, scanning for untracked files ran from +0.012568 to
-+0.027149 (since the process started) and took 0.014581 seconds.
+Ebben a példában a nem követett fájlok keresése +0.012568-tól +0.027149-ig
+tartott (a folyamat indulása óta), és 0,014581 másodpercig tartott.
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1038,10 +1062,10 @@ d0 | main                     | exit         |     |  0.028778 |           |    
 d0 | main                     | atexit       |     |  0.028809 |           |            | code:0
 ----------------
 +
-Regions may be nested.  This causes messages to be indented in the
-PERF target, for example.
-Elapsed times are relative to the start of the corresponding nesting
-level as expected.  For example, if we add region message to:
+A régiók egymásba ágyazhatók. Ez például azt okozza, hogy az üzenetek be
+lesznek húzva a PERF célban.
+Az eltelt idők a várakozásnak megfelelően a megfelelő beágyazási szint
+kezdetéhez viszonyítottak. Például ha régióüzenetet adunk ehhez:
 +
 ----------------
 static enum path_treatment read_directory_recursive(struct dir_struct *dir,
@@ -1058,7 +1082,7 @@ static enum path_treatment read_directory_recursive(struct dir_struct *dir,
 }
 ----------------
 +
-We can further investigate the time spent scanning for untracked files.
+Tovább vizsgálhatjuk a nem követett fájlok keresésével töltött időt.
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1091,13 +1115,13 @@ d0 | main                     | exit         |     |  0.034279 |           |    
 d0 | main                     | atexit       |     |  0.034322 |           |            | code:0
 ----------------
 +
-Trace2 regions are similar to the existing trace_performance_enter()
-and trace_performance_leave() routines, but are thread safe and
-maintain per-thread stacks of timers.
+A Trace2 régiók hasonlók a meglévő trace_performance_enter() és
+trace_performance_leave() rutinokhoz, de szálbiztosak, és szálankénti
+időzítő-vermeket tartanak fenn.
 
-Data Messages::
+Adatüzenetek::
 
-	Data messages added to a region.
+	Egy régióhoz hozzáadott adatüzenetek.
 +
 ----------------
 int read_index_from(struct index_state *istate, const char *path,
@@ -1114,7 +1138,7 @@ int read_index_from(struct index_state *istate, const char *path,
 }
 ----------------
 +
-This example shows that the index contained 3552 entries.
+Ez a példa azt mutatja, hogy az index 3552 bejegyzést tartalmazott.
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1133,13 +1157,13 @@ d0 | main                     | region_leave | r1  |  0.002539 |  0.000748 | ind
 ...
 ----------------
 
-Thread Events::
+Szálesemények::
 
-	Thread messages added to a thread-proc.
+	Egy thread-prochoz hozzáadott szálüzenetek.
 +
-For example, the multi-threaded preload-index code can be
-instrumented with a region around the thread pool and then
-per-thread start and exit events within the thread-proc.
+Például a többszálú preload-index kód műszerezhető egy régióval a
+szálkészlet körül, majd szálankénti indulási és kilépési eseményekkel a
+thread-procon belül.
 +
 ----------------
 static void *preload_thread(void *_data)
@@ -1179,16 +1203,15 @@ void preload_index(struct index_state *index,
 }
 ----------------
 +
-In this example preload_index() was executed by the `main` thread
-and started the `preload` region.  Seven threads, named
-`th01:preload_thread` through `th07:preload_thread`, were started.
-Events from each thread are atomically appended to the shared target
-stream as they occur so they may appear in random order with respect
-other threads. Finally, the main thread waits for the threads to
-finish and leaves the region.
+Ebben a példában a preload_index()-et a `main` szál hajtotta végre, és
+elindította a `preload` régiót. Hét szál indult el, `th01:preload_thread`-től
+`th07:preload_thread`-ig. Az egyes szálak eseményei atomi módon fűződnek a
+közös célfolyamhoz, ahogy bekövetkeznek, így a többi szálhoz képest
+véletlenszerű sorrendben jelenhetnek meg. Végül a fő szál megvárja, míg a
+szálak befejeződnek, és elhagyja a régiót.
 +
-Data events are tagged with the active thread name.  They are used
-to report the per-thread parameters.
+Az adateseményeket az aktív szál nevével címkézzük. A szálankénti
+paraméterek jelentésére szolgálnak.
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1232,22 +1255,22 @@ d0 | main                     | exit         |     |  0.029996 |           |    
 d0 | main                     | atexit       |     |  0.030027 |           |            | code:0
 ----------------
 +
-In this example, the preload region took 0.009122 seconds.  The 7 threads
-took between 0.006069 and 0.008947 seconds to work on their portion of
-the index.  Thread "th01" worked on 508 items at offset 0.  Thread "th02"
-worked on 508 items at offset 2032.  Thread "th04" worked on 508 items
-at offset 508.
+Ebben a példában a preload régió 0,009122 másodpercig tartott. A 7 szálnak
+0,006069 és 0,008947 másodperc közötti időbe telt feldolgozni az index rá
+eső részét. A "th01" szál 508 elemet dolgozott fel a 0-s eltolásnál. A
+"th02" szál 508 elemet a 2032-es eltolásnál. A "th04" szál 508 elemet az
+508-as eltolásnál.
 +
-This example also shows that thread names are assigned in a racy manner
-as each thread starts.
+Ez a példa azt is mutatja, hogy a szálneveket versenyhelyzetes módon
+osztják ki az egyes szálak indulásakor.
 
-Config (def param) Events::
+Konfigurációs (def param) események::
 
-	  Dump "interesting" config values to trace2 log.
+	  "Érdekes" konfigurációs értékek kiírása a trace2 naplóba.
 +
-We can optionally emit configuration events, see
-`trace2.configparams` in linkgit:git-config[1] for how to enable
-it.
+Opcionálisan kibocsáthatunk konfigurációs eseményeket, lásd a
+`trace2.configparams`-t a linkgit:git-config[1]-ben az engedélyezés
+módjáról.
 +
 ----------------
 $ git config --system color.ui never
@@ -1259,8 +1282,8 @@ global  color.ui=always
 local   color.ui=auto
 ----------------
 +
-Then, mark the config `color.ui` as "interesting" config with
-`GIT_TRACE2_CONFIG_PARAMS`:
+Ezután jelöld meg a `color.ui` konfigurációt "érdekes" konfigurációként a
+`GIT_TRACE2_CONFIG_PARAMS`-szal:
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1281,11 +1304,11 @@ d0 | main                     | exit         |     |  0.000470 |           |    
 d0 | main                     | atexit       |     |  0.000477 |           |              | code:0
 ----------------
 
-Stopwatch Timer Events::
+Stopper-időzítő események::
 
-	Measure the time spent in a function call or span of code
-	that might be called from many places within the code
-	throughout the life of the process.
+	Egy függvényhívásban vagy egy kódszakaszban töltött idő mérése,
+	amelyet a kód sok helyéről meghívhatnak a folyamat élettartama
+	során.
 +
 ----------------
 static void expensive_function(void)
@@ -1315,9 +1338,8 @@ static int ut_100timer(int argc, const char **argv)
 }
 ----------------
 +
-In this example, we measure the total time spent in
-`expensive_function()` regardless of when it is called
-in the overall flow of the program.
+Ebben a példában az `expensive_function()`-ben töltött teljes időt mérjük,
+függetlenül attól, hogy mikor hívják meg a program általános folyamatában.
 +
 ----------------
 $ export GIT_TRACE2_PERF_BRIEF=1
@@ -1334,19 +1356,21 @@ d0 | main                     | atexit       |     |  3.003796 |           |    
 ----------------
 
 
-== Future Work
+[[_future_work]]
+== Jövőbeli munka
 
-=== Relationship to the Existing Trace Api (api-trace.txt)
+[[_relationship_to_the_existing_trace_api_api_trace_txt]]
+=== Kapcsolat a meglévő Trace API-val (api-trace.txt)
 
-There are a few issues to resolve before we can completely
-switch to Trace2.
+Néhány kérdést meg kell oldani, mielőtt teljesen átállhatunk a Trace2-re.
 
-* Updating existing tests that assume `GIT_TRACE` format messages.
+* A `GIT_TRACE` formátumú üzeneteket feltételező meglévő tesztek
+frissítése.
 
-* How to best handle custom `GIT_TRACE_<key>` messages?
+* Hogyan kezeljük legjobban az egyéni `GIT_TRACE_<key>` üzeneteket?
 
-** The `GIT_TRACE_<key>` mechanism allows each <key> to write to a
-different file (in addition to just stderr).
+** A `GIT_TRACE_<key>` mechanizmus lehetővé teszi, hogy minden <key> egy
+másik fájlba írjon (a puszta stderr-en felül).
 
-** Do we want to maintain that ability or simply write to the existing
-Trace2 targets (and convert <key> to a "category").
+** Fenn akarjuk-e tartani ezt a képességet, vagy egyszerűen a meglévő
+Trace2 célokba írjunk (és alakítsuk át a <key>-t "category"-vé).

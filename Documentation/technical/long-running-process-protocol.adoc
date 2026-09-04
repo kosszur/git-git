@@ -1,29 +1,30 @@
-Long-running process protocol
-=============================
+Hosszú életű folyamatok protokollja
+===================================
 
-This protocol is used when Git needs to communicate with an external
-process throughout the entire life of a single Git command. All
-communication is in pkt-line format (see linkgit:gitprotocol-common[5])
-over standard input and standard output.
+Ezt a protokollt akkor használja a Git, amikor egyetlen Git-parancs teljes
+élettartama alatt egy külső folyamattal kell kommunikálnia. A teljes
+kommunikáció pkt-line formátumban zajlik (lásd: linkgit:gitprotocol-common[5])
+a szabványos bemeneten és a szabványos kimeneten keresztül.
 
-Handshake
----------
+[[_handshake]]
+Kézfogás
+--------
 
-Git starts by sending a welcome message (for example,
-"git-filter-client"), a list of supported protocol version numbers, and
-a flush packet. Git expects to read the welcome message with "server"
-instead of "client" (for example, "git-filter-server"), exactly one
-protocol version number from the previously sent list, and a flush
-packet. All further communication will be based on the selected version.
-The remaining protocol description below documents "version=2". Please
-note that "version=42" in the example below does not exist and is only
-there to illustrate how the protocol would look like with more than one
-version.
+A Git egy üdvözlőüzenet elküldésével kezd (például
+"git-filter-client"), majd elküldi a támogatott protokollverzió-számok listáját és
+egy flush csomagot. A Git azt várja, hogy az üdvözlőüzenetben "client"
+helyett "server" szerepeljen (például "git-filter-server"), pontosan egy
+protokollverzió-szám a korábban elküldött listából, valamint egy flush
+csomag. Minden további kommunikáció a kiválasztott verzión alapul.
+Az alábbi protokollleírás hátralévő része a "version=2" változatot dokumentálja. Vedd
+figyelembe, hogy az alábbi példában szereplő "version=42" nem létezik, csak
+azt hivatott illusztrálni, hogyan nézne ki a protokoll egynél több
+verzió esetén.
 
-After the version negotiation Git sends a list of all capabilities that
-it supports and a flush packet. Git expects to read a list of desired
-capabilities, which must be a subset of the supported capabilities list,
-and a flush packet as response:
+A verzióegyeztetés után a Git elküldi az összes általa támogatott
+képesség listáját és egy flush csomagot. A Git azt várja, hogy válaszul
+beolvashassa a kívánt képességek listáját, amelynek a támogatott képességek
+listájának részhalmazát kell alkotnia, és egy flush csomagot:
 
 ------------------------
 packet:          git> git-filter-client
@@ -42,10 +43,11 @@ packet:          git< capability=smudge
 packet:          git< 0000
 ------------------------
 
-Shutdown
---------
+[[_shutdown]]
+Leállítás
+---------
 
-Git will close
-the command pipe on exit. The filter is expected to detect EOF
-and exit gracefully on its own. Git will wait until the filter
-process has stopped.
+A Git kilépéskor lezárja
+a parancscsövet. A szűrőtől azt várjuk, hogy érzékelje az EOF-ot,
+és magától, rendben lépjen ki. A Git megvárja, amíg a szűrő
+folyamat leáll.

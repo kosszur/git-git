@@ -1,99 +1,109 @@
-Rebases and cherry-picks involve a sequence of merges whose results are
-recorded as new single-parent commits.  The first parent side of those
-merges represent the "upstream" side, and often include a far larger set of
-changes than the second parent side.  Traditionally, the renames on the
-first-parent side of that sequence of merges were repeatedly re-detected
-for every merge.  This file explains why it is safe and effective during
-rebases and cherry-picks to remember renames on the upstream side of
-history as an optimization, assuming all merges are automatic and clean
-(i.e. no conflicts and not interrupted for user input or editing).
+A rebase-ek és a cherry-pickek merge-ek egy sorozatával járnak, amelyek
+eredményét új, egyszülős commitokként rögzítjük.  Ezeknek a merge-eknek
+az első szülő oldala az „upstream" oldalt jelöli, és gyakran sokkal
+nagyobb változtatáshalmazt tartalmaz, mint a második szülő oldala.
+Hagyományosan az e merge-sorozat első-szülő oldalán lévő átnevezéseket
+minden merge-nél újra és újra felismertük.  Ez a fájl elmagyarázza, hogy
+miért biztonságos és hatékony a rebase-ek és cherry-pickek során
+optimalizációként megjegyezni az átnevezéseket az előzmény upstream
+oldalán, feltéve, hogy minden merge automatikus és tiszta (azaz nincsenek
+konfliktusok, és nem szakad meg felhasználói bevitel vagy szerkesztés
+miatt).
 
-Outline:
+Vázlat:
 
-  1. Assumptions
+  1. Feltételezések
 
-  2. How rebasing and cherry-picking work
+  2. Hogyan működik a rebase-elés és a cherry-pickelés
 
-  3. Why the renames on MERGE_SIDE1 in any given pick are *always* a
-     superset of the renames on MERGE_SIDE1 for the next pick.
+  3. Miért *mindig* szuperhalmaza egy adott pick MERGE_SIDE1-en lévő
+     átnevezéseinek a következő pick MERGE_SIDE1-en lévő átnevezései.
 
-  4. Why any rename on MERGE_SIDE1 in any given pick is _almost_ always also
-     a rename on MERGE_SIDE1 for the next pick
+  4. Miért _majdnem_ mindig átnevezés a következő pick MERGE_SIDE1-én is
+     egy adott pick MERGE_SIDE1-én lévő bármely átnevezés
 
-  5. A detailed description of the counter-examples to #4.
+  5. A #4-hez tartozó ellenpéldák részletes leírása.
 
-  6. Why the special cases in #5 are still fully reasonable to use to pair
-     up files for three-way content merging in the merge machinery, and why
-     they do not affect the correctness of the merge.
+  6. Miért teljesen ésszerű mégis a #5-beli speciális esetek használata
+     fájlok párosítására a merge-gépezetben végzett háromutas tartalmi
+     merge-hez, és miért nem befolyásolják a merge helyességét.
 
-  7. Interaction with skipping of "irrelevant" renames
+  7. Kölcsönhatás az „irreleváns" átnevezések kihagyásával
 
-  8. Additional items that need to be cached
+  8. További elemek, amelyeket gyorsítótárazni kell
 
-  9. How directory rename detection interacts with the above and why this
-     optimization is still safe even if merge.directoryRenames is set to
-     "true".
-
-
-== 1. Assumptions ==
-
-There are two assumptions that will hold throughout this document:
-
-  * The upstream side where commits are transplanted to is treated as the
-    first parent side when rebase/cherry-pick call the merge machinery
-
-  * All merges are fully automatic
-
-and a third that will hold in sections 3-6 for simplicity, that I'll later
-address in section 9:
-
-  * No directory renames occur
+  9. Hogyan lép kölcsönhatásba a könyvtár-átnevezés felismerése a
+     fentiekkel, és miért biztonságos még mindig ez az optimalizáció akkor
+     is, ha a merge.directoryRenames „true"-ra van állítva.
 
 
-Let me explain more about each assumption and why I include it:
+[[_1_assumptions]]
+== 1. Feltételezések ==
+
+Van két feltételezés, amely e dokumentumon végig érvényes lesz:
+
+  * Az upstream oldalt, ahová a commitokat átültetjük, első szülő
+    oldalként kezeljük, amikor a rebase/cherry-pick meghívja a
+    merge-gépezetet
+
+  * Minden merge teljesen automatikus
+
+és egy harmadik, amely a 3–6. szakaszokban lesz érvényes az egyszerűség
+kedvéért, és amelyet később a 9. szakaszban tárgyalok:
+
+  * Nem történik könyvtárátnevezés
 
 
-The first assumption is merely for the purposes of making this document
-clearer; the optimization implementation does not actually depend upon it.
-However, the assumption does hold in all cases because it reflects the way
-that both rebase and cherry-pick were implemented; and the implementation
-of cherry-pick and rebase are not readily changeable for backwards
-compatibility reasons (see for example the discussion of the --ours and
---theirs flag in the documentation of `git checkout`, particularly the
-comments about how they behave with rebase).  The optimization avoids
-checking first-parent-ness, though.  It checks the conditions that make the
-optimization valid instead, so it would still continue working if someone
-changed the parent ordering that cherry-pick and rebase use.  But making
-this assumption does make this document much clearer and prevents me from
-having to repeat every example twice.
-
-If the second assumption is violated, then the optimization simply is
-turned off and thus isn't relevant to consider.  The second assumption can
-also be stated as "there is no interruption for a user to resolve conflicts
-or to just further edit or tweak files".  While real rebases and
-cherry-picks are often interrupted (either because it's an interactive
-rebase where the user requested to stop and edit, or because there were
-conflicts that the user needs to resolve), the cache of renames is not
-stored on disk, and thus is thrown away as soon as the rebase or cherry
-pick stops for the user to resolve the operation.
-
-The third assumption makes sections 3-6 simpler, and allows people to
-understand the basics of why this optimization is safe and effective, and
-then I can go back and address the specifics in section 9.  It is probably
-also worth noting that if directory renames do occur, then the default of
-merge.directoryRenames being set to "conflict" means that the operation
-will stop for users to resolve the conflicts and the cache will be thrown
-away, and thus that there won't be an optimization to apply.  So, the only
-reason we need to address directory renames specifically, is that some
-users will have set merge.directoryRenames to "true" to allow the merges to
-continue to proceed automatically.  The optimization is still safe with
-this config setting, but we have to discuss a few more cases to show why;
-this discussion is deferred until section 9.
+Hadd magyarázzam el bővebben mindegyik feltételezést, és hogy miért
+veszem be:
 
 
-== 2. How rebasing and cherry-picking work ==
+Az első feltételezés pusztán azt a célt szolgálja, hogy e dokumentum
+érthetőbb legyen; az optimalizáció implementációja valójában nem függ
+tőle.  A feltételezés azonban minden esetben érvényes, mert azt tükrözi,
+ahogyan a rebase-t és a cherry-picket is implementálták; és a cherry-pick
+és a rebase implementációja visszafelé kompatibilitási okokból nem
+változtatható meg könnyen (lásd például a `git checkout` dokumentációjában
+a --ours és --theirs kapcsoló tárgyalását, különösen a megjegyzéseket
+arról, hogyan viselkednek rebase-szel).  Az optimalizáció mindazonáltal
+elkerüli az első-szülőség ellenőrzését.  Ehelyett azokat a feltételeket
+ellenőrzi, amelyek az optimalizációt érvényessé teszik, így akkor is
+tovább működne, ha valaki megváltoztatná a szülősorrendet, amelyet a
+cherry-pick és a rebase használ.  De e feltételezés megtétele sokkal
+érthetőbbé teszi ezt a dokumentumot, és megkímél attól, hogy minden
+példát kétszer kelljen megismételnem.
 
-Consider the following setup (from the git-rebase manpage):
+Ha a második feltételezés sérül, akkor az optimalizáció egyszerűen ki van
+kapcsolva, és így nem releváns megfontolni.  A második feltételezés úgy is
+megfogalmazható, hogy „nincs megszakítás azért, hogy a felhasználó
+konfliktusokat oldjon fel, vagy hogy csak tovább szerkesszen vagy
+finomhangoljon fájlokat".  Bár a valódi rebase-eket és cherry-pickeket
+gyakran megszakítják (akár azért, mert interaktív rebase-ről van szó, ahol
+a felhasználó megállást és szerkesztést kért, akár azért, mert voltak
+konfliktusok, amelyeket a felhasználónak fel kell oldania), az
+átnevezések gyorsítótárát nem tároljuk lemezen, és így eldobjuk, amint a
+rebase vagy cherry-pick megáll, hogy a felhasználó feloldja a műveletet.
+
+A harmadik feltételezés egyszerűbbé teszi a 3–6. szakaszt, és lehetővé
+teszi, hogy megértsük az alapjait annak, miért biztonságos és hatékony ez
+az optimalizáció, és utána visszatérhetek a részletekre a 9. szakaszban.
+Valószínűleg azt is érdemes megjegyezni, hogy ha könyvtárátnevezések
+történnek, akkor az, hogy a merge.directoryRenames alapértelmezés szerint
+„conflict"-ra van állítva, azt jelenti, hogy a művelet megáll, hogy a
+felhasználók feloldják a konfliktusokat, és a gyorsítótárat eldobjuk, így
+nem lesz optimalizáció, amit alkalmazni lehetne.  Tehát az egyetlen ok,
+amiért a könyvtárátnevezésekkel kifejezetten foglalkoznunk kell, az, hogy
+néhány felhasználó „true"-ra állítja a merge.directoryRenames-t, hogy a
+merge-ek automatikusan tudjanak tovább haladni.  Az optimalizáció ezzel a
+config-beállítással is biztonságos, de meg kell beszélnünk még néhány
+esetet, hogy megmutassuk, miért; ezt a tárgyalást a 9. szakaszra
+halasztjuk.
+
+
+[[_2_how_rebasing_and_cherry_picking_work]]
+== 2. Hogyan működik a rebase-elés és a cherry-pickelés ==
+
+Vedd fontolóra a következő felállást (a git-rebase manpage-ből):
 
 ------------
 		     A---B---C topic
@@ -101,7 +111,8 @@ Consider the following setup (from the git-rebase manpage):
 	       D---E---F---G main
 ------------
 
-After rebasing or cherry-picking topic onto main, this will appear as:
+Miután a topicot rebase-eltük vagy cherry-pickeltük a main tetejére, ez
+így fog megjelenni:
 
 ------------
 			     A'--B'--C' topic
@@ -109,11 +120,12 @@ After rebasing or cherry-picking topic onto main, this will appear as:
 	       D---E---F---G main
 ------------
 
-The way the commits A', B', and C' are created is through a series of
-merges, where rebase or cherry-pick sequentially uses each of the three
-A-B-C commits in a special merge operation.  Let's label the three commits
-in the merge operation as MERGE_BASE, MERGE_SIDE1, and MERGE_SIDE2.  For
-this picture, the three commits for each of the three merges would be:
+Az A', B' és C' commitok merge-ek egy sorozatán keresztül jönnek létre,
+ahol a rebase vagy a cherry-pick egymás után használja a három A-B-C
+commit mindegyikét egy speciális merge-műveletben.  Címkézzük a
+merge-művelet három commitját MERGE_BASE-ként, MERGE_SIDE1-ként és
+MERGE_SIDE2-ként.  Ehhez a képhez a három merge mindegyikének a három
+commitja a következő lenne:
 
 ....
 To create A':
@@ -132,65 +144,35 @@ To create C':
    MERGE_SIDE2:  C
 ....
 
-Sometimes, folks are surprised that these three-way merges are done.  It
-can be useful in understanding these three-way merges to view them in a
-slightly different light.  For example, in creating C', you can view it as
-either:
+Az embereket néha meglepi, hogy ezek a háromutas merge-ek megtörténnek.
+E háromutas merge-ek megértésében hasznos lehet, ha kissé más
+megvilágításban nézzük őket.  Például C' létrehozását nézheted így is:
 
-  * Apply the changes between B & C to B'
-  * Apply the changes between B & B' to C
+  * Alkalmazd a B és C közötti változtatásokat B'-re
+  * Alkalmazd a B és B' közötti változtatásokat C-re
 
-Conceptually the two statements above are the same as a three-way merge of
-B, B', and C, at least the parts before you decide to record a commit.
-
-
-== 3. Why the renames on MERGE_SIDE1 in any given pick are always a superset of the renames on MERGE_SIDE1 for the next pick. ==
-
-The merge machinery uses the filenames it is fed from MERGE_BASE,
-MERGE_SIDE1, and MERGE_SIDE2.  It will only move content to a different
-filename under one of three conditions:
-
-  * To make both pieces of a conflict available to a user during conflict
-    resolution (examples: directory/file conflict, add/add type conflict
-    such as symlink vs. regular file)
-
-  * When MERGE_SIDE1 renames the file.
-
-  * When MERGE_SIDE2 renames the file.
-
-First, let's remember what commits are involved in the first and second
-picks of the cherry-pick or rebase sequence:
-
-....
-To create A':
-   MERGE_BASE:   E
-   MERGE_SIDE1:  G
-   MERGE_SIDE2:  A
-
-To create B':
-   MERGE_BASE:   A
-   MERGE_SIDE1:  A'
-   MERGE_SIDE2:  B
-....
-
-So, in particular, we need to show that the renames between E and G are a
-superset of those between A and A'.
-
-A' is created by the first merge.  A' will only have renames for one of the
-three reasons listed above.  The first case, a conflict, results in a
-situation where the cache is dropped and thus this optimization doesn't
-take effect, so we need not consider that case.  The third case, a rename
-on MERGE_SIDE2 (i.e. from G to A), will show up in A' but it also shows up
-in A -- therefore when diffing A and A' that path does not show up as a
-rename.  The only remaining way for renames to show up in A' is for the
-rename to come from MERGE_SIDE1.  Therefore, all renames between A and A'
-are a subset of those between E and G.  Equivalently, all renames between E
-and G are a superset of those between A and A'.
+Fogalmilag a fenti két állítás ugyanaz, mint B, B' és C háromutas
+merge-e, legalábbis azok a részek, mielőtt eldöntenéd, hogy commitot
+rögzítesz.
 
 
-== 4. Why any rename on MERGE_SIDE1 in any given pick is _almost_ always also a rename on MERGE_SIDE1 for the next pick. ==
+[[_3_why_the_renames_on_merge_side1_in_any_given_pick_are_always_a_superset_of_the_renames_on_merge_side1_for_the_next_pick]]
+== 3. Miért mindig szuperhalmaza egy adott pick MERGE_SIDE1-en lévő átnevezéseinek a következő pick MERGE_SIDE1-en lévő átnevezései. ==
 
-Let's again look at the first two picks:
+A merge-gépezet azokat a fájlneveket használja, amelyeket a MERGE_BASE-
+ből, a MERGE_SIDE1-ből és a MERGE_SIDE2-ből kap.  Csak három feltétel
+egyike mellett mozgat tartalmat másik fájlnévre:
+
+  * Hogy egy konfliktus mindkét darabja elérhető legyen a felhasználó
+    számára a konfliktusfeloldás során (példák: könyvtár/fájl konfliktus,
+    add/add típusú konfliktus, mint symlink vs. reguláris fájl)
+
+  * Amikor a MERGE_SIDE1 átnevezi a fájlt.
+
+  * Amikor a MERGE_SIDE2 átnevezi a fájlt.
+
+Először is emlékezzünk arra, mely commitok érintettek a cherry-pick vagy
+rebase sorozat első és második pickjében:
 
 ....
 To create A':
@@ -204,11 +186,44 @@ To create B':
    MERGE_SIDE2:  B
 ....
 
-Now let's look at any given rename from MERGE_SIDE1 of the first pick, i.e.
-any given rename from E to G.  Let's use the filenames 'oldfile' and
-'newfile' for demonstration purposes.  That first pick will function as
-follows; when the rename is detected, the merge machinery will do a
-three-way content merge of the following:
+Tehát konkrétan azt kell megmutatnunk, hogy az E és G közötti átnevezések
+szuperhalmaza az A és A' közöttieknek.
+
+A'-t az első merge hozza létre.  A'-ben csak a fent felsorolt három ok
+egyike miatt lesznek átnevezések.  Az első eset, egy konfliktus, olyan
+helyzetet eredményez, ahol a gyorsítótárat eldobjuk, és így ez az
+optimalizáció nem lép életbe, tehát ezt az esetet nem kell megfontolnunk.
+A harmadik eset, egy MERGE_SIDE2-n lévő átnevezés (azaz G-ből A-ba),
+megjelenik A'-ben, de megjelenik A-ban is – ezért A és A' diffelésekor az
+az útvonal nem jelenik meg átnevezésként.  Az egyetlen fennmaradó mód
+arra, hogy átnevezések jelenjenek meg A'-ben, az, hogy az átnevezés a
+MERGE_SIDE1-ből jön.  Ezért az A és A' közötti minden átnevezés részhalmaza
+az E és G közöttieknek.  Ezzel egyenértékűen, az E és G közötti minden
+átnevezés szuperhalmaza az A és A' közöttieknek.
+
+
+[[_4_why_any_rename_on_merge_side1_in_any_given_pick_is_almost_always_also_a_rename_on_merge_side1_for_the_next_pick]]
+== 4. Miért _majdnem_ mindig átnevezés a következő pick MERGE_SIDE1-én is egy adott pick MERGE_SIDE1-én lévő bármely átnevezés. ==
+
+Nézzük meg újra az első két picket:
+
+....
+To create A':
+   MERGE_BASE:   E
+   MERGE_SIDE1:  G
+   MERGE_SIDE2:  A
+
+To create B':
+   MERGE_BASE:   A
+   MERGE_SIDE1:  A'
+   MERGE_SIDE2:  B
+....
+
+Most nézzük meg az első pick MERGE_SIDE1-éről származó bármely
+átnevezést, azaz bármely E-ből G-be történő átnevezést.  Használjuk az
+'oldfile' és 'newfile' fájlneveket demonstrációs célból.  Az az első pick
+a következőképpen fog működni; amikor az átnevezést felismeri, a
+merge-gépezet a következők háromutas tartalmi merge-ét végzi el:
 
 ....
     E:oldfile
@@ -216,68 +231,72 @@ three-way content merge of the following:
     A:oldfile
 ....
 
-and produce a new result:
+és új eredményt állít elő:
 
 ....
     A':newfile
 ....
 
-Note above that I've assumed that E->A did not rename oldfile.  If that
-side did rename, then we most likely have a rename/rename(1to2) conflict
-that will cause the rebase or cherry-pick operation to halt and drop the
-in-memory cache of renames and thus doesn't need to be considered further.
-In the special case that E->A does rename the file but also renames it to
-newfile, then there is no conflict from the renaming and the merge can
-succeed.  In this special case, the rename is not valid to cache because
-the second merge will find A:newfile in the MERGE_BASE (see also the new
-testcases in t6429 with "rename same file identically" in their
-description).  So a rename/rename(1to1) needs to be specially handled by
-pruning renames from the cache and decrementing the dir_rename_counts in
-the current and leading directories associated with those renames.  Or,
-since these are really rare, one could just take the easy way out and
-disable the remembering renames optimization when a rename/rename(1to1)
-happens.
+Fentebb vedd figyelembe, hogy feltételeztem, hogy E->A nem nevezte át az
+oldfile-t.  Ha az az oldal átnevezett, akkor nagy valószínűséggel van egy
+rename/rename(1to2) konfliktusunk, amely miatt a rebase vagy cherry-pick
+művelet megáll, és eldobja az átnevezések memóriabeli gyorsítótárát, így
+nem kell tovább foglalkozni vele.  Abban a speciális esetben, amikor E->A
+átnevezi a fájlt, de szintén newfile-ra nevezi át, akkor az átnevezésből
+nincs konfliktus, és a merge sikeres lehet.  Ebben a speciális esetben az
+átnevezést nem érvényes gyorsítótárazni, mert a második merge megtalálja
+az A:newfile-t a MERGE_BASE-ben (lásd még a t6429 új teszteseteit,
+amelyek leírásában szerepel a „rename same file identically").  Tehát egy
+rename/rename(1to1)-et speciálisan kell kezelni azzal, hogy kimetsszük az
+átnevezéseket a gyorsítótárból, és csökkentjük a dir_rename_counts-ot az
+ezekhez az átnevezésekhez tartozó aktuális és vezető könyvtárakban.  Vagy
+mivel ezek nagyon ritkák, választhatnánk a könnyebb utat is, és
+kikapcsolhatnánk az átnevezések megjegyzésének optimalizációját, amikor
+egy rename/rename(1to1) történik.
 
-The previous paragraph handled the cases for E->A renaming oldfile, let's
-continue assuming that oldfile is not renamed in A.
+Az előző bekezdés az E->A oldfile-átnevezésének eseteit kezelte,
+folytassuk azzal a feltételezéssel, hogy az oldfile nincs átnevezve
+A-ban.
 
-As per the diagram for creating B', MERGE_SIDE1 involves the changes from A
-to A'.  So, we are curious whether A:oldfile and A':newfile will be viewed
-as renames.  Note that:
+A B' létrehozásának diagramja szerint a MERGE_SIDE1 az A-ból A'-be tartó
+változtatásokkal jár.  Tehát kíváncsiak vagyunk arra, hogy az A:oldfile
+és az A':newfile átnevezésként lesz-e kezelve.  Vedd figyelembe, hogy:
 
-  * There will be no A':oldfile (because there could not have been a
-    G:oldfile as we do not do break detection in the merge machinery and
-    G:newfile was detected as a rename, and by the construction of the
-    rename above that merged cleanly, the merge machinery will ensure there
-    is no 'oldfile' in the result).
+  * Nem lesz A':oldfile (mert nem lehetett G:oldfile, hiszen a
+    merge-gépezetben nem végzünk törésfelismerést, a G:newfile-t pedig
+    átnevezésként ismertük fel, és a fenti, tisztán merge-elődő átnevezés
+    felépítése folytán a merge-gépezet gondoskodik arról, hogy ne legyen
+    'oldfile' az eredményben).
 
-  * There will be no A:newfile (if there had been, we would have had a
-    rename/add conflict).
+  * Nem lesz A:newfile (ha lett volna, rename/add konfliktusunk lett
+    volna).
 
-  * Clearly A:oldfile and A':newfile are "related" (A':newfile came from a
-    clean three-way content merge involving A:oldfile).
+  * Az A:oldfile és az A':newfile egyértelműen „rokon" (az A':newfile egy
+    tiszta, A:oldfile-t bevonó háromutas tartalmi merge-ből származott).
 
-We can also expound on the third point above, by noting that three-way
-content merges can also be viewed as applying the differences between the
-base and one side to the other side.  Thus we can view A':newfile as
-having been created by taking the changes between E:oldfile and G:newfile
-(which were detected as being related, i.e. <50% changed) to A:oldfile.
+A fenti harmadik pontot ki is fejthetjük, ha megjegyezzük, hogy a
+háromutas tartalmi merge-ek úgy is felfoghatók, mint az alap és az egyik
+oldal közötti különbségek alkalmazása a másik oldalra.  Így az A':newfile-t
+felfoghatjuk úgy, mint amelyet az E:oldfile és a G:newfile közötti
+változtatásoknak (amelyekről kiderült, hogy rokonok, azaz <50%-ban
+változtak) az A:oldfile-ra való alkalmazásával hoztunk létre.
 
-Thus A:oldfile and A':newfile are just as related as E:oldfile and
-G:newfile are -- they have exactly identical differences.  Since the latter
-were detected as renames, A:oldfile and A':newfile should also be
-detectable as renames almost always.
+Így az A:oldfile és az A':newfile éppúgy rokon, mint az E:oldfile és a
+G:newfile – pontosan azonos különbségeik vannak.  Mivel az utóbbiakat
+átnevezésként ismertük fel, az A:oldfile-nak és az A':newfile-nak is
+majdnem mindig felismerhetőnek kell lennie átnevezésként.
 
 
-== 5. A detailed description of the counter-examples to #4. ==
+[[_5_a_detailed_description_of_the_counter_examples_to_4]]
+== 5. A #4-hez tartozó ellenpéldák részletes leírása. ==
 
-We already noted in section 4 that rename/rename(1to1) (i.e. both sides
-renaming a file the same way) was one counter-example.  The more
-interesting bit, though, is why did we need to use the "almost" qualifier
-when stating that A:oldfile and A':newfile are "almost" always detectable
-as renames?
+A 4. szakaszban már megjegyeztük, hogy a rename/rename(1to1) (azaz amikor
+mindkét oldal ugyanúgy nevez át egy fájlt) egy ellenpélda volt.  Az
+érdekesebb rész azonban az, hogy miért kellett a „majdnem" pontosítást
+használnunk, amikor kijelentettük, hogy az A:oldfile és az A':newfile
+„majdnem" mindig felismerhető átnevezésként?
 
-Let's repeat an earlier point that section 4 made:
+Ismételjük meg egy korábbi pontot, amelyet a 4. szakasz tett:
 
 ....
   A':newfile was created by applying the changes between E:oldfile and
@@ -285,20 +304,21 @@ Let's repeat an earlier point that section 4 made:
   <50% of the size of E:oldfile.
 ....
 
-If those changes that were <50% of the size of E:oldfile are also <50% of
-the size of A:oldfile, then A:oldfile and A':newfile will be detectable as
-renames.  However, if there is a dramatic size reduction between E:oldfile
-and A:oldfile (but the changes between E:oldfile, G:newfile, and A:oldfile
-still somehow merge cleanly), then traditional rename detection would not
-detect A:oldfile and A':newfile as renames.
+Ha azok a változtatások, amelyek az E:oldfile méretének <50%-át tették
+ki, egyben az A:oldfile méretének is <50%-át teszik ki, akkor az
+A:oldfile és az A':newfile felismerhető lesz átnevezésként.  Ha azonban
+drámai méretcsökkenés van az E:oldfile és az A:oldfile között (de az
+E:oldfile, a G:newfile és az A:oldfile közötti változtatások valahogy
+mégis tisztán merge-elődnek), akkor a hagyományos átnevezés-felismerés
+nem ismerné fel az A:oldfile-t és az A':newfile-t átnevezésként.
 
-Here's an example where that can happen:
+Íme egy példa, ahol ez megtörténhet:
 
-  * E:oldfile had 20 lines
-  * G:newfile added 10 new lines at the beginning of the file
-  * A:oldfile kept the first 3 lines of the file, and deleted all the rest
+  * Az E:oldfile 20 sorból állt
+  * A G:newfile 10 új sort adott a fájl elejére
+  * Az A:oldfile megtartotta a fájl első 3 sorát, a többit pedig törölte
 
-then
+akkor
 
 ....
   => A':newfile would have 13 lines, 3 of which matches those in A:oldfile.
@@ -307,117 +327,130 @@ then
 ....
 
 
-== 6. Why the special cases in #5 are still fully reasonable to use to pair up files for three-way content merging in the merge machinery, and why they do not affect the correctness of the merge. ==
+[[_6_why_the_special_cases_in_5_are_still_fully_reasonable_to_use_to_pair_up_files_for_three_way_content_merging_in_the_merge_machinery_and_why_they_do_not_affect_the_correctness_of_the_merge]]
+== 6. Miért teljesen ésszerű mégis a #5-beli speciális esetek használata fájlok párosítására a merge-gépezetben végzett háromutas tartalmi merge-hez, és miért nem befolyásolják a merge helyességét. ==
 
-In the rename/rename(1to1) case, A:newfile and A':newfile are not renames
-since they use the *same* filename.  However, files with the same filename
-are obviously fine to pair up for three-way content merging (the merge
-machinery has never employed break detection).  The interesting
-counter-example case is thus not the rename/rename(1to1) case, but the case
-where A did not rename oldfile.  That was the case that we spent most of
-the time discussing in sections 4 and 5.  The remainder of this section
-will be devoted to that case as well.
+A rename/rename(1to1) esetben az A:newfile és az A':newfile nem
+átnevezések, mivel *ugyanazt* a fájlnevet használják.  Az azonos
+fájlnevű fájlokat azonban nyilvánvalóan rendben van párosítani háromutas
+tartalmi merge-hez (a merge-gépezet soha nem alkalmazott
+törésfelismerést).  Az érdekes ellenpéldás eset tehát nem a
+rename/rename(1to1) eset, hanem az az eset, amikor A nem nevezte át az
+oldfile-t.  Ez volt az az eset, amelynek a megbeszélésével a legtöbb időt
+töltöttük a 4. és 5. szakaszban.  E szakasz hátralevő része is ennek az
+esetnek lesz szentelve.
 
-So, even if A:oldfile and A':newfile aren't detectable as renames, why is
-it still reasonable to pair them up for three-way content merging in the
-merge machinery?  There are multiple reasons:
+Tehát még ha az A:oldfile és az A':newfile nem is felismerhető
+átnevezésként, miért ésszerű mégis párosítani őket háromutas tartalmi
+merge-hez a merge-gépezetben?  Több oka is van:
 
-  * As noted in sections 4 and 5, the diff between A:oldfile and A':newfile
-    is *exactly* the same as the diff between E:oldfile and G:newfile.  The
-    latter pair were detected as renames, so it seems unlikely to surprise
-    users for us to treat A:oldfile and A':newfile as renames.
+  * Ahogy a 4. és 5. szakaszban megjegyeztük, az A:oldfile és az
+    A':newfile közötti diff *pontosan* ugyanaz, mint az E:oldfile és a
+    G:newfile közötti diff.  Az utóbbi párt átnevezésként ismertük fel,
+    ezért nem valószínű, hogy meglepné a felhasználókat, ha az A:oldfile-t
+    és az A':newfile-t átnevezésként kezeljük.
 
-  * In fact, "oldfile" and "newfile" were at one point detected as renames
-    due to how they were constructed in the E..G chain.  And we used that
-    information once already in this rebase/cherry-pick.  I think users
-    would be unlikely to be surprised at us continuing to treat the files
-    as renames and would quickly understand why we had done so.
+  * Valójában az „oldfile"-t és a „newfile"-t egy ponton átnevezésként
+    ismertük fel amiatt, ahogyan az E..G láncban felépítették őket.  És
+    ezt az információt egyszer már felhasználtuk ebben a
+    rebase-ben/cherry-pickben.  Szerintem nem valószínű, hogy a
+    felhasználókat meglepné, ha továbbra is átnevezésként kezeljük a
+    fájlokat, és gyorsan megértenék, miért tettük ezt.
 
-  * Marking or declaring files as renames is *not* the end goal for merges.
-    Merges use renames to determine which files make sense to be paired up
-    for three-way content merges.
+  * A fájlok átnevezésként való megjelölése vagy deklarálása *nem* a
+    merge-ek végcélja.  A merge-ek az átnevezéseket arra használják, hogy
+    eldöntsék, mely fájlokat van értelme párosítani háromutas tartalmi
+    merge-hez.
 
-  * A:oldfile and A':newfile were _already_ paired up in a three-way
-    content merge; that is how A':newfile was created.  In fact, that
-    three-way content merge was clean.  So using them again in a later
-    three-way content merge seems very reasonable.
+  * Az A:oldfile és az A':newfile _már_ párosítva volt egy háromutas
+    tartalmi merge-ben; így jött létre az A':newfile.  Valójában az a
+    háromutas tartalmi merge tiszta volt.  Tehát nagyon ésszerűnek tűnik
+    újra felhasználni őket egy későbbi háromutas tartalmi merge-ben.
 
-However, the above is focusing on the common scenarios.  Let's try to look
-at all possible unusual scenarios and compare without the optimization to
-with the optimization.  Consider the following theoretical cases; we will
-then dive into each to determine which of them are possible,
-and if so, what they mean:
+A fentiek azonban a gyakori forgatókönyvekre összpontosítanak.
+Próbáljuk meg megnézni az összes lehetséges szokatlan forgatókönyvet, és
+hasonlítsuk össze az optimalizáció nélküli esetet az optimalizációssal.
+Vedd fontolóra a következő elméleti eseteket; ezután belemerülünk
+mindegyikbe, hogy meghatározzuk, melyikük lehetséges, és ha igen, mit
+jelentenek:
 
-  1. Without the optimization, the second merge results in a conflict.
-     With the optimization, the second merge also results in a conflict.
-     Questions: Are the conflicts confusingly different?  Better in one case?
+  1. Optimalizáció nélkül a második merge konfliktust eredményez.
+     Az optimalizációval a második merge szintén konfliktust eredményez.
+     Kérdések: Zavaróan különböznek a konfliktusok?  Az egyik esetben jobb?
 
-  2. Without the optimization, the second merge results in NO conflict.
-     With the optimization, the second merge also results in NO conflict.
-     Questions: Are the merges the same?
+  2. Optimalizáció nélkül a második merge NEM eredményez konfliktust.
+     Az optimalizációval a második merge szintén NEM eredményez konfliktust.
+     Kérdések: Azonosak a merge-ek?
 
-  3. Without the optimization, the second merge results in a conflict.
-     With the optimization, the second merge results in NO conflict.
-     Questions: Possible?  Bug, bugfix, or something else?
+  3. Optimalizáció nélkül a második merge konfliktust eredményez.
+     Az optimalizációval a második merge NEM eredményez konfliktust.
+     Kérdések: Lehetséges?  Bug, bugjavítás vagy valami más?
 
-  4. Without the optimization, the second merge results in NO conflict.
-     With the optimization, the second merge results in a conflict.
-     Questions: Possible?  Bug, bugfix, or something else?
+  4. Optimalizáció nélkül a második merge NEM eredményez konfliktust.
+     Az optimalizációval a második merge konfliktust eredményez.
+     Kérdések: Lehetséges?  Bug, bugjavítás vagy valami más?
 
-I'll consider all four cases, but out of order.
+Mind a négy esetet megvizsgálom, de nem sorrendben.
 
-The fourth case is impossible.  For the code without the remembering
-renames optimization to not get a conflict, B:oldfile would need to exactly
-match A:oldfile -- if it doesn't, there would be a modify/delete conflict.
-If A:oldfile matches B:oldfile exactly, then a three-way content merge
-between A:oldfile, A':newfile, and B:oldfile would have no conflict and
-just give us the version of newfile from A' as the result.
+A negyedik eset lehetetlen.  Ahhoz, hogy az átnevezés-megjegyző
+optimalizáció nélküli kód ne kapjon konfliktust, a B:oldfile-nak pontosan
+egyeznie kellene az A:oldfile-lal – ha nem egyezik, módosítás/törlés
+konfliktus lenne.  Ha az A:oldfile pontosan egyezik a B:oldfile-lal,
+akkor az A:oldfile, az A':newfile és a B:oldfile közötti háromutas
+tartalmi merge-ben nem lenne konfliktus, és egyszerűen az A'-ből
+származó newfile verzióját adná eredményül.
 
-From the same logic as the above paragraph, the second case would indeed
-result in identical merges.  When A:oldfile exactly matches B:oldfile, an
-undetected rename would say, "Oh, I see one side didn't modify 'oldfile'
-and the other side deleted it.  I'll delete it.  And I see you have this
-brand new file named 'newfile' in A', so I'll keep it."  That gives the
-same results as three-way content merging A:oldfile, A':newfile, and
-B:oldfile -- a removal of oldfile with the version of newfile from A'
-showing up in the result.
+A fenti bekezdéssel azonos logika alapján a második eset valóban azonos
+merge-eket eredményezne.  Amikor az A:oldfile pontosan egyezik a
+B:oldfile-lal, egy fel nem ismert átnevezés azt mondaná: „Ó, látom, hogy
+az egyik oldal nem módosította az 'oldfile'-t, a másik oldal pedig
+törölte.  Törölni fogom.  És látom, hogy van ez a vadonatúj, 'newfile'
+nevű fájlod A'-ben, szóval megtartom."  Ez ugyanazt az eredményt adja,
+mint az A:oldfile, az A':newfile és a B:oldfile háromutas tartalmi
+merge-e – az oldfile eltávolítása úgy, hogy az A'-ből származó newfile
+verziója jelenik meg az eredményben.
 
-The third case is interesting.  It means that A:oldfile and A':newfile were
-not just similar enough, but that the changes between them did not conflict
-with the changes between A:oldfile and B:oldfile.  This would validate our
-hunch that the files were similar enough to be used in a three-way content
-merge, and thus seems entirely correct for us to have used them that way.
-(Sidenote: One particular example here may be enlightening.  Let's say that
-B was an immediate revert of A.  B clearly would have been a clean revert
-of A, since A was B's immediate parent.  One would assume that if you can
-pick a commit, you should also be able to cherry-pick its immediate revert.
-However, this is one of those funny corner cases; without this
-optimization, we just successfully picked a commit cleanly, but we are
-unable to cherry-pick its immediate revert due to the size differences
-between E:oldfile and A:oldfile.)
+A harmadik eset érdekes.  Azt jelenti, hogy az A:oldfile és az A':newfile
+nemcsak elég hasonló volt, hanem a köztük lévő változtatások nem
+ütköztek az A:oldfile és a B:oldfile közötti változtatásokkal.  Ez
+igazolná a megérzésünket, hogy a fájlok elég hasonlóak voltak ahhoz,
+hogy háromutas tartalmi merge-ben használjuk őket, és így teljesen
+helyesnek tűnik, hogy úgy használtuk őket.  (Széljegyzet: egy konkrét
+példa itt megvilágító erejű lehet.  Tegyük fel, hogy B az A közvetlen
+revertje volt.  B egyértelműen A tiszta revertje lett volna, mivel A volt
+B közvetlen szülője.  Az ember azt feltételezné, hogy ha ki tudsz pickelni
+egy commitot, akkor a közvetlen revertjét is ki tudod cherry-pickelni.
+Ez azonban egyike azoknak a fura sarokeseteknek; ezen optimalizáció
+nélkül épp sikeresen, tisztán kipickeltünk egy commitot, de nem tudjuk
+cherry-pickelni a közvetlen revertjét az E:oldfile és az A:oldfile
+közötti méretkülönbségek miatt.)
 
-That leaves only the first case to consider -- when we get conflicts both
-with or without the optimization.  Without the optimization, we'll have a
-modify/delete conflict, where both A':newfile and B:oldfile are left in the
-tree for the user to deal with and no hints about the potential similarity
-between the two.  With the optimization, we'll have a three-way content
-merged A:oldfile, A':newfile, and B:oldfile with conflict markers
-suggesting we thought the files were related but giving the user the chance
-to resolve.  As noted above, I don't think users will find us treating
-'oldfile' and 'newfile' as related as a surprise since they were between E
-and G.  In any event, though, this case shouldn't be concerning since we
-hit a conflict in both cases, told the user what we know, and asked them to
-resolve it.
+Így csak az első esetet kell megfontolni – amikor mind az optimalizációval,
+mind anélkül konfliktust kapunk.  Optimalizáció nélkül módosítás/törlés
+konfliktusunk lesz, ahol mind az A':newfile, mind a B:oldfile a tree-ben
+marad, hogy a felhasználó kezelje, és nincs utalás a kettő közötti
+lehetséges hasonlóságra.  Az optimalizációval egy háromutasan
+tartalmilag merge-elt A:oldfile-unk, A':newfile-unk és B:oldfile-unk
+lesz, konfliktusjelölőkkel, amelyek arra utalnak, hogy úgy gondoltuk, a
+fájlok rokonok, de a felhasználónak megadják a lehetőséget a
+feloldásra.  Ahogy fentebb megjegyeztük, nem hiszem, hogy a felhasználók
+meglepőnek találnák, hogy az 'oldfile'-t és a 'newfile'-t rokonként
+kezeljük, hiszen E és G között voltak.  Mindenesetre ez az eset nem lehet
+aggasztó, mivel mindkét esetben konfliktusba ütköztünk, elmondtuk a
+felhasználónak, amit tudunk, és megkértük, hogy oldja fel.
 
-So, in summary, case 4 is impossible, case 2 yields the same behavior, and
-cases 1 and 3 seem to provide as good or better behavior with the
-optimization than without.
+Tehát összefoglalva, a 4. eset lehetetlen, a 2. eset ugyanazt a
+viselkedést eredményezi, az 1. és a 3. eset pedig úgy tűnik, hogy az
+optimalizációval ugyanolyan jó vagy jobb viselkedést nyújt, mint
+nélküle.
 
 
-== 7. Interaction with skipping of "irrelevant" renames ==
+[[_7_interaction_with_skipping_of_irrelevant_renames]]
+== 7. Kölcsönhatás az „irreleváns" átnevezések kihagyásával ==
 
-Previous optimizations involved skipping rename detection for paths
-considered to be "irrelevant".  See for example the following commits:
+Korábbi optimalizációk közé tartozott az átnevezés-felismerés kihagyása
+az „irrelevánsnak" tekintett útvonalaknál.  Lásd például a következő
+commitokat:
 
   * 32a56dfb99 ("merge-ort: precompute subset of sources for which we
 		need rename detection", 2021-03-11)
@@ -426,24 +459,28 @@ considered to be "irrelevant".  See for example the following commits:
   * 9bd342137e ("diffcore-rename: determine which relevant_sources are
 		no longer relevant", 2021-03-13)
 
-Relevance is always determined by what the _other_ side of history has
-done, in terms of modifying a file that our side renamed, or adding a
-file to a directory which our side renamed.  This means that a path
-that is "irrelevant" when picking the first commit of a series in a
-rebase or cherry-pick, may suddenly become "relevant" when picking the
-next commit.
+A relevanciát mindig az határozza meg, hogy az előzmény _másik_ oldala
+mit tett, olyan értelemben, hogy módosított-e egy fájlt, amelyet a mi
+oldalunk átnevezett, vagy hozzáadott-e egy fájlt egy olyan könyvtárhoz,
+amelyet a mi oldalunk átnevezett.  Ez azt jelenti, hogy egy útvonal,
+amely „irreleváns" egy rebase vagy cherry-pick sorozat első commitjának
+pickelésekor, hirtelen „relevánssá" válhat a következő commit
+pickelésekor.
 
-The upshot of this is that we can only cache rename detection results
-for relevant paths, and need to re-check relevance in subsequent
-commits.  If those subsequent commits have additional paths that are
-relevant for rename detection, then we will need to redo rename
-detection -- though we can limit it to the paths for which we have not
-already detected renames.
+Ennek a következménye az, hogy csak a releváns útvonalakra tudjuk
+gyorsítótárazni az átnevezés-felismerés eredményeit, és az azt követő
+commitoknál újra kell ellenőriznünk a relevanciát.  Ha azoknak a
+későbbi commitoknak vannak további útvonalai, amelyek relevánsak az
+átnevezés-felismerés szempontjából, akkor újra kell végeznünk az
+átnevezés-felismerést – bár korlátozhatjuk azokra az útvonalakra,
+amelyeknél még nem ismertünk fel átnevezéseket.
 
 
-== 8. Additional items that need to be cached ==
+[[_8_additional_items_that_need_to_be_cached]]
+== 8. További elemek, amelyeket gyorsítótárazni kell ==
 
-It turns out we have to cache more than just renames; we also cache:
+Kiderül, hogy nem csak az átnevezéseket kell gyorsítótáraznunk; ezeket is
+gyorsítótárazzuk:
 
 ....
   A) non-renames (i.e. unpaired deletes)
@@ -453,39 +490,40 @@ It turns out we have to cache more than just renames; we also cache:
   D) the toplevel trees involved in the merge
 ....
 
-These are all stored in struct rename_info, and respectively appear in
+Ezeket mind a struct rename_info tárolja, és rendre itt jelennek meg:
 
-  * cached_pairs (along side actual renames, just with a value of NULL)
+  * cached_pairs (a tényleges átnevezések mellett, csak NULL értékkel)
   * dir_rename_counts
   * cached_irrelevant
   * merge_trees
 
-The reason for `(A)` comes from the irrelevant renames skipping
-optimization discussed in section 7.  The fact that irrelevant renames
-are skipped means we only get a subset of the potential renames
-detected and subsequent commits may need to run rename detection on
-the upstream side on a subset of the remaining renames (to get the
-renames that are relevant for that later commit).  Since unpaired
-deletes are involved in rename detection too, we don't want to
-repeatedly check that those paths remain unpaired on the upstream side
-with every commit we are transplanting.
+Az `(A)` oka a 7. szakaszban tárgyalt, irreleváns átnevezéseket kihagyó
+optimalizációból ered.  Az, hogy az irreleváns átnevezéseket kihagyjuk,
+azt jelenti, hogy csak a potenciális átnevezések egy részhalmazát
+ismerjük fel, és a későbbi commitoknak szükségük lehet arra, hogy az
+upstream oldalon átnevezés-felismerést futtassanak a fennmaradó
+átnevezések egy részhalmazán (hogy megkapják az adott későbbi commit
+szempontjából releváns átnevezéseket).  Mivel a párosítatlan törlések is
+részt vesznek az átnevezés-felismerésben, nem akarjuk minden átültetett
+commitnál újra és újra ellenőrizni, hogy azok az útvonalak párosítatlanok
+maradnak-e az upstream oldalon.
 
-The reason for `(B)` is that diffcore_rename_extended() is what
-generates the counts of renames by directory which is needed in
-directory rename detection, and if we don't run
-diffcore_rename_extended() again then we need to have the output from
-it, including dir_rename_counts, from the previous run.
+A `(B)` oka az, hogy a diffcore_rename_extended() az, ami legenerálja az
+átnevezések könyvtáronkénti számát, amelyre a könyvtár-átnevezés
+felismeréséhez szükség van, és ha nem futtatjuk újra a
+diffcore_rename_extended()-et, akkor rendelkeznünk kell a kimenetével,
+beleértve a dir_rename_counts-ot, az előző futásból.
 
-The reason for `(C)` is that merge-ort's tree traversal will again think
-those paths are relevant (marking them as RELEVANT_LOCATION), but the
-fact that they were downgraded to RELEVANT_NO_MORE means that
-dir_rename_counts already has the information we need for directory
-rename detection.  (A path which becomes RELEVANT_CONTENT in a
-subsequent commit will be removed from cached_irrelevant.)
+A `(C)` oka az, hogy a merge-ort tree-bejárása újra relevánsnak fogja
+gondolni azokat az útvonalakat (RELEVANT_LOCATION-ként megjelölve őket),
+de az, hogy RELEVANT_NO_MORE-ra fokoztuk le őket, azt jelenti, hogy a
+dir_rename_counts már tartalmazza a könyvtár-átnevezés felismeréséhez
+szükséges információt.  (Egy útvonal, amely egy későbbi commitban
+RELEVANT_CONTENT-té válik, eltávolításra kerül a cached_irrelevantból.)
 
-The reason for `(D)` is that is how we determine whether the remember
-renames optimization can be used.  In particular, remembering that our
-sequence of merges looks like:
+A `(D)` oka az, hogy így határozzuk meg, használható-e az
+átnevezés-megjegyző optimalizáció.  Konkrétan, emlékezve arra, hogy a
+merge-eink sorozata így néz ki:
 
 ....
    Merge 1:
@@ -501,15 +539,16 @@ sequence of merges looks like:
    => Creates    B'
 ....
 
-It is the fact that the trees A and A' appear both in Merge 1 and in
-Merge 2, with A as a parent of A' that allows this optimization.  So
-we store the trees to compare with what we are asked to merge next
-time.
+Az teszi lehetővé ezt az optimalizációt, hogy az A és az A' tree
+egyaránt megjelenik az 1. merge-ben és a 2. merge-ben, ahol A az A'
+szülője.  Ezért eltároljuk a tree-ket, hogy összehasonlítsuk azzal, amit
+legközelebb merge-elni kérnek tőlünk.
 
 
-== 9. How directory rename detection interacts with the above and why this optimization is still safe even if merge.directoryRenames is set to "true". ==
+[[_9_how_directory_rename_detection_interacts_with_the_above_and_why_this_optimization_is_still_safe_even_if_merge_directoryrenames_is_set_to_true]]
+== 9. Hogyan lép kölcsönhatásba a könyvtár-átnevezés felismerése a fentiekkel, és miért biztonságos még mindig ez az optimalizáció akkor is, ha a merge.directoryRenames „true"-ra van állítva. ==
 
-As noted in the assumptions section:
+Ahogy a feltételezések szakaszban megjegyeztük:
 
 ....
     """
@@ -523,9 +562,9 @@ As noted in the assumptions section:
     """
 ....
 
-Let's remember that we need to look at how any given pick affects the next
-one.  So let's again use the first two picks from the diagram in section
-one:
+Emlékezzünk arra, hogy meg kell néznünk, hogyan hat egy adott pick a
+következőre.  Használjuk tehát újra az első két picket az egyes szakasz
+diagramjából:
 
 ....
   First pick does this three-way merge:
@@ -541,69 +580,77 @@ one:
     => creates B'
 ....
 
-Now, directory rename detection exists so that if one side of history
-renames a directory, and the other side adds a new file to the old
-directory, then the merge (with merge.directoryRenames=true) can move the
-file into the new directory.  There are two qualitatively different ways to
-add a new file to an old directory: create a new file, or rename a file
-into that directory.  Also, directory renames can be done on either side of
-history, so there are four cases to consider:
+A könyvtár-átnevezés felismerése azért létezik, hogy ha az előzmény
+egyik oldala átnevez egy könyvtárat, a másik oldal pedig hozzáad egy új
+fájlt a régi könyvtárhoz, akkor a merge (merge.directoryRenames=true
+mellett) át tudja mozgatni a fájlt az új könyvtárba.  Kétféle,
+minőségileg különböző módon lehet új fájlt hozzáadni egy régi
+könyvtárhoz: új fájlt létrehozni, vagy egy fájlt átnevezni abba a
+könyvtárba.  Ráadásul a könyvtárátnevezések az előzmény bármelyik
+oldalán történhetnek, tehát négy esetet kell megfontolni:
 
-  * MERGE_SIDE1 renames old dir, MERGE_SIDE2 adds new file to   old dir
-  * MERGE_SIDE1 renames old dir, MERGE_SIDE2 renames  file into old dir
-  * MERGE_SIDE1 adds new file to   old dir, MERGE_SIDE2 renames old dir
-  * MERGE_SIDE1 renames  file into old dir, MERGE_SIDE2 renames old dir
+  * MERGE_SIDE1 átnevezi a régi könyvtárat, MERGE_SIDE2 új fájlt ad a régi könyvtárhoz
+  * MERGE_SIDE1 átnevezi a régi könyvtárat, MERGE_SIDE2 egy fájlt nevez át a régi könyvtárba
+  * MERGE_SIDE1 új fájlt ad a régi könyvtárhoz, MERGE_SIDE2 átnevezi a régi könyvtárat
+  * MERGE_SIDE1 egy fájlt nevez át a régi könyvtárba, MERGE_SIDE2 átnevezi a régi könyvtárat
 
-One last note before we consider these four cases: There are some
-important properties about how we implement this optimization with
-respect to directory rename detection that we need to bear in mind
-while considering all of these cases:
+Egy utolsó megjegyzés, mielőtt megvizsgálnánk ezt a négy esetet: van
+néhány fontos tulajdonsága annak, hogyan valósítjuk meg ezt az
+optimalizációt a könyvtár-átnevezés felismerésével kapcsolatban,
+amelyeket szem előtt kell tartanunk, miközben ezeket az eseteket
+vizsgáljuk:
 
-  * rename caching occurs *after* applying directory renames
+  * az átnevezés-gyorsítótárazás a könyvtárátnevezések alkalmazása *után*
+    történik
 
-  * a rename created by directory rename detection is recorded for the side
-    of history that did the directory rename.
+  * a könyvtár-átnevezés felismerése által létrehozott átnevezést az
+    előzmény azon oldalára rögzítjük, amely a könyvtárátnevezést végezte.
 
-  * dir_rename_counts, the nested map of
-	{oldname => {newname => count}},
-    is cached between runs as well.  This basically means that directory
-    rename detection is also cached, though only on the side of history
-    that we cache renames for (MERGE_SIDE1 as far as this document is
-    concerned; see the assumptions section).  Two interesting sub-notes
-    about these counts:
+  * a dir_rename_counts, a
+	{oldname => {newname => count}}
+    beágyazott map, szintén gyorsítótárazódik a futások között.  Ez
+    lényegében azt jelenti, hogy a könyvtár-átnevezés felismerése is
+    gyorsítótárazódik, bár csak az előzmény azon oldalán, amelyre az
+    átnevezéseket gyorsítótárazzuk (MERGE_SIDE1, ami e dokumentumot
+    illeti; lásd a feltételezések szakaszt).  Két érdekes almegjegyzés
+    ezekről a számokról:
 
-   ** If we need to perform rename-detection again on the given side (e.g.
-      some paths are relevant for rename detection that weren't before),
-      then we clear dir_rename_counts and recompute it, making use of
-      cached_pairs.  The reason it is important to do this is optimizations
-      around RELEVANT_LOCATION exist to prevent us from computing
-      unnecessary renames for directory rename detection and from computing
-      dir_rename_counts for irrelevant directories; but those same renames
-      or directories may become necessary for subsequent merges.  The
-      easiest way to "fix up" dir_rename_counts in such cases is to just
-      recompute it.
+   ** Ha újra el kell végeznünk az átnevezés-felismerést az adott oldalon
+      (pl. néhány útvonal releváns az átnevezés-felismerés szempontjából,
+      amely korábban nem volt az), akkor kitöröljük a dir_rename_counts-ot,
+      és újraszámoljuk, a cached_pairs felhasználásával.  Ennek azért
+      fontos megtenni, mert a RELEVANT_LOCATION körüli optimalizációk
+      azért léteznek, hogy megakadályozzák, hogy szükségtelen
+      átnevezéseket számoljunk a könyvtár-átnevezés felismeréséhez, és
+      hogy dir_rename_counts-ot számoljunk irreleváns könyvtárakhoz; de
+      ugyanazok az átnevezések vagy könyvtárak szükségessé válhatnak a
+      későbbi merge-ekhez.  A legegyszerűbb módja a dir_rename_counts
+      „rendbe tételének" ilyen esetekben az, hogy egyszerűen újraszámoljuk.
 
-   ** If we prune rename/rename(1to1) entries from the cache, then we also
-      need to update dir_rename_counts to decrement the counts for the
-      involved directory and any relevant parent directories (to undo what
-      update_dir_rename_counts() in diffcore-rename.c incremented when the
-      rename was initially found).  If we instead just disable the
-      remembering renames optimization when the exceedingly rare
-      rename/rename(1to1) cases occur, then dir_rename_counts will get
-      re-computed the next time rename detection occurs, as noted above.
+   ** Ha kimetsszük a rename/rename(1to1) bejegyzéseket a gyorsítótárból,
+      akkor frissítenünk kell a dir_rename_counts-ot is, hogy csökkentsük
+      a számokat az érintett könyvtárnál és bármely releváns szülő
+      könyvtárnál (hogy visszavonjuk azt, amit a diffcore-rename.c-beli
+      update_dir_rename_counts() növelt, amikor az átnevezést először
+      megtaláltuk).  Ha ehelyett egyszerűen kikapcsoljuk az
+      átnevezés-megjegyző optimalizációt, amikor az igen ritka
+      rename/rename(1to1) esetek előfordulnak, akkor a dir_rename_counts
+      újraszámolódik, amikor legközelebb átnevezés-felismerés történik,
+      ahogy fentebb megjegyeztük.
 
-  * the side with multiple commits to pick, is the side of history that we
-    do NOT cache renames for.  Thus, there are no additional commits to
-    change the number of renames in a directory, except for those done by
-    directory rename detection (which always pad the majority).
+  * az az oldal, amelynek több commitját kell pickelni, az az oldala az
+    előzménynek, amelyre NEM gyorsítótárazzuk az átnevezéseket.  Így
+    nincsenek további commitok, amelyek megváltoztatnák egy könyvtárban
+    az átnevezések számát, kivéve azokat, amelyeket a könyvtár-átnevezés
+    felismerése végez (amelyek mindig a többséghez adnak).
 
-  * the "renames" we cache are modified slightly by any directory rename,
-    as noted below.
+  * az általunk gyorsítótárazott „átnevezéseket" bármely
+    könyvtárátnevezés kissé módosítja, ahogy alább megjegyezzük.
 
-Now, with those notes out of the way, let's go through the four cases
-in order:
+Most, hogy ezeken a megjegyzéseken túl vagyunk, menjünk végig a négy
+eseten sorban:
 
-Case 1: MERGE_SIDE1 renames old dir, MERGE_SIDE2 adds new file to old dir
+1. eset: MERGE_SIDE1 átnevezi a régi könyvtárat, MERGE_SIDE2 új fájlt ad a régi könyvtárhoz
 
 ....
   This case looks like this:
@@ -625,7 +672,7 @@ Case 1: MERGE_SIDE1 renames old dir, MERGE_SIDE2 adds new file to old dir
   expected without needing to perform rename detection from A -> A'.
 ....
 
-Case 2: MERGE_SIDE1 renames old dir, MERGE_SIDE2 renames  file into old dir
+2. eset: MERGE_SIDE1 átnevezi a régi könyvtárat, MERGE_SIDE2 egy fájlt nevez át a régi könyvtárba
 
 ....
   This case looks like this:
@@ -650,7 +697,7 @@ Case 2: MERGE_SIDE1 renames old dir, MERGE_SIDE2 renames  file into old dir
   expected without needing to perform rename detection from A -> A'.
 ....
 
-Case 3: MERGE_SIDE1 adds new file to   old dir, MERGE_SIDE2 renames old dir
+3. eset: MERGE_SIDE1 új fájlt ad a régi könyvtárhoz, MERGE_SIDE2 átnevezi a régi könyvtárat
 
 ....
   This case looks like this:
@@ -670,7 +717,7 @@ Case 3: MERGE_SIDE1 adds new file to   old dir, MERGE_SIDE2 renames old dir
   But the second merge didn't need any renames so this is fine.
 ....
 
-Case 4: MERGE_SIDE1 renames  file into old dir, MERGE_SIDE2 renames old dir
+4. eset: MERGE_SIDE1 egy fájlt nevez át a régi könyvtárba, MERGE_SIDE2 átnevezi a régi könyvtárat
 
 ....
   This case looks like this:
@@ -695,13 +742,13 @@ Case 4: MERGE_SIDE1 renames  file into old dir, MERGE_SIDE2 renames old dir
   expected without needing to perform rename detection from A -> A'.
 ....
 
-Finally, I'll just note here that interactions with the
-skip-irrelevant-renames optimization means we sometimes don't detect
-renames for any files within a directory that was renamed, in which
-case we will not have been able to detect any rename for the directory
-itself.  In such a case, we do not know whether the directory was
-renamed; we want to be careful to avoid caching some kind of "this
-directory was not renamed" statement.  If we did, then a subsequent
-commit being rebased could add a file to the old directory, and the
-user would expect it to end up in the correct directory -- something
-our erroneous "this directory was not renamed" cache would preclude.
+Végezetül itt csak megjegyzem, hogy az irreleváns átnevezéseket kihagyó
+optimalizációval való kölcsönhatás azt jelenti, hogy néha nem ismerünk
+fel átnevezést egyetlen fájlnál sem egy átnevezett könyvtáron belül,
+amely esetben magára a könyvtárra sem tudtunk átnevezést felismerni.
+Ilyen esetben nem tudjuk, hogy a könyvtárat átnevezték-e; óvatosak
+akarunk lenni, hogy elkerüljük valamiféle „ezt a könyvtárat nem nevezték
+át" kijelentés gyorsítótárazását.  Ha megtennénk, akkor egy későbbi,
+rebase-elt commit hozzáadhatna egy fájlt a régi könyvtárhoz, és a
+felhasználó azt várná, hogy az a helyes könyvtárba kerüljön – amit a
+téves „ezt a könyvtárat nem nevezték át" gyorsítótárunk megakadályozna.

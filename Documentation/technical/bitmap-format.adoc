@@ -1,103 +1,106 @@
-GIT bitmap v1 format
-====================
+GIT bitmap v1 formátum
+======================
 
-== Pack and multi-pack bitmaps
+[[_pack_and_multi_pack_bitmaps]]
+== Pack és multi-pack bitmapek
 
-Bitmaps store reachability information about the set of objects in a packfile,
-or a multi-pack index (MIDX). The former is defined obviously, and the latter is
-defined as the union of objects in packs contained in the MIDX.
+A bitmapek elérhetőségi információt tárolnak egy packfile-ban, vagy egy
+multi-pack indexben (MIDX) lévő objektumok halmazáról. Az előbbi
+kézenfekvően definiált, az utóbbi pedig a MIDX-ben található packekben lévő
+objektumok uniójaként.
 
-A bitmap may belong to either one pack, or the repository's multi-pack index (if
-it exists). A repository may have at most one bitmap.
+Egy bitmap tartozhat egy packhez, vagy a repository multi-pack indexéhez
+(ha az létezik). Egy repository-nak legfeljebb egy bitmapje lehet.
 
-An object is uniquely described by its bit position within a bitmap:
+Egy objektumot egyértelműen leír a bitmapen belüli bitpozíciója:
 
-	- If the bitmap belongs to a packfile, the __n__th bit corresponds to
-	the __n__th object in pack order. For a function `offset` which maps
-	objects to their byte offset within a pack, pack order is defined as
-	follows:
+	- Ha a bitmap egy packfile-hoz tartozik, az __n__. bit a pack
+	sorrendben lévő __n__. objektumnak felel meg. Egy `offset` függvényre,
+	amely az objektumokat a packen belüli bájteltolásukhoz rendeli, a pack
+	sorrend a következőképpen definiált:
 
 		o1 <= o2 <==> offset(o1) <= offset(o2)
 
-	- If the bitmap belongs to a MIDX, the __n__th bit corresponds to the
-	__n__th object in MIDX order. With an additional function `pack` which
-	maps objects to the pack they were selected from by the MIDX, MIDX order
-	is defined as follows:
+	- Ha a bitmap egy MIDX-hez tartozik, az __n__. bit a MIDX sorrendben
+	lévő __n__. objektumnak felel meg. Egy további `pack` függvénnyel,
+	amely az objektumokat ahhoz a packhez rendeli, amelyből a MIDX
+	kiválasztotta őket, a MIDX sorrend a következőképpen definiált:
 
 		o1 <= o2 <==> pack(o1) <= pack(o2) /\ offset(o1) <= offset(o2)
 +
-The ordering between packs is done according to the MIDX's .rev file.
-Notably, the preferred pack sorts ahead of all other packs.
+A packek közötti sorrendezés a MIDX .rev fájlja szerint történik.
+Nevezetesen, a preferált pack minden más pack elé kerül a rendezésben.
 
-The on-disk representation (described below) of a bitmap is the same regardless
-of whether or not that bitmap belongs to a packfile or a MIDX. The only
-difference is the interpretation of the bits, which is described above.
+Egy bitmap lemezen tárolt reprezentációja (lásd lentebb) ugyanaz,
+függetlenül attól, hogy az a bitmap egy packfile-hoz vagy egy MIDX-hez
+tartozik-e. Az egyetlen különbség a bitek értelmezése, amelyet fentebb
+ismertettünk.
 
-Certain bitmap extensions are supported (see: Appendix B). No extensions are
-required for bitmaps corresponding to packfiles. For bitmaps that correspond to
-MIDXs, both the bit-cache and rev-cache extensions are required.
+Bizonyos bitmap-kiterjesztések támogatottak (lásd: B. függelék). A
+packfile-oknak megfelelő bitmapekhez nem szükségesek kiterjesztések. A
+MIDX-eknek megfelelő bitmapekhez a bit-cache és a rev-cache kiterjesztés is
+szükséges.
 
-== On-disk format
+[[_on_disk_format]]
+== Lemezen tárolt formátum
 
-    * A header appears at the beginning:
+    * A fejléc a legelején jelenik meg:
 
-	4-byte signature: :: {'B', 'I', 'T', 'M'}
+	4 bájtos szignatúra: :: {'B', 'I', 'T', 'M'}
 
-	2-byte version number (network byte order): ::
+	2 bájtos verziószám (hálózati bájtsorrend): ::
 
-	    The current implementation only supports version 1
-	    of the bitmap index (the same one as JGit).
+	    A jelenlegi megvalósítás csak a bitmap-index 1-es verzióját
+	    támogatja (ugyanazt, mint a JGit).
 
-	2-byte flags (network byte order): ::
+	2 bájtos jelzők (hálózati bájtsorrend): ::
 
-	    The following flags are supported:
+	    A következő jelzők támogatottak:
 
 	    ** {empty}
 	    BITMAP_OPT_FULL_DAG (0x1) REQUIRED: :::
 
-	    This flag must always be present. It implies that the
-	    bitmap index has been generated for a packfile or
-	    multi-pack index (MIDX) with full closure (i.e. where
-	    every single object in the packfile/MIDX can find its
-	    parent links inside the same packfile/MIDX). This is a
-	    requirement for the bitmap index format, also present in
-	    JGit, that greatly reduces the complexity of the
-	    implementation.
+	    Ennek a jelzőnek mindig jelen kell lennie. Azt jelenti, hogy a
+	    bitmap-index teljes lezárással rendelkező packfile-hoz vagy
+	    multi-pack indexhez (MIDX) készült (azaz ahol a packfile/MIDX
+	    minden egyes objektuma megtalálja a szülőláncait ugyanazon a
+	    packfile-on/MIDX-en belül). Ez a bitmap-index formátum
+	    követelménye, amely a JGitben is jelen van, és nagyban csökkenti
+	    a megvalósítás összetettségét.
 
 	    ** {empty}
 	    BITMAP_OPT_HASH_CACHE (0x4): :::
 
-	    If present, the end of the bitmap file contains
-	    `N` 32-bit name-hash values, one per object in the
-	    pack/MIDX. The format and meaning of the name-hash is
-	    described below.
+	    Ha jelen van, a bitmap-fájl vége `N` darab 32 bites name-hash
+	    értéket tartalmaz, egyet minden objektumhoz a pack/MIDX-ben. A
+	    name-hash formátumát és jelentését lentebb ismertetjük.
 
 		** {empty}
 		BITMAP_OPT_LOOKUP_TABLE (0x10): :::
-		If present, the end of the bitmap file contains a table
-		containing a list of `N` <commit_pos, offset, xor_row>
-		triplets. The format and meaning of the table is described
-		below.
+		Ha jelen van, a bitmap-fájl vége egy táblázatot tartalmaz,
+		amelyben `N` darab <commit_pos, offset, xor_row> hármas
+		listája található. A táblázat formátumát és jelentését lentebb
+		ismertetjük.
 +
-NOTE: Unlike the xor_offset used to compress an individual bitmap,
-`xor_row` stores an *absolute* index into the lookup table, not a location
-relative to the current entry.
+NOTE: Az egyedi bitmap tömörítésére használt xor_offsettel ellentétben az
+`xor_row` egy *abszolút* indexet tárol a kikeresési táblába, nem pedig az
+aktuális bejegyzéshez viszonyított helyet.
 
-	4-byte entry count (network byte order): ::
-	    The total count of entries (bitmapped commits) in this bitmap index.
+	4 bájtos bejegyzésszám (hálózati bájtsorrend): ::
+	    A bejegyzések (bitmapelt commitok) teljes száma ebben a bitmap-indexben.
 
-	20-byte checksum: ::
-	    The SHA1 checksum of the pack/MIDX this bitmap index
-	    belongs to.
+	20 bájtos ellenőrzőösszeg: ::
+	    Annak a pack/MIDX-nek a SHA1 ellenőrzőösszege, amelyhez ez a
+	    bitmap-index tartozik.
 
-    * 4 EWAH bitmaps that act as type indexes
+    * 4 EWAH bitmap, amelyek típusindexként működnek
 +
-Type indexes are serialized after the hash cache in the shape
-of four EWAH bitmaps stored consecutively (see Appendix A for
-the serialization format of an EWAH bitmap).
+A típusindexek a hash-gyorsítótár után kerülnek szerializálásra négy,
+egymás után tárolt EWAH bitmap alakjában (az EWAH bitmap szerializálási
+formátumát lásd az A. függelékben).
 +
-There is a bitmap for each Git object type, stored in the following
-order:
+Minden Git objektumtípushoz van egy bitmap, a következő sorrendben
+tárolva:
 +
     - Commits
     - Trees
@@ -105,82 +108,81 @@ order:
     - Tags
 
 +
-In each bitmap, the `n`th bit is set to true if the `n`th object
-in the packfile or multi-pack index is of that type.
+Minden bitmapben az `n`. bit igazra van állítva, ha a packfile-ban vagy
+multi-pack indexben lévő `n`. objektum ilyen típusú.
 +
-The obvious consequence is that the OR of all 4 bitmaps will result
-in a full set (all bits set), and the AND of all 4 bitmaps will
-result in an empty bitmap (no bits set).
+A kézenfekvő következmény, hogy mind a 4 bitmap VAGY-a teljes halmazt
+eredményez (minden bit beállítva), mind a 4 bitmap ÉS-e pedig üres
+bitmapet eredményez (egy bit sincs beállítva).
 
-    * N entries with compressed bitmaps, one for each indexed commit
+    * N bejegyzés tömörített bitmapekkel, egy minden indexelt commithoz
 +
-Where `N` is the total number of entries in this bitmap index.
-Each entry contains the following:
+Ahol `N` a bejegyzések teljes száma ebben a bitmap-indexben.
+Minden bejegyzés a következőket tartalmazza:
 
 	** {empty}
-	4-byte object position (network byte order): ::
-	    The position **in the index for the packfile or
-	    multi-pack index** where the bitmap for this commit is
-	    found.
+	4 bájtos objektumpozíció (hálózati bájtsorrend): ::
+	    A pozíció **a packfile vagy multi-pack index indexében**, ahol az
+	    ehhez a commithoz tartozó bitmap található.
 
 	** {empty}
-	1-byte XOR-offset: ::
-	    The xor offset used to compress this bitmap. For an entry
-	    in position `x`, an XOR offset of `y` means that the actual
-	    bitmap representing this commit is composed by XORing the
-	    bitmap for this entry with the bitmap in entry `x-y` (i.e.
-	    the bitmap `y` entries before this one).
+	1 bájtos XOR-eltolás: ::
+	    Az ennek a bitmapnek a tömörítésére használt xor-eltolás. Egy `x`
+	    pozícióban lévő bejegyzés esetén az `y` XOR-eltolás azt jelenti,
+	    hogy az ezt a commitot reprezentáló tényleges bitmap úgy áll elő,
+	    hogy ennek a bejegyzésnek a bitmapjét XOR-oljuk az `x-y`
+	    bejegyzésben lévő bitmappel (azaz az ezt megelőző `y`. bitmappel).
 +
-NOTE: This compression can be recursive. In order to
-XOR this entry with a previous one, the previous entry needs
-to be decompressed first, and so on.
+NOTE: Ez a tömörítés rekurzív lehet. Ahhoz, hogy ezt a bejegyzést egy
+korábbival XOR-oljuk, előbb a korábbi bejegyzést kell kitömöríteni, és így
+tovább.
 +
-The hard-limit for this offset is 160 (an entry can only be
-xor'ed against one of the 160 entries preceding it). This
-number is always positive, and hence entries are always xor'ed
-with **previous** bitmaps, not bitmaps that will come afterwards
-in the index.
+Ennek az eltolásnak a kemény korlátja 160 (egy bejegyzést csak az őt
+megelőző 160 bejegyzés egyikével lehet XOR-olni). Ez a szám mindig pozitív,
+így a bejegyzéseket mindig **korábbi** bitmapekkel XOR-oljuk, nem olyan
+bitmapekkel, amelyek később jönnek az indexben.
 
 	** {empty}
-	1-byte flags for this bitmap: ::
-	    At the moment the only available flag is `0x1`, which hints
-	    that this bitmap can be re-used when rebuilding bitmap indexes
-	    for the repository.
+	1 bájtos jelzők ehhez a bitmaphez: ::
+	    Jelenleg az egyetlen elérhető jelző a `0x1`, amely arra utal, hogy
+	    ez a bitmap újrafelhasználható a repository bitmap-indexeinek
+	    újraépítésekor.
 
-	** The compressed bitmap itself, see Appendix A.
+	** Maga a tömörített bitmap, lásd az A. függeléket.
 
 	* {empty}
 	TRAILER: ::
-		Trailing checksum of the preceding contents.
+		A megelőző tartalom lezáró ellenőrzőösszege.
 
-== Appendix A: Serialization format for an EWAH bitmap
+[[_appendix_a_serialization_format_for_an_ewah_bitmap]]
+== A. függelék: Egy EWAH bitmap szerializálási formátuma
 
-Ewah bitmaps are serialized in the same protocol as the JAVAEWAH
-library, making them backwards compatible with the JGit
-implementation:
+Az Ewah bitmapek ugyanazzal a protokollal kerülnek szerializálásra, mint a
+JAVAEWAH könyvtár, így visszafelé kompatibilisek a JGit
+megvalósítással:
 
-	- 4-byte number of bits of the resulting UNCOMPRESSED bitmap
+	- Az eredményül kapott TÖMÖRÍTETLEN bitmap bitjeinek 4 bájtos száma
 
-	- 4-byte number of words of the COMPRESSED bitmap, when stored
+	- A TÖMÖRÍTETT bitmap szavainak 4 bájtos száma, tároláskor
 
-	- N x 8-byte words, as specified by the previous field
+	- N x 8 bájtos szó, az előző mező által megadottak szerint
 +
-This is the actual content of the compressed bitmap.
+Ez a tömörített bitmap tényleges tartalma.
 
-	- 4-byte position of the current RLW for the compressed
-		bitmap
+	- A tömörített bitmaphez tartozó aktuális RLW 4 bájtos
+		pozíciója
 
-All words are stored in network byte order for their corresponding
-sizes.
+Minden szó hálózati bájtsorrendben van tárolva a megfelelő
+méretéhez.
 
-The compressed bitmap is stored in a form of run-length encoding, as
-follows.  It consists of a concatenation of an arbitrary number of
-chunks.  Each chunk consists of one or more 64-bit words
+A tömörített bitmap futáshossz-kódolás formájában van tárolva, a
+következőképpen. Tetszőleges számú darab összefűzéséből áll. Minden darab
+egy vagy több 64 bites szóból áll
 
      H  L_1  L_2  L_3 .... L_M
 
-H is called RLW (run length word).  It consists of (from lower to higher
-order bits):
+A H neve RLW (run length word). A következőkből áll (az alacsonyabb
+helyiértékű bitektől a magasabbak felé):
 
      - 1 bit: the repeated bit B
 
@@ -188,7 +190,7 @@ order bits):
 
      - 31 bits: literal word count M (unsigned)
 
-The bitstream represented by the above chunk is then:
+A fenti darab által reprezentált bitfolyam ekkor:
 
      - K repetitions of B
 
@@ -196,80 +198,84 @@ The bitstream represented by the above chunk is then:
        lower order come earlier in the stream than those at higher
        order.
 
-The next word after `L_M` (if any) must again be a RLW, for the next
-chunk.  For efficient appending to the bitstream, the EWAH stores a
-pointer to the last RLW in the stream.
+Az `L_M` utáni következő szónak (ha van) ismét RLW-nek kell lennie, a
+következő darabhoz. A bitfolyamhoz való hatékony hozzáfűzéshez az EWAH egy
+mutatót tárol a folyam utolsó RLW-jére.
 
 
-== Appendix B: Optional Bitmap Sections
+[[_appendix_b_optional_bitmap_sections]]
+== B. függelék: Opcionális bitmap-szakaszok
 
-These sections may or may not be present in the `.bitmap` file; their
-presence is indicated by the header flags section described above.
+Ezek a szakaszok jelen lehetnek vagy sem a `.bitmap` fájlban; a jelenlétüket
+a fentebb ismertetett fejlécjelzők szakasza jelzi.
 
-Name-hash cache
----------------
+[[_name_hash_cache]]
+Név-hash gyorsítótár
+--------------------
 
-If the BITMAP_OPT_HASH_CACHE flag is set, the end of the bitmap contains
-a cache of 32-bit values, one per object in the pack/MIDX. The value at
-position `i` is the hash of the pathname at which the `i`th object
-(counting in index or multi-pack index order) in the pack/MIDX can be found.
-This can be fed into the delta heuristics to compare objects with similar
-pathnames.
+Ha a BITMAP_OPT_HASH_CACHE jelző be van állítva, a bitmap vége 32 bites
+értékek gyorsítótárát tartalmazza, egyet minden objektumhoz a pack/MIDX-ben.
+Az `i` pozíción lévő érték annak az útvonalnak a hashe, amelyen a pack/MIDX
+`i`. objektuma (index- vagy multi-pack index-sorrendben számolva) megtalálható.
+Ez betáplálható a delta-heurisztikákba a hasonló útvonalú objektumok
+összehasonlításához.
 
-The hash algorithm used is:
+A használt hash-algoritmus:
 
     hash = 0;
     while ((c = *name++))
 	    if (!isspace(c))
 		    hash = (hash >> 2) + (c << 24);
 
-Note that this hashing scheme is tied to the BITMAP_OPT_HASH_CACHE flag.
-If implementations want to choose a different hashing scheme, they are
-free to do so, but MUST allocate a new header flag (because comparing
-hashes made under two different schemes would be pointless).
+Vedd figyelembe, hogy ez a hashelési séma a BITMAP_OPT_HASH_CACHE jelzőhöz
+van kötve. Ha a megvalósítások más hashelési sémát szeretnének választani,
+szabadon megtehetik, de KÖTELESEK új fejlécjelzőt lefoglalni (mert két
+különböző séma szerint készített hashek összehasonlítása értelmetlen lenne).
 
-Commit lookup table
--------------------
+[[_commit_lookup_table]]
+Commit-kikeresési tábla
+-----------------------
 
-If the BITMAP_OPT_LOOKUP_TABLE flag is set, the last `N * (4 + 8 + 4)`
-bytes (preceding the name-hash cache and trailing hash) of the `.bitmap`
-file contains a lookup table specifying the information needed to get
-the desired bitmap from the entries without parsing previous unnecessary
-bitmaps.
+Ha a BITMAP_OPT_LOOKUP_TABLE jelző be van állítva, a `.bitmap` fájl utolsó
+`N * (4 + 8 + 4)` bájtja (a name-hash gyorsítótár és a lezáró hash előtt)
+egy kikeresési táblát tartalmaz, amely megadja a kívánt bitmap
+bejegyzésekből való megszerzéséhez szükséges információt, a korábbi
+szükségtelen bitmapek feldolgozása nélkül.
 
-For a `.bitmap` containing `nr_entries` reachability bitmaps, the table
-contains a list of `nr_entries` <commit_pos, offset, xor_row> triplets
-(sorted in the ascending order of `commit_pos`). The content of the i'th
-triplet is -
-
-	* {empty}
-	commit_pos (4 byte integer, network byte order): ::
-	It stores the object position of a commit (in the midx or pack
-	index).
+Egy `nr_entries` elérhetőségi bitmapet tartalmazó `.bitmap` esetén a
+táblázat `nr_entries` darab <commit_pos, offset, xor_row> hármas listáját
+tartalmazza (a `commit_pos` növekvő sorrendjébe rendezve). Az i. hármas
+tartalma -
 
 	* {empty}
-	offset (8 byte integer, network byte order): ::
-	The offset from which that commit's bitmap can be read.
+	commit_pos (4 bájtos egész szám, hálózati bájtsorrend): ::
+	Egy commit objektumpozícióját tárolja (a midx- vagy pack-indexben).
 
 	* {empty}
-	xor_row (4 byte integer, network byte order): ::
-	The position of the triplet whose bitmap is used to compress
-	this one, or `0xffffffff` if no such bitmap exists.
+	offset (8 bájtos egész szám, hálózati bájtsorrend): ::
+	Az az eltolás, amelytől az adott commit bitmapje olvasható.
 
-Pseudo-merge bitmaps
---------------------
+	* {empty}
+	xor_row (4 bájtos egész szám, hálózati bájtsorrend): ::
+	Annak a hármasnak a pozíciója, amelynek a bitmapjét ennek a
+	tömörítésére használják, vagy `0xffffffff`, ha nincs ilyen bitmap.
 
-If the `BITMAP_OPT_PSEUDO_MERGES` flag is set, a variable number of
-bytes (preceding the name-hash cache, commit lookup table, and trailing
-checksum) of the `.bitmap` file is used to store pseudo-merge bitmaps.
+[[_pseudo_merge_bitmaps]]
+Pseudo-merge bitmapek
+---------------------
 
-For more information on what pseudo-merges are, why they are useful, and
-how to configure them, see the information in linkgit:gitpacking[7].
+Ha a `BITMAP_OPT_PSEUDO_MERGES` jelző be van állítva, a `.bitmap` fájl
+változó számú bájtja (a name-hash gyorsítótár, a commit-kikeresési tábla és
+a lezáró ellenőrzőösszeg előtt) pseudo-merge bitmapek tárolására szolgál.
 
-=== File format
+Arról, hogy mik a pseudo-merge-ek, miért hasznosak, és hogyan lehet őket
+konfigurálni, lásd a linkgit:gitpacking[7] információit.
 
-If enabled, pseudo-merge bitmaps are stored in an optional section at
-the end of a `.bitmap` file. The format is as follows:
+[[_file_format]]
+=== Fájlformátum
+
+Ha engedélyezve van, a pseudo-merge bitmapek egy `.bitmap` fájl végén lévő
+opcionális szakaszban tárolódnak. A formátum a következő:
 
 ....
 +-------------------------------------------+
@@ -335,64 +341,66 @@ the end of a `.bitmap` file. The format is as follows:
 +-------------------------------------------+
 ....
 
-* One or more pseudo-merge bitmaps, each containing:
+* Egy vagy több pseudo-merge bitmap, mindegyik a következőket tartalmazza:
 
-  ** `commits_bitmap`, an EWAH-compressed bitmap describing the set of
-     commits included in the this psuedo-merge.
+  ** `commits_bitmap`, egy EWAH-tömörített bitmap, amely leírja az ebbe a
+     pseudo-merge-be tartozó commitok halmazát.
 
-  ** `merge_bitmap`, an EWAH-compressed bitmap describing the union of
-     the set of objects reachable from all commits listed in the
-     `commits_bitmap`.
+  ** `merge_bitmap`, egy EWAH-tömörített bitmap, amely leírja a
+     `commits_bitmap`-ben felsorolt összes commitból elérhető objektumok
+     halmazának unióját.
 
-* A lookup table, mapping pseudo-merged commits to the pseudo-merges
-  they belong to. Entries appear in increasing order of each commit's
-  bit position. Each entry is 12 bytes wide, and is comprised of the
-  following:
+* Egy kikeresési tábla, amely a pseudo-merge-elt commitokat az őket
+  tartalmazó pseudo-merge-ekhez rendeli. A bejegyzések az egyes commitok
+  bitpozíciójának növekvő sorrendjében jelennek meg. Minden bejegyzés 12
+  bájt széles, és a következőkből áll:
 
-  ** `commit_pos`, a 4-byte unsigned value (in network byte-order)
-     containing the bit position for this commit.
+  ** `commit_pos`, egy 4 bájtos előjel nélküli érték (hálózati
+     bájtsorrendben), amely ennek a commitnak a bitpozícióját tartalmazza.
 
-  ** `offset`, an 8-byte unsigned value (also in network byte-order)
-  containing either one of two possible offsets, depending on whether or
-  not the most-significant bit is set.
+  ** `offset`, egy 8 bájtos előjel nélküli érték (szintén hálózati
+  bájtsorrendben), amely két lehetséges eltolás egyikét tartalmazza, attól
+  függően, hogy a legmagasabb helyiértékű bit be van-e állítva.
 
-    *** If unset (i.e. `offset & ((uint64_t)1<<63) == 0`), the offset
-	(relative to the beginning of the `.bitmap` file) at which the
-	pseudo-merge bitmap for this commit can be read. This indicates
-	only a single pseudo-merge bitmap contains this commit.
+    *** Ha nincs beállítva (azaz `offset & ((uint64_t)1<<63) == 0`), az az
+	eltolás (a `.bitmap` fájl elejéhez viszonyítva), amelyen az ehhez a
+	commithoz tartozó pseudo-merge bitmap olvasható. Ez azt jelzi, hogy
+	csak egyetlen pseudo-merge bitmap tartalmazza ezt a commitot.
 
-    *** If set (i.e. `offset & ((uint64_t)1<<63) != 0`), the offset
-	(again relative to the beginning of the `.bitmap` file) at which
-	the extended offset table can be located describing the set of
-	pseudo-merge bitmaps which contain this commit. This indicates
-	that multiple pseudo-merge bitmaps contain this commit.
+    *** Ha be van állítva (azaz `offset & ((uint64_t)1<<63) != 0`), az az
+	eltolás (ismét a `.bitmap` fájl elejéhez viszonyítva), amelyen a
+	kiterjesztett eltolástábla található, amely leírja az ezt a commitot
+	tartalmazó pseudo-merge bitmapek halmazát. Ez azt jelzi, hogy több
+	pseudo-merge bitmap tartalmazza ezt a commitot.
 
-* An (optional) extended lookup table (written if and only if there is
-  at least one commit which appears in more than one pseudo-merge).
-  There are as many entries as commits which appear in multiple
-  pseudo-merges. Each entry contains the following:
+* Egy (opcionális) kiterjesztett kikeresési tábla (akkor és csak akkor
+  íródik ki, ha van legalább egy commit, amely egynél több pseudo-merge-ben
+  megjelenik). Annyi bejegyzés van, ahány commit több pseudo-merge-ben
+  megjelenik. Minden bejegyzés a következőket tartalmazza:
 
-  ** `N`, a 4-byte unsigned value equal to the number of pseudo-merges
-     which contain a given commit.
+  ** `N`, egy 4 bájtos előjel nélküli érték, amely megegyezik az adott
+     commitot tartalmazó pseudo-merge-ek számával.
 
-  ** An array of `N` 8-byte unsigned values, each of which is
-     interpreted as an offset (relative to the beginning of the
-     `.bitmap` file) at which a pseudo-merge bitmap for this commit can
-     be read. These values occur in no particular order.
+  ** `N` darab 8 bájtos előjel nélküli érték tömbje, amelyek mindegyike
+     eltolásként értelmezendő (a `.bitmap` fájl elejéhez viszonyítva),
+     amelyen az ehhez a commithoz tartozó pseudo-merge bitmap olvasható.
+     Ezek az értékek nincsenek meghatározott sorrendben.
 
-* Positions for all pseudo-merges, each stored as an 8-byte unsigned
-  value (in network byte-order) containing the offset (relative to the
-  beginning of the `.bitmap` file) of each consecutive pseudo-merge.
+* Az összes pseudo-merge pozíciója, mindegyik egy 8 bájtos előjel nélküli
+  értékként tárolva (hálózati bájtsorrendben), amely az egyes egymást
+  követő pseudo-merge-ek eltolását (a `.bitmap` fájl elejéhez viszonyítva)
+  tartalmazza.
 
-* A 4-byte unsigned value (in network byte-order) equal to the number of
-  pseudo-merges.
+* Egy 4 bájtos előjel nélküli érték (hálózati bájtsorrendben), amely
+  megegyezik a pseudo-merge-ek számával.
 
-* A 4-byte unsigned value (in network byte-order) equal to the number of
-  unique commits which appear in any pseudo-merge.
+* Egy 4 bájtos előjel nélküli érték (hálózati bájtsorrendben), amely
+  megegyezik a bármely pseudo-merge-ben megjelenő egyedi commitok számával.
 
-* An 8-byte unsigned value (in network byte-order) equal to the number
-  of bytes between the start of the pseudo-merge section and the
-  beginning of the lookup table.
+* Egy 8 bájtos előjel nélküli érték (hálózati bájtsorrendben), amely
+  megegyezik a pseudo-merge szakasz kezdete és a kikeresési tábla kezdete
+  közötti bájtok számával.
 
-* An 8-byte unsigned value (in network byte-order) equal to the number
-  of bytes in the pseudo-merge section (including this field).
+* Egy 8 bájtos előjel nélküli érték (hálózati bájtsorrendben), amely
+  megegyezik a pseudo-merge szakasz bájtjainak számával (beleértve ezt a
+  mezőt is).

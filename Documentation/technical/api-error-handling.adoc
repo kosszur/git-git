@@ -1,93 +1,96 @@
-Error reporting in git
-======================
+Hibajelentés a gitben
+=====================
 
-`BUG`, `bug`, `die`, `usage`, `error`, and `warning` report errors of
-various kinds.
+A `BUG`, `bug`, `die`, `usage`, `error` és `warning` különféle hibákat
+jelentenek.
 
-- `BUG` is for failed internal assertions that should never happen,
-  i.e. a bug in git itself.
+- A `BUG` olyan sikertelen belső ellenőrzésekhez (assertion) való, amelyek
+  soha nem fordulhatnának elő, azaz magának a gitnek a hibái.
 
-- `bug` (lower-case, not `BUG`) is supposed to be used like `BUG` but
-  prints a "BUG" message instead of calling `abort()`.
+- A `bug` (kisbetűs, nem `BUG`) a `BUG`-hoz hasonlóan használandó, de
+  "BUG" üzenetet ír ki `abort()` hívása helyett.
 +
-A call to `bug()` will then result in a "real" call to the `BUG()`
-function, either explicitly by invoking `BUG_if_bug()` after call(s)
-to `bug()`, or implicitly at `exit()` time where we'll check if we
-encountered any outstanding `bug()` invocations.
+A `bug()` hívása ezután a `BUG()` függvény "valódi" hívását eredményezi,
+vagy explicit módon a `BUG_if_bug()` meghívásával a `bug()` hívása(i)
+után, vagy implicit módon `exit()` idején, amikor ellenőrizzük, hogy
+maradt-e elintézetlen `bug()` hívás.
 +
-If there were no prior calls to `bug()` before invoking `BUG_if_bug()`
-the latter is a NOOP. The `BUG_if_bug()` function takes the same
-arguments as `BUG()` itself. Calling `BUG_if_bug()` explicitly isn't
-necessary, but ensures that we die as soon as possible.
+Ha a `BUG_if_bug()` meghívása előtt nem volt korábbi `bug()` hívás,
+akkor az utóbbi egy NOOP. A `BUG_if_bug()` függvény ugyanazokat az
+argumentumokat veszi át, mint maga a `BUG()`. A `BUG_if_bug()` explicit
+hívása nem szükséges, de biztosítja, hogy a lehető leghamarabb leálljunk.
 +
-If you know you had prior calls to `bug()` then calling `BUG()` itself
-is equivalent to calling `BUG_if_bug()`, the latter being a wrapper
-calling `BUG()` if we've set a flag indicating that we've called
-`bug()`.
+Ha tudod, hogy voltak korábbi `bug()` hívások, akkor magának a `BUG()`-nak
+a hívása egyenértékű a `BUG_if_bug()` hívásával; az utóbbi egy olyan
+burkoló, amely meghívja a `BUG()`-ot, ha be van állítva egy jelző, amely
+azt jelzi, hogy meghívtuk a `bug()`-ot.
 +
-This is for the convenience of APIs who'd like to potentially report
-more than one "bug", such as the optbug() validation in
-parse-options.c.
+Ez azon API-k kényelmét szolgálja, amelyek esetleg egynél több "bug"-ot
+szeretnének jelenteni, mint például a parse-options.c-beli optbug()
+ellenőrzés.
 
-- `die` is for fatal application errors.  It prints a message to
-  the user and exits with status 128.
+- A `die` végzetes alkalmazáshibákhoz való. Üzenetet ír ki a
+  felhasználónak, és 128-as státusszal lép ki.
 
-- `usage` is for errors in command line usage.  After printing its
-  message, it exits with status 129.  (See also `usage_with_options`
-  in the link:api-parse-options.html[parse-options API].)
+- A `usage` a parancssori használat hibáihoz való. Az üzenetének kiírása
+  után 129-es státusszal lép ki. (Lásd még a `usage_with_options`-t a
+  link:api-parse-options.html[parse-options API]-ban.)
 
-- `error` is for non-fatal library errors.  It prints a message
-  to the user and returns -1 for convenience in signaling the error
-  to the caller.
+- Az `error` nem végzetes könyvtárhibákhoz való. Üzenetet ír ki a
+  felhasználónak, és -1-et ad vissza, hogy kényelmesen jelezze a hibát
+  a hívónak.
 
-- `warning` is for reporting situations that probably should not
-  occur but which the user (and Git) can continue to work around
-  without running into too many problems.  Like `error`, it
-  returns -1 after reporting the situation to the caller.
+- A `warning` olyan helyzetek jelentésére való, amelyek valószínűleg nem
+  fordulhatnának elő, de amelyeket a felhasználó (és a Git) túl sok
+  probléma nélkül meg tud kerülni a munka folytatásához. Az `error`-hoz
+  hasonlóan -1-et ad vissza, miután jelentette a helyzetet a hívónak.
 
-These reports will be logged via the trace2 facility. See the "error"
-event in link:api-trace2.html[trace2 API].
+Ezeket a jelentéseket a trace2 szolgáltatás naplózza. Lásd az "error"
+eseményt a link:api-trace2.html[trace2 API]-ban.
 
-Customizable error handlers
----------------------------
+[[_customizable_error_handlers]]
+Testreszabható hibakezelők
+--------------------------
 
-The default behavior of `die` and `error` is to write a message to
-stderr and then exit or return as appropriate.  This behavior can be
-overridden using `set_die_routine` and `set_error_routine`.  For
-example, "git daemon" uses set_die_routine to write the reason `die`
-was called to syslog before exiting.
+A `die` és az `error` alapértelmezett viselkedése, hogy üzenetet ír a
+stderr-re, majd a helyzetnek megfelelően kilép vagy visszatér. Ez a
+viselkedés felülírható a `set_die_routine` és a `set_error_routine`
+segítségével. Például a "git daemon" a set_die_routine-t használja arra,
+hogy kilépés előtt a syslog-ba írja a `die` hívásának okát.
 
-Library errors
---------------
+[[_library_errors]]
+Könyvtárhibák
+-------------
 
-Functions return a negative integer on error.  Details beyond that
-vary from function to function:
+A függvények hiba esetén negatív egész számot adnak vissza. Az ezen
+túli részletek függvényről függvényre változnak:
 
-- Some functions return -1 for all errors.  Others return a more
-  specific value depending on how the caller might want to react
-  to the error.
+- Egyes függvények minden hibára -1-et adnak vissza. Mások konkrétabb
+  értéket adnak vissza attól függően, hogy a hívó hogyan szeretne
+  reagálni a hibára.
 
-- Some functions report the error to stderr with `error`,
-  while others leave that for the caller to do.
+- Egyes függvények az `error`-ral jelentik a hibát a stderr-re, míg
+  mások ezt a hívóra hagyják.
 
-- errno is not meaningful on return from most functions (except
-  for thin wrappers for system calls).
+- Az errno a legtöbb függvényből visszatérve nem értelmes (kivéve a
+  rendszerhívások vékony burkolóit).
 
-Check the function's API documentation to be sure.
+A biztonság kedvéért nézd meg a függvény API-dokumentációját.
 
-Caller-handled errors
----------------------
+[[_caller_handled_errors]]
+A hívó által kezelt hibák
+-------------------------
 
-An increasing number of functions take a parameter 'struct strbuf *err'.
-On error, such functions append a message about what went wrong to the
-'err' strbuf.  The message is meant to be complete enough to be passed
-to `die` or `error` as-is.  For example:
+Egyre több függvény vesz át egy 'struct strbuf *err' paramétert. Hiba
+esetén az ilyen függvények egy üzenetet fűznek az 'err' strbufhoz arról,
+mi ment rosszul. Az üzenetnek elég teljesnek kell lennie, hogy
+változatlanul átadható legyen a `die`-nak vagy az `error`-nak. Például:
 
 	if (ref_transaction_commit(transaction, &err))
 		die("%s", err.buf);
 
-The 'err' parameter will be untouched if no error occurred, so multiple
-function calls can be chained:
+Az 'err' paraméter érintetlen marad, ha nem történt hiba, így több
+függvényhívás láncba fűzhető:
 
 	t = ref_transaction_begin(&err);
 	if (!t ||
@@ -95,8 +98,8 @@ function calls can be chained:
 	    ret_transaction_commit(t, &err))
 		die("%s", err.buf);
 
-The 'err' parameter must be a pointer to a valid strbuf.  To silence
-a message, pass a strbuf that is explicitly ignored:
+Az 'err' paraméternek érvényes strbufra mutató mutatónak kell lennie. Egy
+üzenet elnémításához adj át egy explicit módon figyelmen kívül hagyott strbufot:
 
 	if (thing_that_can_fail_in_an_ignorable_way(..., &err))
 		/* This failure is okay. */

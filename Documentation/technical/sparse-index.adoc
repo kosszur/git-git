@@ -1,206 +1,210 @@
-Git Sparse-Index Design Document
-================================
+A Git sparse-index tervdokumentuma
+==================================
 
-The sparse-checkout feature allows users to focus a working directory on
-a subset of the files at HEAD. The cone mode patterns, enabled by
-`core.sparseCheckoutCone`, allow for very fast pattern matching to
-discover which files at HEAD belong in the sparse-checkout cone.
+A sparse-checkout funkció lehetővé teszi, hogy a felhasználók a
+munkakönyvtárat a HEAD-nél lévő fájlok egy részhalmazára összpontosítsák. A
+`core.sparseCheckoutCone` által engedélyezett cone mode minták nagyon gyors
+mintaillesztést tesznek lehetővé annak megállapításához, hogy a HEAD-nél lévő
+fájlok közül melyek tartoznak a sparse-checkout cone-jába.
 
-Three important scale dimensions for a Git working directory are:
+Egy Git-munkakönyvtár három fontos méretezési dimenziója:
 
-* `HEAD`: How many files are present at `HEAD`?
+* `HEAD`: hány fájl van jelen a `HEAD`-nél?
 
-* Populated: How many files are within the sparse-checkout cone.
+* Populated: hány fájl van a sparse-checkout cone-ján belül.
 
-* Modified: How many files has the user modified in the working directory?
+* Modified: hány fájlt módosított a felhasználó a munkakönyvtárban?
 
-We will use big-O notation -- O(X) -- to denote how expensive certain
-operations are in terms of these dimensions.
+A nagy ordó jelölést -- O(X) -- használjuk annak jelölésére, hogy bizonyos
+műveletek mennyire költségesek e dimenziók függvényében.
 
-These dimensions are ordered by their magnitude: users (typically) modify
-fewer files than are populated, and we can only populate files at `HEAD`.
+Ezeket a dimenziókat a nagyságrendjük szerint rendezzük: a felhasználók
+(jellemzően) kevesebb fájlt módosítanak, mint amennyi ki van töltve, és csak a
+`HEAD`-nél lévő fájlokat tudjuk kitölteni.
 
-Problems occur if there is an extreme imbalance in these dimensions. For
-example, if `HEAD` contains millions of paths but the populated set has
-only tens of thousands, then commands like `git status` and `git add` can
-be dominated by operations that require O(`HEAD`) operations instead of
-O(Populated). Primarily, the cost is in parsing and rewriting the index,
-which is filled primarily with files at `HEAD` that are marked with the
-`SKIP_WORKTREE` bit.
+Problémák akkor merülnek fel, ha ezek a dimenziók rendkívül
+kiegyensúlyozatlanok. Ha például a `HEAD` több millió útvonalat tartalmaz, de a
+kitöltött halmaz csak több tízezret, akkor az olyan parancsoknál, mint a `git
+status` és a `git add`, azok a műveletek dominálhatnak, amelyek O(`HEAD`)
+műveletet igényelnek O(Populated) helyett. A költség elsősorban az index
+elemzésében és újraírásában van, amely főként a `HEAD`-nél lévő, `SKIP_WORKTREE`
+bittel megjelölt fájlokkal van tele.
 
-The sparse-index intends to take these commands that read and modify the
-index from O(`HEAD`) to O(Populated). To do this, we need to modify the
-index format in a significant way: add "sparse directory" entries.
+A sparse-index célja, hogy ezeket az indexet olvasó és módosító parancsokat
+O(`HEAD`)-ről O(Populated)-re vigye. Ehhez jelentős módon módosítanunk kell az
+indexformátumot: „sparse directory" bejegyzéseket kell hozzáadnunk.
 
-With cone mode patterns, it is possible to detect when an entire
-directory will have its contents outside of the sparse-checkout definition.
-Instead of listing all of the files it contains as individual entries, a
-sparse-index contains an entry with the directory name, referencing the
-object ID of the tree at `HEAD` and marked with the `SKIP_WORKTREE` bit.
-If we need to discover the details for paths within that directory, we
-can parse trees to find that list.
+A cone mode mintákkal észlelhető, amikor egy teljes könyvtár tartalma a
+sparse-checkout definícióján kívül lesz. Ahelyett, hogy az összes benne lévő
+fájlt külön bejegyzésként listázná, a sparse-index egy olyan bejegyzést
+tartalmaz a könyvtár nevével, amely a `HEAD`-nél lévő tree
+objektumazonosítójára hivatkozik, és a `SKIP_WORKTREE` bittel van megjelölve.
+Ha fel kell derítenünk az adott könyvtáron belüli útvonalak részleteit, tree-ket
+elemezhetünk a lista megtalálásához.
 
-At time of writing, sparse-directory entries violate expectations about the
-index format and its in-memory data structure. There are many consumers in
-the codebase that expect to iterate through all of the index entries and
-see only files. In fact, these loops expect to see a reference to every
-staged file. One way to handle this is to parse trees to replace a
-sparse-directory entry with all of the files within that tree as the index
-is loaded. However, parsing trees is slower than parsing the index format,
-so that is a slower operation than if we left the index alone. The plan is
-to make all of these integrations "sparse aware" so this expansion through
-tree parsing is unnecessary and they use fewer resources than when using a
-full index.
+Az írás pillanatában a sparse-directory bejegyzések megsértik az
+indexformátummal és annak memóriabeli adatszerkezetével kapcsolatos
+elvárásokat. A kódbázisban sok olyan fogyasztó van, amely azt várja, hogy az
+összes index-bejegyzésen végigiterálhat, és csak fájlokat lát. Valójában ezek a
+ciklusok minden stage-elt fájlra hivatkozást várnak. Ennek egyik kezelési módja,
+hogy az index betöltésekor tree-ket elemzünk, és egy sparse-directory
+bejegyzést lecserélünk az adott tree-n belüli összes fájlra. A tree-k elemzése
+azonban lassabb, mint az indexformátum elemzése, így ez lassabb művelet, mintha
+békén hagynánk az indexet. A terv az, hogy mindezeket az integrációkat „sparse
+aware"-ré tesszük, hogy a tree-elemzésen keresztüli kibontás szükségtelen
+legyen, és kevesebb erőforrást használjanak, mint teljes index használatakor.
 
-The implementation plan below follows four phases to slowly integrate with
-the sparse-index. The intention is to incrementally update Git commands to
-interact safely with the sparse-index without significant slowdowns. This
-may not always be possible, but the hope is that the primary commands that
-users need in their daily work are dramatically improved.
+Az alábbi implementációs terv négy fázist követ, hogy fokozatosan
+integrálódjon a sparse-indexszel. A szándék az, hogy a Git-parancsokat
+fokozatosan frissítsük, hogy jelentős lassulás nélkül, biztonságosan
+működjenek együtt a sparse-indexszel. Ez nem mindig lehetséges, de a remény az,
+hogy azok az elsődleges parancsok, amelyekre a felhasználóknak a napi
+munkájukhoz szükségük van, drámaian javulnak.
 
-Phase I: Format and initial speedups
-------------------------------------
+[[_phase_i_format_and_initial_speedups]]
+I. fázis: formátum és kezdeti gyorsítások
+-----------------------------------------
 
-During this phase, Git learns to enable the sparse-index and safely parse
-one. Protections are put in place so that every consumer of the in-memory
-data structure can operate with its current assumption of every file at
-`HEAD`.
+Ebben a fázisban a Git megtanulja engedélyezni a sparse-indexet és
+biztonságosan elemezni azt. Védelmek kerülnek a helyükre, hogy a memóriabeli
+adatszerkezet minden fogyasztója működhessen a jelenlegi, minden `HEAD`-nél
+lévő fájlra vonatkozó feltételezésével.
 
-At first, every index parse will call a helper method,
-`ensure_full_index()`, which scans the index for sparse-directory entries
-(pointing to trees) and replaces them with the full list of paths (with
-blob contents) by parsing tree objects. This will be slower in all cases.
-The only noticeable change in behavior will be that the serialized index
-file contains sparse-directory entries.
+Kezdetben minden indexelemzés meghív egy `ensure_full_index()` segédmetódust,
+amely átvizsgálja az indexet sparse-directory bejegyzésekért (amelyek tree-kre
+mutatnak), és tree objektumok elemzésével lecseréli őket az útvonalak teljes
+listájára (blob-tartalommal). Ez minden esetben lassabb lesz. Az egyetlen
+észrevehető viselkedésbeli változás az lesz, hogy a szerializált indexfájl
+sparse-directory bejegyzéseket tartalmaz.
 
-To start, we use a new required index extension, `sdir`, to allow
-inserting sparse-directory entries into indexes with file format
-versions 2, 3, and 4. This prevents Git versions that do not understand
-the sparse-index from operating on one, while allowing tools that do not
-understand the sparse-index to operate on repositories as long as they do
-not interact with the index. A new format, index v5, will be introduced
-that includes sparse-directory entries by default. It might also
-introduce other features that have been considered for improving the
-index, as well.
+Kezdetnek egy új, kötelező `sdir` index-kiterjesztést használunk, hogy
+sparse-directory bejegyzéseket lehessen beszúrni a 2-es, 3-as és 4-es
+fájlformátum-verziójú indexekbe. Ez megakadályozza, hogy a sparse-indexet nem
+értő Git-verziók műveleteket végezzenek rajta, ugyanakkor lehetővé teszi, hogy
+a sparse-indexet nem értő eszközök repository-kon dolgozzanak, amíg nem lépnek
+kapcsolatba az indexszel. Bevezetésre kerül egy új formátum, az index v5, amely
+alapértelmezés szerint tartalmaz sparse-directory bejegyzéseket. Ezen felül
+más, az index javítására fontolóra vett funkciókat is bevezethet.
 
-Next, consumers of the index will be guarded against operating on a
-sparse-index by inserting calls to `ensure_full_index()` or
-`expand_index_to_path()`. If a specific path is requested, then those will
-be protected from within the `index_file_exists()` and `index_name_pos()`
-API calls: they will call `ensure_full_index()` if necessary. The
-intention here is to preserve existing behavior when interacting with a
-sparse-checkout. We don't want a change to happen by accident, without
-tests. Many of these locations may not need any change before removing the
-guards, but we should not do so without tests to ensure the expected
-behavior happens.
+Ezután az index fogyasztóit megvédjük attól, hogy sparse-indexen dolgozzanak,
+`ensure_full_index()` vagy `expand_index_to_path()` hívások beszúrásával. Ha egy
+adott útvonalat kérnek, akkor azokat az `index_file_exists()` és
+`index_name_pos()` API-hívásokon belülről védjük: szükség esetén meghívják az
+`ensure_full_index()`-et. A szándék itt a meglévő viselkedés megőrzése
+sparse-checkouttal való munka során. Nem akarjuk, hogy egy változás véletlenül,
+tesztek nélkül történjen. E helyek közül sok esetleg nem igényel semmilyen
+változtatást az őrök eltávolítása előtt, de ezt nem szabad tesztek nélkül
+megtenni, amelyek biztosítják, hogy az elvárt viselkedés következzen be.
 
-It may be desirable to _change_ the behavior of some commands in the
-presence of a sparse index or more generally in any sparse-checkout
-scenario. In such cases, these should be carefully communicated and
-tested. No such behavior changes are intended during this phase.
+Kívánatos lehet egyes parancsok viselkedésének _megváltoztatása_ sparse index
+jelenlétében, vagy általánosabban bármely sparse-checkout forgatókönyvben.
+Ilyen esetekben ezeket gondosan kommunikálni és tesztelni kell. Ebben a
+fázisban nem tervezünk ilyen viselkedésbeli változásokat.
 
-During a scan of the codebase, not every iteration of the cache entries
-needs an `ensure_full_index()` check. The basic reasons include:
+A kódbázis átvizsgálása során nem minden cache-bejegyzés-iterációhoz szükséges
+`ensure_full_index()` ellenőrzés. Az alapvető okok többek között:
 
-1. The loop is scanning for entries with non-zero stage. These entries
-   are not collapsed into a sparse-directory entry.
+1. A ciklus nem nulla stage-ű bejegyzéseket keres. Ezek a bejegyzések nincsenek
+   sparse-directory bejegyzésbe összevonva.
 
-2. The loop is scanning for submodules. These entries are not collapsed
-   into a sparse-directory entry.
+2. A ciklus submodule-okat keres. Ezek a bejegyzések nincsenek sparse-directory
+   bejegyzésbe összevonva.
 
-3. The loop is part of the index API, especially around reading or
-   writing the format.
+3. A ciklus az index API része, különösen a formátum olvasása vagy írása körül.
 
-4. The loop is checking for correct order of cache entries and that is
-   correct if and only if the sparse-directory entries are in the correct
-   location.
+4. A ciklus a cache-bejegyzések helyes sorrendjét ellenőrzi, és ez akkor és csak
+   akkor helyes, ha a sparse-directory bejegyzések a megfelelő helyen vannak.
 
-5. The loop ignores entries with the `SKIP_WORKTREE` bit set, or is
-   otherwise already aware of sparse directory entries.
+5. A ciklus figyelmen kívül hagyja a `SKIP_WORKTREE` bittel rendelkező
+   bejegyzéseket, vagy egyébként már ismeri a sparse directory bejegyzéseket.
 
-6. The sparse-index is disabled at this point when using the split-index
-   feature, so no effort is made to protect the split-index API.
+6. A sparse-index ezen a ponton le van tiltva a split-index funkció
+   használatakor, így nem történik erőfeszítés a split-index API védelmére.
 
-Even after inserting these guards, we will keep expanding sparse-indexes
-for most Git commands using the `command_requires_full_index` repository
-setting. This setting will be on by default and disabled one builtin at a
-time until we have sufficient confidence that all of the index operations
-are properly guarded.
+Még ezeknek az őröknek a beszúrása után is folytatjuk a sparse-indexek
+kibontását a legtöbb Git-parancsnál a `command_requires_full_index`
+repository-beállítással. Ez a beállítás alapértelmezés szerint be lesz
+kapcsolva, és builtinenként egyesével letiltjuk, amíg kellő bizonyosságunk nem
+lesz, hogy minden indexművelet megfelelően védett.
 
-To complete this phase, the commands `git status` and `git add` will be
-integrated with the sparse-index so that they operate with O(Populated)
-performance. They will be carefully tested for operations within and
-outside the sparse-checkout definition.
+E fázis befejezéséhez a `git status` és a `git add` parancsokat integráljuk a
+sparse-indexszel, hogy O(Populated) teljesítménnyel működjenek. Gondosan
+tesztelni fogjuk őket a sparse-checkout definícióján belüli és kívüli
+műveletekre.
 
-Phase II: Careful integrations
-------------------------------
+[[_phase_ii_careful_integrations]]
+II. fázis: óvatos integrációk
+-----------------------------
 
-This phase focuses on ensuring that all index extensions and APIs work
-well with a sparse-index. This requires significant increases to our test
-coverage, especially for operations that interact with the working
-directory outside of the sparse-checkout definition. Some of these
-behaviors may not be the desirable ones, such as some tests already
-marked for failure in `t1092-sparse-checkout-compatibility.sh`.
+Ez a fázis annak biztosítására összpontosít, hogy minden index-kiterjesztés
+és API jól működjön sparse-indexszel. Ehhez jelentősen növelni kell a
+tesztlefedettségünket, különösen azoknál a műveleteknél, amelyek a
+sparse-checkout definícióján kívül lépnek kapcsolatba a munkakönyvtárral. Ezek
+a viselkedések közül némelyik nem biztos, hogy a kívánatos, például néhány
+teszt, amely a `t1092-sparse-checkout-compatibility.sh`-ban már bukásra van
+jelölve.
 
-The index extensions that may require special integrations are:
+A különleges integrációt igénylő index-kiterjesztések:
 
 * FS Monitor
 * Untracked cache
 
-While integrating with these features, we should look for patterns that
-might lead to better APIs for interacting with the index. Coalescing
-common usage patterns into an API call can reduce the number of places
-where sparse-directories need to be handled carefully.
+Az ezekkel a funkciókkal való integráció során olyan mintákat kell keresnünk,
+amelyek jobb API-khoz vezethetnek az indexszel való munkához. Ha a gyakori
+használati mintákat egy API-hívásba vonjuk össze, csökkenthető azoknak a
+helyeknek a száma, ahol a sparse-directory-kat gondosan kell kezelni.
 
-Phase III: Important command speedups
--------------------------------------
+[[_phase_iii_important_command_speedups]]
+III. fázis: fontos parancsok gyorsítása
+---------------------------------------
 
-At this point, the patterns for testing and implementing sparse-directory
-logic should be relatively stable. This phase focuses on updating some of
-the most common builtins that use the index to operate as O(Populated).
-Here is a potential list of commands that could be valuable to integrate
-at this point:
+Ezen a ponton a sparse-directory logika tesztelésének és
+implementálásának mintái viszonylag stabilnak számítanak. Ez a fázis néhány
+leggyakoribb, az indexet használó builtin frissítésére összpontosít, hogy
+O(Populated) módon működjenek. Íme egy lehetséges lista azokról a parancsokról,
+amelyeket ezen a ponton érdemes lehet integrálni:
 
 * `git commit`
 * `git checkout`
 * `git merge`
 * `git rebase`
 
-Hopefully, commands such as `git merge` and `git rebase` can benefit
-instead from merge algorithms that do not use the index as a data
-structure, such as the merge-ORT strategy. As these topics mature, we
-may enable the ORT strategy by default for repositories using the
-sparse-index feature.
+Remélhetőleg az olyan parancsok, mint a `git merge` és a `git rebase`, inkább
+olyan merge-algoritmusokból profitálhatnak, amelyek nem használják az indexet
+adatszerkezetként, mint például a merge-ORT stratégia. Ahogy ezek a témák
+érnek, engedélyezhetjük az ORT stratégiát alapértelmezés szerint a
+sparse-index funkciót használó repository-kra.
 
-Along with `git status` and `git add`, these commands cover the majority
-of users' interactions with the working directory. In addition, we can
-integrate with these commands:
+A `git status` és a `git add` mellett ezek a parancsok fedik le a
+felhasználók munkakönyvtárral való interakcióinak többségét. Ezen felül a
+következő parancsokkal is integrálhatunk:
 
 * `git grep`
 * `git rm`
 
-These have been proposed as some whose behavior could change when in a
-repo with a sparse-checkout definition. It would be good to include this
-behavior automatically when using a sparse-index. Some clarity is needed
-to make the behavior switch clear to the user.
+Ezeket olyanokként javasolták, amelyek viselkedése megváltozhat sparse-checkout
+definícióval rendelkező repóban. Jó lenne ezt a viselkedést automatikusan
+beépíteni sparse-index használatakor. Bizonyos egyértelműségre van szükség
+ahhoz, hogy a viselkedésváltás világos legyen a felhasználó számára.
 
-This phase is the first where parallel work might be possible without too
-much conflicts between topics.
+Ez az első olyan fázis, ahol a párhuzamos munka lehetséges lehet a témák közötti
+túl sok konfliktus nélkül.
 
-Phase IV: The long tail
------------------------
+[[_phase_iv_the_long_tail]]
+IV. fázis: a hosszú farok
+-------------------------
 
-This last phase is less a "phase" and more "the new normal" after all of
-the previous work.
+Ez az utolsó fázis kevésbé „fázis", inkább „az új normális" az összes korábbi
+munka után.
 
-To start, the `command_requires_full_index` option could be removed in
-favor of expanding only when hitting an API guard.
+Kezdetnek a `command_requires_full_index` opció eltávolítható lenne annak
+javára, hogy a kibontás csak akkor történjen, amikor egy API-őrbe ütközünk.
 
-There are many Git commands that could use special attention to operate as
-O(Populated), while some might be so rare that it is acceptable to leave
-them with additional overhead when a sparse-index is present.
+Sok olyan Git-parancs van, amely különös figyelmet érdemelne, hogy O(Populated)
+módon működjön, míg néhány annyira ritka lehet, hogy elfogadható őket
+sparse-index jelenlétében többletterheléssel hagyni.
 
-Here are some commands that might be useful to update:
+Íme néhány parancs, amelyet érdemes lehet frissíteni:
 
 * `git sparse-checkout set`
 * `git am`

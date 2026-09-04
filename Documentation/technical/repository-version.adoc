@@ -1,70 +1,78 @@
-== Git Repository Format Versions
+[[_git_repository_format_versions]]
+== A Git repository-formátum verziói
 
-Every git repository is marked with a numeric version in the
-`core.repositoryformatversion` key of its `config` file. This version
-specifies the rules for operating on the on-disk repository data. An
-implementation of git which does not understand a particular version
-advertised by an on-disk repository MUST NOT operate on that repository;
-doing so risks not only producing wrong results, but actually losing
-data.
+Minden git repository egy numerikus verzióval van megjelölve a `config`
+fájljának `core.repositoryformatversion` kulcsában. Ez a verzió határozza
+meg a lemezen tárolt repository-adatokon való műveletvégzés szabályait. A
+git egy olyan implementációjának, amely nem ért egy adott, a lemezen
+tárolt repository által hirdetett verziót, NEM SZABAD műveletet végeznie
+azon a repository-n; ha mégis megteszi, azzal nemcsak hibás eredmények
+előállítását, hanem tényleges adatvesztést is kockáztat.
 
-Because of this rule, version bumps should be kept to an absolute
-minimum. Instead, we generally prefer these strategies:
+E szabály miatt a verzióemeléseket a lehető legkevesebbre kell
+korlátozni. Ehelyett általában ezeket a stratégiákat részesítjük
+előnyben:
 
-  - bumping format version numbers of individual data files (e.g.,
-    index, packfiles, etc). This restricts the incompatibilities only to
-    those files.
+  - az egyes adatfájlok (pl. index, packfile-ok stb.)
+    formátumverzió-számának emelése. Ez az inkompatibilitásokat csak
+    ezekre a fájlokra korlátozza.
 
-  - introducing new data that gracefully degrades when used by older
-    clients (e.g., pack bitmap files are ignored by older clients, which
-    simply do not take advantage of the optimization they provide).
+  - olyan új adatok bevezetése, amelyek elegánsan lefokozódnak, ha
+    régebbi kliensek használják őket (pl. a pack bitmap fájlokat a
+    régebbi kliensek figyelmen kívül hagyják, egyszerűen nem használják
+    ki az általuk nyújtott optimalizációt).
 
-A whole-repository format version bump should only be part of a change
-that cannot be independently versioned. For instance, if one were to
-change the reachability rules for objects, or the rules for locking
-refs, that would require a bump of the repository format version.
+A repository egészére vonatkozó formátumverzió-emelésnek csak olyan
+változtatás részének szabad lennie, amelyet nem lehet önállóan verziózni.
+Ha például valaki megváltoztatná az objektumok elérhetőségi szabályait
+vagy a refek zárolásának szabályait, az a repository-formátumverzió
+emelését igényelné.
 
-Note that this applies only to accessing the repository's disk contents
-directly. An older client which understands only format `0` may still
-connect via `git://` to a repository using format `1`, as long as the
-server process understands format `1`.
+Vedd figyelembe, hogy ez csak a repository lemezes tartalmának közvetlen
+elérésére vonatkozik. Egy régebbi kliens, amely csak a `0` formátumot
+érti, továbbra is csatlakozhat `git://` protokollon keresztül egy `1`
+formátumot használó repository-hoz, amíg a szerverfolyamat érti az `1`
+formátumot.
 
-The preferred strategy for rolling out a version bump (whether whole
-repository or for a single file) is to teach git to read the new format,
-and allow writing the new format with a config switch or command line
-option (for experimentation or for those who do not care about backwards
-compatibility with older gits). Then after a long period to allow the
-reading capability to become common, we may switch to writing the new
-format by default.
+Egy verzióemelés (akár az egész repository-ra, akár egyetlen fájlra
+vonatkozóan) bevezetésének előnyben részesített stratégiája az, hogy
+megtanítjuk a gitet az új formátum olvasására, és config-kapcsolóval vagy
+parancssori opcióval engedélyezzük az új formátum írását (kísérletezés
+céljából, vagy azoknak, akiket nem érdekel a régebbi gitekkel való
+visszafelé kompatibilitás). Ezután egy hosszú időszak után, amíg az
+olvasási képesség elterjed, alapértelmezés szerint áttérhetünk az új
+formátum írására.
 
-The currently defined format versions are:
+A jelenleg definiált formátumverziók a következők:
 
-=== Version `0`
+[[_version_0]]
+=== `0`. verzió
 
-This is the format defined by the initial version of git, including but
-not limited to the format of the repository directory, the repository
-configuration file, and the object and ref storage. Specifying the
-complete behavior of git is beyond the scope of this document.
+Ez az a formátum, amelyet a git kezdeti verziója definiált, beleértve, de
+nem kizárólag a repository-könyvtár formátumát, a repository konfigurációs
+fájlját, valamint az objektum- és reftárolást. A git teljes viselkedésének
+leírása túlmutat e dokumentum keretein.
 
-=== Version `1`
+[[_version_1]]
+=== `1`. verzió
 
-This format is identical to version `0`, with the following exceptions:
+Ez a formátum azonos a `0` verzióval, a következő kivételekkel:
 
-  1. When reading the `core.repositoryformatversion` variable, a git
-     implementation which supports version 1 MUST also read any
-     configuration keys found in the `extensions` section of the
-     configuration file.
+  1. A `core.repositoryformatversion` változó olvasásakor egy olyan git
+     implementációnak, amely támogatja az 1-es verziót, KÖTELEZŐ
+     beolvasnia a konfigurációs fájl `extensions` szakaszában található
+     bármely konfigurációs kulcsot is.
 
-  2. If a version-1 repository specifies any `extensions.*` keys that
-     the running git has not implemented, the operation MUST NOT
-     proceed. Similarly, if the value of any known key is not understood
-     by the implementation, the operation MUST NOT proceed.
+  2. Ha egy 1-es verziójú repository olyan `extensions.*` kulcsokat ad
+     meg, amelyeket a futó git nem implementált, a műveletnek NEM SZABAD
+     folytatódnia. Hasonlóképpen, ha bármely ismert kulcs értékét nem
+     érti az implementáció, a műveletnek NEM SZABAD folytatódnia.
 
-Note that if no extensions are specified in the config file, then
-`core.repositoryformatversion` SHOULD be set to `0` (setting it to `1`
-provides no benefit, and makes the repository incompatible with older
-implementations of git).
+Vedd figyelembe, hogy ha nincs kiterjesztés megadva a config fájlban,
+akkor a `core.repositoryformatversion` értékét `0`-ra AJÁNLOTT állítani
+(az `1`-re állítása semmilyen előnnyel nem jár, és inkompatibilissá teszi
+a repository-t a git régebbi implementációival).
 
-The defined extensions are given in the `extensions.*` section of
-linkgit:git-config[1]. Any implementation wishing to define a new
-extension should make a note of it there, in order to claim the name.
+A definiált kiterjesztéseket a linkgit:git-config[1] `extensions.*`
+szakasza sorolja fel. Bármely implementációnak, amely új kiterjesztést
+kíván definiálni, fel kell jegyeznie azt ott, hogy lefoglalja a nevet.

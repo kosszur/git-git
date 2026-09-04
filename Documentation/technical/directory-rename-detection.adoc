@@ -1,118 +1,122 @@
-Directory rename detection
-==========================
+Könyvtár-átnevezés felismerése
+==============================
 
-Rename detection logic in diffcore-rename that checks for renames of
-individual files is also aggregated there and then analyzed in either
-merge-ort or merge-recursive for cases where combinations of renames
-indicate that a full directory has been renamed.
+A diffcore-rename átnevezés-felismerő logikája, amely az egyes fájlok
+átnevezéseit ellenőrzi, szintén ott aggregálódik, majd a merge-ort vagy a
+merge-recursive elemzi azokban az esetekben, amikor az átnevezések kombinációi
+arra utalnak, hogy egy teljes könyvtár átnevezésre került.
 
-Scope of abilities
-------------------
+[[_scope_of_abilities]]
+A képességek hatóköre
+---------------------
 
-It is perhaps easiest to start with an example:
+Talán a legegyszerűbb egy példával kezdeni:
 
-  * When all of x/a, x/b and x/c have moved to z/a, z/b and z/c, it is
-    likely that x/d added in the meantime would also want to move to z/d by
-    taking the hint that the entire directory 'x' moved to 'z'.
+  * Ha x/a, x/b és x/c mind átkerült z/a, z/b és z/c helyére, valószínű,
+    hogy a közben hozzáadott x/d is z/d-be szeretne kerülni, felismerve a
+    jelet, hogy a teljes 'x' könyvtár átkerült 'z'-be.
 
-More interesting possibilities exist, though, such as:
+Léteznek azonban érdekesebb lehetőségek is, például:
 
-  * one side of history renames x -> z, and the other renames some file to
-    x/e, causing the need for the merge to do a transitive rename so that
-    the rename ends up at z/e.
+  * az előzmények egyik oldala átnevezi x -> z-t, a másik pedig valamely fájlt
+    x/e-re nevez át, ezért a merge-nek tranzitív átnevezést kell végeznie, hogy
+    az átnevezés végül z/e-nél kössön ki.
 
-  * one side of history renames x -> z, but also renames all files within x.
-    For example, x/a -> z/alpha, x/b -> z/bravo, etc.
+  * az előzmények egyik oldala átnevezi x -> z-t, de az x-en belüli összes fájlt is átnevezi.
+    Például x/a -> z/alpha, x/b -> z/bravo stb.
 
-  * both 'x' and 'y' being merged into a single directory 'z', with a
-    directory rename being detected for both x->z and y->z.
+  * 'x' és 'y' egyaránt egyetlen 'z' könyvtárba merge-elődik, és
+    x->z-re és y->z-re is könyvtár-átnevezés kerül felismerésre.
 
-  * not all files in a directory being renamed to the same location;
-    i.e. perhaps most the files in 'x' are now found under 'z', but a few
-    are found under 'w'.
+  * egy könyvtár nem összes fájlja kerül ugyanarra a helyre átnevezésre;
+    vagyis lehet, hogy az 'x'-ben lévő fájlok többsége most 'z' alatt található, de néhány
+    'w' alatt van.
 
-  * a directory being renamed, which also contained a subdirectory that was
-    renamed to some entirely different location.  (And perhaps the inner
-    directory itself contained inner directories that were renamed to yet
-    other locations).
+  * egy könyvtár átnevezésre kerül, amely egy alkönyvtárt is tartalmazott, amelyet
+    egy teljesen más helyre neveztek át.  (És talán maga a belső könyvtár is
+    tartalmazott belső könyvtárakat, amelyeket megint más helyekre
+    neveztek át).
 
-  * combinations of the above; see t/t6423-merge-rename-directories.sh for
-    various interesting cases.
+  * a fentiek kombinációi; különféle érdekes esetekért lásd a
+    t/t6423-merge-rename-directories.sh fájlt.
 
-Limitations -- applicability of directory renames
--------------------------------------------------
+[[_limitations_applicability_of_directory_renames]]
+Korlátozások -- a könyvtár-átnevezések alkalmazhatósága
+-------------------------------------------------------
 
-In order to prevent edge and corner cases resulting in either conflicts
-that cannot be represented in the index or which might be too complex for
-users to try to understand and resolve, a couple basic rules limit when
-directory rename detection applies:
+Annak megelőzésére, hogy szélső- és sarokesetek olyan konfliktusokhoz vezessenek,
+amelyek nem ábrázolhatók az indexben, vagy amelyek túl bonyolultak lehetnek ahhoz,
+hogy a felhasználók megpróbálják megérteni és feloldani őket, néhány alapszabály
+korlátozza, hogy mikor alkalmazandó a könyvtár-átnevezés felismerése:
 
-  1) If a given directory still exists on both sides of a merge, we do
-     not consider it to have been renamed.
+  1) Ha egy adott könyvtár a merge mindkét oldalán továbbra is létezik, akkor
+     nem tekintjük átnevezettnek.
 
-  2) If a subset of to-be-renamed files have a file or directory in the
-     way (or would be in the way of each other), "turn off" the directory
-     rename for those specific sub-paths and report the conflict to the
-     user.
+  2) Ha az átnevezendő fájlok egy részhalmazának egy fájl vagy könyvtár útban van
+     (vagy egymásnak lennének útban), akkor „kapcsold ki" a könyvtár-átnevezést
+     azokra a konkrét alútvonalakra, és jelentsd a konfliktust a
+     felhasználónak.
 
-  3) If the other side of history did a directory rename to a path that
-     your side of history renamed away, then ignore that particular
-     rename from the other side of history for any implicit directory
-     renames (but warn the user).
+  3) Ha az előzmények másik oldala olyan útvonalra végzett könyvtár-átnevezést,
+     amelyet a te előzményoldalad elnevezett onnan, akkor hagyd figyelmen kívül
+     az előzmények másik oldaláról származó azt a konkrét átnevezést minden implicit
+     könyvtár-átnevezésnél (de figyelmeztesd a felhasználót).
 
-Limitations -- detailed rules and testcases
--------------------------------------------
+[[_limitations_detailed_rules_and_testcases]]
+Korlátozások -- részletes szabályok és tesztesetek
+--------------------------------------------------
 
-t/t6423-merge-rename-directories.sh contains extensive tests and commentary
-which generate and explore the rules listed above.  It also lists a few
-additional rules:
+A t/t6423-merge-rename-directories.sh kiterjedt teszteket és magyarázatokat tartalmaz,
+amelyek a fent felsorolt szabályokat generálják és tárják fel.  Néhány további
+szabályt is felsorol:
 
-  a) If renames split a directory into two or more others, the directory
-     with the most renames, "wins".
+  a) Ha az átnevezések egy könyvtárt két vagy több másikra osztanak, a legtöbb
+     átnevezéssel bíró könyvtár „nyer".
 
-  b) Only apply implicit directory renames to directories if the other side
-     of history is the one doing the renaming.
+  b) Az implicit könyvtár-átnevezéseket csak akkor alkalmazd a könyvtárakra, ha
+     az előzmények másik oldala végzi az átnevezést.
 
-  c) Do not perform directory rename detection for directories which had no
-     new paths added to them.
+  c) Ne végezz könyvtár-átnevezés-felismerést olyan könyvtárakra, amelyekhez nem
+     adtak hozzá új útvonalat.
 
-Limitations -- support in different commands
---------------------------------------------
+[[_limitations_support_in_different_commands]]
+Korlátozások -- támogatás a különböző parancsokban
+--------------------------------------------------
 
-Directory rename detection is supported by 'merge' and 'cherry-pick'.
-Other git commands which users might be surprised to see limited or no
-directory rename detection support in:
+A könyvtár-átnevezés felismerését a 'merge' és a 'cherry-pick' támogatja.
+Más git parancsok, amelyeknél a felhasználók meglepődhetnek, hogy korlátozott vagy
+egyáltalán nincs könyvtár-átnevezés-felismerési támogatás:
 
   * diff
 
-    Folks have requested in the past that `git diff` detect directory
-    renames and somehow simplify its output.  It is not clear whether this
-    would be desirable or how the output should be simplified, so this was
-    simply not implemented.  Also, while diffcore-rename has most of the
-    logic for detecting directory renames, some of the logic is still found
-    within merge-ort and merge-recursive.  Fully supporting directory
-    rename detection in diffs would require copying or moving the remaining
-    bits of logic to the diff machinery.
+    A múltban felmerült az igény, hogy a `git diff` ismerje fel a könyvtár-
+    átnevezéseket, és valamilyen módon egyszerűsítse a kimenetét.  Nem világos, hogy ez
+    kívánatos volna-e, vagy hogyan kellene egyszerűsíteni a kimenetet, ezért ezt
+    egyszerűen nem valósították meg.  Ráadásul, bár a diffcore-rename tartalmazza a
+    könyvtár-átnevezések felismerésének logikájának nagy részét, a logika egy része
+    még mindig a merge-ort és a merge-recursive kódjában található.  A könyvtár-
+    átnevezés felismerésének teljes támogatásához a diffekben a fennmaradó
+    logikarészeket át kellene másolni vagy mozgatni a diff gépezetébe.
 
   * am
 
-    git-am tries to avoid a full three way merge, instead calling
-    git-apply.  That prevents us from detecting renames at all, which may
-    defeat the directory rename detection.  There is a fallback, though; if
-    the initial git-apply fails and the user has specified the -3 option,
-    git-am will fall back to a three way merge.  However, git-am lacks the
-    necessary information to do a "real" three way merge.  Instead, it has
-    to use build_fake_ancestor() to get a merge base that is missing files
-    whose rename may have been important to detect for directory rename
-    detection to function.
+    A git-am megpróbálja elkerülni a teljes háromutas merge-et, helyette a
+    git-apply-t hívja.  Ez teljesen megakadályozza az átnevezések felismerését, ami
+    meghiúsíthatja a könyvtár-átnevezés felismerését.  Van azonban egy tartalék megoldás; ha
+    a kezdeti git-apply sikertelen, és a felhasználó megadta a -3 opciót,
+    a git-am visszavált háromutas merge-re.  A git-am azonban nem rendelkezik a
+    „valódi" háromutas merge-hez szükséges információval.  Ehelyett a
+    build_fake_ancestor() függvényt kell használnia, hogy olyan merge-alapot kapjon, amelyből hiányoznak azok a fájlok,
+    amelyek átnevezésének felismerése fontos lehetett volna a könyvtár-átnevezés
+    felismerésének működéséhez.
 
   * rebase
 
-    Since am-based rebases work by first generating a bunch of patches
-    (which no longer record what the original commits were and thus don't
-    have the necessary info from which we can find a real merge-base), and
-    then calling git-am, this implies that am-based rebases will not always
-    successfully detect directory renames either (see the 'am' section
-    above).  merged-based rebases (rebase -m) and cherry-pick-based rebases
-    (rebase -i) are not affected by this shortcoming, and fully support
-    directory rename detection.
+    Mivel az am-alapú rebase-ek úgy működnek, hogy előbb egy csomó patchet generálnak
+    (amelyek már nem rögzítik, hogy mik voltak az eredeti commitok, így nem
+    tartalmazzák a szükséges információt, amelyből valódi merge-alapot találhatnánk),
+    majd meghívják a git-am-et, ez azt jelenti, hogy az am-alapú rebase-ek sem mindig
+    ismerik fel sikeresen a könyvtár-átnevezéseket (lásd a fenti 'am' szakaszt).
+    A merge-alapú rebase-eket (rebase -m) és a cherry-pick-alapú rebase-eket
+    (rebase -i) nem érinti ez a hiányosság, és teljes mértékben támogatják a
+    könyvtár-átnevezés felismerését.

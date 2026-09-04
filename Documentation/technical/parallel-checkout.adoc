@@ -1,254 +1,260 @@
-Parallel Checkout Design Notes
-==============================
+A párhuzamos checkout tervezési jegyzetei
+=========================================
 
-The "Parallel Checkout" feature attempts to use multiple processes to
-parallelize the work of uncompressing the blobs, applying in-core
-filters, and writing the resulting contents to the working tree during a
-checkout operation. It can be used by all checkout-related commands,
-such as `clone`, `checkout`, `reset`, `sparse-checkout`, and others.
+A „párhuzamos checkout" funkció több folyamatot próbál használni, hogy egy
+checkout művelet során párhuzamosítsa a blobok kicsomagolásának, a magon belüli
+szűrők alkalmazásának és a keletkező tartalmak working tree-be írásának
+munkáját. Minden checkout-jellegű parancs használhatja, például a
+`clone`, a `checkout`, a `reset`, a `sparse-checkout` és mások.
 
-These commands share the following basic structure:
+Ezek a parancsok a következő alapstruktúrán osztoznak:
 
-* Step 1: Read the current index file into memory.
+* 1. lépés: A jelenlegi indexfájl beolvasása a memóriába.
 
-* Step 2: Modify the in-memory index based upon the command, and
-  temporarily mark all cache entries that need to be updated.
+* 2. lépés: A memóriában lévő index módosítása a parancs alapján, és
+  minden frissítendő cache-bejegyzés ideiglenes megjelölése.
 
-* Step 3: Populate the working tree to match the new candidate index.
-  This includes iterating over all of the to-be-updated cache entries
-  and delete, create, or overwrite the associated files in the working
-  tree.
+* 3. lépés: A working tree feltöltése az új jelölt indexnek megfelelően.
+  Ez magában foglalja az összes frissítendő cache-bejegyzésen való végigiterálást,
+  valamint a hozzájuk tartozó fájlok törlését, létrehozását vagy felülírását a
+  working tree-ben.
 
-* Step 4: Write the new index to disk.
+* 4. lépés: Az új index lemezre írása.
 
-Step 3 is the focus of the "parallel checkout" effort described here.
+Az itt leírt „párhuzamos checkout" erőfeszítés a 3. lépésre összpontosít.
 
-Sequential Implementation
+[[_sequential_implementation]]
+Szekvenciális implementáció
+---------------------------
+
+Az itteni tárgyalás céljából a 3. lépés jelenlegi szekvenciális
+implementációja 3 részre oszlik, amelyek mindegyike a saját
+függvényében van megvalósítva:
+
+* 3a lépés: az `unpack-trees.c:check_updates()` szekvenciális ciklusok
+  sorozatát tartalmazza, amelyek a `cache_entry`-k tömbjén iterálnak végig. A
+  függvény fő ciklusa minden frissítendő bejegyzéshez meghívja a 3b lépés
+  függvényét.
+
+* 3b lépés: az `entry.c:checkout_entry()` megvizsgálja a meglévő working tree-t
+  fájlkonfliktusok, ütközések és el nem mentett változtatások szempontjából. Szükség
+  szerint eltávolít fájlokat és létrehozza a vezető könyvtárakat. Minden írandó
+  bejegyzéshez meghívja a 3c lépés függvényét.
+
+* 3c lépés: az `entry.c:write_entry()` betölti a blobot a memóriába, szükség
+  esetén smudge-eli, létrehozza a fájlt a working tree-ben, kiírja a
+  smudge-elt tartalmat, meghívja az `fstat()`-ot vagy az `lstat()`-ot, és
+  frissíti a hozzá tartozó `cache_entry` structot az összegyűjtött stat-információval.
+
+Nem lenne biztonságos a 3b lépést párhuzamosan végezni, mivel versenyhelyzetek
+lehetnének a fájllétrehozások és -eltávolítások között. Ehelyett a
+párhuzamos checkout keretrendszer a szekvenciális kódra bízza a 3b lépést,
+és párhuzamos workereket használ a 3c lépés szekvenciális
+`entry.c:write_entry()` hívásainak leváltására.
+
+[[_rejected_multi_threaded_solution]]
+Az elvetett többszálú megoldás
+------------------------------
+
+A leg„kézenfekvőbb" implementáció az lenne, hogy a frissítendő
+cache-bejegyzések halmazát több szál között osztjuk el. De az objektumadatbázis
+kódjában lévő nem szálbiztos függvények miatt zárolásokat kellene használnunk a
+párhuzamos működés összehangolásához. Ennek a megoldásnak egy korai prototípusa
+azt mutatta, hogy a többszálú checkout teljesítménybeli javulást hozna a
+szekvenciális kódhoz képest, de még mindig túl sok volt a zárolási
+versengés. Egy `perf` profilozás azt jelezte, hogy egy helyi Linux-klón (SSD-n)
+futásidejének mintegy 20%-át zárolási függvényekben töltötte.
+Ezért ezt a megközelítést elvetettük több gyermekfolyamat használata
+javára, ami jobb teljesítményhez vezetett.
+
+[[_multi_process_solution]]
+A többfolyamatos megoldás
 -------------------------
 
-For the purposes of discussion here, the current sequential
-implementation of Step 3 is divided in 3 parts, each one implemented in
-its own function:
+A párhuzamos checkout a fent említett 3. lépést úgy módosítja, hogy több
+`checkout--worker` háttérfolyamatot használjon a munka elosztására. A
+hosszú életű worker folyamatokat az előtérben futó Git-parancs vezérli a
+meglévő run-command API-val.
 
-* Step 3a: `unpack-trees.c:check_updates()` contains a series of
-  sequential loops iterating over the `cache_entry`'s array. The main
-  loop in this function calls the Step 3b function for each of the
-  to-be-updated entries.
+[[_overview]]
+Áttekintés
+~~~~~~~~~~
 
-* Step 3b: `entry.c:checkout_entry()` examines the existing working tree
-  for file conflicts, collisions, and unsaved changes. It removes files
-  and creates leading directories as necessary. It calls the Step 3c
-  function for each entry to be written.
+A 3b lépés csak kis mértékben módosul; minden checkoutolandó bejegyzéshez a
+fő folyamat a következő lépéseket hajtja végre:
 
-* Step 3c: `entry.c:write_entry()` loads the blob into memory, smudges
-  it if necessary, creates the file in the working tree, writes the
-  smudged contents, calls `fstat()` or `lstat()`, and updates the
-  associated `cache_entry` struct with the stat information gathered.
+* M1: Ellenőrzi, van-e a working tree-ben olyan nem követett vagy nem tiszta
+  fájl, amelyet ez a bejegyzés felülírna, és eldönti, hogy folytassa-e
+  (eltávolítva a fájl(oka)t) vagy sem.
 
-It wouldn't be safe to perform Step 3b in parallel, as there could be
-race conditions between file creations and removals. Instead, the
-parallel checkout framework lets the sequential code handle Step 3b,
-and uses parallel workers to replace the sequential
-`entry.c:write_entry()` calls from Step 3c.
+* M2: Létrehozza a vezető könyvtárakat.
 
-Rejected Multi-Threaded Solution
---------------------------------
+* M3: Betölti a bejegyzés útvonalához tartozó konverziós attribútumokat.
 
-The most "straightforward" implementation would be to spread the set of
-to-be-updated cache entries across multiple threads. But due to the
-thread-unsafe functions in the object database code, we would have to use locks to
-coordinate the parallel operation. An early prototype of this solution
-showed that the multi-threaded checkout would bring performance
-improvements over the sequential code, but there was still too much lock
-contention. A `perf` profiling indicated that around 20% of the runtime
-during a local Linux clone (on an SSD) was spent in locking functions.
-For this reason this approach was rejected in favor of using multiple
-child processes, which led to better performance.
+* M4: A bejegyzés típusa és konverziós attribútumai alapján ellenőrzi,
+  hogy a bejegyzés alkalmas-e párhuzamos checkoutra (erről később
+  bővebben). Ha alkalmas, sorba állítja a bejegyzést és a betöltött
+  attribútumokat, hogy később párhuzamosan írja ki a bejegyzést. Ha nem, azonnal
+  kiírja a bejegyzést az alapértelmezett szekvenciális kóddal.
 
-Multi-Process Solution
-----------------------
+Megjegyzés: az egyes bejegyzésekhez tartozó konverziós attribútumokat elmentjük,
+mert a workerek nem férnek hozzá a fő folyamat indexállapotához,
+így nem tudják maguk betölteni az attribútumokat (az attribútumok pedig
+szükségesek a bejegyzés helyes smudge-eléséhez). Ezenkívül ez pozitívan
+hat a teljesítményre, mivel (1) nem kell kétszer betölteni az attribútumokat,
+és (2) az attribútum-gépezet arra van optimalizálva, hogy az útvonalakat
+szekvenciális sorrendben kezelje.
 
-Parallel checkout alters the aforementioned Step 3 to use multiple
-`checkout--worker` background processes to distribute the work. The
-long-running worker processes are controlled by the foreground Git
-command using the existing run-command API.
+Miután minden bejegyzés átment a fenti lépéseken, a fő folyamat
+ellenőrzi, hogy a sorba állított bejegyzések száma elegendő-e a workerek közötti
+elosztáshoz. Ha nem, egyszerűen szekvenciálisan írja ki őket. Egyébként
+elindítja a workereket, és a sorba állított bejegyzéseket egyenletesen, folytonos
+darabokban osztja el. Ez azt hivatott minimalizálni, hogy két worker egyszerre
+írjon ugyanabba a könyvtárba, ami növelhetné a zárolási
+versengést a kernelben.
 
-Overview
-~~~~~~~~
+Ezután minden hozzárendelt elemhez minden worker:
 
-Step 3b is only slightly altered; for each entry to be checked out, the
-main process performs the following steps:
+* W1: Ellenőrzi, van-e nem könyvtár típusú fájl a bejegyzés útvonalának vezető
+  részében, vagy létezik-e már fájl a bejegyzés útvonalán.
+  Ha igen, megjelöli a bejegyzést `PC_ITEM_COLLIDED`-dal, és kihagyja (erről
+  később bővebben).
 
-* M1: Check whether there is any untracked or unclean file in the
-  working tree which would be overwritten by this entry, and decide
-  whether to proceed (removing the file(s)) or not.
+* W2: Létrehozza a fájlt (O_CREAT-tal és O_EXCL-lel).
 
-* M2: Create the leading directories.
+* W3: Betölti a blobot a memóriába (kifújva és a deltát rekonstruálva
+  belőle).
 
-* M3: Load the conversion attributes for the entry's path.
+* W4: Alkalmaz minden szükséges folyamaton belüli szűrőt, például a sorvég-
+  konverziót és az újrakódolást.
 
-* M4: Check, based on the entry's type and conversion attributes,
-  whether the entry is eligible for parallel checkout (more on this
-  later). If it is eligible, enqueue the entry and the loaded
-  attributes to later write the entry in parallel. If not, write the
-  entry right away, using the default sequential code.
+* W5: A W2-nél megnyitott fájlleíróba írja az eredményt.
 
-Note: we save the conversion attributes associated with each entry
-because the workers don't have access to the main process' index state,
-so they can't load the attributes by themselves (and the attributes are
-needed to properly smudge the entry). Additionally, this has a positive
-impact on performance as (1) we don't need to load the attributes twice
-and (2) the attributes machinery is optimized to handle paths in
-sequential order.
+* W6: Meghívja az `fstat()`-ot vagy az `lstat()`-ot a most kiírt útvonalon, és
+  visszaküldi az eredményt a fő folyamatnak a művelet végállapotával és az
+  elem azonosítószámával együtt.
 
-After all entries have passed through the above steps, the main process
-checks if the number of enqueued entries is sufficient to spread among
-the workers. If not, it just writes them sequentially. Otherwise, it
-spawns the workers and distributes the queued entries uniformly in
-continuous chunks. This aims to minimize the chances of two workers
-writing to the same directory simultaneously, which could increase lock
-contention in the kernel.
+Vedd figyelembe, hogy amikor lehetséges, a W3-tól W5-ig terjedő lépéseket a
+streamelő gépezetre delegáljuk, így nem kell a teljes blobot a memóriában tartani.
 
-Then, for each assigned item, each worker:
+Ha a workernek nem sikerül beolvasnia a blobot, vagy kiírnia a working tree-be,
+eltávolítja a létrehozott fájlt, hogy ne hagyjon maga után üres fájlokat. Ez az
+*egyetlen* alkalom, amikor egy worker fájlt távolíthat el.
 
-* W1: Checks if there is any non-directory file in the leading part of
-  the entry's path or if there already exists a file at the entry' path.
-  If so, mark the entry with `PC_ITEM_COLLIDED` and skip it (more on
-  this later).
+Ahogy korábban említettük, a fő folyamat felelőssége, hogy eltávolítson minden
+olyan fájlt, amely blokkolja a checkout műveletet (vagy megszakítsa a folyamatot, ha
+az eltávolítás(ok) adatvesztést okoznának, és a felhasználó nem kérte a `--force`-ot).
+Ez döntő fontosságú a versenyhelyzetek elkerüléséhez, valamint az
+útvonalütközések helyes felismeréséhez a W1 lépésnél.
 
-* W2: Creates the file (with O_CREAT and O_EXCL).
+Miután a workerek befejezik az elemek kiírását és a szükséges információ
+visszaküldését, a fő folyamat két lépésben kezeli az eredményeket:
 
-* W3: Loads the blob into memory (inflating and delta reconstructing
-  it).
+- Először frissíti a memóriában lévő indexet a workerek által küldött `lstat()`
+  információval. (Ezt kell először elvégezni, mivel erre az információra
+  szükség lehet a következő lépésben.)
 
-* W4: Applies any required in-process filter, like end-of-line
-  conversion and re-encoding.
+- Ezután kiírja azokat az elemeket, amelyek a lemezen ütköztek (vagyis a
+  `PC_ITEM_COLLIDED`-dal megjelölt elemeket). Erről bővebben lentebb.
 
-* W5: Writes the result to the file descriptor opened at W2.
+[[_path_collisions]]
+Útvonalütközések
+----------------
 
-* W6: Calls `fstat()` or `lstat()` on the just-written path, and sends
-  the result back to the main process, together with the end status of
-  the operation and the item's identification number.
+Útvonalütközések akkor fordulnak elő, amikor két különböző útvonal ugyanahhoz a
+fájlrendszerbeli bejegyzéshez tartozik. Pl. az 'a' és az 'A' útvonal ütközne egy
+kis- és nagybetűt nem megkülönböztető fájlrendszerben.
 
-Note that, when possible, steps W3 to W5 are delegated to the streaming
-machinery, removing the need to keep the entire blob in memory.
+A szekvenciális checkout ugyanúgy kezeli az ütközéseket, ahogy azokat a
+fájlokat kezeli, amelyek a checkout előtt már jelen voltak a working
+tree-ben. Alapvetően ellenőrzi, hogy az az útvonal, amelyre írni akar,
+már létezik-e a lemezen, meggyőződik róla, hogy a meglévő fájlban nincs el nem
+mentett adat, majd felülírja. (Pedánsabban: törli a
+meglévő fájlt, és létrehozza az újat.) Tehát ha több ütköző fájlt kell
+checkoutolni, a szekvenciális kód mindegyiket kiírja, de valójában csak az
+utolsó marad meg a lemezen.
 
-If the worker fails to read the blob or to write it to the working tree,
-it removes the created file to avoid leaving empty files behind. This is
-the *only* time a worker is allowed to remove a file.
+A párhuzamos checkout ugyanezt a viselkedést igyekszik reprodukálni. Nem
+engedhetjük azonban, hogy a workerek versengve ugyanabba a lemezen lévő fájlba
+írjanak. Ehelyett a workerek felismerik, amikor a checkoutolandó bejegyzés
+ütközne egy meglévő fájllal, és megjelölik `PC_ITEM_COLLIDED`-dal.
+Később a fő folyamat versenyhelyzet kockázata nélkül, szekvenciálisan
+adhatja vissza ezeket a bejegyzéseket a `checkout_entry()`-nek. Klónozáskor ez
+azzal a hatással is jár, hogy megjelöli az ütköző bejegyzéseket, hogy később
+figyelmeztetést adjon a felhasználónak, ahogy a klasszikus szekvenciális checkout teszi.
 
-As mentioned earlier, it is the responsibility of the main process to
-remove any file that blocks the checkout operation (or abort if the
-removal(s) would cause data loss and the user didn't ask to `--force`).
-This is crucial to avoid race conditions and also to properly detect
-path collisions at Step W1.
+A workerek fel tudják ismerni mind az egyidejűleg írt bejegyzések közötti
+ütközéseket, mind a párhuzamosra alkalmas és a nem alkalmas bejegyzés közötti
+ütközéseket. Az ütközésfelismerés általános ötlete elég egyszerű: minden
+párhuzamosra alkalmas bejegyzéshez a fő folyamatnak (a sorba állítás előtt) el
+kell távolítania minden fájlt, amely megakadályozza a bejegyzés kiírását.
+Ide tartozik minden nem könyvtár típusú fájl a bejegyzés vezető útvonalában.
+Később, amikor egy worker megkapja a bejegyzést, újra megnézi a nem könyvtár
+típusú fájlokat és a bejegyzés útvonalán már létező fájlt. Ha ezen
+ellenőrzések bármelyike talál valamit, a worker tudja, hogy útvonalütközés történt.
 
-After the workers finish writing the items and sending back the required
-information, the main process handles the results in two steps:
+Mivel a párhuzamos checkout meg tudja különböztetni az útvonalütközéseket attól az
+esettől, amikor a fájl a checkout előtt már jelen volt a working tree-ben,
+alternatívaként dönthetnénk úgy is, hogy kihagyjuk az ütköző bejegyzések checkoutját.
+Azonban minden ki nem írt bejegyzésnek NULL `lstat()`-mezői lennének az indexben.
+Ez teljesítménybeli hátrányt okozhatna a
+későbbi parancsoknak, amelyeknek frissíteniük kell az indexet, mivel a
+fájlrendszerhez kellene fordulniuk, hogy megnézzék, piszkos-e a bejegyzés. Tehát ha
+egy ütköző csoportban N bejegyzésünk van, és úgy döntünk, hogy csak egyiküket
+írjuk ki és `lstat()`-oljuk, minden későbbi `git-status`-nak N - 1-szer kell
+beolvasnia, konvertálnia és hash-elnie a kiírt fájlt. Azzal, hogy minden ütköző
+bejegyzést checkoutolunk (ahogy a szekvenciális kód teszi), a többletköltséget
+csak egyszer fizetjük meg, a checkout során.
 
-- First, it updates the in-memory index with the `lstat()` information
-  sent by the workers. (This must be done first as this information
-  might be required in the following step.)
+[[_eligible_entries_for_parallel_checkout]]
+A párhuzamos checkoutra alkalmas bejegyzések
+--------------------------------------------
 
-- Then it writes the items which collided on disk (i.e. items marked
-  with `PC_ITEM_COLLIDED`). More on this below.
+Ahogy korábban említettük, nem minden `checkout_entry()`-nek átadott bejegyzés
+minősül párhuzamos checkoutra alkalmasnak. Pontosabban a következőket
+zárjuk ki:
 
-Path Collisions
----------------
+- Szimbolikus linkek; hogy elkerüljük azokat a versenyhelyzeteket, amelyek
+  útvonalütközésekkel kombinálva arra késztethetnék a workereket, hogy rossz
+  helyre írjanak fájlokat. Például ha egyidejűleg checkoutolnánk egy 'a' -> 'b'
+  szimlinket és egy 'A/f' közönséges fájlt egy kis- és nagybetűt nem megkülönböztető
+  fájlrendszerben, akár az történhetne, hogy az 'A/f' fájlt az 'a/f' helyre írjuk egy
+  versenyhelyzet miatt.
 
-Path collisions happen when two different paths correspond to the same
-entry in the file system. E.g. the paths 'a' and 'A' would collide in a
-case-insensitive file system.
-
-The sequential checkout deals with collisions in the same way that it
-deals with files that were already present in the working tree before
-checkout. Basically, it checks if the path that it wants to write
-already exists on disk, makes sure the existing file doesn't have
-unsaved data, and then overwrites it. (To be more pedantic: it deletes
-the existing file and creates the new one.) So, if there are multiple
-colliding files to be checked out, the sequential code will write each
-one of them but only the last will actually survive on disk.
-
-Parallel checkout aims to reproduce the same behavior. However, we
-cannot let the workers racily write to the same file on disk. Instead,
-the workers detect when the entry that they want to check out would
-collide with an existing file, and mark it with `PC_ITEM_COLLIDED`.
-Later, the main process can sequentially feed these entries back to
-`checkout_entry()` without the risk of race conditions. On clone, this
-also has the effect of marking the colliding entries to later emit a
-warning for the user, like the classic sequential checkout does.
-
-The workers are able to detect both collisions among the entries being
-concurrently written and collisions between a parallel-eligible entry
-and an ineligible entry. The general idea for collision detection is
-quite straightforward: for each parallel-eligible entry, the main
-process must remove all files that prevent this entry from being written
-(before enqueueing it). This includes any non-directory file in the
-leading path of the entry. Later, when a worker gets assigned the entry,
-it looks again for the non-directory files and for an already existing
-file at the entry's path. If any of these checks finds something, the
-worker knows that there was a path collision.
-
-Because parallel checkout can distinguish path collisions from the case
-where the file was already present in the working tree before checkout,
-we could alternatively choose to skip the checkout of colliding entries.
-However, each entry that doesn't get written would have NULL `lstat()`
-fields on the index. This could cause performance penalties for
-subsequent commands that need to refresh the index, as they would have
-to go to the file system to see if the entry is dirty. Thus, if we have
-N entries in a colliding group and we decide to write and `lstat()` only
-one of them, every subsequent `git-status` will have to read, convert,
-and hash the written file N - 1 times. By checking out all colliding
-entries (like the sequential code does), we only pay the overhead once,
-during checkout.
-
-Eligible Entries for Parallel Checkout
---------------------------------------
-
-As previously mentioned, not all entries passed to `checkout_entry()`
-will be considered eligible for parallel checkout. More specifically, we
-exclude:
-
-- Symbolic links; to avoid race conditions that, in combination with
-  path collisions, could cause workers to write files at the wrong
-  place. For example, if we were to concurrently check out a symlink
-  'a' -> 'b' and a regular file 'A/f' in a case-insensitive file system,
-  we could potentially end up writing the file 'A/f' at 'a/f', due to a
-  race condition.
-
-- Regular files that require external filters (either "one shot" filters
-  or long-running process filters). These filters are black-boxes to Git
-  and may have their own internal locking or non-concurrent assumptions.
-  So it might not be safe to run multiple instances in parallel.
+- Közönséges fájlok, amelyek külső szűrőket igényelnek (akár „one shot" szűrők,
+  akár hosszú életű folyamatszűrők). Ezek a szűrők fekete dobozok a Git számára,
+  és lehet, hogy saját belső zárolásuk vagy nem konkurens feltételezéseik vannak.
+  Ezért nem biztos, hogy biztonságos több példányt párhuzamosan futtatni.
 +
-Besides, long-running filters may use the delayed checkout feature to
-postpone the return of some filtered blobs. The delayed checkout queue
-and the parallel checkout queue are not compatible and should remain
-separate.
+Ezenkívül a hosszú életű szűrők használhatják a késleltetett checkout funkciót,
+hogy elhalasszák néhány szűrt blob visszaadását. A késleltetett checkout sor
+és a párhuzamos checkout sor nem kompatibilis, és külön kell
+maradniuk.
 +
-Note: regular files that only require internal filters, like end-of-line
-conversion and re-encoding, are eligible for parallel checkout.
+Megjegyzés: azok a közönséges fájlok, amelyek csak belső szűrőket igényelnek, mint a
+sorvég-konverzió és az újrakódolás, alkalmasak párhuzamos checkoutra.
 
-Ineligible entries are checked out by the classic sequential codepath
-*before* spawning workers.
+A nem alkalmas bejegyzéseket a klasszikus szekvenciális kódútvonal checkoutolja
+a workerek elindítása *előtt*.
 
-Note: submodules' files are also eligible for parallel checkout (as
-long as they don't fall into any of the excluding categories mentioned
-above). But since each submodule is checked out in its own child
-process, we don't mix the superproject's and the submodules' files in
-the same parallel checkout process or queue.
+Megjegyzés: a submodule-ok fájljai is alkalmasak párhuzamos checkoutra (amíg
+nem esnek a fent említett kizáró kategóriák egyikébe sem).
+De mivel minden submodule a saját gyermekfolyamatában van checkoutolva,
+nem keverjük a szuperprojekt és a submodule-ok fájljait ugyanabba a
+párhuzamos checkout folyamatba vagy sorba.
 
-The API
--------
+[[_the_api]]
+Az API
+------
 
-The parallel checkout API was designed with the goal of minimizing
-changes to the current users of the checkout machinery. This means that
-they don't have to call a different function for sequential or parallel
-checkout. As already mentioned, `checkout_entry()` will automatically
-insert the given entry in the parallel checkout queue when this feature
-is enabled and the entry is eligible; otherwise, it will just write the
-entry right away, using the sequential code. In general, callers of the
-parallel checkout API should look similar to this:
+A párhuzamos checkout API-t azzal a céllal terveztük, hogy minimalizáljuk a
+checkout gépezet jelenlegi felhasználóin szükséges változtatásokat. Ez azt jelenti, hogy
+nem kell más függvényt hívniuk szekvenciális vagy párhuzamos
+checkouthoz. Ahogy már említettük, a `checkout_entry()` automatikusan
+beszúrja az adott bejegyzést a párhuzamos checkout sorba, amikor ez a funkció
+engedélyezve van, és a bejegyzés alkalmas; egyébként egyszerűen azonnal kiírja a
+bejegyzést a szekvenciális kóddal. Általánosságban a párhuzamos
+checkout API hívói ehhez hasonlóan néznek ki:
 
 ----------------------------------------------
 int pc_workers, pc_threshold, err = 0;

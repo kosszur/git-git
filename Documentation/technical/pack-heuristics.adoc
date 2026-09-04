@@ -1,5 +1,5 @@
-Concerning Git's Packing Heuristics
-===================================
+A Git csomagolási heurisztikáiról
+=================================
 
         Oh, here's a really stupid question:
 
@@ -7,16 +7,16 @@ Concerning Git's Packing Heuristics
                to learn the details
 	    of Git's packing heuristics?
 
-Be careful what you ask!
+Vigyázz, mit kérdezel!
 
-Followers of the Git, please open the Git IRC Log and turn to
-February 10, 2006.
+A Git hívei, nyissátok meg a Git IRC-naplóját, és lapozzatok
+2006. február 10-éhez.
 
-It's a rare occasion, and we are joined by the King Git Himself,
-Linus Torvalds (linus).  Nathaniel Smith, (njs`), has the floor
-and seeks enlightenment.  Others are present, but silent.
+Ritka alkalom ez: csatlakozik hozzánk maga a Git Királya,
+Linus Torvalds (linus).  Nathaniel Smith (njs`) kapja a szót,
+és megvilágosodásra vágyik.  Mások is jelen vannak, de hallgatnak.
 
-Let's listen in!
+Hallgassunk bele!
 
     <njs`> Oh, here's a really stupid question -- where do I go to
 	learn the details of Git's packing heuristics?  google avails
@@ -24,38 +24,38 @@ Let's listen in!
         through the whole mailing list seems less efficient than any
         of that.
 
-It is a bold start!  A plea for help combined with a simultaneous
-tri-part attack on some of the tried and true mainstays in the quest
-for enlightenment.  Brash accusations of google being useless. Hubris!
-Maligning the source.  Heresy!  Disdain for the mailing list archives.
-Woe.
+Merész kezdés!  Segélykérés, egyszersmind háromfelől indított
+támadás a megvilágosodás keresésének néhány jól bevált támpontja
+ellen.  Pimasz vádaskodás, hogy a google haszontalan. Micsoda gőg!
+A forrás rágalmazása.  Eretnekség!  A levelezőlista-archívumok lenézése.
+Ó, jaj.
 
     <pasky> yes, the packing-related delta stuff is somewhat
         mysterious even for me ;)
 
-Ah!  Modesty after all.
+Á!  Mégiscsak van benne szerénység.
 
     <linus> njs, I don't think the docs exist. That's something where
 	 I don't think anybody else than me even really got involved.
 	 Most of the rest of Git others have been busy with (especially
 	 Junio), but packing nobody touched after I did it.
 
-It's cryptic, yet vague.  Linus in style for sure.  Wise men
-interpret this as an apology.  A few argue it is merely a
-statement of fact.
+Rejtélyes, mégis homályos.  Egészen linusi stílus.  A bölcsek
+ezt bocsánatkérésnek értelmezik.  Néhányan azzal érvelnek, hogy
+pusztán ténymegállapítás.
 
     <njs`> I guess the next step is "read the source again", but I
         have to build up a certain level of gumption first :-)
 
-Indeed!  On both points.
+Valóban!  Mindkét ponton.
 
     <linus> The packing heuristic is actually really really simple.
 
-Bait...
+Csali...
 
     <linus> But strange.
 
-And switch.  That ought to do it!
+És csere.  Ez így már működik!
 
     <linus> Remember: Git really doesn't follow files. So what it does is
         - generate a list of all objects
@@ -64,16 +64,16 @@ And switch.  That ought to do it!
           can be diffed against another object in the window
         - write out the list in recency order
 
-The traditional understatement:
+A hagyományos alábecslés:
 
     <njs`> I suspect that what I'm missing is the precise definition of
         the word "magic"
 
-The traditional insight:
+A hagyományos éleslátás:
 
     <pasky> yes
 
-And Babel-like confusion flowed.
+És bábeli zűrzavar áradt szét.
 
     <njs`> oh, hmm, and I'm not sure what this sliding window means either
 
@@ -85,7 +85,7 @@ And Babel-like confusion flowed.
     <njs`> .....and recency order.  okay, I think it's clear I didn't
        even realize how much I wasn't realizing :-)
 
-Ah, grasshopper!  And thus the enlightenment begins anew.
+Á, ifjú tanítvány!  És így kezdődik újra a megvilágosodás.
 
     <linus> The "magic" is actually in theory totally arbitrary.
         ANY order will give you a working pack, but no, it's not
@@ -99,7 +99,7 @@ Ah, grasshopper!  And thus the enlightenment begins anew.
         together, you could just use cat and save yourself some
         trouble...
 
-Waaait for it....
+Váááárj egy kicsit....
 
     <linus> The recency ordering (which is basically: put objects
         _physically_ into the pack in the order that they are
@@ -113,7 +113,7 @@ Waaait for it....
         at the head of the pack. So packs actually have absolutely
         _wonderful_ IO patterns.
 
-Read that again, because it is important.
+Olvasd el ezt még egyszer, mert fontos.
 
     <linus> But recency ordering is totally useless for deciding how
         to actually generate the deltas, so the delta ordering is
@@ -132,7 +132,7 @@ Read that again, because it is important.
         need some way to break ties since the same objects may be
         reachable many ways, yes?
 
-And as if to clarify:
+És mintegy pontosításképpen:
 
     <linus> The point is that it's all really just any random
         heuristic, and the ordering is totally unimportant for
@@ -140,10 +140,10 @@ And as if to clarify:
         "clumping" for things that are likely to delta well against
         each other.
 
-It is an important point, so secretly, I did my own research and have
-included my results below.  To be fair, it has changed some over time.
-And through the magic of Revisionistic History, I draw upon this entry
-from The Git IRC Logs on my father's birthday, March 1:
+Fontos pont ez, úgyhogy titokban elvégeztem a saját kutatásomat, és az
+eredményeimet alább mellékeltem.  Az igazság kedvéért: idővel valamennyit
+változott.  És a Revizionista Történelem varázsa révén a Git IRC-naplóinak
+ebből a bejegyzéséből merítek, apám születésnapján, március 1-jén:
 
     <gitster> The quote from the above linus should be rewritten a
         bit (wait for it):
@@ -157,9 +157,9 @@ from The Git IRC Logs on my father's birthday, March 1:
           other objects.
         - and finally sort by size, larger to smaller.
 
-In one swell-foop, clarification and obscurification!  Nonetheless,
-authoritative.  Cryptic, yet concise.  It even solicits notions of
-quotes from The Source Code.  Clearly, more study is needed.
+Egyetlen zavaros csapással pontosítás és homályosítás!  Mindazonáltal
+mérvadó.  Rejtélyes, mégis tömör.  Még A Forráskódból vett idézetek
+gondolatát is felkelti.  Nyilvánvaló, hogy több tanulmányozás kell.
 
     <gitster> That's the sort order.  What this means is:
         - we do not delta different object types.
@@ -173,20 +173,20 @@ quotes from The Source Code.  Clearly, more study is needed.
         The penultimate rule is for "thin" packs.  It is used when
         the other side is known to have such objects.
 
-There it is again. "Thin" packs.  I'm thinking to myself, "What
-is a 'thin' pack?"  So I ask:
+Már megint itt van. "Thin" (vékony) packek.  Elgondolkodom: „Mi az a
+'thin' pack?"  Úgyhogy megkérdezem:
 
     <jdl> What is a "thin" pack?
 
     <gitster> Use of --objects-edge to rev-list as the upstream of
         pack-objects.  The pack transfer protocol negotiates that.
 
-Woo hoo!  Cleared that _right_ up!
+Hurrá!  Ez aztán _tisztázta_ a dolgot!
 
     <gitster> There are two directions - push and fetch.
 
-There!  Did you see it?  It is not '"push" and "pull"'!  How often the
-confusion has started here.  So casually mentioned, too!
+Ott!  Láttad?  Nem az van, hogy '"push" és "pull"'!  Milyen gyakran
+kezdődött itt a félreértés.  És milyen csak úgy mellékesen ejtve!
 
     <gitster> For push, git-send-pack invokes git-receive-pack on the
         other end.  The receive-pack says "I have up to these commits".
@@ -207,29 +207,29 @@ confusion has started here.  So casually mentioned, too!
         individual objects, so we automatically ask upload-pack to
         give us a thin pack if upload-pack supports it.
 
-OK then.
+Nos, rendben.
 
-Uh.
+Ööö.
 
-Let's return to the previous conversation still in progress.
+Térjünk vissza az előző, még folyamatban lévő beszélgetéshez.
 
     <njs`> and "basename" means something like "the tail of end of
         path of file objects and dir objects, as per basename(3), and
         we just declare all commit and tag objects to have the same
         basename" or something?
 
-Luckily, that too is a point that gitster clarified for us!
+Szerencsére ezt a pontot is tisztázta nekünk gitster!
 
-If I might add, the trick is to make files that _might_ be similar be
-located close to each other in the hash buckets based on their file
-names.  It used to be that "foo/Makefile", "bar/baz/quux/Makefile" and
-"Makefile" all landed in the same bucket due to their common basename,
-"Makefile". However, now they land in "close" buckets.
+Ha hozzátehetem, a trükk az, hogy az _esetleg_ hasonló fájlok a
+fájlneveik alapján egymáshoz közeli hash-kosarakba kerüljenek.  Régen
+a "foo/Makefile", a "bar/baz/quux/Makefile" és a "Makefile" mind
+ugyanabba a kosárba került a közös basename-jük, a "Makefile" miatt.
+Most viszont "közeli" kosarakba kerülnek.
 
-The algorithm allows not just for the _same_ bucket, but for _close_
-buckets to be considered delta candidates.  The rationale is
-essentially that files, like Makefiles, often have very similar
-content no matter what directory they live in.
+Az algoritmus nem csak az _ugyanolyan_ kosarat, hanem a _közeli_
+kosarakat is delta-jelöltnek tekinti.  Az indoklás lényegében az, hogy
+a fájlok, mint a Makefile-ok, gyakran nagyon hasonló tartalmúak,
+függetlenül attól, melyik könyvtárban laknak.
 
     <linus> I played around with different delta algorithms, and with
         making the "delta window" bigger, but having too big of a
@@ -248,8 +248,8 @@ content no matter what directory they live in.
         really only supposed to do it maybe once a month (and you can
         do it during the night), nobody really seems to care.
 
-Nice Engineering Touch, there.  Find when it doesn't matter, and
-proclaim it a non-issue.  Good style too!
+Szép mérnöki fogás ez.  Megtalálod, mikor nem számít, és kikiáltod
+lényegtelennek.  Jó stílus is!
 
     <njs`> So, just to repeat to see if I'm following, we start by
         getting a list of the objects we want to pack, we sort it by
@@ -260,7 +260,7 @@ proclaim it a non-issue.  Good style too!
         each object against the last n (tunable parameter) objects,
         and pick the smallest of these deltas.
 
-Vastly simplified, but the essence is there!
+Erősen leegyszerűsítve, de a lényeg megvan!
 
     <linus> Correct.
 
@@ -270,7 +270,7 @@ Vastly simplified, but the essence is there!
 
     <linus> Yup. Some other small details:
 
-And of course there is the "Other Shoe" Factor too.
+És persze ott van a „mikor esik le a tantusz" tényező is.
 
     <linus> - We limit the delta depth to another magic value (right
         now both the window and delta depth magic values are just "10")
@@ -290,9 +290,9 @@ And of course there is the "Other Shoe" Factor too.
         - this means that the top-of-tree very seldom has deltas
           (i.e. deltas in _practice_ are "backwards deltas")
 
-Again, we should reread that whole paragraph.  Not just because
-Linus has slipped Linus's Law in there on us, but because it is
-important.  Let's make sure we clarify some of the points here:
+Megint érdemes újraolvasni ezt az egész bekezdést.  Nem csak azért,
+mert Linus becsempészte oda nekünk Linus törvényét, hanem azért, mert
+fontos.  Tisztázzunk itt néhány pontot:
 
     <njs`> So the point is just that in practice, delta order and
         recency order match each other quite well.
@@ -317,7 +317,7 @@ important.  Let's make sure we clarify some of the points here:
 
     <linus> See?
 
-Yeah, no.  I missed that on the first two or three readings myself.
+Hát, nem.  Én is lemaradtam róla az első két-három olvasásra.
 
     <linus> This keeps the front of the pack dense. The front of the
         pack never contains data that isn't relevant to a "recent"
@@ -337,20 +337,19 @@ Yeah, no.  I missed that on the first two or three readings myself.
 
     <pasky> :)
 
-The silent observers are amused.  Of course.
+A csendes megfigyelők jól szórakoznak.  Persze.
 
-And as if njs` was expected to be omniscient:
+És mintha njs`-től elvárnák, hogy mindentudó legyen:
 
     <linus> njs - did you miss anything?
 
-OK, I'll spell it out.  That's Geek Humor.  If njs` was not actually
-connected for a little bit there, how would he know if missed anything
-while he was disconnected?  He's a benevolent dictator with a sense of
-humor!  Well noted!
+Jó, kimondom.  Ez geekhumor.  Ha njs` egy kis időre tényleg nem volt
+kapcsolatban, honnan tudná, hogy lemaradt-e bármiről, amíg le volt
+csatlakozva?  Jóindulatú diktátor, humorérzékkel!  Jól megjegyezve!
 
     <njs`> Stupid router.  Or gremlins, or whatever.
 
-It's a cheap shot at Cisco.  Take 'em when you can.
+Olcsó beszólás a Ciscónak.  Élj vele, amikor tudsz.
 
     <njs`> Yes and no. Notice the rule: we only write out the base
         object first if the delta against it was more recent.
@@ -361,8 +360,8 @@ It's a cheap shot at Cisco.  Take 'em when you can.
         we've said) though my connection back at home is logging, so I
         can just read what you said there :-)
 
-And for those of you paying attention, the Omniscient Trick has just
-been detailed!
+És azoknak, akik figyeltek: a Mindentudó Trükköt épp az imént
+részletezték!
 
     <linus> Yes, we always write out most recent first
 
@@ -379,8 +378,8 @@ been detailed!
 	because it's used both for streaming (the Git protocol) and
         for on-disk, it has a few pessimizations.
 
-Actually, it is a made-up word. But it is a made-up word being
-used as setup for a later optimization, which is a real word:
+Valójában ez egy kitalált szó. De egy olyan kitalált szó, amelyet egy
+későbbi optimalizáció felvezetéseként használnak – az pedig valódi szó:
 
     <linus> In particular, while the pack-file is then compressed,
         it's compressed just one object at a time, so the actual
@@ -400,13 +399,13 @@ used as setup for a later optimization, which is a real word:
 
         Right.
 
-Reality IRC sets in.  For example:
+Beköszönt az IRC-valóság.  Például:
 
     <pasky> I'll read the rest in the morning, I really have to go
         sleep or there's no hope whatsoever for me at the today's
         exam... g'nite all.
 
-Heh.
+Hehe.
 
     <linus> pasky: g'nite
 
@@ -422,9 +421,9 @@ Heh.
         are perfect, but they do tend to have a nice balance of
         density vs ease-of use.
 
-Gasp!  OK, saved.  That's a fair Engineering trade off.  Close call!
-In fact, Linus reflects on some Basic Engineering Fundamentals,
-design options, etc.
+Hű!  Rendben, megúsztuk.  Ez tisztességes mérnöki kompromisszum.
+Épphogy!  Linus voltaképp elmélkedik néhány alapvető mérnöki
+alapelven, tervezési lehetőségeken és hasonlókon.
 
     <linus> More importantly, they allow Git to still _conceptually_
         never deal with deltas at all, and be a "whole object" store.
@@ -446,7 +445,7 @@ design options, etc.
 
     <njs`> Yeah.
 
-Nuff said.
+Ennyi elég is.
 
     <linus> Anyway.  I'm off for bed. It's not 6AM here, but I've got
 	 three kids, and have to get up early in the morning to send
@@ -457,4 +456,4 @@ Nuff said.
     <njs`> appreciate the infodump, I really was failing to find the
 	details on Git packs :-)
 
-And now you know the rest of the story.
+És most már ismered a történet többi részét is.

@@ -1,190 +1,230 @@
-Platform Support Policy
-=======================
+[[platform-support-policy]]
+[[_platform_support_policy]]
+Platformtámogatási szabályzat
+=============================
 
-Git has a history of providing broad "support" for exotic platforms and older
-platforms, without an explicit commitment. Stakeholders of these platforms may
-want a more predictable support commitment. This is only possible when platform
-stakeholders supply Git developers with adequate tooling, so we can test for
-compatibility or develop workarounds for platform-specific quirks on our own.
-Various levels of platform-specific tooling will allow us to make more solid
-commitments around Git's compatibility with that platform.
+A Gitnek van egy múltja, amelyben széles körű „támogatást" nyújtott
+egzotikus és régebbi platformoknak, explicit elköteleződés nélkül. Ezen
+platformok érdekelt felei kiszámíthatóbb támogatási elköteleződést
+szeretnének. Ez csak akkor lehetséges, ha a platform érdekelt felei
+megfelelő eszközkészletet biztosítanak a Git fejlesztőinek, hogy magunk
+tudjunk kompatibilitást tesztelni vagy kerülőmegoldásokat fejleszteni a
+platform-specifikus furcsaságokra. A platform-specifikus eszközkészlet
+különböző szintjei lehetővé teszik, hogy szilárdabb elköteleződéseket
+tegyünk a Git adott platformmal való kompatibilitása körül.
 
-Note that this document is about maintaining existing support for a platform
-that has generally worked in the past; for adding support to a platform which
-doesn't generally work with Git, the stakeholders for that platform are expected
-to do the bulk of that work themselves. We will consider such patches if they
-don't make life harder for other supported platforms or for Git contributors.
-Some contributors may volunteer to help with the initial or continued support,
-but that's not a given. Support work which is too intrusive or difficult for the
-project to maintain may still not be accepted.
+Vedd figyelembe, hogy ez a dokumentum egy olyan platform meglévő
+támogatásának fenntartásáról szól, amely a múltban általában működött;
+egy olyan platform támogatásának hozzáadásához, amely a Gittel általában
+nem működik, az adott platform érdekelt feleitől azt várjuk, hogy a
+munka nagy részét maguk végezzék el. Az ilyen patcheket megfontoljuk, ha
+nem nehezítik meg más támogatott platformok vagy a Git közreműködőinek
+életét. Néhány közreműködő önként segíthet a kezdeti vagy folyamatos
+támogatásban, de ez nem garantált. A túl tolakodó vagy a projekt számára
+túl nehezen karbantartható támogatási munkát ettől még nem biztos, hogy
+elfogadjuk.
 
-Minimum Requirements
---------------------
+[[_minimum_requirements]]
+Minimális követelmények
+-----------------------
 
-The rest of this doc describes best practices for platforms to make themselves
-easy to support. However, before considering support at all, platforms need to
-meet the following minimum requirements:
+E dokumentum további része azokat a legjobb gyakorlatokat írja le,
+amelyekkel a platformok könnyen támogathatóvá tehetik magukat. Mielőtt
+azonban egyáltalán szóba jönne a támogatás, a platformoknak meg kell
+felelniük a következő minimális követelményeknek:
 
-* Has C99 or C11
+* Van C99 vagy C11
 
-* Uses versions of dependencies which are generally accepted as stable and
-  supportable, e.g., in line with the version used by other long-term-support
-  distributions
+* Olyan verziójú függőségeket használ, amelyek általánosan elfogadottan
+  stabilak és támogathatók, pl. összhangban az egyéb hosszú távú
+  támogatású (long-term-support) disztribúciók által használt verzióval
 
-* Has active security support (taking security releases of dependencies, etc)
+* Aktív biztonsági támogatással rendelkezik (átveszi a függőségek
+  biztonsági kiadásait stb.)
 
-These requirements are a starting point, and not sufficient on their own for the
-Git community to be enthusiastic about supporting your platform. Maintainers of
-platforms which do meet these requirements can follow the steps below to make it
-more likely that Git updates will respect the platform's needs.
+Ezek a követelmények kiindulópontok, és önmagukban nem elegendők ahhoz,
+hogy a Git közösség lelkesedjen a platformod támogatásáért. Az e
+követelményeknek megfelelő platformok maintainerei az alábbi lépéseket
+követhetik, hogy valószínűbbé tegyék: a Git frissítései tiszteletben
+tartják a platform igényeit.
 
-Compatible by next release
---------------------------
+[[_compatible_by_next_release]]
+Kompatibilis a következő kiadásra
+---------------------------------
 
-To increase probability that compatibility issues introduced in a release
-will be fixed in a later release:
+Annak valószínűségét növelendő, hogy egy kiadásban bevezetett
+kompatibilitási problémák egy későbbi kiadásban javításra kerülnek:
 
-* You should send a bug report as soon as you notice the breakage on your
-  platform. The sooner you notice, the better; watching `seen` means you can
-  notice problems before they are considered "done with review"; whereas
-  watching `master` means the stable branch could break for your platform, but
-  you have a decent chance of avoiding a tagged release breaking you. See "The
-  Policy" in link:../howto/maintain-git.html["How to maintain Git"] for an
-  overview of which branches are used in the Git project, and how.
+* Hibajelentést kell küldened, amint észreveszed a törést a
+  platformodon. Minél hamarabb veszed észre, annál jobb; a `seen`
+  figyelése azt jelenti, hogy a problémákat még azelőtt észreveheted,
+  hogy „a review-val kész" állapotba kerülnének; míg a `master` figyelése
+  azt jelenti, hogy a stabil branch eltörhet a platformodon, de tisztes
+  esélyed van elkerülni, hogy egy tagelt kiadás eltörjön nálad. Lásd „The
+  Policy" a link:../howto/maintain-git.html["Hogyan tartsuk karban a
+  Gitet"] alatt, amely áttekintést ad arról, hogy a Git projekt mely
+  brancheket használja, és hogyan.
 
-* The bug report should include information about what platform you are using.
+* A hibajelentésnek tartalmaznia kell információt arról, hogy milyen
+  platformot használsz.
 
-* You should also use linkgit:git-bisect[1] and determine which commit
-  introduced the breakage.
+* Használd a linkgit:git-bisect[1]-et is, és határozd meg, melyik commit
+  vezette be a törést.
 
-* Please include any information you have about the nature of the breakage: is
-  it a memory alignment issue? Is an underlying library missing or broken for
-  your platform? Is there some quirk about your platform which means typical
-  practices (like malloc) behave strangely?
+* Kérjük, csatolj minden információt, ami a törés természetéről a
+  rendelkezésedre áll: memóriaigazítási probléma? Hiányzik vagy hibás egy
+  alsóbb szintű könyvtár a platformodon? Van valami furcsaság a
+  platformoddal kapcsolatban, ami miatt a tipikus gyakorlatok (mint a
+  malloc) furcsán viselkednek?
 
-* If possible, build Git from the exact same source both for your platform and
-  for a mainstream platform, to see if the problem you noticed appears only
-  on your platform. If the problem appears in both, then it's not a
-  compatibility issue, but we of course appreciate hearing about it in a bug
-  report anyway, to benefit users of every platform. If it appears only on your
-  platform, mention clearly that it is a compatibility issue in your report.
+* Ha lehetséges, buildeld a Gitet pontosan ugyanabból a forrásból a
+  platformodra és egy fősodorbeli platformra is, hogy lásd, a probléma,
+  amit észrevettél, csak a platformodon jelentkezik-e. Ha a probléma
+  mindkettőn megjelenik, akkor nem kompatibilitási probléma, de
+  természetesen szívesen hallunk róla egy hibajelentésben így is, minden
+  platform felhasználóinak javára. Ha csak a platformodon jelentkezik,
+  a jelentésedben egyértelműen említsd meg, hogy kompatibilitási
+  problémáról van szó.
 
-* Once we begin to fix the issue, please work closely with the contributor
-  working on it to test the proposed fix against your platform.
+* Amint elkezdjük a probléma javítását, kérjük, működj szorosan együtt
+  az azon dolgozó közreműködővel, hogy a javasolt javítást a platformodon
+  is teszteljétek.
 
-Example: NonStop
-https://lore.kernel.org/git/01bd01da681a$b8d70a70$2a851f50$@nexbridge.com/[reports
-problems] when they're noticed.
+Példa: a NonStop
+https://lore.kernel.org/git/01bd01da681a$b8d70a70$2a851f50$@nexbridge.com/[jelenti
+a problémákat], amikor észreveszik őket.
 
-Compatible on `master` and releases
------------------------------------
+[[_compatible_on_master_and_releases]]
+Kompatibilis a `master`-en és a kiadásokban
+-------------------------------------------
 
-To make sure all stable builds and regular releases work for your platform the
-first time, help us avoid breaking `master` for your platform:
+Hogy biztosan minden stabil build és rendszeres kiadás elsőre működjön a
+platformodon, segíts elkerülnünk, hogy eltörjük a `master`-t a
+platformodon:
 
-* You should run regular tests against the `next` branch and
-  publish breakage reports to the mailing list immediately when they happen.
+* Rendszeres teszteket kell futtatnod a `next` branch ellen, és a
+  törésjelentéseket azonnal közzé kell tenned a levelezőlistán, amikor
+  megtörténnek.
 
-** Ideally, these tests should run daily. They must run more often than
-   weekly, as topics generally spend at least 7 days in `next` before graduating
-   to `master`, and it takes time to put the brakes on a patch once it lands in
-   `next`.
+** Ideális esetben ezeket a teszteket naponta kellene futtatni. Hetinél
+   gyakrabban kell futniuk, mivel a témák általában legalább 7 napot
+   töltenek a `next`-ben, mielőtt átkerülnének a `master`-be, és időbe
+   telik lefékezni egy patchet, amint az bekerül a `next`-be.
 
-** You may want to ask to join the mailto:git-security@googlegroups.com[security
-   mailing list] in order to run tests against the fixes proposed there, too.
+** Érdemes lehet kérned a mailto:git-security@googlegroups.com[biztonsági
+   levelezőlistára] való felvételedet is, hogy az ott javasolt javítások
+   ellen is futtathass teszteket.
 
-* It may make sense to automate these; if you do, make sure they are not noisy
-  (you don't need to send a report when everything works, only when something
-  breaks; you don't need to send repeated reports for the same breakage night
-  after night).
+* Ezek automatizálása értelmes lehet; ha megteszed, ügyelj rá, hogy ne
+  legyenek zajosak (nem kell jelentést küldened, amikor minden működik,
+  csak amikor valami eltörik; nem kell ugyanarról a törésről ismételt
+  jelentéseket küldened éjszakáról éjszakára).
 
-* Breakage reports should be actionable - include clear error messages that can
-  help developers who may not have access to test directly on your platform.
+* A törésjelentéseknek cselekvésre alkalmasnak kell lenniük – tartalmazz
+  világos hibaüzeneteket, amelyek segíthetnek azoknak a fejlesztőknek,
+  akiknek esetleg nincs hozzáférésük, hogy közvetlenül a platformodon
+  teszteljenek.
 
-* You should use git-bisect and determine which commit introduced the breakage;
-  if you can't do this with automation, you should do this yourself manually as
-  soon as you notice a breakage report was sent.
+* Használd a git-bisectet, és határozd meg, melyik commit vezette be a
+  törést; ha ezt nem tudod automatizálással megtenni, magadnak kézzel
+  kell megtenned, amint észreveszed, hogy törésjelentést küldtek.
 
-* You should either:
+* Vagy:
 
-** Provide on-demand access to your platform to a trusted developer working to
-   fix the issue, so they can test their fix, OR
+** Igény szerinti hozzáférést biztosítasz a platformodhoz egy megbízható,
+   a probléma javításán dolgozó fejlesztőnek, hogy tesztelhesse a
+   javítását, VAGY
 
-** Work closely with the developer fixing the issue; the turnaround to check
-   that their proposed fix works for your platform should be fast enough that it
-   doesn't hinder the developer working on that fix. Slow testing turnarounds
-   may cause the fix to miss the next release, or the developer may lose
-   interest in working on the fix at all.
+** Szorosan együttműködsz a problémát javító fejlesztővel; annak
+   ellenőrzése, hogy a javasolt javítása működik-e a platformodon,
+   elég gyors kell legyen ahhoz, hogy ne akadályozza a javításon dolgozó
+   fejlesztőt. A lassú tesztelési átfutás miatt a javítás lemaradhat a
+   következő kiadásról, vagy a fejlesztő teljesen elveszítheti az
+   érdeklődését a javításon való munka iránt.
 
-Example:
-https://lore.kernel.org/git/CAHd-oW6X4cwD_yLNFONPnXXUAFPxgDoccv2SOdpeLrqmHCJB4Q@mail.gmail.com/[AIX]
-provides a build farm and runs tests against release candidates.
+Példa:
+https://lore.kernel.org/git/CAHd-oW6X4cwD_yLNFONPnXXUAFPxgDoccv2SOdpeLrqmHCJB4Q@mail.gmail.com/[az
+AIX] biztosít egy build farmot, és teszteket futtat a kiadásjelöltek
+ellen.
 
-Compatible on `next`
---------------------
+[[_compatible_on_next]]
+Kompatibilis a `next`-en
+------------------------
 
-To avoid reactive debugging and fixing when changes hit a release or stable, you
-can aim to ensure `next` always works for your platform. (See "The Policy" in
-link:../howto/maintain-git.html["How to maintain Git"] for an overview of how
-`next` is used in the Git project.) To do that:
+Hogy elkerüld a reaktív hibakeresést és javítást, amikor a változtatások
+egy kiadásba vagy a stabilba kerülnek, arra törekedhetsz, hogy a `next`
+mindig működjön a platformodon. (Lásd „The Policy" a
+link:../howto/maintain-git.html["Hogyan tartsuk karban a Gitet"] alatt,
+amely áttekintést ad arról, hogyan használják a `next`-et a Git
+projektben.) Ehhez:
 
-* You should add a runner for your platform to the GitHub Actions or GitLab CI
-  suite.  This suite is run when any Git developer proposes a new patch, and
-  having a runner for your platform/configuration means every developer will
-  know if they break you, immediately.
+* Adj hozzá egy runnert a platformodhoz a GitHub Actions vagy a GitLab CI
+  készlethez.  Ez a készlet akkor fut, amikor bármely Git-fejlesztő új
+  patchet javasol, és ha van runner a platformodhoz/konfigurációdhoz, az
+  azt jelenti, hogy minden fejlesztő azonnal megtudja, ha eltör téged.
 
-** If adding it to an existing CI suite is infeasible (due to architecture
-   constraints or for performance reasons), any other method which runs as
-   automatically and quickly as possible works, too. For example, a service
-   which snoops on the mailing list and automatically runs tests on new [PATCH]
-   emails, replying to the author with the results, would also be within the
-   spirit of this requirement.
+** Ha egy meglévő CI-készlethez való hozzáadása nem kivitelezhető
+   (architekturális korlátok vagy teljesítmény-okok miatt), bármely más
+   módszer, amely a lehető legautomatikusabban és leggyorsabban fut,
+   szintén megfelel. Például egy szolgáltatás, amely figyeli a
+   levelezőlistát, és automatikusan teszteket futtat az új [PATCH]
+   e-maileken, majd az eredményekkel válaszol a szerzőnek, szintén e
+   követelmény szellemében lenne.
 
-* If you rely on Git avoiding a specific pattern that doesn't work well with
-  your platform (like a certain malloc pattern), raise it on the mailing list.
-  We'll work case-by-case to look for a solution that doesn't unnecessarily
-  constrain other platforms to keep compatibility with yours.
+* Ha arra hagyatkozol, hogy a Git elkerül egy bizonyos mintát, amely a
+  platformoddal nem működik jól (mint egy bizonyos malloc-minta), vesd fel
+  a levelezőlistán.  Esetről esetre dolgozunk azon, hogy olyan megoldást
+  keressünk, amely nem korlátozza feleslegesen a többi platformot a
+  tieddel való kompatibilitás megőrzése érdekében.
 
-* If you rely on some configuration or behavior, add a test for it. Untested
-  behavior is subject to breakage at any time.
+* Ha valamely konfigurációra vagy viselkedésre hagyatkozol, adj hozzá
+  tesztet. A teszteletlen viselkedés bármikor eltörhet.
 
-** Clearly label these tests as necessary for platform compatibility. Add them
-   to an isolated compatibility-related test suite, like a new t* file or unit
-   test suite, so that they're easy to remove when compatibility is no longer
-   required.  If the specific compatibility need is gated behind an issue with
-   another project, link to documentation of that issue (like a bug or email
-   thread) to make it easier to tell when that compatibility need goes away.
+** Egyértelműen jelöld meg ezeket a teszteket a
+   platformkompatibilitáshoz szükségesként. Add őket egy elkülönített,
+   kompatibilitással kapcsolatos tesztkészlethez, mint egy új t* fájl
+   vagy unit-tesztkészlet, hogy könnyen eltávolíthatók legyenek, amikor a
+   kompatibilitásra már nincs szükség.  Ha az adott kompatibilitási
+   igényt egy másik projekt problémája feltételezi, hivatkozz az adott
+   probléma dokumentációjára (mint egy bug vagy e-mail-szál), hogy
+   könnyebb legyen megállapítani, mikor szűnik meg ez a kompatibilitási
+   igény.
 
-** Include a comment with an expiration date for these tests no more than 1 year
-   from now. You can update the expiration date if your platform still needs
-   that assurance down the road, but we need to know you still care about that
-   compatibility case and are working to make it unnecessary.
+** Csatolj egy kommentet e tesztekhez egy lejárati dátummal, amely
+   legfeljebb 1 évre van mostantól. A lejárati dátumot frissítheted, ha a
+   platformodnak később is szüksége van erre a biztosítékra, de tudnunk
+   kell, hogy továbbra is fontos neked ez a kompatibilitási eset, és
+   dolgozol azon, hogy feleslegessé tedd.
 
-Example: We run our
-https://git.kernel.org/pub/scm/git/git.git/tree/.github/workflows/main.yml[CI
-suite] on Windows, Ubuntu, Mac, and others.
+Példa: A
+https://git.kernel.org/pub/scm/git/git.git/tree/.github/workflows/main.yml[CI-
+készletünket] Windowson, Ubuntun, Macen és másokon futtatjuk.
 
-Getting help writing platform support patches
----------------------------------------------
+[[_getting_help_writing_platform_support_patches]]
+Segítségkérés platformtámogatási patchek írásához
+-------------------------------------------------
 
-In general, when sending patches to fix platform support problems, follow
-these guidelines to make sure the patch is reviewed with the appropriate level
-of urgency:
+Általánosságban, amikor platformtámogatási problémákat javító patcheket
+küldesz, kövesd ezeket az irányelveket, hogy a patch a megfelelő szintű
+sürgősséggel kerüljön review-ra:
 
-* Clearly state in the commit message that you are fixing a platform breakage,
-  and for which platform.
+* A commit-üzenetben egyértelműen jelezd, hogy egy platformtörést
+  javítasz, és hogy melyik platformon.
 
-* Use the CI and test suite to ensure that the fix for your platform doesn't
-  break other platforms.
+* Használd a CI-t és a tesztkészletet annak biztosítására, hogy a
+  platformodhoz készült javítás ne törjön el más platformokat.
 
-* If possible, add a test ensuring this regression doesn't happen again. If
-  it's not possible to add a test, explain why in the commit message.
+* Ha lehetséges, adj hozzá egy tesztet, amely biztosítja, hogy ez a
+  regresszió ne forduljon elő újra. Ha nem lehet tesztet hozzáadni,
+  magyarázd el, miért, a commit-üzenetben.
 
-Platform Maintainers
---------------------
+[[_platform_maintainers]]
+Platform-maintainerek
+---------------------
 
-If you maintain a platform, or Git for that platform, and intend to work with
-the Git project to ensure compatibility, please send a patch to add yourself to
-this list.
+Ha karbantartasz egy platformot, vagy a Gitet arra a platformra, és
+szándékodban áll a Git projekttel együttműködni a kompatibilitás
+biztosításáért, kérjük, küldj egy patchet, amellyel felveszed magad erre
+a listára.
 
 NonStop: Randall S. Becker <rsbecker@nexbridge.com>

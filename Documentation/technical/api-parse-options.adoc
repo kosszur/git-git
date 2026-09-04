@@ -1,431 +1,436 @@
 parse-options API
 =================
 
-The parse-options API is used to parse and massage options in Git
-and to provide a usage help with consistent look.
+A parse-options API az opciók Gitben való feldolgozására és átalakítására,
+valamint konzisztens megjelenésű használati súgó nyújtására szolgál.
 
-Basics
+[[_basics]]
+Alapok
 ------
 
-The argument vector `argv[]` may usually contain mandatory or optional
-'non-option arguments', e.g. a filename or a branch, 'options', and
-'subcommands'.
-Options are optional arguments that start with a dash and
-that allow to change the behavior of a command.
+Az `argv[]` argumentumvektor általában kötelező vagy opcionális
+'nem-opció argumentumokat' (pl. egy fájlnevet vagy egy branchet),
+'opciókat' és 'alparancsokat' tartalmazhat.
+Az opciók olyan opcionális argumentumok, amelyek kötőjellel kezdődnek,
+és lehetővé teszik egy parancs viselkedésének megváltoztatását.
 
-* There are basically three types of options:
-  'boolean' options,
-  options with (mandatory) 'arguments' and
-  options with 'optional arguments'
-  (i.e. a boolean option that can be adjusted).
+* Alapvetően háromféle opció létezik:
+  'logikai' opciók,
+  (kötelező) 'argumentumot' váró opciók, és
+  'opcionális argumentumot' váró opciók
+  (azaz olyan logikai opció, amely finomítható).
 
-* There are basically two forms of options:
-  'Short options' consist of one dash (`-`) and one alphanumeric
-  character.
-  'Long options' begin with two dashes (`--`) and some
-  alphanumeric characters.
+* Alapvetően kétféle alakja van az opcióknak:
+  A 'rövid opciók' egy kötőjelből (`-`) és egy alfanumerikus
+  karakterből állnak.
+  A 'hosszú opciók' két kötőjellel (`--`) és néhány alfanumerikus
+  karakterrel kezdődnek.
 
-* Options are case-sensitive.
-  Please define 'lower-case long options' only.
+* Az opciók megkülönböztetik a kis- és nagybetűket.
+  Kérjük, csak 'kisbetűs hosszú opciókat' definiálj.
 
-The parse-options API allows:
+A parse-options API a következőket teszi lehetővé:
 
-* 'stuck' and 'separate form' of options with arguments.
-  `-oArg` is stuck, `-o Arg` is separate form.
-  `--option=Arg` is stuck, `--option Arg` is separate form.
+* Argumentumot váró opciók 'tapadó' és 'különálló alakja'.
+  A `-oArg` tapadó, a `-o Arg` különálló alak.
+  A `--option=Arg` tapadó, a `--option Arg` különálló alak.
 
-* Long options may be 'abbreviated', as long as the abbreviation
-  is unambiguous.
+* A hosszú opciók 'rövidíthetők', amennyiben a rövidítés
+  egyértelmű.
 
-* Short options may be bundled, e.g. `-a -b` can be specified as `-ab`.
+* A rövid opciók összevonhatók, pl. a `-a -b` megadható `-ab` alakban.
 
-* Boolean long options can be 'negated' (or 'unset') by prepending
-  `no-`, e.g. `--no-abbrev` instead of `--abbrev`. Conversely,
-  options that begin with `no-` can be 'negated' by removing it.
-  Other long options can be unset (e.g., set string to NULL, set
-  integer to 0) by prepending `no-`.
+* A logikai hosszú opciók 'negálhatók' (vagy 'kikapcsolhatók') a `no-`
+  elé illesztésével, pl. `--no-abbrev` a `--abbrev` helyett. Fordítva,
+  a `no-` kezdetű opciók a `no-` eltávolításával 'negálhatók'. Más
+  hosszú opciók kikapcsolhatók (pl. a sztring NULL-ra, az egész szám
+  0-ra állítása) a `no-` elé illesztésével.
 
-* Options and non-option arguments can clearly be separated using the `--`
-  option, e.g. `-a -b --option -- --this-is-a-file` indicates that
-  `--this-is-a-file` must not be processed as an option.
+* Az opciók és a nem-opció argumentumok egyértelműen elválaszthatók a `--`
+  opcióval, pl. a `-a -b --option -- --this-is-a-file` azt jelzi, hogy
+  a `--this-is-a-file` nem dolgozható fel opcióként.
 
-Subcommands are special in a couple of ways:
+Az alparancsok több szempontból is különlegesek:
 
-* Subcommands only have long form, and they have no double dash prefix, no
-  negated form, and no description, and they don't take any arguments, and
-  can't be abbreviated.
+* Az alparancsoknak csak hosszú alakja van, nincs dupla kötőjeles előtagjuk,
+  nincs negált alakjuk, és nincs leírásuk, nem vesznek át argumentumot, és
+  nem rövidíthetők.
 
-* There must be exactly one subcommand among the arguments, or zero if the
-  command has a default operation mode.
+* Pontosan egy alparancsnak kell lennie az argumentumok között, vagy nullának,
+  ha a parancsnak van alapértelmezett működési módja.
 
-* All arguments following the subcommand are considered to be arguments of
-  the subcommand, and, conversely, arguments meant for the subcommand may
-  not precede the subcommand.
+* Az alparancsot követő összes argumentum az alparancs argumentumának
+  számít, és fordítva, az alparancsnak szánt argumentumok nem előzhetik
+  meg az alparancsot.
 
-Therefore, if the options array contains at least one subcommand and
-`parse_options()` encounters the first dashless argument, it will either:
+Ezért ha az opciótömb legalább egy alparancsot tartalmaz, és a
+`parse_options()` az első kötőjel nélküli argumentumhoz ér, akkor vagy:
 
-* stop and return, if that dashless argument is a known subcommand, setting
-  `value` to the function pointer associated with that subcommand, storing
-  the name of the subcommand in argv[0], and leaving the rest of the
-  arguments unprocessed, or
+* megáll és visszatér, ha az a kötőjel nélküli argumentum ismert alparancs,
+  a `value`-t az adott alparancshoz társított függvénymutatóra állítja,
+  az alparancs nevét az argv[0]-ban tárolja, a többi argumentumot pedig
+  feldolgozatlanul hagyja, vagy
 
-* stop and return, if it was invoked with the `PARSE_OPT_SUBCOMMAND_OPTIONAL`
-  flag and that dashless argument doesn't match any subcommands, leaving
-  `value` unchanged and the rest of the arguments unprocessed, or
+* megáll és visszatér, ha a `PARSE_OPT_SUBCOMMAND_OPTIONAL` jelzővel hívták
+  meg, és az a kötőjel nélküli argumentum egyetlen alparancsra sem illeszkedik,
+  a `value`-t változatlanul, a többi argumentumot pedig feldolgozatlanul
+  hagyja, vagy
 
-* show error and usage, and abort.
+* hibát és használatot jelenít meg, és megszakítja a végrehajtást.
 
-Steps to parse options
-----------------------
+[[_steps_to_parse_options]]
+Az opciók feldolgozásának lépései
+---------------------------------
 
 . `#include "parse-options.h"`
 
-. define a NULL-terminated
-  `static const char * const builtin_foo_usage[]` array
-  containing alternative usage strings
+. definiálj egy NULL-lal lezárt
+  `static const char * const builtin_foo_usage[]` tömböt,
+  amely alternatív használati sztringeket tartalmaz
 
-. define `builtin_foo_options` array as described below
-  in section 'Data Structure'.
+. definiáld a `builtin_foo_options` tömböt az alábbi
+  'Adatszerkezet' szakaszban leírtak szerint.
 
-. in `cmd_foo(int argc, const char **argv, const char *prefix)`
-  call
+. a `cmd_foo(int argc, const char **argv, const char *prefix)`-ban
+  hívd meg
 
 	argc = parse_options(argc, argv, prefix, builtin_foo_options, builtin_foo_usage, flags);
 +
-`parse_options()` will filter out the processed options of `argv[]` and leave the
-non-option arguments in `argv[]`.
-`argc` is updated appropriately because of the assignment.
+A `parse_options()` kiszűri az `argv[]` feldolgozott opcióit, és a nem-opció
+argumentumokat az `argv[]`-ben hagyja.
+Az `argc` az értékadás miatt megfelelően frissül.
 +
-You can also pass NULL instead of a usage array as the fifth parameter of
-parse_options(), to avoid displaying a help screen with usage info and
-option list.  This should only be done if necessary, e.g. to implement
-a limited parser for only a subset of the options that needs to be run
-before the full parser, which in turn shows the full help message.
+A parse_options() ötödik paramétereként NULL-t is átadhatsz használati tömb
+helyett, hogy elkerüld a használati információt és opciólistát megjelenítő
+súgóképernyőt. Ezt csak szükség esetén szabad, pl. egy korlátozott
+feldolgozó megvalósításához, amely csak az opciók egy részhalmazához való,
+és a teljes feldolgozó előtt kell futnia, amely viszont a teljes súgóüzenetet mutatja.
 +
-Flags are the bitwise-or of:
+A jelzők a következők bitenkénti VAGY-a:
 
 `PARSE_OPT_KEEP_DASHDASH`::
-	Keep the `--` that usually separates options from
-	non-option arguments.
+	Megtartja a `--`-t, amely általában elválasztja az opciókat a
+	nem-opció argumentumoktól.
 
 `PARSE_OPT_STOP_AT_NON_OPTION`::
-	Usually the whole argument vector is massaged and reordered.
-	Using this flag, processing is stopped at the first non-option
-	argument.
+	Általában az egész argumentumvektor átalakításra és átrendezésre kerül.
+	Ezzel a jelzővel a feldolgozás az első nem-opció argumentumnál
+	leáll.
 
 `PARSE_OPT_KEEP_ARGV0`::
-	Keep the first argument, which contains the program name.  It's
-	removed from argv[] by default.
+	Megtartja az első argumentumot, amely a program nevét tartalmazza.
+	Alapértelmezés szerint eltávolításra kerül az argv[]-ből.
 
 `PARSE_OPT_KEEP_UNKNOWN_OPT`::
-	Keep unknown options instead of erroring out.  This doesn't
-	work for all combinations of arguments as users might expect
-	it to do.  E.g. if the first argument in `--unknown --known`
-	takes a value (which we can't know), the second one is
-	mistakenly interpreted as a known option.  Similarly, if
-	`PARSE_OPT_STOP_AT_NON_OPTION` is set, the second argument in
-	`--unknown value` will be mistakenly interpreted as a
-	non-option, not as a value belonging to the unknown option,
-	the parser early.  That's why parse_options() errors out if
-	both options are set.
-	Note that non-option arguments are always kept, even without
-	this flag.
+	Megtartja az ismeretlen opciókat ahelyett, hogy hibával leállna. Ez
+	nem működik az argumentumok minden kombinációjára úgy, ahogy a
+	felhasználók várnák. Pl. ha a `--unknown --known` első argumentuma
+	értéket vár (amit nem tudhatunk), a másodikat tévesen ismert
+	opcióként értelmezi. Hasonlóképpen, ha a
+	`PARSE_OPT_STOP_AT_NON_OPTION` be van állítva, a `--unknown value`
+	második argumentumát tévesen nem-opcióként értelmezi, nem pedig az
+	ismeretlen opcióhoz tartozó értékként. Ezért a parse_options()
+	hibával leáll, ha mindkét opció be van állítva.
+	Vedd figyelembe, hogy a nem-opció argumentumok mindig megmaradnak,
+	e jelző nélkül is.
 
 `PARSE_OPT_NO_INTERNAL_HELP`::
-	By default, parse_options() handles `-h`, `--help` and
-	`--help-all` internally, by showing a help screen.  This option
-	turns it off and allows one to add custom handlers for these
-	options, or to just leave them unknown.
+	Alapértelmezés szerint a parse_options() a `-h`, `--help` és
+	`--help-all` opciókat belsőleg kezeli, egy súgóképernyő
+	megjelenítésével. Ez az opció kikapcsolja ezt, és lehetővé teszi
+	egyéni kezelők hozzáadását ezekhez az opciókhoz, vagy egyszerűen
+	ismeretlenként hagyásukat.
 
 `PARSE_OPT_SUBCOMMAND_OPTIONAL`::
-	Don't error out when no subcommand is specified.
+	Ne álljon le hibával, ha nincs alparancs megadva.
 
-Note that `PARSE_OPT_STOP_AT_NON_OPTION` is incompatible with subcommands;
-while `PARSE_OPT_KEEP_DASHDASH` and `PARSE_OPT_KEEP_UNKNOWN_OPT` can only be
-used with subcommands when combined with `PARSE_OPT_SUBCOMMAND_OPTIONAL`.
+Vedd figyelembe, hogy a `PARSE_OPT_STOP_AT_NON_OPTION` nem kompatibilis az
+alparancsokkal; míg a `PARSE_OPT_KEEP_DASHDASH` és a `PARSE_OPT_KEEP_UNKNOWN_OPT`
+alparancsokkal csak akkor használható, ha a `PARSE_OPT_SUBCOMMAND_OPTIONAL`-lal
+kombinálják.
 
-Data Structure
---------------
+[[_data_structure]]
+Adatszerkezet
+-------------
 
-The main data structure is an array of the `option` struct,
-say `static struct option builtin_add_options[]`.
+A fő adatszerkezet az `option` struct tömbje, mondjuk
+`static struct option builtin_add_options[]`.
 
-Option flags
-~~~~~~~~~~~~
+[[_option_flags]]
+Opciójelzők
+~~~~~~~~~~~
 
-Each option can carry flags in the `flags` field of its `option`
-struct. These are per-option flags and are distinct from the
-`parse_options()` flags described above; they are usually set through
-the `OPT_*_F()` macro variants (see below) rather than by hand. They
-are the bitwise-or of:
+Minden opció hordozhat jelzőket az `option` structjának `flags` mezőjében.
+Ezek opciónkénti jelzők, és különböznek a fent leírt `parse_options()`
+jelzőktől; általában az `OPT_*_F()` makróváltozatokon keresztül (lásd
+lentebb) állítják be őket, nem kézzel. A következők bitenkénti VAGY-a:
 
 `PARSE_OPT_OPTARG`::
-	The option's argument is optional, i.e. both `--option` and
-	`--option=<value>` are accepted.
+	Az opció argumentuma opcionális, azaz a `--option` és a
+	`--option=<value>` is elfogadott.
 
 `PARSE_OPT_NOARG`::
-	The option takes no argument at all. Using `--option=<value>`
-	is rejected.
+	Az opció egyáltalán nem vesz át argumentumot. A `--option=<value>`
+	használata elutasításra kerül.
 
 `PARSE_OPT_NONEG`::
-	Disable the automatically generated negated `--no-option`
-	form.
+	Letiltja az automatikusan generált negált `--no-option`
+	alakot.
 
 `PARSE_OPT_HIDDEN`::
-	Hide the option: it is omitted from the usage shown by
-	`git <cmd> -h`, but is still shown by `git <cmd> --help-all`.
-	The option is parsed as usual either way. This is meant for
-	deprecated, advanced or otherwise uncommon options.
+	Elrejti az opciót: kimarad a `git <cmd> -h` által mutatott
+	használatból, de a `git <cmd> --help-all` továbbra is mutatja.
+	Az opció mindkét esetben a szokásos módon kerül feldolgozásra. Ez
+	elavult, haladó vagy egyébként nem gyakori opciókhoz való.
 
 `PARSE_OPT_LASTARG_DEFAULT`::
-	The no-argument form is only accepted when the option is the
-	last token on the command line; used earlier, it still
-	requires an argument. Should not be combined with
-	`PARSE_OPT_OPTARG`.
+	Az argumentum nélküli alak csak akkor elfogadott, ha az opció az
+	utolsó token a parancssorban; korábban használva továbbra is
+	argumentumot igényel. Nem kombinálandó a
+	`PARSE_OPT_OPTARG`-gal.
 
 `PARSE_OPT_NODASH`::
-	The option is a single character without a leading dash, such
-	as the `+` used by some commands.
+	Az opció egyetlen karakter kezdő kötőjel nélkül, mint például a
+	`+`, amelyet néhány parancs használ.
 
 `PARSE_OPT_LITERAL_ARGHELP`::
-	Use the argument help string (`argh`) verbatim in the usage
-	output instead of surrounding it with `<>` or `[]`. Useful when
-	`argh` already contains a hand-formatted description.
+	Az argumentum súgósztringjét (`argh`) szó szerint használja a
+	használati kimenetben ahelyett, hogy `<>` vagy `[]` jelekkel venné
+	körül. Hasznos, ha az `argh` már kézzel formázott leírást tartalmaz.
 
 `PARSE_OPT_FROM_ALIAS`::
-	Internal flag, set on options that were expanded from a
-	configured alias. It should not be set by callers.
+	Belső jelző, amely a konfigurált aliasból kibontott opciókon van
+	beállítva. A hívók ne állítsák be.
 
 `PARSE_OPT_NOCOMPLETE`::
-	Do not offer this option for completion.
+	Ne ajánlja fel ezt az opciót kiegészítéshez.
 
 `PARSE_OPT_COMP_ARG`::
-	The option's argument, rather than the option itself, is what
-	should be completed.
+	Az opció argumentumát kell kiegészíteni, nem magát az opciót.
 
 `PARSE_OPT_CMDMODE`::
-	The option is one of several mutually exclusive "command mode"
-	options that share the same variable. Using more than one of
-	them at once is rejected.
+	Az opció egyike több, egymást kölcsönösen kizáró "parancsmód"
+	opciónak, amelyek ugyanazon a változón osztoznak. Egyszerre több
+	használata elutasításra kerül.
 
-Macros
+[[_macros]]
+Makrók
 ~~~~~~
 
-There are some macros to easily define options:
+Van néhány makró az opciók egyszerű definiálásához:
 
-Many of the macros below have an `_F` variant (for example `OPT_BOOL_F`,
-`OPT_STRING_F`, `OPT_INTEGER_F`, `OPT_SET_INT_F`, `OPT_BIT_F` and
-`OPT_CALLBACK_F`) that takes an additional trailing `flags` argument.
-That argument is the bitwise-or of the per-option flags described in the
-"Option flags" section above; the non-`_F` macros are simply defined
-with `flags` set to `0`.
+Az alábbi makrók közül soknak van `_F` változata (például `OPT_BOOL_F`,
+`OPT_STRING_F`, `OPT_INTEGER_F`, `OPT_SET_INT_F`, `OPT_BIT_F` és
+`OPT_CALLBACK_F`), amely egy további, záró `flags` argumentumot vesz át.
+Ez az argumentum a fenti "Opciójelzők" szakaszban leírt opciónkénti
+jelzők bitenkénti VAGY-a; a nem `_F` makrók egyszerűen `0`-ra állított
+`flags`-szel vannak definiálva.
 
 `OPT__ABBREV(&int_var)`::
-	Add `--abbrev[=<n>]`.
+	Hozzáadja a `--abbrev[=<n>]`-t.
 
 `OPT__COLOR(&int_var, description)`::
-	Add `--color[=<when>]` and `--no-color`.
+	Hozzáadja a `--color[=<when>]`-t és a `--no-color`-t.
 
 `OPT__DRY_RUN(&int_var, description)`::
-	Add `-n, --dry-run`.
+	Hozzáadja a `-n, --dry-run`-t.
 
 `OPT__FORCE(&int_var, description)`::
-	Add `-f, --force`.
+	Hozzáadja a `-f, --force`-t.
 
 `OPT__QUIET(&int_var, description)`::
-	Add `-q, --quiet`.
+	Hozzáadja a `-q, --quiet`-et.
 
 `OPT__VERBOSE(&int_var, description)`::
-	Add `-v, --verbose`.
+	Hozzáadja a `-v, --verbose`-t.
 
 `OPT_GROUP(description)`::
-	Start an option group. `description` is a short string that
-	describes the group or an empty string.
-	Start the description with an upper-case letter.
+	Elkezd egy opciócsoportot. A `description` egy rövid sztring, amely
+	leírja a csoportot, vagy egy üres sztring.
+	A leírást nagybetűvel kezdd.
 
 `OPT_HIDDEN_GROUP(description)`::
-	Like `OPT_GROUP()`, but the group header carries
-	`PARSE_OPT_HIDDEN`, so it is only shown by `--help-all` and not
-	by `-h`. Use it to label a group that contains only hidden
-	options, which would otherwise show an empty header under `-h`.
+	Mint az `OPT_GROUP()`, de a csoport fejléce `PARSE_OPT_HIDDEN`-t
+	hordoz, így csak a `--help-all` mutatja, a `-h` nem. Használd olyan
+	csoport címkézésére, amely csak rejtett opciókat tartalmaz, és amely
+	egyébként üres fejlécet mutatna a `-h` alatt.
 
 `OPT_BOOL(short, long, &int_var, description)`::
-	Introduce a boolean option. `int_var` is set to one with
-	`--option` and set to zero with `--no-option`.
+	Bevezet egy logikai opciót. Az `int_var` egyre áll a `--option`
+	hatására, és nullára a `--no-option` hatására.
 
 `OPT_HIDDEN_BOOL(short, long, &int_var, description)`::
-	Like `OPT_BOOL()`, but the option carries `PARSE_OPT_HIDDEN`,
-	so it is hidden from `-h` while still being shown by
-	`--help-all`.
+	Mint az `OPT_BOOL()`, de az opció `PARSE_OPT_HIDDEN`-t hordoz,
+	így rejtve van a `-h` elől, miközben a `--help-all` továbbra is
+	mutatja.
 
 `OPT_COUNTUP(short, long, &int_var, description)`::
-	Introduce a count-up option.
-	Each use of `--option` increments `int_var`, starting from zero
-	(even if initially negative), and `--no-option` resets it to
-	zero. To determine if `--option` or `--no-option` was encountered at
-	all, initialize `int_var` to a negative value, and if it is still
-	negative after parse_options(), then neither `--option` nor
-	`--no-option` was seen.
+	Bevezet egy felfelé számláló opciót.
+	A `--option` minden használata növeli az `int_var`-t, nullától
+	indulva (még ha kezdetben negatív is), a `--no-option` pedig
+	nullára állítja vissza. Annak megállapításához, hogy egyáltalán
+	előfordult-e `--option` vagy `--no-option`, inicializáld az
+	`int_var`-t negatív értékre, és ha a parse_options() után még mindig
+	negatív, akkor sem `--option`, sem `--no-option` nem szerepelt.
 
 `OPT_BIT(short, long, &int_var, description, mask)`::
-	Introduce a boolean option.
-	If used, `int_var` is bitwise-ored with `mask`.
+	Bevezet egy logikai opciót.
+	Ha használják, az `int_var` bitenkénti VAGY-ba kerül a `mask`-kal.
 
 `OPT_NEGBIT(short, long, &int_var, description, mask)`::
-	Introduce a boolean option.
-	If used, `int_var` is bitwise-anded with the inverted `mask`.
+	Bevezet egy logikai opciót.
+	Ha használják, az `int_var` bitenkénti ÉS-be kerül az invertált `mask`-kal.
 
 `OPT_SET_INT(short, long, &int_var, description, integer)`::
-	Introduce an integer option.
-	`int_var` is set to `integer` with `--option`, and
-	reset to zero with `--no-option`.
+	Bevezet egy egész szám opciót.
+	Az `int_var` az `integer`-re áll a `--option` hatására, és
+	nullára áll vissza a `--no-option` hatására.
 
 `OPT_STRING(short, long, &str_var, arg_str, description)`::
-	Introduce an option with string argument.
-	The string argument is put into `str_var`.
+	Bevezet egy sztring argumentumú opciót.
+	A sztring argumentum a `str_var`-ba kerül.
 
 `OPT_STRING_LIST(short, long, &struct string_list, arg_str, description)`::
-	Introduce an option with string argument.
-	The string argument is stored as an element in `string_list`.
-	Use of `--no-option` will clear the list of preceding values.
+	Bevezet egy sztring argumentumú opciót.
+	A sztring argumentum a `string_list` egy elemeként tárolódik.
+	A `--no-option` használata törli a megelőző értékek listáját.
 
 `OPT_INTEGER(short, long, &int_var, description)`::
-	Introduce an option with integer argument. The argument must be a
-	integer and may include a suffix of 'k', 'm' or 'g' to
-	scale the provided value by 1024, 1024^2 or 1024^3 respectively.
-	The scaled value is put into `int_var`.
+	Bevezet egy egész szám argumentumú opciót. Az argumentumnak egész
+	számnak kell lennie, és tartalmazhat 'k', 'm' vagy 'g' utótagot, amely
+	a megadott értéket 1024-gyel, 1024^2-nel, illetve 1024^3-nal skálázza.
+	A skálázott érték az `int_var`-ba kerül.
 
 `OPT_UNSIGNED(short, long, &unsigned_long_var, description)`::
-	Introduce an option with an unsigned integer argument. The argument must be a
-	non-negative integer and may include a suffix of 'k', 'm' or 'g' to
-	scale the provided value by 1024, 1024^2 or 1024^3 respectively.
-	The scaled value is put into `unsigned_long_var`.
+	Bevezet egy előjel nélküli egész szám argumentumú opciót. Az argumentumnak
+	nemnegatív egész számnak kell lennie, és tartalmazhat 'k', 'm' vagy 'g'
+	utótagot, amely a megadott értéket 1024-gyel, 1024^2-nel, illetve 1024^3-nal
+	skálázza. A skálázott érték az `unsigned_long_var`-ba kerül.
 
 `OPT_EXPIRY_DATE(short, long, &timestamp_t_var, description)`::
-	Introduce an option with expiry date argument, see `parse_expiry_date()`.
-	The timestamp is put into `timestamp_t_var`.
+	Bevezet egy lejárati dátum argumentumú opciót, lásd `parse_expiry_date()`.
+	Az időbélyeg a `timestamp_t_var`-ba kerül.
 
 `OPT_CALLBACK(short, long, &var, arg_str, description, func_ptr)`::
-	Introduce an option with argument.
-	The argument will be fed into the function given by `func_ptr`
-	and the result will be put into `var`.
-	See 'Option Callbacks' below for a more elaborate description.
+	Bevezet egy argumentumú opciót.
+	Az argumentum a `func_ptr` által megadott függvénybe kerül,
+	az eredmény pedig a `var`-ba.
+	Részletesebb leírásért lásd az alábbi 'Opció-visszahívások' részt.
 
 `OPT_FILENAME(short, long, &var, description)`::
-	Introduce an option with a filename argument.
-	The filename will be prefixed by passing the filename along with
-	the prefix argument of `parse_options()` to `prefix_filename()`.
+	Bevezet egy fájlnév argumentumú opciót.
+	A fájlnév előtaggal lesz ellátva úgy, hogy a fájlnevet a
+	`parse_options()` prefix argumentumával együtt átadja a `prefix_filename()`-nek.
 
 `OPT_NUMBER_CALLBACK(&var, description, func_ptr)`::
-	Recognize numerical options like -123 and feed the integer as
-	if it was an argument to the function given by `func_ptr`.
-	The result will be put into `var`.  There can be only one such
-	option definition.  It cannot be negated and it takes no
-	arguments.  Short options that happen to be digits take
-	precedence over it.
+	Felismeri a -123-hoz hasonló numerikus opciókat, és úgy adja át az
+	egész számot, mintha a `func_ptr` által megadott függvény argumentuma
+	lenne. Az eredmény a `var`-ba kerül. Csak egy ilyen opciódefiníció
+	lehet. Nem negálható, és nem vesz át argumentumot. A véletlenül
+	számjegyekből álló rövid opciók elsőbbséget élveznek vele szemben.
 
 `OPT_COLOR_FLAG(short, long, &int_var, description)`::
-	Introduce an option that takes an optional argument that can
-	have one of three values: "always", "never", or "auto".  If the
-	argument is not given, it defaults to "always".  The `--no-` form
-	works like `--long=never`; it cannot take an argument.  If
-	"always", set `int_var` to 1; if "never", set `int_var` to 0; if
-	"auto", set `int_var` to 1 if stdout is a tty or a pager,
-	0 otherwise.
+	Bevezet egy opciót, amely opcionális argumentumot vesz át, amelynek
+	három érték egyike lehet: "always", "never" vagy "auto". Ha az
+	argumentum nincs megadva, az alapértelmezés "always". A `--no-` alak
+	úgy működik, mint a `--long=never`; nem vehet át argumentumot. Ha
+	"always", állítsd az `int_var`-t 1-re; ha "never", 0-ra; ha "auto",
+	1-re, ha a stdout tty vagy pager, egyébként 0-ra.
 
 `OPT_NOOP_NOARG(short, long)`::
-	Introduce an option that has no effect and takes no arguments.
-	Use it to hide deprecated options that are still to be recognized
-	and ignored silently.
+	Bevezet egy opciót, amelynek nincs hatása, és nem vesz át argumentumot.
+	Használd olyan elavult opciók elrejtésére, amelyeket még fel kell
+	ismerni, és csendben figyelmen kívül kell hagyni.
 
 `OPT_PASSTHRU(short, long, &char_var, arg_str, description, flags)`::
-	Introduce an option that will be reconstructed into a char* string,
-	which must be initialized to NULL. This is useful when you need to
-	pass the command-line option to another command. Any previous value
-	will be overwritten, so this should only be used for options where
-	the last one specified on the command line wins.
+	Bevezet egy opciót, amelyet egy char* sztringgé építenek újra,
+	amelyet NULL-ra kell inicializálni. Ez hasznos, ha a parancssori
+	opciót át kell adnod egy másik parancsnak. Minden korábbi érték
+	felülíródik, ezért ezt csak olyan opciókhoz szabad használni, ahol
+	a parancssorban utoljára megadott nyer.
 
 `OPT_PASSTHRU_ARGV(short, long, &strvec_var, arg_str, description, flags)`::
-	Introduce an option where all instances of it on the command-line will
-	be reconstructed into a strvec. This is useful when you need to
-	pass the command-line option, which can be specified multiple times,
-	to another command.
+	Bevezet egy opciót, amelynek a parancssoron lévő összes példányát
+	egy strvec-cé építik újra. Ez hasznos, ha egy olyan parancssori
+	opciót, amely többször is megadható, át kell adnod egy másik
+	parancsnak.
 
 `OPT_CMDMODE(short, long, &int_var, description, enum_val)`::
-	Define an "operation mode" option, only one of which in the same
-	group of "operating mode" options that share the same `int_var`
-	can be given by the user. `int_var` is set to `enum_val` when the
-	option is used, but an error is reported if other "operating mode"
-	option has already set its value to the same `int_var`.
-	In new commands consider using subcommands instead.
+	Definiál egy "működési mód" opciót, amelyből ugyanabban a
+	"működési mód" opciócsoportban, amely ugyanazon az `int_var`-on
+	osztozik, a felhasználó csak egyet adhat meg. Az `int_var` az
+	`enum_val`-ra áll, amikor az opciót használják, de hibát jelez, ha
+	más "működési mód" opció már ugyanarra az `int_var`-ra állította az
+	értékét. Új parancsokban fontold meg inkább az alparancsok használatát.
 
 `OPT_SUBCOMMAND(long, &fn_ptr, subcommand_fn)`::
-	Define a subcommand.  `subcommand_fn` is put into `fn_ptr` when
-	this subcommand is used.
+	Definiál egy alparancsot. A `subcommand_fn` a `fn_ptr`-ba kerül,
+	amikor ezt az alparancsot használják.
 
-The last element of the array must be `OPT_END()`.
+A tömb utolsó elemének `OPT_END()`-nek kell lennie.
 
-If not stated otherwise, interpret the arguments as follows:
+Ha másképp nincs jelezve, az argumentumokat a következőképpen értelmezd:
 
-* `short` is a character for the short option
-  (e.g. `'e'` for `-e`, use `0` to omit),
+* a `short` a rövid opcióhoz tartozó karakter
+  (pl. `'e'` a `-e`-hez, `0` az elhagyáshoz),
 
-* `long` is a string for the long option
-  (e.g. `"example"` for `--example`, use `NULL` to omit),
+* a `long` a hosszú opcióhoz tartozó sztring
+  (pl. `"example"` a `--example`-höz, `NULL` az elhagyáshoz),
 
-* `int_var` is an integer variable,
+* az `int_var` egy egész szám változó,
 
-* `str_var` is a string variable (`char *`),
+* a `str_var` egy sztring változó (`char *`),
 
-* `arg_str` is the string that is shown as argument
-  (e.g. `"branch"` will result in `<branch>`).
-  If set to `NULL`, three dots (`...`) will be displayed.
+* az `arg_str` az a sztring, amely argumentumként jelenik meg
+  (pl. a `"branch"` `<branch>`-et eredményez).
+  Ha `NULL`-ra van állítva, három pont (`...`) jelenik meg.
 
-* `description` is a short string to describe the effect of the option.
-  It shall begin with a lower-case letter and a full stop (`.`) shall be
-  omitted at the end.
+* a `description` egy rövid sztring, amely leírja az opció hatását.
+  Kisbetűvel kell kezdődnie, és a végéről el kell hagyni a pontot (`.`).
 
-Option Callbacks
-----------------
+[[_option_callbacks]]
+Opció-visszahívások
+-------------------
 
-The function must be defined in this form:
+A függvényt a következő alakban kell definiálni:
 
 	int func(const struct option *opt, const char *arg, int unset)
 
-The callback mechanism is as follows:
+A visszahívási mechanizmus a következő:
 
-* Inside `func`, the only interesting member of the structure
-  given by `opt` is the void pointer `opt->value`.
-  `*opt->value` will be the value that is saved into `var`, if you
-  use `OPT_CALLBACK()`.
-  For example, do `*(unsigned long *)opt->value = 42;` to get 42
-  into an `unsigned long` variable.
+* A `func`-on belül az `opt` által megadott struktúra egyetlen
+  érdekes tagja a `opt->value` void mutató.
+  A `*opt->value` lesz az az érték, amely a `var`-ba mentődik, ha
+  az `OPT_CALLBACK()`-et használod.
+  Például az `*(unsigned long *)opt->value = 42;` beállítja a 42-t
+  egy `unsigned long` változóba.
 
-* Return value `0` indicates success and non-zero return
-  value will invoke `usage_with_options()` and, thus, die.
+* A `0` visszatérési érték sikert jelez, a nem nulla visszatérési
+  érték pedig meghívja a `usage_with_options()`-t, és így leáll.
 
-* If the user negates the option, `arg` is `NULL` and `unset` is 1.
+* Ha a felhasználó negálja az opciót, az `arg` `NULL`, az `unset` pedig 1.
 
-Sophisticated option parsing
+[[_sophisticated_option_parsing]]
+Kifinomult opció-feldolgozás
 ----------------------------
 
-If you need, for example, option callbacks with optional arguments
-or without arguments at all, or if you need other special cases,
-that are not handled by the macros above, you need to specify the
-members of the `option` structure manually.
+Ha például opcionális argumentumú vagy egyáltalán argumentum nélküli
+opció-visszahívásokra van szükséged, vagy ha más, a fenti makrók által
+nem kezelt speciális esetekre van szükséged, akkor az `option` struktúra
+tagjait kézzel kell megadnod.
 
-This is not covered in this document, but well documented
-in `parse-options.h` itself.
+Ezt ez a dokumentum nem tárgyalja, de maga a `parse-options.h`
+jól dokumentálja.
 
-Examples
---------
+[[_examples]]
+Példák
+------
 
-See `test-parse-options.c` and
+Valós példákért lásd a `test-parse-options.c`-t és a
 `builtin/add.c`,
 `builtin/clone.c`,
 `builtin/commit.c`,
 `builtin/fetch.c`,
 `builtin/fsck.c`,
 `builtin/rm.c`
-for real-world examples.
+fájlokat.

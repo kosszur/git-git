@@ -1,204 +1,229 @@
-Partial Clone Design Notes
-==========================
+[[_partial_clone_design_notes]]
+Partial Clone – tervezési jegyzetek
+===================================
 
-The "Partial Clone" feature is a performance optimization for Git that
-allows Git to function without having a complete copy of the repository.
-The goal of this work is to allow Git to better handle extremely large
-repositories.
+A „Partial Clone" funkció a Git egy teljesítmény-optimalizációja, amely
+lehetővé teszi, hogy a Git a repository teljes másolata nélkül is
+működjön.  E munka célja, hogy a Git jobban tudja kezelni a rendkívül
+nagy repository-kat.
 
-During clone and fetch operations, Git downloads the complete contents
-and history of the repository.  This includes all commits, trees, and
-blobs for the complete life of the repository.  For extremely large
-repositories, clones can take hours (or days) and consume 100+GiB of disk
-space.
+A klónozási és fetch műveletek során a Git letölti a repository teljes
+tartalmát és előzményét.  Ez magában foglalja az összes commitot,
+tree-t és blobot a repository teljes élettartamára.  Rendkívül nagy
+repository-knál a klónozás órákig (vagy napokig) tarthat, és 100+ GiB
+lemezterületet fogyaszthat.
 
-Often in these repositories there are many blobs and trees that the user
-does not need such as:
+Ezekben a repository-kban gyakran van sok olyan blob és tree, amelyre a
+felhasználónak nincs szüksége, például:
 
-  1. files outside of the user's work area in the tree.  For example, in
-     a repository with 500K directories and 3.5M files in every commit,
-     we can avoid downloading many objects if the user only needs a
-     narrow "cone" of the source tree.
+  1. a felhasználó munkaterületén kívüli fájlok a tree-ben.  Például egy
+     olyan repository-ban, amelyben minden commit 500 ezer könyvtárat és
+     3,5 millió fájlt tartalmaz, sok objektum letöltését elkerülhetjük,
+     ha a felhasználónak csak a forrásfa egy szűk „kúpjára" van szüksége.
 
-  2. large binary assets.  For example, in a repository where large build
-     artifacts are checked into the tree, we can avoid downloading all
-     previous versions of these non-mergeable binary assets and only
-     download versions that are actually referenced.
+  2. nagy bináris eszközök.  Például egy olyan repository-ban, ahol nagy
+     build-artefaktumokat commitolnak a tree-be, elkerülhetjük az ezen
+     nem merge-elhető bináris eszközök összes korábbi verziójának
+     letöltését, és csak a ténylegesen hivatkozott verziókat töltjük le.
 
-Partial clone allows us to avoid downloading such unneeded objects *in
-advance* during clone and fetch operations and thereby reduce download
-times and disk usage.  Missing objects can later be "demand fetched"
-if/when needed.
+A partial clone lehetővé teszi, hogy az ilyen szükségtelen objektumok
+letöltését *előre* elkerüljük a klónozási és fetch műveletek során, és
+ezáltal csökkentsük a letöltési időket és a lemezhasználatot.  A
+hiányzó objektumok később „igény szerint letölthetők", ha/amikor
+szükség van rájuk.
 
-A remote that can later provide the missing objects is called a
-promisor remote, as it promises to send the objects when
-requested. Initially Git supported only one promisor remote, the origin
-remote from which the user cloned and that was configured in the
-"extensions.partialClone" config option. Later support for more than
-one promisor remote has been implemented.
+Az a remote, amely később biztosítani tudja a hiányzó objektumokat,
+promisor remote-nak nevezzük, mivel megígéri, hogy elküldi az
+objektumokat, amikor kérik. Kezdetben a Git csak egyetlen promisor
+remote-ot támogatott, azt az origin remote-ot, amelyről a felhasználó
+klónozott, és amelyet az „extensions.partialClone" config opció
+állított be. Később megvalósult az egynél több promisor remote
+támogatása.
 
-Use of partial clone requires that the user be online and the origin
-remote or other promisor remotes be available for on-demand fetching
-of missing objects.  This may or may not be problematic for the user.
-For example, if the user can stay within the pre-selected subset of
-the source tree, they may not encounter any missing objects.
-Alternatively, the user could try to pre-fetch various objects if they
-know that they are going offline.
+A partial clone használatához az kell, hogy a felhasználó online
+legyen, és az origin remote vagy más promisor remote-ok elérhetők
+legyenek a hiányzó objektumok igény szerinti fetcheléséhez.  Ez a
+felhasználónak lehet problémás, de lehet, hogy nem.  Ha például a
+felhasználó a forrásfa előre kiválasztott részhalmazán belül tud
+maradni, lehet, hogy egyetlen hiányzó objektummal sem találkozik.
+Vagy a felhasználó megpróbálhat előre lefetchelni különféle
+objektumokat, ha tudja, hogy offline lesz.
 
 
-Non-Goals
+[[_non_goals]]
+Nem célok
 ---------
 
-Partial clone is a mechanism to limit the number of blobs and trees downloaded
-*within* a given range of commits -- and is therefore independent of and not
-intended to conflict with existing DAG-level mechanisms to limit the set of
-requested commits (i.e. shallow clone, single branch, or fetch '<refspec>').
+A partial clone egy olyan mechanizmus, amely a commitok egy adott
+tartományán *belül* letöltött blobok és tree-k számát korlátozza – és
+ezért független a kért commitok halmazát korlátozó, meglévő DAG-szintű
+mechanizmusoktól (azaz a shallow clone-tól, a single branchtől vagy a
+fetch '<refspec>'-től), és nem szándéka ütközni velük.
 
 
-Design Overview
----------------
+[[_design_overview]]
+A tervezés áttekintése
+----------------------
 
-Partial clone logically consists of the following parts:
+A partial clone logikailag a következő részekből áll:
 
-- A mechanism for the client to describe unneeded or unwanted objects to
-  the server.
+- Egy mechanizmus, amellyel a kliens leírja a szervernek a szükségtelen
+  vagy nem kívánt objektumokat.
 
-- A mechanism for the server to omit such unwanted objects from packfiles
-  sent to the client.
+- Egy mechanizmus, amellyel a szerver kihagyja az ilyen nem kívánt
+  objektumokat a kliensnek küldött packfile-okból.
 
-- A mechanism for the client to gracefully handle missing objects (that
-  were previously omitted by the server).
+- Egy mechanizmus, amellyel a kliens elegánsan kezeli a hiányzó
+  objektumokat (amelyeket korábban a szerver kihagyott).
 
-- A mechanism for the client to backfill missing objects as needed.
+- Egy mechanizmus, amellyel a kliens szükség szerint pótolja a hiányzó
+  objektumokat.
 
 
-Design Details
---------------
+[[_design_details]]
+Tervezési részletek
+-------------------
 
-- A new pack-protocol capability "filter" is added to the fetch-pack and
-  upload-pack negotiation.
+- Egy új „filter" pack-protokoll képesség kerül hozzáadásra a
+  fetch-pack és upload-pack egyeztetéshez.
 +
-This uses the existing capability discovery mechanism.
-See "filter" in linkgit:gitprotocol-pack[5].
+Ez a meglévő képesség-felfedező mechanizmust használja.
+Lásd a „filter"-t a linkgit:gitprotocol-pack[5]-ben.
 
-- Clients pass a "filter-spec" to clone and fetch which is passed to the
-  server to request filtering during packfile construction.
+- A kliensek egy „filter-spec"-et adnak át a clone-nak és a fetchnek,
+  amelyet átadnak a szervernek, hogy szűrést kérjenek a packfile
+  felépítése során.
 +
-There are various filters available to accommodate different situations.
-See "--filter=<filter-spec>" in Documentation/rev-list-options.adoc.
+Különféle filterek állnak rendelkezésre a különböző helyzetek
+kezelésére.  Lásd a „--filter=<filter-spec>"-et a
+Documentation/rev-list-options.adoc fájlban.
 
-- On the server pack-objects applies the requested filter-spec as it
-  creates "filtered" packfiles for the client.
+- A szerveren a pack-objects alkalmazza a kért filter-spec-et, miközben
+  „szűrt" packfile-okat hoz létre a kliens számára.
 +
-These filtered packfiles are *incomplete* in the traditional sense because
-they may contain objects that reference objects not contained in the
-packfile and that the client doesn't already have.  For example, the
-filtered packfile may contain trees or tags that reference missing blobs
-or commits that reference missing trees.
+Ezek a szűrt packfile-ok a hagyományos értelemben *nem teljesek*, mert
+tartalmazhatnak olyan objektumokat, amelyek a packfile-ban nem szereplő,
+és a kliensnél még nem meglévő objektumokra hivatkoznak.  Például a
+szűrt packfile tartalmazhat hiányzó blobokra hivatkozó tree-ket vagy
+tageket, vagy hiányzó tree-kre hivatkozó commitokat.
 
-- On the client these incomplete packfiles are marked as "promisor packfiles"
-  and treated differently by various commands.
+- A kliensen ezeket a nem teljes packfile-okat „promisor packfile"-ként
+  jelöljük meg, és a különböző parancsok másképp kezelik őket.
 
-- On the client a repository extension is added to the local config to
-  prevent older versions of git from failing mid-operation because of
-  missing objects that they cannot handle.
-  See `extensions.partialClone` in linkgit:git-config[1].
+- A kliensen egy repository-kiterjesztés kerül a helyi configba, hogy
+  megakadályozza, hogy a git régebbi verziói művelet közben elhasaljanak
+  az általuk nem kezelhető hiányzó objektumok miatt.
+  Lásd az `extensions.partialClone`-t a linkgit:git-config[1]-ben.
 
 
-Handling Missing Objects
-------------------------
+[[_handling_missing_objects]]
+A hiányzó objektumok kezelése
+-----------------------------
 
-- An object may be missing due to a partial clone or fetch, or missing
-  due to repository corruption.  To differentiate these cases, the
-  local repository specially indicates such filtered packfiles
-  obtained from promisor remotes as "promisor packfiles".
+- Egy objektum hiányozhat partial clone vagy fetch miatt, vagy
+  hiányozhat a repository sérülése miatt.  E két eset
+  megkülönböztetésére a helyi repository az ilyen, promisor remote-októl
+  kapott szűrt packfile-okat kifejezetten „promisor packfile"-ként
+  jelzi.
 +
-These promisor packfiles consist of a "<name>.promisor" file with
-arbitrary contents (like the "<name>.keep" files), in addition to
-their "<name>.pack" and "<name>.idx" files.
+Ezek a promisor packfile-ok egy tetszőleges tartalmú „<name>.promisor"
+fájlból állnak (a „<name>.keep" fájlokhoz hasonlóan), a „<name>.pack" és
+„<name>.idx" fájljaikon felül.
 
-- The local repository considers a "promisor object" to be an object that
-  it knows (to the best of its ability) that promisor remotes have promised
-  that they have, either because the local repository has that object in one of
-  its promisor packfiles, or because another promisor object refers to it.
+- A helyi repository „promisor objektumnak" tekint egy olyan objektumot,
+  amelyről (legjobb tudása szerint) tudja, hogy a promisor remote-ok
+  megígérték, hogy náluk megvan, akár azért, mert a helyi repository-nak
+  megvan az az objektum valamelyik promisor packfile-jában, akár azért,
+  mert egy másik promisor objektum hivatkozik rá.
 +
-When Git encounters a missing object, Git can see if it is a promisor object
-and handle it appropriately.  If not, Git can report a corruption.
+Amikor a Git hiányzó objektummal találkozik, meg tudja nézni, hogy az
+promisor objektum-e, és megfelelően kezelheti.  Ha nem, a Git sérülést
+jelezhet.
 +
-This means that there is no need for the client to explicitly maintain an
-expensive-to-modify list of missing objects.[a]
+Ez azt jelenti, hogy a kliensnek nem kell explicit módon karbantartania
+a hiányzó objektumok nehezen módosítható listáját.[a]
 
-- Since almost all Git code currently expects any referenced object to be
-  present locally and because we do not want to force every command to do
-  a dry-run first, a fallback mechanism is added to allow Git to attempt
-  to dynamically fetch missing objects from promisor remotes.
+- Mivel jelenleg szinte az összes Git-kód elvárja, hogy bármely
+  hivatkozott objektum helyben jelen legyen, és mivel nem akarjuk minden
+  parancsot arra kényszeríteni, hogy először száraz futtatást végezzen,
+  egy tartalék mechanizmus kerül hozzáadásra, amely lehetővé teszi, hogy
+  a Git megpróbálja dinamikusan lefetchelni a hiányzó objektumokat a
+  promisor remote-októl.
 +
-When the normal object lookup fails to find an object, Git invokes
-promisor_remote_get_direct() to try to get the object from a promisor
-remote and then retry the object lookup.  This allows objects to be
-"faulted in" without complicated prediction algorithms.
+Amikor a normál objektumkeresés nem talál meg egy objektumot, a Git
+meghívja a promisor_remote_get_direct()-et, hogy megpróbálja megszerezni
+az objektumot egy promisor remote-tól, majd újrapróbálja az
+objektumkeresést.  Ez lehetővé teszi, hogy az objektumok bonyolult
+előrejelző algoritmusok nélkül „beessenek".
 +
-For efficiency reasons, no check as to whether the missing object is
-actually a promisor object is performed.
+Hatékonysági okokból nem történik ellenőrzés arra nézve, hogy a hiányzó
+objektum valóban promisor objektum-e.
 +
-Dynamic object fetching tends to be slow as objects are fetched one at
-a time.
+A dinamikus objektum-fetchelés általában lassú, mivel az objektumokat
+egyesével fetcheljük.
 
-- `checkout` (and any other command using `unpack-trees`) has been taught
-  to bulk pre-fetch all required missing blobs in a single batch.
+- A `checkout` (és bármely más, `unpack-trees`-t használó parancs) meg
+  lett tanítva arra, hogy egyetlen kötegben tömegesen előre lefetchelje
+  az összes szükséges hiányzó blobot.
 
-- `rev-list` has been taught to print missing objects.
+- A `rev-list` meg lett tanítva a hiányzó objektumok kiírására.
 +
-This can be used by other commands to bulk prefetch objects.
-For example, a "git log -p A..B" may internally want to first do
-something like "git rev-list --objects --quiet --missing=print A..B"
-and prefetch those objects in bulk.
+Ezt más parancsok az objektumok tömeges előzetes fetchelésére
+használhatják.  Például egy „git log -p A..B" belsőleg először valami
+olyasmit akarhat tenni, mint „git rev-list --objects --quiet
+--missing=print A..B", és tömegesen előre lefetchelni azokat az
+objektumokat.
 
-- `fsck` has been updated to be fully aware of promisor objects.
+- Az `fsck` frissítve lett, hogy teljesen tisztában legyen a promisor
+  objektumokkal.
 
-- `repack` in GC has been updated to not touch promisor packfiles at all,
-  and to only repack other objects.
+- A `repack` a GC-ben frissítve lett, hogy egyáltalán ne nyúljon a
+  promisor packfile-okhoz, és csak a többi objektumot csomagolja újra.
 
-- The per-repository flag "fetch_if_missing" is used to control whether an
-  object lookup will attempt to dynamically fetch a missing object or
-  report an error.
+- A repository-nkénti „fetch_if_missing" flag azt szabályozza, hogy egy
+  objektumkeresés megpróbál-e dinamikusan lefetchelni egy hiányzó
+  objektumot, vagy hibát jelez.
 +
-We are not happy with this global variable and would like to remove it,
-but that requires significant refactoring of the object code to pass an
-additional flag.
+Nem vagyunk elégedettek ezzel a globális változóval, és szeretnénk
+eltávolítani, de ehhez az objektumkód jelentős refaktorálása kell egy
+további flag átadásához.
 
 
-Fetching Missing Objects
-------------------------
+[[_fetching_missing_objects]]
+A hiányzó objektumok fetchelése
+-------------------------------
 
-- Fetching of objects is done by invoking a "git fetch" subprocess.
+- Az objektumok fetchelése egy „git fetch" alfolyamat meghívásával
+  történik.
 
-- The local repository sends a request with the hashes of all requested
-  objects, and does not perform any packfile negotiation.
-  It then receives a packfile.
+- A helyi repository egy kérést küld az összes kért objektum hashével,
+  és nem végez packfile-egyeztetést.  Ezután kap egy packfile-t.
 
-- Because we are reusing the existing fetch mechanism, fetching
-  currently fetches all objects referred to by the requested objects, even
-  though they are not necessary.
+- Mivel a meglévő fetch mechanizmust használjuk újra, a fetchelés
+  jelenleg minden, a kért objektumok által hivatkozott objektumot
+  lefetchel, még ha nem is szükségesek.
 
-- Fetching with `--refetch` will request a complete new filtered packfile from
-  the remote, which can be used to change a filter without needing to
-  dynamically fetch missing objects.
+- A `--refetch`-csel való fetchelés egy teljesen új szűrt packfile-t
+  kér a remote-tól, ami arra használható, hogy megváltoztassunk egy
+  filtert anélkül, hogy dinamikusan le kellene fetchelni a hiányzó
+  objektumokat.
 
-Using many promisor remotes
----------------------------
+[[_using_many_promisor_remotes]]
+Sok promisor remote használata
+------------------------------
 
-Many promisor remotes can be configured and used.
+Sok promisor remote konfigurálható és használható.
 
-This allows for example a user to have multiple geographically-close
-cache servers for fetching missing blobs while continuing to do
-filtered `git-fetch` commands from the central server.
+Ez lehetővé teszi például, hogy egy felhasználónak több
+földrajzilag közeli cache szervere legyen a hiányzó blobok
+fetcheléséhez, miközben továbbra is szűrt `git-fetch` parancsokat futtat
+a központi szerverről.
 
-When fetching objects, promisor remotes are tried one after the other
-until all the objects have been fetched.
+Objektumok fetchelésekor a promisor remote-okat egymás után próbáljuk,
+amíg az összes objektum le nem töltődött.
 
-Remotes that are considered "promisor" remotes are those specified by
-the following configuration variables:
+Azok a remote-ok számítanak „promisor" remote-nak, amelyeket a
+következő konfigurációs változók adnak meg:
 
 - `extensions.partialClone = <name>`
 
@@ -206,139 +231,153 @@ the following configuration variables:
 
 - `remote.<name>.partialCloneFilter = ...`
 
-Only one promisor remote can be configured using the
-`extensions.partialClone` config variable. This promisor remote will
-be the last one tried when fetching objects.
+Az `extensions.partialClone` config változóval csak egyetlen promisor
+remote konfigurálható. Ez a promisor remote lesz az utolsó, amelyet
+objektumok fetchelésekor kipróbálunk.
 
-We decided to make it the last one we try, because it is likely that
-someone using many promisor remotes is doing so because the other
-promisor remotes are better for some reason (maybe they are closer or
-faster for some kind of objects) than the origin, and the origin is
-likely to be the remote specified by extensions.partialClone.
+Úgy döntöttünk, hogy ezt próbáljuk utoljára, mert valószínű, hogy aki
+sok promisor remote-ot használ, azért teszi, mert a többi promisor
+remote valamiért jobb (talán közelebb vannak, vagy gyorsabbak valamely
+objektumfajtánál), mint az origin, és az origin valószínűleg az a
+remote, amelyet az extensions.partialClone ad meg.
 
-This justification is not very strong, but one choice had to be made,
-and anyway the long term plan should be to make the order somehow
-fully configurable.
+Ez az indoklás nem túl erős, de valamilyen döntést meg kellett hozni,
+és a hosszú távú terv amúgy is az kell legyen, hogy a sorrend valahogy
+teljesen konfigurálható legyen.
 
-For now though the other promisor remotes will be tried in the order
-they appear in the config file.
+Egyelőre azonban a többi promisor remote-ot abban a sorrendben
+próbáljuk, ahogy a config fájlban megjelennek.
 
-Current Limitations
--------------------
+[[_current_limitations]]
+Jelenlegi korlátozások
+----------------------
 
-- It is not possible to specify the order in which the promisor
-  remotes are tried in other ways than the order in which they appear
-  in the config file.
+- Nem lehet megadni a promisor remote-ok kipróbálásának sorrendjét más
+  módon, mint azzal a sorrenddel, ahogy a config fájlban megjelennek.
 +
-It is also not possible to specify an order to be used when fetching
-from one remote and a different order when fetching from another
-remote.
+Azt sem lehet megadni, hogy egy adott remote-ról való fetcheléskor egy
+sorrendet, egy másik remote-ról való fetcheléskor pedig egy másik
+sorrendet használjunk.
 
-- It is not possible to push only specific objects to a promisor
-  remote.
+- Nem lehet csak bizonyos objektumokat pusholni egy promisor remote-ra.
 +
-It is not possible to push at the same time to multiple promisor
-remote in a specific order.
+Nem lehet egyszerre több promisor remote-ra pusholni egy adott
+sorrendben.
 
-- Dynamic object fetching will only ask promisor remotes for missing
-  objects.  We assume that promisor remotes have a complete view of the
-  repository and can satisfy all such requests.
+- A dinamikus objektum-fetchelés csak a promisor remote-októl kér
+  hiányzó objektumokat.  Feltételezzük, hogy a promisor remote-oknak
+  teljes rálátásuk van a repository-ra, és minden ilyen kérést ki tudnak
+  szolgálni.
 
-- Repack essentially treats promisor and non-promisor packfiles as 2
-  distinct partitions and does not mix them.
+- A repack lényegében 2 különálló partícióként kezeli a promisor és a
+  nem promisor packfile-okat, és nem keveri őket.
 
-- Dynamic object fetching invokes fetch-pack once *for each item*
-  because most algorithms stumble upon a missing object and need to have
-  it resolved before continuing their work.  This may incur significant
-  overhead -- and multiple authentication requests -- if many objects are
-  needed.
+- A dinamikus objektum-fetchelés *elemenként egyszer* hívja meg a
+  fetch-pack-et, mert a legtöbb algoritmus egy hiányzó objektumba
+  botlik, és fel kell oldania, mielőtt folytatná a munkáját.  Ez
+  jelentős többletköltséget – és több hitelesítési kérést – okozhat, ha
+  sok objektumra van szükség.
 
-- Dynamic object fetching currently uses the existing pack protocol V0
-  which means that each object is requested via fetch-pack.  The server
-  will send a full set of info/refs when the connection is established.
-  If there are a large number of refs, this may incur significant overhead.
+- A dinamikus objektum-fetchelés jelenleg a meglévő V0 pack protokollt
+  használja, ami azt jelenti, hogy minden objektumot a fetch-pack-en
+  keresztül kérünk.  A szerver a kapcsolat felépítésekor egy teljes
+  info/refs halmazt küld.  Ha nagyszámú ref van, ez jelentős
+  többletköltséget okozhat.
 
 
-Future Work
------------
+[[_future_work]]
+Jövőbeli munka
+--------------
 
-- Improve the way to specify the order in which promisor remotes are
-  tried.
+- A promisor remote-ok kipróbálási sorrendjének megadási módját
+  javítani.
 +
-For example this could allow specifying explicitly something like:
-"When fetching from this remote, I want to use these promisor remotes
-in this order, though, when pushing or fetching to that remote, I want
-to use those promisor remotes in that order."
+Ez például lehetővé tehetné, hogy explicit módon megadjunk valami
+olyasmit: „Amikor erről a remote-ról fetchelek, ezeket a promisor
+remote-okat akarom használni ebben a sorrendben, viszont amikor arra a
+remote-ra pusholok vagy fetchelek, azokat a promisor remote-okat akarom
+használni abban a sorrendben."
 
-- Allow pushing to promisor remotes.
+- Lehetővé tenni a promisor remote-okra való pusholást.
 +
-The user might want to work in a triangular work flow with multiple
-promisor remotes that each have an incomplete view of the repository.
+A felhasználó dolgozhat háromszög alakú munkafolyamatban több promisor
+remote-tal, amelyek mindegyikének nem teljes rálátása van a
+repository-ra.
 
-- Allow non-pathname-based filters to make use of packfile bitmaps (when
-  present).  This was just an omission during the initial implementation.
+- Lehetővé tenni, hogy a nem útvonalnév-alapú filterek is kihasználják a
+  packfile bitmapeket (ha vannak).  Ez csak egy mulasztás volt a kezdeti
+  megvalósítás során.
 
-- Investigate use of a long-running process to dynamically fetch a series
-  of objects, such as proposed in [5,6] to reduce process startup and
-  overhead costs.
+- Megvizsgálni egy hosszan futó folyamat használatát egy objektumsorozat
+  dinamikus fetcheléséhez, ahogy az [5,6]-ban javasolt, a
+  folyamatindítási és többletköltségek csökkentésére.
 +
-It would be nice if pack protocol V2 could allow that long-running
-process to make a series of requests over a single long-running
-connection.
+Jó lenne, ha a V2 pack protokoll lehetővé tenné, hogy az a hosszan futó
+folyamat egy sor kérést tegyen egyetlen hosszan futó kapcsolaton
+keresztül.
 
-- Investigate pack protocol V2 to avoid the info/refs broadcast on
-  each connection with the server to dynamically fetch missing objects.
+- Megvizsgálni a V2 pack protokollt, hogy elkerüljük az info/refs
+  broadcastot minden egyes, a szerverrel való kapcsolatnál a hiányzó
+  objektumok dinamikus fetcheléséhez.
 
-- Investigate the need to handle loose promisor objects.
+- Megvizsgálni, hogy szükség van-e a laza promisor objektumok kezelésére.
 +
-Objects in promisor packfiles are allowed to reference missing objects
-that can be dynamically fetched from the server.  An assumption was
-made that loose objects are only created locally and therefore should
-not reference a missing object.  We may need to revisit that assumption
-if, for example, we dynamically fetch a missing tree and store it as a
-loose object rather than a single object packfile.
+A promisor packfile-okban lévő objektumok hivatkozhatnak olyan hiányzó
+objektumokra, amelyek dinamikusan lefetchelhetők a szerverről.  Az a
+feltételezés született, hogy a laza objektumokat csak helyben hozzák
+létre, ezért nem szabad hiányzó objektumra hivatkozniuk.  Lehet, hogy
+újra kell gondolnunk ezt a feltételezést, ha például dinamikusan
+lefetchelünk egy hiányzó tree-t, és laza objektumként tároljuk, nem
+pedig egyetlen objektumot tartalmazó packfile-ként.
 +
-This does not necessarily mean we need to mark loose objects as promisor;
-it may be sufficient to relax the object lookup or is-promisor functions.
+Ez nem feltétlenül jelenti azt, hogy a laza objektumokat promisorként
+kell megjelölnünk; elég lehet lazítani az objektumkereső vagy az
+is-promisor függvényeken.
 
 
-Non-Tasks
----------
-
-- Every time the subject of "demand loading blobs" comes up it seems
-  that someone suggests that the server be allowed to "guess" and send
-  additional objects that may be related to the requested objects.
-+
-No work has gone into actually doing that; we're just documenting that
-it is a common suggestion.  We're not sure how it would work and have
-no plans to work on it.
-+
-It is valid for the server to send more objects than requested (even
-for a dynamic object fetch), but we are not building on that.
-
-
-Footnotes
----------
-
-[a] expensive-to-modify list of missing objects:  Earlier in the design of
-    partial clone we discussed the need for a single list of missing objects.
-    This would essentially be a sorted linear list of OIDs that were
-    omitted by the server during a clone or subsequent fetches.
-
-This file would need to be loaded into memory on every object lookup.
-It would need to be read, updated, and re-written (like the .git/index)
-on every explicit "git fetch" command *and* on any dynamic object fetch.
-
-The cost to read, update, and write this file could add significant
-overhead to every command if there are many missing objects.  For example,
-if there are 100M missing blobs, this file would be at least 2GiB on disk.
-
-With the "promisor" concept, we *infer* a missing object based upon the
-type of packfile that references it.
-
-
-Related Links
+[[_non_tasks]]
+Nem feladatok
 -------------
+
+- Valahányszor előkerül a „blobok igény szerinti betöltésének" témája,
+  úgy tűnik, valaki felveti, hogy a szerver „találgathasson", és küldjön
+  további objektumokat, amelyek a kért objektumokhoz kapcsolódhatnak.
++
+Ennek tényleges megvalósításába nem fektettünk munkát; csak
+dokumentáljuk, hogy ez egy gyakori javaslat.  Nem vagyunk biztosak
+benne, hogyan működne, és nincs tervünk arra, hogy dolgozzunk rajta.
++
+Érvényes, ha a szerver a kértnél több objektumot küld (még egy dinamikus
+objektum-fetchelésnél is), de nem erre építünk.
+
+
+[[_footnotes]]
+Lábjegyzetek
+------------
+
+[a] a hiányzó objektumok nehezen módosítható listája:  Korábban a
+    partial clone tervezésekor megbeszéltük, hogy szükség van a hiányzó
+    objektumok egyetlen listájára.  Ez lényegében azon OID-k rendezett
+    lineáris listája lenne, amelyeket a szerver egy klónozás vagy
+    későbbi fetchek során kihagyott.
+
+Ezt a fájlt minden objektumkeresésnél be kellene tölteni a memóriába.
+Minden explicit „git fetch" parancsnál *és* minden dinamikus
+objektum-fetchelésnél be kellene olvasni, frissíteni és újraírni (mint a
+.git/index).
+
+E fájl beolvasásának, frissítésének és írásának költsége jelentős
+többletköltséget adhatna minden parancshoz, ha sok hiányzó objektum van.
+Például, ha 100 millió hiányzó blob van, ez a fájl legalább 2 GiB lenne
+a lemezen.
+
+A „promisor" koncepcióval egy hiányzó objektumot az őt hivatkozó
+packfile típusa alapján *következtetünk ki*.
+
+
+[[_related_links]]
+Kapcsolódó hivatkozások
+-----------------------
 [0] https://crbug.com/git/2
     Bug#2: Partial Clone
 

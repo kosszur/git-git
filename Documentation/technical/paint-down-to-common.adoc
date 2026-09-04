@@ -1,51 +1,53 @@
-Merge-Base Computation and paint_down_to_common()
-==================================================
+A merge-alap kiszámítása és a paint_down_to_common()
+====================================================
 
-The function `paint_down_to_common()` in `commit-reach.c` computes merge
-bases by walking the commit graph backwards from two sets of tips and
-finding where their ancestry meets.
+A `commit-reach.c` fájlban lévő `paint_down_to_common()` függvény úgy számítja ki a
+merge-alapokat, hogy a commit gráfot két csúcshalmazból visszafelé bejárja, és
+megkeresi, hol találkozik a leszármazásuk.
 
-Use cases
----------
+[[_use_cases]]
+Használati esetek
+-----------------
 
-Computing merge bases is used in two different ways:
+A merge-alapok kiszámítását kétféleképpen használjuk:
 
- 1. *Finding all merge bases* (`merge-base --all`, `merge-tree`,
-    `merge`, `rebase`). A merge base is a common ancestor that is
-    not itself an ancestor of another common ancestor.
+ 1. *Az összes merge-alap megkeresése* (`merge-base --all`, `merge-tree`,
+    `merge`, `rebase`). A merge-alap olyan közös felmenő, amely maga nem
+    felmenője egy másik közös felmenőnek.
 
- 2. *Ancestry checks* (`in_merge_bases`, used by `merge-base
-    --is-ancestor`, `branch -d`, `fetch`). These ask: "is commit A
-    an ancestor of commit B?" If a common ancestor equals one of the
-    inputs, that input is necessarily the only merge base -- no other
-    common ancestor can be both as recent and not an ancestor of it.
+ 2. *Leszármazási ellenőrzések* (`in_merge_bases`, ezt használja a `merge-base
+    --is-ancestor`, a `branch -d` és a `fetch`). Ezek azt kérdezik: „az A commit
+    felmenője-e a B commitnak?" Ha egy közös felmenő megegyezik az egyik
+    bemenettel, akkor az a bemenet szükségszerűen az egyetlen merge-alap -- nincs másik
+    közös felmenő, amely egyszerre lehetne ilyen friss, és ne lenne felmenője.
 
-Both use cases share the same algorithm and implementation.
+Mindkét használati eset ugyanazt az algoritmust és implementációt használja.
 
-Algorithm
----------
+[[_algorithm]]
+Algoritmus
+----------
 
-Given a commit `one` and a set of commits `twos[]`, the walk paints
-commits with two colors:
+Egy `one` commit és egy `twos[]` committhalmaz esetén a bejárás két
+színnel színezi a commitokat:
 
-  - PARENT1: reachable from `one`
-  - PARENT2: reachable from any commit in `twos[]`
+  - PARENT1: elérhető innen: `one`
+  - PARENT2: elérhető a `twos[]` bármely commitjából
 
-The walk uses a priority queue ordered by generation number
-(highest first), breaking ties by commit date. Each step dequeues
-the highest-priority commit and propagates its paint flags to its
-parents, enqueuing any parent that gained new flags. When a
-commit receives both PARENT1 and PARENT2, it is a merge-base
-candidate. A candidate gains the STALE flag so its ancestors
-propagate staleness -- any deeper common ancestor is necessarily
-redundant.
+A bejárás generációs szám szerint rendezett prioritási sort használ
+(a legmagasabb elöl), az egyenlőséget commit dátum szerint feloldva. Minden lépés kiveszi
+a legmagasabb prioritású commitot, és továbbterjeszti a színezési jelzőit a
+szülőire, sorba állítva minden olyan szülőt, amely új jelzőt kapott. Amikor egy
+commit megkapja a PARENT1 és a PARENT2 jelzőt is, akkor merge-alap-
+jelölt lesz. A jelölt megkapja a STALE jelzőt, hogy a felmenői
+továbbterjesszék az elévültséget -- minden mélyebb közös felmenő szükségszerűen
+redundáns.
 
 [[generation-regions]]
-Topologically ordered and unordered generation regions
-------------------------------------------------------
+Topologikusan rendezett és rendezetlen generációs régiók
+--------------------------------------------------------
 
-Commits fall into two regions based on whether their generation
-numbers provide a topological ordering guarantee:
+A commitok két régióba esnek attól függően, hogy a generációs
+számuk biztosít-e topologikus rendezési garanciát:
 
 ....
     +------------------------------------------+
@@ -62,94 +64,100 @@ numbers provide a topological ordering guarantee:
     +------------------------------------------+
 ....
 
-In the ordered region, a child's generation is strictly greater
-than its parent's. Same-generation commits are necessarily
-independent, so the queue always processes children before
-their parents.
+A rendezett régióban a gyermek generációja szigorúan nagyobb,
+mint a szülőé. Az azonos generációjú commitok szükségszerűen
+függetlenek, ezért a sor mindig a gyermekeket dolgozza fel a
+szülőik előtt.
 
-In the unordered region, parent-child pairs can share the same
-generation number, so topological order is not guaranteed. The
-queue uses commit-date as a heuristic, which typically produces
-a reasonable traversal order but may process a parent before
-its child.
+A rendezetlen régióban a szülő-gyermek párok azonos generációs
+számmal rendelkezhetnek, ezért a topologikus sorrend nem garantált. A
+sor heurisztikaként a commit dátumát használja, ami jellemzően
+ésszerű bejárási sorrendet eredményez, de előfordulhat, hogy egy szülőt a
+gyermeke előtt dolgoz fel.
 
-Commits not in the commit-graph have generation INFINITY; v1
-commit-graphs saturate at V1_MAX. Both place commits in the
-unordered region. Any optimization that depends on generation
-ordering must account for this saturation boundary. The early
-exit gates compare against a topological ceiling --
-`GENERATION_NUMBER_V1_MAX` for v1 graphs and
-`GENERATION_NUMBER_INFINITY` for v2 graphs -- so that saturated
-commits are treated as unordered.
+A commit-graphban nem szereplő commitok generációja INFINITY; a v1
+commit-graphok V1_MAX értéknél telítődnek. Mindkettő a rendezetlen régióba
+helyezi a commitokat. Minden olyan optimalizációnak, amely a generációs
+rendezésre támaszkodik, számolnia kell ezzel a telítődési határral. A korai
+kilépési kapuk egy topologikus felső korláttal hasonlítanak össze --
+`GENERATION_NUMBER_V1_MAX` a v1 gráfoknál és
+`GENERATION_NUMBER_INFINITY` a v2 gráfoknál --, hogy a telített
+commitokat rendezetlenként kezeljék.
 
-With generation ordering, values in the unordered region exceed
-those in the ordered region. The walk may therefore transition
-from the unordered region into the ordered region, but never in
-the reverse direction. Without a commit-graph, every commit has INFINITY
-and the walk operates entirely in the unordered region.
+Generációs rendezés esetén a rendezetlen régió értékei meghaladják
+a rendezett régió értékeit. A bejárás ezért átléphet a
+rendezetlen régióból a rendezett régióba, de fordítva soha
+nem. Commit-graph nélkül minden commit INFINITY értékű,
+és a bejárás teljes egészében a rendezetlen régióban működik.
 
-In the ordered region, paint on a dequeued commit is final --
-no future step can add flags to it. In the unordered region,
-a dequeued commit may later gain additional paint. Paint flags
-are only added, never removed, bounding the number of
-re-enqueues per commit.
+A rendezett régióban a sorból kivett commit színezése végleges --
+egyetlen későbbi lépés sem adhat hozzá jelzőt. A rendezetlen régióban
+egy sorból kivett commit később további színezést kaphat. A színezési jelzőket
+csak hozzáadják, soha nem távolítják el, ami korlátozza a
+commitonkénti újra-sorba-állítások számát.
 
-Termination
------------
+[[_termination]]
+Befejezés
+---------
 
-The walk tracks the number of commits of each type in the queue
-(PARENT1-only, PARENT2-only, pending merge-base). The main loop
-ends when one of the following conditions holds:
+A bejárás nyomon követi a sorban lévő egyes típusú commitok számát
+(csak PARENT1, csak PARENT2, függőben lévő merge-alap). A fő ciklus
+akkor ér véget, ha az alábbi feltételek egyike teljesül:
 
-  1. The queue is empty.
-  2. The queue contains only stale entries.
-  3. Generation cutoff: the dequeued commit's generation is below
-     a caller-supplied `min_generation` threshold.
-  4. Single result: the caller only needs one merge base, one has
-     been found, and the walk has entered the ordered region.
-  5. Side exhaustion: no pure PARENT1 or pure PARENT2 commits
-     remain in the queue, no pending merge-base candidates exist,
-     and the walk has entered the ordered region.
+  1. A sor üres.
+  2. A sor csak elévült bejegyzéseket tartalmaz.
+  3. Generációs levágás: a sorból kivett commit generációja egy hívó által
+     megadott `min_generation` küszöb alatt van.
+  4. Egyetlen eredmény: a hívónak csak egy merge-alapra van szüksége, egyet
+     megtaláltunk, és a bejárás belépett a rendezett régióba.
+  5. Az egyik oldal kimerülése: nincs több tiszta PARENT1 vagy tiszta PARENT2 commit
+     a sorban, nincsenek függőben lévő merge-alap-jelöltek,
+     és a bejárás belépett a rendezett régióba.
 
-Stale entry condition
-~~~~~~~~~~~~~~~~~~~~~
-Once all queued entries are stale, no new merge-base candidates can
-be discovered -- that requires at least one non-stale commit from
-each side meeting. Continuing the walk could still invalidate
-existing candidates by proving one is an ancestor of another, but
-`remove_redundant()` handles that as a post-processing step, so it
-is safe to exit early.
+[[_stale_entry_condition]]
+Az elévült bejegyzés feltétele
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ha a sorban lévő összes bejegyzés elévült, nem fedezhető fel új
+merge-alap-jelölt -- ahhoz legalább egy nem elévült commitnak kell
+találkoznia mindkét oldalról. A bejárás folytatása még érvényteleníthetne
+meglévő jelölteket azzal, hogy bebizonyítja, az egyik felmenője a másiknak, de a
+`remove_redundant()` ezt utófeldolgozási lépésként kezeli, ezért
+biztonságos a korai kilépés.
 
-Side-exhaustion condition
-~~~~~~~~~~~~~~~~~~~~~~~~~
-A new merge-base requires commits from both sides to meet. When one
-side's exclusive counter reaches zero and there are no pending
-merge-base candidates, no future traversal step can produce a new
-candidate. This optimization only activates in the ordered region,
-where paint flags are final at visit time; in the unordered region,
-a side that appears exhausted could reappear through late paint
-propagation.
+[[_side_exhaustion_condition]]
+Az egyik oldal kimerülésének feltétele
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Egy új merge-alaphoz mindkét oldalról találkozniuk kell commitoknak. Amikor az
+egyik oldal kizárólagos számlálója nullára csökken, és nincsenek függőben lévő
+merge-alap-jelöltek, egyetlen későbbi bejárási lépés sem hozhat létre új
+jelöltet. Ez az optimalizáció csak a rendezett régióban aktiválódik,
+ahol a színezési jelzők a látogatás időpontjában véglegesek; a rendezetlen régióban
+egy kimerültnek tűnő oldal a késői színterjedés révén újra
+megjelenhet.
 
-Generation cutoff
+[[_generation_cutoff]]
+Generációs levágás
+~~~~~~~~~~~~~~~~~~
+Egyes hívók (nevezetesen a `remove_redundant()`) a bemeneti commitok minimális
+generációjával megegyező `min_generation` küszöböt adnak meg.
+Ezeknek a hívóknak csak a bemenetek közötti elérhetőséget kell meghatározniuk,
+nem kell mély merge-alapokat találniuk, ezért a bejárás biztonságosan befejeződhet, amikor
+egy e küszöb alatti commitot vesz ki a sorból.
+
+[[_single_result]]
+Egyetlen eredmény
 ~~~~~~~~~~~~~~~~~
-Some callers (notably `remove_redundant()`) supply a `min_generation`
-threshold equal to the minimum generation of the input commits.
-These callers only need to determine reachability among the inputs,
-not find deep merge bases, so the walk can safely terminate when it
-dequeues a commit below this threshold.
+Ha csak egy merge-alapra van szükség, és a bejárás a
+rendezett régióban van generációs rendezéssel, akkor az első megtalált
+jelölt szükségszerűen a legmagasabb generációjú közös felmenő.
+A sorban maradt egyetlen commit sem lehet ennek a jelöltnek a
+leszármazottja (a generációs rendezés garantálja, hogy a gyermekeket előbb
+látogatjuk meg), ezért nem lehet redundáns, és a bejárás azonnal
+leállhat.
 
-Single result
-~~~~~~~~~~~~~
-When only one merge base is needed and the walk is in the
-ordered region with generation ordering, the first candidate
-found is necessarily the highest-generation common ancestor.
-No remaining commit in the queue can be a descendant of this
-candidate (generation ordering guarantees children are visited
-first), so it cannot be redundant and the walk can stop
-immediately.
+[[_related_documentation]]
+Kapcsolódó dokumentáció
+-----------------------
 
-Related documentation
----------------------
-
-  - `Documentation/technical/commit-graph.adoc` -- generation numbers
-    and the reachability closure property.
+  - `Documentation/technical/commit-graph.adoc` -- generációs számok
+    és az elérhetőségi lezárás tulajdonsága.

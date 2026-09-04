@@ -1,121 +1,127 @@
 reftable
 --------
 
-Overview
-~~~~~~~~
+Áttekintés
+~~~~~~~~~~
 
-Problem statement
-^^^^^^^^^^^^^^^^^
+Problémafelvetés
+^^^^^^^^^^^^^^^^
 
-Some repositories contain a lot of references (e.g. android at 866k,
-rails at 31k). The existing packed-refs format takes up a lot of space
-(e.g. 62M), and does not scale with additional references. Lookup of a
-single reference requires linearly scanning the file.
+Néhány repository sok referenciát tartalmaz (pl. az android 866 ezret, a
+rails 31 ezret). A meglévő packed-refs formátum sok helyet foglal (pl.
+62 M), és nem skálázódik a további referenciákkal. Egyetlen referencia
+kikeresése a fájl lineáris végigpásztázását igényli.
 
-Atomic pushes modifying multiple references require copying the entire
-packed-refs file, which can be a considerable amount of data moved
-(e.g. 62M in, 62M out) for even small transactions (2 refs modified).
+A több referenciát módosító atomi pushok az egész packed-refs fájl
+másolását igénylik, ami tetemes mennyiségű mozgatott adat lehet (pl.
+62 M be, 62 M ki) még kis tranzakcióknál is (2 ref módosítva).
 
-Repositories with many loose references occupy a large number of disk
-blocks from the local file system, as each reference is its own file
-storing 41 bytes (and another file for the corresponding reflog). This
-negatively affects the number of inodes available when a large number of
-repositories are stored on the same filesystem. Readers can be penalized
-due to the larger number of syscalls required to traverse and read the
-`$GIT_DIR/refs` directory.
+A sok laza referenciával rendelkező repository-k nagyszámú lemezblokkot
+foglalnak a helyi fájlrendszerből, mivel minden referencia egy önálló
+fájl, amely 41 bájtot tárol (és még egy fájl a hozzá tartozó
+refloghoz). Ez negatívan érinti az elérhető inode-ok számát, amikor sok
+repository van ugyanazon a fájlrendszeren tárolva. Az olvasók
+büntetést kaphatnak a `$GIT_DIR/refs` könyvtár bejárásához és
+olvasásához szükséges nagyobb számú rendszerhívás miatt.
 
 
-Objectives
-^^^^^^^^^^
+Célok
+^^^^^
 
-* Near constant time lookup for any single reference, even when the
-repository is cold and not in process or kernel cache.
-* Near constant time verification if an object name is referred to by at least
-one reference (for allow-tip-sha1-in-want).
-* Efficient enumeration of an entire namespace, such as `refs/tags/`.
-* Support atomic push with `O(size_of_update)` operations.
-* Combine reflog storage with ref storage for small transactions.
-* Separate reflog storage for base refs and historical logs.
+* Közel állandó idejű kikeresés bármely egyetlen referenciára, még
+akkor is, ha a repository hideg, és nincs a folyamat vagy a kernel
+gyorsítótárában.
+* Közel állandó idejű ellenőrzés arra, hogy egy objektumnévre legalább
+egy referencia hivatkozik-e (az allow-tip-sha1-in-want-hoz).
+* Egy egész névtér, például a `refs/tags/` hatékony felsorolása.
+* Atomi push támogatása `O(size_of_update)` művelettel.
+* A reflog-tárolás összevonása a reftárolással a kis tranzakciókhoz.
+* Külön reflog-tárolás az alap refekhez és a történeti logokhoz.
 
-Description
-^^^^^^^^^^^
+Leírás
+^^^^^^
 
-A reftable file is a portable binary file format customized for
-reference storage. References are sorted, enabling linear scans, binary
-search lookup, and range scans.
+A reftable fájl egy hordozható bináris fájlformátum, amelyet
+referenciatárolásra szabtak. A referenciák rendezettek, ami lehetővé
+teszi a lineáris pásztázást, a bináris keresést és a
+tartománypásztázást.
 
-Storage in the file is organized into variable sized blocks. Prefix
-compression is used within a single block to reduce disk space. Block
-size and alignment are tunable by the writer.
+A fájlban a tárolás változó méretű blokkokba van szervezve. Egyetlen
+blokkon belül előtag-tömörítést használunk a lemezterület
+csökkentésére. A blokkméret és -igazítás az író által hangolható.
 
-Performance
-^^^^^^^^^^^
+Teljesítmény
+^^^^^^^^^^^^
 
-Space used, packed-refs vs. reftable:
+Felhasznált hely, packed-refs vs. reftable:
 
 [cols=",>,>,>,>,>",options="header",]
 |===============================================================
-|repository |packed-refs |reftable |% original |avg ref |avg obj
+|repository |packed-refs |reftable |% eredeti |átl. ref |átl. obj
 |android |62.2 M |36.1 M |58.0% |33 bytes |5 bytes
 |rails |1.8 M |1.1 M |57.7% |29 bytes |4 bytes
 |git |78.7 K |48.1 K |61.0% |50 bytes |4 bytes
 |git (heads) |332 b |269 b |81.0% |33 bytes |0 bytes
 |===============================================================
 
-Scan (read 866k refs), by reference name lookup (single ref from 866k
-refs), and by SHA-1 lookup (refs with that SHA-1, from 866k refs):
+Pásztázás (866 ezer ref olvasása), referencianév szerinti kikeresés (egy
+ref a 866 ezerből), és SHA-1 szerinti kikeresés (az adott SHA-1-gyel
+rendelkező refek, a 866 ezerből):
 
 [cols=",>,>,>,>",options="header",]
 |=========================================================
-|format |cache |scan |by name |by SHA-1
+|formátum |gyorsítótár |pásztázás |név szerint |SHA-1 szerint
 |packed-refs |cold |402 ms |409,660.1 usec |412,535.8 usec
 |packed-refs |hot | |6,844.6 usec |20,110.1 usec
 |reftable |cold |112 ms |33.9 usec |323.2 usec
 |reftable |hot | |20.2 usec |320.8 usec
 |=========================================================
 
-Space used for 149,932 log entries for 43,061 refs, reflog vs. reftable:
+43 061 ref 149 932 log-bejegyzéséhez felhasznált hely, reflog vs.
+reftable:
 
 [cols=",>,>",options="header",]
 |================================
-|format |size |avg entry
+|formátum |méret |átl. bejegyzés
 |$GIT_DIR/logs |173 M |1209 bytes
 |reftable |5 M |37 bytes
 |================================
 
-Details
-~~~~~~~
+Részletek
+~~~~~~~~~
 
-Peeling
-^^^^^^^
+Lefejtés
+^^^^^^^^
 
-References stored in a reftable are peeled, a record for an annotated
-(or signed) tag records both the tag object, and the object it refers
-to. This is analogous to storage in the packed-refs format.
+A reftable-ben tárolt referenciák le vannak fejtve: egy annotált (vagy
+aláírt) taghez tartozó rekord rögzíti mind a tagobjektumot, mind azt az
+objektumot, amelyre hivatkozik. Ez analóg a packed-refs formátumban való
+tárolással.
 
-Reference name encoding
-^^^^^^^^^^^^^^^^^^^^^^^
+Referencianév-kódolás
+^^^^^^^^^^^^^^^^^^^^^
 
-Reference names are an uninterpreted sequence of bytes that must pass
-linkgit:git-check-ref-format[1] as a valid reference name.
+A referencianevek bájtok értelmezetlen sorozatai, amelyeknek érvényes
+referencianévként át kell menniük a linkgit:git-check-ref-format[1]-en.
 
-Key unicity
-^^^^^^^^^^^
+Kulcsegyediség
+^^^^^^^^^^^^^^
 
-Each entry must have a unique key; repeated keys are disallowed.
+Minden bejegyzésnek egyedi kulccsal kell rendelkeznie; az ismétlődő
+kulcsok nem megengedettek.
 
-Network byte order
-^^^^^^^^^^^^^^^^^^
+Hálózati bájtsorrend
+^^^^^^^^^^^^^^^^^^^^
 
-All multi-byte, fixed width fields are in network byte order.
+Minden többbájtos, fix szélességű mező hálózati bájtsorrendben van.
 
-Varint encoding
-^^^^^^^^^^^^^^^
+Varint kódolás
+^^^^^^^^^^^^^^
 
-Varint encoding is identical to the ofs-delta encoding method used
-within pack files.
+A varint kódolás azonos a pack fájlokon belül használt ofs-delta
+kódolási módszerrel.
 
-Decoder works as follows:
+A dekódoló a következőképpen működik:
 
 ....
 val = buf[ptr] & 0x7f
@@ -125,29 +131,31 @@ while (buf[ptr] & 0x80) {
 }
 ....
 
-Ordering
+Rendezés
 ^^^^^^^^
 
-Blocks are lexicographically ordered by their first reference.
+A blokkok lexikografikusan rendezettek az első referenciájuk szerint.
 
-Directory/file conflicts
-^^^^^^^^^^^^^^^^^^^^^^^^
+Könyvtár/fájl konfliktusok
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The reftable format accepts both `refs/heads/foo` and
-`refs/heads/foo/bar` as distinct references.
+A reftable formátum a `refs/heads/foo`-t és a `refs/heads/foo/bar`-t is
+külön referenciaként fogadja el.
 
-This property is useful for retaining log records in reftable, but may
-confuse versions of Git using `$GIT_DIR/refs` directory tree to maintain
-references. Users of reftable may choose to continue to reject `foo` and
-`foo/bar` type conflicts to prevent problems for peers.
+Ez a tulajdonság hasznos a log-rekordok reftable-ben való megőrzéséhez,
+de megzavarhatja a Git azon verzióit, amelyek a `$GIT_DIR/refs`
+könyvtárfát használják a referenciák karbantartásához. A reftable
+felhasználói dönthetnek úgy, hogy továbbra is elutasítják a `foo` és
+`foo/bar` típusú konfliktusokat, hogy elkerüljék a problémákat a
+társaknál.
 
-File format
-~~~~~~~~~~~
+Fájlformátum
+~~~~~~~~~~~~
 
-Structure
+Szerkezet
 ^^^^^^^^^
 
-A reftable file has the following high-level structure:
+Egy reftable fájl a következő magas szintű szerkezettel rendelkezik:
 
 ....
 first_block {
@@ -163,8 +171,9 @@ log_index*
 footer
 ....
 
-A log-only file omits the `ref_block`, `ref_index`, `obj_block` and
-`obj_index` sections, containing only the file header and log block:
+A csak logot tartalmazó fájl kihagyja a `ref_block`, `ref_index`,
+`obj_block` és `obj_index` szakaszokat, csak a fájlfejlécet és a
+log-blokkot tartalmazza:
 
 ....
 first_block {
@@ -175,45 +184,47 @@ log_index*
 footer
 ....
 
-In a log-only file, the first log block immediately follows the file
-header, without padding to block alignment.
+Egy csak logot tartalmazó fájlban az első log-blokk közvetlenül a
+fájlfejléc után következik, a blokkigazításhoz szükséges kitöltés nélkül.
 
-Block size
+Blokkméret
 ^^^^^^^^^^
 
-The file's block size is arbitrarily determined by the writer, and does
-not have to be a power of 2. The block size must be larger than the
-longest reference name or log entry used in the repository, as
-references cannot span blocks.
+A fájl blokkméretét az író tetszőlegesen határozza meg, és nem kell
+kettőhatványnak lennie. A blokkméretnek nagyobbnak kell lennie, mint a
+repository-ban használt leghosszabb referencianév vagy log-bejegyzés,
+mivel a referenciák nem terjedhetnek át blokkokon.
 
-Powers of two that are friendly to the virtual memory system or
-filesystem (such as 4k or 8k) are recommended. Larger sizes (64k) can
-yield better compression, with a possible increased cost incurred by
-readers during access.
+A virtuális memóriarendszerhez vagy a fájlrendszerhez barátságos
+kettőhatványok (mint a 4k vagy a 8k) ajánlottak. A nagyobb méretek (64k)
+jobb tömörítést eredményezhetnek, de esetleg megnövelt költséggel járnak
+az olvasók számára hozzáférés közben.
 
-The largest block size is `16777215` bytes (15.99 MiB).
+A legnagyobb blokkméret `16777215` bájt (15,99 MiB).
 
-Block alignment
-^^^^^^^^^^^^^^^
+Blokkigazítás
+^^^^^^^^^^^^^
 
-Writers may choose to align blocks at multiples of the block size by
-including `padding` filled with NUL bytes at the end of a block to round
-out to the chosen alignment. When alignment is used, writers must
-specify the alignment with the file header's `block_size` field.
+Az írók dönthetnek úgy, hogy a blokkokat a blokkméret többszöröseire
+igazítják úgy, hogy a blokk végére NUL bájtokkal feltöltött `padding`-et
+tesznek, hogy kikerekítsenek a választott igazításra. Amikor igazítást
+használunk, az íróknak meg kell adniuk az igazítást a fájlfejléc
+`block_size` mezőjével.
 
-Block alignment is not required by the file format. Unaligned files must
-set `block_size = 0` in the file header, and omit `padding`. Unaligned
-files with more than one ref block must include the link:#Ref-index[ref
-index] to support fast lookup. Readers must be able to read both aligned
-and non-aligned files.
+A blokkigazítást a fájlformátum nem követeli meg. Az igazítatlan
+fájloknak `block_size = 0`-t kell beállítaniuk a fájlfejlécben, és ki
+kell hagyniuk a `padding`-et. Az egynél több ref blokkot tartalmazó
+igazítatlan fájloknak tartalmazniuk kell a link:#Ref-index[ref-indexet] a
+gyors kikeresés támogatásához. Az olvasóknak képesnek kell lenniük mind
+az igazított, mind a nem igazított fájlok olvasására.
 
-Very small files (e.g. a single ref block) may omit `padding` and the ref
-index to reduce total file size.
+A nagyon kis fájlok (pl. egyetlen ref blokk) kihagyhatják a `padding`-et
+és a ref-indexet a teljes fájlméret csökkentésére.
 
-Header (version 1)
-^^^^^^^^^^^^^^^^^^
+Fejléc (1-es verzió)
+^^^^^^^^^^^^^^^^^^^^
 
-A 24-byte header appears at the beginning of the file:
+A fájl elején egy 24 bájtos fejléc jelenik meg:
 
 ....
 'REFT'
@@ -223,19 +234,21 @@ uint64( min_update_index )
 uint64( max_update_index )
 ....
 
-Aligned files must specify `block_size` to configure readers with the
-expected block alignment. Unaligned files must set `block_size = 0`.
+Az igazított fájloknak meg kell adniuk a `block_size`-t, hogy
+beállítsák az olvasók számára a várt blokkigazítást. Az igazítatlan
+fájloknak `block_size = 0`-t kell beállítaniuk.
 
-The `min_update_index` and `max_update_index` describe bounds for the
-`update_index` field of all log records in this file. When reftables are
-used in a stack for link:#Update-transactions[transactions], these
-fields can order the files such that the prior file's
-`max_update_index + 1` is the next file's `min_update_index`.
+A `min_update_index` és a `max_update_index` a fájl összes
+log-rekordjának `update_index` mezőjére vonatkozó határokat írja le.
+Amikor a reftable-öket egy veremben
+link:#Update-transactions[tranzakciókhoz] használják, ezek a mezők úgy
+rendezhetik a fájlokat, hogy az előző fájl `max_update_index + 1`-je a
+következő fájl `min_update_index`-e.
 
-Header (version 2)
-^^^^^^^^^^^^^^^^^^
+Fejléc (2-es verzió)
+^^^^^^^^^^^^^^^^^^^^
 
-A 28-byte header appears at the beginning of the file:
+A fájl elején egy 28 bájtos fejléc jelenik meg:
 
 ....
 'REFT'
@@ -246,26 +259,27 @@ uint64( max_update_index )
 uint32( hash_id )
 ....
 
-The header is identical to `version_number=1`, with the 4-byte hash ID
-("sha1" for SHA1 and "s256" for SHA-256) appended to the header.
+A fejléc azonos a `version_number=1`-gyel, azzal, hogy a fejléchez
+hozzá van fűzve a 4 bájtos hash ID ("sha1" a SHA1-hez és "s256" a
+SHA-256-hoz).
 
-For maximum backward compatibility, it is recommended to use version 1 when
-writing SHA1 reftables.
+A maximális visszafelé kompatibilitás érdekében ajánlott az 1-es
+verziót használni SHA1 reftable-ök írásakor.
 
-First ref block
-^^^^^^^^^^^^^^^
+Első ref blokk
+^^^^^^^^^^^^^^
 
-The first ref block shares the same block as the file header, and is 24
-bytes smaller than all other blocks in the file. The first block
-immediately begins after the file header, at position 24.
+Az első ref blokk ugyanazt a blokkot osztja meg a fájlfejléccel, és 24
+bájttal kisebb, mint a fájl összes többi blokkja. Az első blokk
+közvetlenül a fájlfejléc után kezdődik, a 24-es pozíción.
 
-If the first block is a log block (a log-only file), its block header
-begins immediately at position 24.
+Ha az első blokk egy log-blokk (egy csak logot tartalmazó fájl), akkor
+a blokkfejléce közvetlenül a 24-es pozíción kezdődik.
 
-Ref block format
-^^^^^^^^^^^^^^^^
+Ref blokk formátuma
+^^^^^^^^^^^^^^^^^^^
 
-A ref block is written as:
+Egy ref blokk így íródik:
 
 ....
 'r'
@@ -277,36 +291,37 @@ uint16( restart_count )
 padding?
 ....
 
-Blocks begin with `block_type = 'r'` and a 3-byte `block_len` which
-encodes the number of bytes in the block up to, but not including the
-optional `padding`. This is always less than or equal to the file's
-block size. In the first ref block, `block_len` includes 24 bytes for
-the file header.
+A blokkok `block_type = 'r'`-rel és egy 3 bájtos `block_len`-nel
+kezdődnek, amely a blokkban lévő bájtok számát kódolja az opcionális
+`padding`-ig, de azt nem beleértve. Ez mindig kisebb vagy egyenlő, mint
+a fájl blokkmérete. Az első ref blokkban a `block_len` 24 bájtot
+tartalmaz a fájlfejléchez.
 
-The 2-byte `restart_count` stores the number of entries in the
-`restart_offset` list, which must not be empty. Readers can use
-`restart_count` to binary search between restarts before starting a
-linear scan.
+A 2 bájtos `restart_count` a `restart_offset` lista bejegyzéseinek számát
+tárolja, amely nem lehet üres. Az olvasók a `restart_count`-tal bináris
+keresést végezhetnek az újraindítási pontok között, mielőtt lineáris
+pásztázásba kezdenének.
 
-Exactly `restart_count` 3-byte `restart_offset` values precede the
-`restart_count`. Offsets are relative to the start of the block and
-refer to the first byte of any `ref_record` whose name has not been
-prefix compressed. Entries in the `restart_offset` list must be sorted,
-ascending. Readers can start linear scans from any of these records.
+Pontosan `restart_count` darab 3 bájtos `restart_offset` érték előzi meg
+a `restart_count`-ot. Az eltolások a blokk kezdetéhez viszonyítottak, és
+bármely olyan `ref_record` első bájtjára hivatkoznak, amelynek a neve
+nem lett előtag-tömörítve. A `restart_offset` lista bejegyzéseinek
+rendezettnek kell lenniük, növekvő sorrendben. Az olvasók e rekordok
+bármelyikéből elkezdhetik a lineáris pásztázást.
 
-A variable number of `ref_record` fill the middle of the block,
-describing reference names and values. The format is described below.
+Változó számú `ref_record` tölti ki a blokk közepét, amelyek a
+referencianeveket és -értékeket írják le. A formátumot lentebb írjuk le.
 
-As the first ref block shares the first file block with the file header,
-all `restart_offset` in the first block are relative to the start of the
-file (position 0), and include the file header. This forces the first
-`restart_offset` to be `28`.
+Mivel az első ref blokk az első fájlblokkot a fájlfejléccel osztja meg,
+az első blokkban minden `restart_offset` a fájl kezdetéhez (0-s pozíció)
+viszonyított, és tartalmazza a fájlfejlécet. Ez arra kényszeríti az első
+`restart_offset`-et, hogy `28` legyen.
 
-ref record
+ref rekord
 ++++++++++
 
-A `ref_record` describes a single reference, storing both the name and
-its value(s). Records are formatted as:
+Egy `ref_record` egyetlen referenciát ír le, tárolva mind a nevet, mind
+az értékét/értékeit. A rekordok formátuma:
 
 ....
 varint( prefix_length )
@@ -316,68 +331,74 @@ varint( update_index_delta )
 value?
 ....
 
-The `prefix_length` field specifies how many leading bytes of the prior
-reference record's name should be copied to obtain this reference's
-name. This must be 0 for the first reference in any block, and also must
-be 0 for any `ref_record` whose offset is listed in the `restart_offset`
-table at the end of the block.
+A `prefix_length` mező azt adja meg, hogy az előző referenciarekord
+nevének hány kezdő bájtját kell átmásolni e referencia nevének
+megszerzéséhez. Ennek 0-nak kell lennie bármely blokk első referenciája
+esetén, és 0-nak kell lennie bármely olyan `ref_record` esetén is,
+amelynek az eltolása szerepel a blokk végén lévő `restart_offset`
+táblában.
 
-Recovering a reference name from any `ref_record` is a simple concat:
+Egy referencianév visszaállítása bármely `ref_record`-ból egy egyszerű
+összefűzés:
 
 ....
 this_name = prior_name[0..prefix_length] + suffix
 ....
 
-The `suffix_length` value provides the number of bytes available in
-`suffix` to copy from `suffix` to complete the reference name.
+A `suffix_length` érték megadja a `suffix`-ban rendelkezésre álló bájtok
+számát, amelyeket a `suffix`-ból át kell másolni a referencianév
+kiegészítéséhez.
 
-The `update_index` that last modified the reference can be obtained by
-adding `update_index_delta` to the `min_update_index` from the file
-header: `min_update_index + update_index_delta`.
+A referenciát utoljára módosító `update_index` úgy szerezhető meg, hogy
+az `update_index_delta`-t hozzáadjuk a fájlfejlécbeli
+`min_update_index`-hez: `min_update_index + update_index_delta`.
 
-The `value` follows. Its format is determined by `value_type`, one of
-the following:
+Ezután következik a `value`. Formátumát a `value_type` határozza meg, a
+következők egyike:
 
-* `0x0`: deletion; no value data (see transactions, below)
-* `0x1`: one object name; value of the ref
-* `0x2`: two object names; value of the ref, peeled target
-* `0x3`: symbolic reference: `varint( target_len ) target`
+* `0x0`: törlés; nincs értékadat (lásd a tranzakciókat lentebb)
+* `0x1`: egy objektumnév; a ref értéke
+* `0x2`: két objektumnév; a ref értéke, a lefejtett cél
+* `0x3`: szimbolikus referencia: `varint( target_len ) target`
 
-Symbolic references use `0x3`, followed by the complete name of the
-reference target. No compression is applied to the target name.
+A szimbolikus referenciák `0x3`-at használnak, amelyet a referencia
+céljának teljes neve követ. A célnévre nem alkalmazunk tömörítést.
 
-Types `0x4..0x7` are reserved for future use.
+A `0x4..0x7` típusok jövőbeli használatra vannak fenntartva.
 
-Ref index
+[[Ref-index]]
+Ref-index
 ^^^^^^^^^
 
-The ref index stores the name of the last reference from every ref block
-in the file, enabling reduced disk seeks for lookups. Any reference can
-be found by searching the index, identifying the containing block, and
-searching within that block.
+A ref-index a fájl minden ref blokkjából eltárolja az utolsó referencia
+nevét, ami lehetővé teszi a kikeresésekhez szükséges lemezelérések
+csökkentését. Bármely referencia megtalálható az index átkeresésével, a
+tartalmazó blokk azonosításával, majd az adott blokkon belüli
+kereséssel.
 
-The index may be organized into a multi-level index, where the 1st level
-index block points to additional ref index blocks (2nd level), which may
-in turn point to either additional index blocks (e.g. 3rd level) or ref
-blocks (leaf level). Disk reads required to access a ref go up with
-higher index levels. Multi-level indexes may be required to ensure no
-single index block exceeds the file format's max block size of
-`16777215` bytes (15.99 MiB). To achieve constant O(1) disk seeks for
-lookups the index must be a single level, which is permitted to exceed
-the file's configured block size, but not the format's max block size of
-15.99 MiB.
+Az index szervezhető többszintű indexbe, ahol az 1. szintű indexblokk
+további ref-indexblokkokra (2. szint) mutat, amelyek viszont
+mutathatnak vagy további indexblokkokra (pl. 3. szint), vagy ref
+blokkokra (levélszint). Egy ref eléréséhez szükséges lemezolvasások
+száma nő a magasabb indexszintekkel. Többszintű indexekre lehet szükség
+annak biztosítására, hogy egyetlen indexblokk se lépje túl a
+fájlformátum `16777215` bájtos (15,99 MiB) maximális blokkméretét. Az
+állandó O(1) lemezelérés eléréséhez a kikeresésekhez az indexnek
+egyszintűnek kell lennie, ami túllépheti a fájl beállított blokkméretét,
+de a formátum 15,99 MiB-os maximális blokkméretét nem.
 
-If present, the ref index block(s) appears after the last ref block.
+Ha jelen van, a ref-indexblokk(ok) az utolsó ref blokk után jelenik meg.
 
-If there are at least 4 ref blocks, a ref index block should be written
-to improve lookup times. Cold reads using the index require 2 disk reads
-(read index, read block), and binary searching < 4 blocks also requires
-<= 2 reads. Omitting the index block from smaller files saves space.
+Ha legalább 4 ref blokk van, ref-indexblokkot kell írni a kikeresési
+idők javítására. Az index használatával végzett hideg olvasások 2
+lemezolvasást igényelnek (index olvasása, blokk olvasása), és < 4 blokk
+bináris keresése szintén <= 2 olvasást igényel. Az indexblokk kihagyása
+a kisebb fájlokból helyet takarít meg.
 
-If the file is unaligned and contains more than one ref block, the ref
-index must be written.
+Ha a fájl igazítatlan, és egynél több ref blokkot tartalmaz, a
+ref-indexet meg kell írni.
 
-Index block format:
+Indexblokk formátuma:
 
 ....
 'i'
@@ -389,28 +410,28 @@ uint16( restart_count )
 padding?
 ....
 
-The index blocks begin with `block_type = 'i'` and a 3-byte `block_len`
-which encodes the number of bytes in the block, up to but not including
-the optional `padding`.
+Az indexblokkok `block_type = 'i'`-vel és egy 3 bájtos `block_len`-nel
+kezdődnek, amely a blokkban lévő bájtok számát kódolja az opcionális
+`padding`-ig, de azt nem beleértve.
 
-The `restart_offset` and `restart_count` fields are identical in format,
-meaning and usage as in ref blocks.
+A `restart_offset` és a `restart_count` mező formátumában, jelentésében
+és használatában azonos a ref blokkokéval.
 
-To reduce the number of reads required for random access in very large
-files the index block may be larger than other blocks. However, readers
-must hold the entire index in memory to benefit from this, so it's a
-time-space tradeoff in both file size and reader memory.
+A nagyon nagy fájlokban a véletlen hozzáféréshez szükséges olvasások
+számának csökkentésére az indexblokk nagyobb lehet a többi blokknál. Az
+olvasóknak azonban a teljes indexet a memóriában kell tartaniuk, hogy
+ebből hasznot húzzanak, tehát ez egy idő-hely kompromisszum mind a
+fájlméret, mind az olvasó memóriája tekintetében.
 
-Increasing the file's block size decreases the index size. Alternatively
-a multi-level index may be used, keeping index blocks within the file's
-block size, but increasing the number of blocks that need to be
-accessed.
+A fájl blokkméretének növelése csökkenti az index méretét. Alternatívaként
+többszintű index használható, amely az indexblokkokat a fájl blokkméretén
+belül tartja, de növeli az elérendő blokkok számát.
 
-index record
+index rekord
 ++++++++++++
 
-An index record describes the last entry in another block. Index records
-are written as:
+Egy index rekord egy másik blokk utolsó bejegyzését írja le. Az index
+rekordok így íródnak:
 
 ....
 varint( prefix_length )
@@ -419,42 +440,47 @@ suffix
 varint( block_position )
 ....
 
-Index records use prefix compression exactly like `ref_record`.
+Az index rekordok pontosan úgy használnak előtag-tömörítést, mint a
+`ref_record`.
 
-Index records store `block_position` after the suffix, specifying the
-absolute position in bytes (from the start of the file) of the block
-that ends with this reference. Readers can seek to `block_position` to
-begin reading the block header.
+Az index rekordok a suffix után tárolják a `block_position`-t, amely
+bájtban (a fájl kezdetétől) megadja annak a blokknak az abszolút
+pozícióját, amely ezzel a referenciával végződik. Az olvasók a
+`block_position`-re pozicionálhatnak, hogy elkezdjék a blokkfejléc
+olvasását.
 
-Readers must examine the block header at `block_position` to determine
-if the next block is another level index block, or the leaf-level ref
-block.
+Az olvasóknak meg kell vizsgálniuk a `block_position`-nél lévő
+blokkfejlécet, hogy meghatározzák, a következő blokk egy másik szintű
+indexblokk-e, vagy a levélszintű ref blokk.
 
-Reading the index
+Az index olvasása
 +++++++++++++++++
 
-Readers loading the ref index must first read the footer (below) to
-obtain `ref_index_position`. If not present, the position will be 0. The
-`ref_index_position` is for the 1st level root of the ref index.
+A ref-indexet betöltő olvasóknak először el kell olvasniuk a láblécet
+(lentebb), hogy megszerezzék a `ref_index_position`-t. Ha nincs jelen, a
+pozíció 0 lesz. A `ref_index_position` a ref-index 1. szintű gyökeréé.
 
-Obj block format
-^^^^^^^^^^^^^^^^
+Obj blokk formátuma
+^^^^^^^^^^^^^^^^^^^
 
-Object blocks are optional. Writers may choose to omit object blocks,
-especially if readers will not use the object name to ref mapping.
+Az objektumblokkok opcionálisak. Az írók dönthetnek úgy, hogy kihagyják
+az objektumblokkokat, különösen ha az olvasók nem használják az
+objektumnév–ref leképezést.
 
-Object blocks use unique, abbreviated 2-31 byte object name keys, mapping to
-ref blocks containing references pointing to that object directly, or as
-the peeled value of an annotated tag. Like ref blocks, object blocks use
-the file's standard block size. The abbreviation length is available in
-the footer as `obj_id_len`.
+Az objektumblokkok egyedi, rövidített 2–31 bájtos objektumnév-kulcsokat
+használnak, amelyek olyan ref blokkokra képeznek le, amelyek az adott
+objektumra közvetlenül, vagy egy annotált tag lefejtett értékeként
+mutató referenciákat tartalmaznak. A ref blokkokhoz hasonlóan az
+objektumblokkok a fájl standard blokkméretét használják. A rövidítés
+hossza a láblécben `obj_id_len`-ként érhető el.
 
-To save space in small files, object blocks may be omitted if the ref
-index is not present, as brute force search will only need to read a few
-ref blocks. When missing, readers should brute force a linear search of
-all references to lookup by object name.
+A kis fájlokban való helymegtakarítás érdekében az objektumblokkok
+kihagyhatók, ha a ref-index nincs jelen, mivel a nyers erővel végzett
+keresésnek csak néhány ref blokkot kell olvasnia. Ha hiányzik, az
+olvasóknak nyers erővel, az összes referencia lineáris átkeresésével
+kell kikeresniük objektumnév szerint.
 
-An object block is written as:
+Egy objektumblokk így íródik:
 
 ....
 'o'
@@ -466,19 +492,20 @@ uint16( restart_count )
 padding?
 ....
 
-Fields are identical to ref block. Binary search using the restart table
-works the same as in reference blocks.
+A mezők azonosak a ref blokkéval. Az újraindítási táblát használó
+bináris keresés ugyanúgy működik, mint a referenciablokkokban.
 
-Because object names are abbreviated by writers to the shortest unique
-abbreviation within the reftable, obj key lengths have a variable length. Their
-length must be at least 2 bytes. Readers must compare only for common prefix
-match within an obj block or obj index.
+Mivel az objektumneveket az írók a reftable-ön belüli legrövidebb egyedi
+rövidítésre rövidítik, az obj kulcsok hossza változó. A hosszuknak
+legalább 2 bájtnak kell lennie. Az olvasóknak csak közös előtag-egyezésre
+kell összehasonlítaniuk egy obj blokkon vagy obj-indexen belül.
 
-obj record
+obj rekord
 ++++++++++
 
-An `obj_record` describes a single object abbreviation, and the blocks
-containing references using that unique abbreviation:
+Egy `obj_record` egyetlen objektumrövidítést ír le, valamint azokat a
+blokkokat, amelyek ezt az egyedi rövidítést használó referenciákat
+tartalmaznak:
 
 ....
 varint( prefix_length )
@@ -488,31 +515,33 @@ varint( cnt_large )?
 varint( position_delta )*
 ....
 
-Like in reference blocks, abbreviations are prefix compressed within an
-obj block. On large reftables with many unique objects, higher block
-sizes (64k), and higher restart interval (128), a `prefix_length` of 2
-or 3 and `suffix_length` of 3 may be common in obj records (unique
-abbreviation of 5-6 raw bytes, 10-12 hex digits).
+A referenciablokkokhoz hasonlóan a rövidítések előtag-tömörítettek egy
+obj blokkon belül. Sok egyedi objektummal rendelkező nagy reftable-ökön,
+magasabb blokkméretekkel (64k) és magasabb újraindítási intervallummal
+(128) a 2-es vagy 3-as `prefix_length` és a 3-as `suffix_length` gyakori
+lehet az obj rekordokban (5–6 nyers bájtos, 10–12 hexadecimális
+számjegyű egyedi rövidítés).
 
-Each record contains `position_count` number of positions for matching
-ref blocks. For 1-7 positions the count is stored in `cnt_3`. When
-`cnt_3 = 0` the actual count follows in a varint, `cnt_large`.
+Minden rekord `position_count` számú pozíciót tartalmaz az egyező ref
+blokkokhoz. 1–7 pozíció esetén a szám a `cnt_3`-ban van tárolva. Amikor
+`cnt_3 = 0`, a tényleges szám egy varintben követi, `cnt_large`.
 
-The use of `cnt_3` bets most objects are pointed to by only a single
-reference, some may be pointed to by a couple of references, and very
-few (if any) are pointed to by more than 7 references.
+A `cnt_3` használata arra fogad, hogy a legtöbb objektumra csak egyetlen
+referencia mutat, néhányra mutathat egy-két referencia, és nagyon
+kevésre (ha egyáltalán) mutat 7-nél több referencia.
 
-A special case exists when `cnt_3 = 0` and `cnt_large = 0`: there are no
-`position_delta`, but at least one reference starts with this
-abbreviation. A reader that needs exact reference names must scan all
-references to find which specific references have the desired object.
-Writers should use this format when the `position_delta` list would have
-overflowed the file's block size due to a high number of references
-pointing to the same object.
+Egy speciális eset létezik, amikor `cnt_3 = 0` és `cnt_large = 0`: nincs
+`position_delta`, de legalább egy referencia ezzel a rövidítéssel
+kezdődik. Egy olyan olvasónak, amelynek pontos referencianevekre van
+szüksége, át kell pásztáznia az összes referenciát, hogy megtalálja,
+mely konkrét referenciák tartalmazzák a kívánt objektumot. Az íróknak
+ezt a formátumot kell használniuk, ha a `position_delta` lista túlcsordult
+volna a fájl blokkméretén az ugyanarra az objektumra mutató referenciák
+nagy száma miatt.
 
-The first `position_delta` is the position from the start of the file.
-Additional `position_delta` entries are sorted ascending and relative to
-the prior entry, e.g. a reader would perform:
+Az első `position_delta` a fájl kezdetétől számított pozíció. A további
+`position_delta` bejegyzések növekvő sorrendben rendezettek, és az előző
+bejegyzéshez viszonyítottak, pl. egy olvasó a következőt végezné el:
 
 ....
 pos = position_delta[0]
@@ -523,37 +552,39 @@ for (j = 1; j < position_count; j++) {
 }
 ....
 
-With a position in hand, a reader must linearly scan the ref block,
-starting from the first `ref_record`, testing each reference's object names
-(for `value_type = 0x1` or `0x2`) for full equality. Faster searching by
-object name within a single ref block is not supported by the reftable format.
-Smaller block sizes reduce the number of candidates this step must
-consider.
+Egy pozíció birtokában az olvasónak lineárisan át kell pásztáznia a ref
+blokkot, az első `ref_record`-tól kezdve, tesztelve minden referencia
+objektumneveit (`value_type = 0x1` vagy `0x2` esetén) teljes egyezésre. Az
+objektumnév szerinti gyorsabb keresést egyetlen ref blokkon belül a
+reftable formátum nem támogatja. A kisebb blokkméretek csökkentik a
+jelöltek számát, amelyeket ennek a lépésnek meg kell fontolnia.
 
-Obj index
+Obj-index
 ^^^^^^^^^
 
-The obj index stores the abbreviation from the last entry for every obj
-block in the file, enabling reduced disk seeks for all lookups. It is
-formatted exactly the same as the ref index, but refers to obj blocks.
+Az obj-index a fájl minden obj blokkjának utolsó bejegyzéséből eltárolja
+a rövidítést, ami lehetővé teszi a csökkentett lemezelérést minden
+kikereséshez. Pontosan ugyanúgy van formázva, mint a ref-index, de obj
+blokkokra hivatkozik.
 
-The obj index should be present if obj blocks are present, as obj blocks
-should only be written in larger files.
+Az obj-indexnek jelen kell lennie, ha obj blokkok jelen vannak, mivel obj
+blokkokat csak nagyobb fájlokba szabad írni.
 
-Readers loading the obj index must first read the footer (below) to
-obtain `obj_index_position`. If not present, the position will be 0.
+Az obj-indexet betöltő olvasóknak először el kell olvasniuk a láblécet
+(lentebb), hogy megszerezzék az `obj_index_position`-t. Ha nincs jelen, a
+pozíció 0 lesz.
 
-Log block format
-^^^^^^^^^^^^^^^^
+Log blokk formátuma
+^^^^^^^^^^^^^^^^^^^
 
-Unlike ref and obj blocks, log blocks are always unaligned.
+A ref és obj blokkokkal ellentétben a log-blokkok mindig igazítatlanok.
 
-Log blocks are variable in size, and do not match the `block_size`
-specified in the file header or footer. Writers should choose an
-appropriate buffer size to prepare a log block for deflation, such as
+A log-blokkok mérete változó, és nem egyezik a fájlfejlécben vagy
+láblécben megadott `block_size`-zal. Az íróknak megfelelő pufferméretet
+kell választaniuk a log-blokk deflálásra való előkészítéséhez, mint pl.
 `2 * block_size`.
 
-A log block is written as:
+Egy log-blokk így íródik:
 
 ....
 'g'
@@ -565,43 +596,44 @@ zlib_deflate {
 }
 ....
 
-Log blocks look similar to ref blocks, except `block_type = 'g'`.
+A log-blokkok hasonlítanak a ref blokkokra, azzal a kivétellel, hogy
+`block_type = 'g'`.
 
-The 4-byte block header is followed by the deflated block contents using
-zlib deflate. The `block_len` in the header is the inflated size
-(including 4-byte block header), and should be used by readers to
-preallocate the inflation output buffer. A log block's `block_len` may
-exceed the file's block size.
+A 4 bájtos blokkfejlécet a zlib deflate-tel deflált blokktartalom
+követi. A fejlécben lévő `block_len` az inflált méret (a 4 bájtos
+blokkfejlécet is beleértve), és az olvasóknak arra kell használniuk,
+hogy előre lefoglalják az inflálás kimeneti pufferét. Egy log-blokk
+`block_len`-je túllépheti a fájl blokkméretét.
 
-Offsets within the log block (e.g. `restart_offset`) still include the
-4-byte header. Readers may prefer prefixing the inflation output buffer
-with the 4-byte header.
+A log-blokkon belüli eltolások (pl. `restart_offset`) továbbra is
+tartalmazzák a 4 bájtos fejlécet. Az olvasók előnyben részesíthetik, hogy
+az inflálás kimeneti pufferét a 4 bájtos fejléccel előtagozzák.
 
-Within the deflate container, a variable number of `log_record` describe
-reference changes. The log record format is described below. See ref
-block format (above) for a description of `restart_offset` and
-`restart_count`.
+A deflate konténeren belül változó számú `log_record` írja le a
+referenciaváltozásokat. A log-rekord formátumát lentebb írjuk le. A
+`restart_offset` és a `restart_count` leírásáért lásd a ref blokk
+formátumát (fentebb).
 
-Because log blocks have no alignment or padding between blocks, readers
-must keep track of the bytes consumed by the inflater to know where the
-next log block begins.
+Mivel a log-blokkok között nincs igazítás vagy kitöltés, az olvasóknak
+nyomon kell követniük az infláló által elfogyasztott bájtokat, hogy
+tudják, hol kezdődik a következő log-blokk.
 
-log record
+log rekord
 ++++++++++
 
-Log record keys are structured as:
+A log-rekord kulcsok szerkezete:
 
 ....
 ref_name '\0' reverse_int64( update_index )
 ....
 
-where `update_index` is the unique transaction identifier. The
-`update_index` field must be unique within the scope of a `ref_name`.
-See the update transactions section below for further details.
+ahol az `update_index` az egyedi tranzakcióazonosító. Az `update_index`
+mezőnek egyedinek kell lennie egy `ref_name` hatókörén belül. További
+részletekért lásd a frissítési tranzakciók szakaszt lentebb.
 
-The `reverse_int64` function inverses the value so lexicographical
-ordering the network byte order encoding sorts the more recent records
-with higher `update_index` values first:
+A `reverse_int64` függvény megfordítja az értéket, így a hálózati
+bájtsorrend-kódolás lexikografikus rendezése a frissebb rekordokat, a
+magasabb `update_index` értékekkel, előre sorolja:
 
 ....
 reverse_int64(int64 t) {
@@ -609,9 +641,9 @@ reverse_int64(int64 t) {
 }
 ....
 
-Log records have a similar starting structure to ref and index records,
-utilizing the same prefix compression scheme applied to the log record
-key described above.
+A log-rekordok kezdő szerkezete hasonló a ref és index rekordokéhoz, a
+fent leírt log-rekord kulcsra alkalmazott ugyanazon előtag-tömörítési
+sémát használva.
 
 ....
     varint( prefix_length )
@@ -628,86 +660,92 @@ key described above.
     }?
 ....
 
-Log record entries use `log_type` to indicate what follows:
+A log-rekord bejegyzések a `log_type`-ot használják annak jelzésére, hogy
+mi következik:
 
-* `0x0`: deletion; no log data.
-* `0x1`: standard git reflog data using `log_data` above.
+* `0x0`: törlés; nincs log-adat.
+* `0x1`: standard git reflog-adat a fenti `log_data` használatával.
 
-The `log_type = 0x0` is mostly useful for `git stash drop`, removing an
-entry from the reflog of `refs/stash` in a transaction file (below),
-without needing to rewrite larger files. Readers reading a stack of
-reflogs must treat this as a deletion.
+A `log_type = 0x0` leginkább a `git stash drop`-hoz hasznos, amely egy
+bejegyzést távolít el a `refs/stash` reflogjából egy tranzakciós fájlban
+(lentebb), anélkül, hogy nagyobb fájlokat kellene újraírni. A reflogok
+egy vermét olvasó olvasóknak ezt törlésként kell kezelniük.
 
-For `log_type = 0x1`, the `log_data` section follows
-linkgit:git-update-ref[1] logging and includes:
+`log_type = 0x1` esetén a `log_data` szakasz a linkgit:git-update-ref[1]
+naplózását követi, és tartalmazza:
 
-* two object names (old id, new id)
-* varint string of committer's name
-* varint string of committer's email
-* varint time in seconds since epoch (Jan 1, 1970)
-* 2-byte timezone offset in minutes (signed)
-* varint string of message
+* két objektumnév (régi id, új id)
+* a commitoló nevének varint sztringje
+* a commitoló e-mailjének varint sztringje
+* varint idő másodpercben az epoch (1970. jan. 1.) óta
+* 2 bájtos időzóna-eltolás percben (előjeles)
+* az üzenet varint sztringje
 
-`tz_offset` is the absolute number of minutes from GMT the committer was
-at the time of the update. For example `GMT-0800` is encoded in reftable
-as `sint16(-480)` and `GMT+0230` is `sint16(150)`.
+A `tz_offset` a GMT-től számított percek abszolút száma, ahol a commitoló
+a frissítés időpontjában volt. Például a `GMT-0800` a reftable-ben
+`sint16(-480)`-ként van kódolva, a `GMT+0230` pedig `sint16(150)`.
 
-The committer email does not contain `<` or `>`, it's the value normally
-found between the `<>` in a git commit object header.
+A commitoló e-mailje nem tartalmaz `<` vagy `>` karaktert, ez az az
+érték, amely normál esetben a `<>` között található egy git commit
+objektum fejlécében.
 
-The `message_length` may be 0, in which case there was no message
-supplied for the update.
+A `message_length` lehet 0, amely esetben nem adtak meg üzenetet a
+frissítéshez.
 
-Contrary to traditional reflog (which is a file), renames are encoded as
-a combination of ref deletion and ref creation.  A deletion is a log
-record with a zero new_id, and a creation is a log record with a zero old_id.
+A hagyományos refloggal (amely egy fájl) ellentétben az átnevezések ref
+törlés és ref létrehozás kombinációjaként vannak kódolva.  A törlés egy
+nulla new_id-jú log-rekord, a létrehozás pedig egy nulla old_id-jú
+log-rekord.
 
-Reading the log
+A log olvasása
 +++++++++++++++
 
-Readers accessing the log must first read the footer (below) to
-determine the `log_position`. The first block of the log begins at
-`log_position` bytes since the start of the file. The `log_position` is
-not block aligned.
+A logot elérő olvasóknak először el kell olvasniuk a láblécet (lentebb),
+hogy meghatározzák a `log_position`-t. A log első blokkja a fájl
+kezdetétől számított `log_position` bájtnál kezdődik. A `log_position`
+nem blokkigazított.
 
-Importing logs
+Logok importálása
 ++++++++++++++
 
-When importing from `$GIT_DIR/logs` writers should globally order all
-log records roughly by timestamp while preserving file order, and assign
-unique, increasing `update_index` values for each log line. Newer log
-records get higher `update_index` values.
+A `$GIT_DIR/logs`-ból való importáláskor az íróknak globálisan,
+nagyjából időbélyeg szerint kell rendezniük az összes log-rekordot,
+megőrizve a fájlsorrendet, és minden log-sorhoz egyedi, növekvő
+`update_index` értékeket kell rendelniük. Az újabb log-rekordok magasabb
+`update_index` értékeket kapnak.
 
-Although an import may write only a single reftable file, the reftable
-file must span many unique `update_index`, as each log line requires its
-own `update_index` to preserve semantics.
+Bár egy import csak egyetlen reftable fájlt írhat, a reftable fájlnak
+sok egyedi `update_index`-en kell átívelnie, mivel minden log-sornak a
+saját `update_index`-e kell legyen a szemantika megőrzéséhez.
 
-Log index
+Log-index
 ^^^^^^^^^
 
-The log index stores the log key
-(`refname \0 reverse_int64(update_index)`) for the last log record of
-every log block in the file, supporting bounded-time lookup.
+A log-index a fájl minden log-blokkjának utolsó log-rekordjához eltárolja
+a log-kulcsot (`refname \0 reverse_int64(update_index)`), ami korlátos
+idejű kikeresést támogat.
 
-A log index block must be written if 2 or more log blocks are written to
-the file. If present, the log index appears after the last log block.
-There is no padding used to align the log index to block alignment.
+Log-indexblokkot kell írni, ha 2 vagy több log-blokkot írnak a fájlba.
+Ha jelen van, a log-index az utolsó log-blokk után jelenik meg. Nincs
+kitöltés a log-index blokkigazításhoz való igazítására.
 
-Log index format is identical to ref index, except the keys are 9 bytes
-longer to include `'\0'` and the 8-byte `reverse_int64(update_index)`.
-Records use `block_position` to refer to the start of a log block.
+A log-index formátuma azonos a ref-indexével, azzal a kivétellel, hogy a
+kulcsok 9 bájttal hosszabbak, hogy tartalmazzák a `'\0'`-t és a 8 bájtos
+`reverse_int64(update_index)`-et. A rekordok a `block_position`-t
+használják egy log-blokk kezdetére való hivatkozásra.
 
-Reading the index
+Az index olvasása
 +++++++++++++++++
 
-Readers loading the log index must first read the footer (below) to
-obtain `log_index_position`. If not present, the position will be 0.
+A log-indexet betöltő olvasóknak először el kell olvasniuk a láblécet
+(lentebb), hogy megszerezzék a `log_index_position`-t. Ha nincs jelen, a
+pozíció 0 lesz.
 
-Footer
+Lábléc
 ^^^^^^
 
-After the last block of the file, a file footer is written. It begins
-like the file header, but is extended with additional data.
+A fájl utolsó blokkja után egy fájlláblécet írunk. Úgy kezdődik, mint a
+fájlfejléc, de további adatokkal van kiegészítve.
 
 ....
     HEADER

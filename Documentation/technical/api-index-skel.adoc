@@ -1,8 +1,8 @@
-Git API Documents
-=================
+Git API-dokumentumok
+====================
 
-Git has grown a set of internal APIs over time.  This collection
-documents them.
+A Git idővel egy sor belső API-t növesztett. Ez a gyűjtemény
+ezeket dokumentálja.
 
 ////////////////////////////////////////////////////////////////
 // table of contents begin

@@ -1,91 +1,96 @@
 Path-Walk API
 =============
 
-The path-walk API is used to walk reachable objects, but to visit objects
-in batches based on a common path they appear in, or by type.
+A path-walk API az elérhető objektumok bejárására szolgál, de az
+objektumokat kötegekben látogatja meg egy közös útvonal alapján, amelyben
+megjelennek, vagy típus szerint.
 
-For example, all reachable commits are visited in a group. All tags are
-visited in a group. Then, all root trees are visited. At some point, all
-blobs reachable via a path `my/dir/to/A` are visited. When there are
-multiple paths possible to reach the same object, then only one of those
-paths is used to visit the object.
+Például az összes elérhető commit egy csoportban kerül meglátogatásra. Az
+összes tag egy csoportban. Ezután az összes gyökérfa. Egy ponton az összes
+blob, amely a `my/dir/to/A` útvonalon keresztül elérhető. Ha több lehetséges
+útvonal is van ugyanahhoz az objektumhoz, akkor csak az egyiket használja
+az objektum meglátogatásához.
 
-Basics
+[[_basics]]
+Alapok
 ------
 
-To use the path-walk API, include `path-walk.h` and call
-`walk_objects_by_path()` with a customized `path_walk_info` struct. The
-struct is used to set all of the options for how the walk should proceed.
-Let's dig into the different options and their use.
+A path-walk API használatához illeszd be a `path-walk.h`-t, és hívd meg a
+`walk_objects_by_path()`-t egy testreszabott `path_walk_info` structtal. A
+struct arra szolgál, hogy beállítsd az összes opciót arra vonatkozóan,
+hogyan haladjon a bejárás. Nézzük meg közelebbről a különböző opciókat és
+használatukat.
 
 `path_fn` and `path_fn_data`::
-	The most important option is the `path_fn` option, which is a
-	function pointer to the callback that can execute logic on the
-	object IDs for objects grouped by type and path. This function
-	also receives a `data` value that corresponds to the
-	`path_fn_data` member, for providing custom data structures to
-	this callback function.
+	A legfontosabb opció a `path_fn` opció, amely egy függvénymutató
+	arra a visszahívásra, amely logikát tud végrehajtani a típus és
+	útvonal szerint csoportosított objektumok objektumazonosítóin. Ez a
+	függvény egy `data` értéket is kap, amely a `path_fn_data` tagnak
+	felel meg, egyéni adatszerkezetek biztosítására ehhez a visszahívási
+	függvényhez.
 
 `revs`::
-	To configure the exact details of the reachable set of objects,
-	use the `revs` member and initialize it using the revision
-	machinery in `revision.h`. Initialize `revs` using calls such as
-	`setup_revisions()` or `parse_revision_opt()`. Do not call
-	`prepare_revision_walk()`, as that will be called within
-	`walk_objects_by_path()`.
+	Az elérhető objektumhalmaz pontos részleteinek konfigurálásához
+	használd a `revs` tagot, és inicializáld a `revision.h`-beli
+	revíziókezelő gépezettel. A `revs`-t olyan hívásokkal inicializáld,
+	mint a `setup_revisions()` vagy a `parse_revision_opt()`. Ne hívd meg
+	a `prepare_revision_walk()`-ot, mert azt a `walk_objects_by_path()`-en
+	belül hívja meg.
 +
-It is also important that you do not specify the `--objects` flag for the
-`revs` struct. The revision walk should only be used to walk commits, and
-the objects will be walked in a separate way based on those starting
-commits.
+Az is fontos, hogy ne add meg a `--objects` jelzőt a `revs` structhoz. A
+revíziófeldolgozást csak commitok bejárására szabad használni, az
+objektumokat pedig külön módon járja be ezen kiindulási commitok alapján.
 
 `commits`::
 `blobs`::
 `trees`::
 `tags`::
-	By default, these members are enabled and signal that the path-walk
-	API should call the `path_fn` on objects of these types. Specialized
-	applications could disable some options to make it simpler to walk
-	the objects or to have fewer calls to `path_fn`.
+	Alapértelmezés szerint ezek a tagok engedélyezve vannak, és azt
+	jelzik, hogy a path-walk API-nak meg kell hívnia a `path_fn`-t az
+	ilyen típusú objektumokon. A speciális alkalmazások letilthatnak
+	egyes opciókat, hogy egyszerűbb legyen az objektumok bejárása, vagy
+	kevesebb legyen a `path_fn` hívás.
 +
-Note that objects directly requested as pending objects (such as targets
-of lightweight tags or other ref tips) are always emitted to `path_fn`,
-even when the corresponding type flag is disabled. Only objects
-discovered during the tree walk are subject to these type filters. This
-ensures that objects specifically requested through the revision input
-are never silently dropped.
+Vedd figyelembe, hogy a közvetlenül függőben lévő objektumként kért
+objektumok (mint a könnyűsúlyú tagek vagy más ref-csúcsok céljai) mindig
+kibocsátásra kerülnek a `path_fn`-hez, még akkor is, ha a megfelelő
+típusjelző le van tiltva. Csak a fabejárás során felfedezett objektumokra
+vonatkoznak ezek a típusszűrők. Ez biztosítja, hogy a revíziós bemeneten
+keresztül kifejezetten kért objektumok soha ne essenek ki csendben.
 +
-While it is possible to walk only commits in this way, consumers would be
-better off using the revision walk API instead.
+Bár így lehetséges csak commitok bejárása, a fogyasztók jobban járnak, ha
+inkább a revíziófeldolgozó API-t használják.
 
 `prune_all_uninteresting`::
-	By default, all reachable paths are emitted by the path-walk API.
-	This option allows consumers to declare that they are not
-	interested in paths where all included objects are marked with the
-	`UNINTERESTING` flag. This requires using the `boundary` option in
-	the revision walk so that the walk emits commits marked with the
-	`UNINTERESTING` flag.
+	Alapértelmezés szerint a path-walk API az összes elérhető útvonalat
+	kibocsátja. Ez az opció lehetővé teszi a fogyasztók számára, hogy
+	kijelentsék: nem érdeklik őket azok az útvonalak, ahol az összes
+	tartalmazott objektum `UNINTERESTING` jelzővel van megjelölve. Ehhez
+	a `boundary` opció használata szükséges a revíziófeldolgozásban, hogy
+	a bejárás kibocsássa az `UNINTERESTING` jelzővel megjelölt commitokat.
 
 `edge_aggressive`::
-	For performance reasons, usually only the boundary commits are
-	explored to find UNINTERESTING objects. However, in the case of
-	shallow clones it can be helpful to mark all trees and blobs
-	reachable from UNINTERESTING tip commits as UNINTERESTING. This
-	matches the behavior of `--objects-edge-aggressive` in the
-	revision API.
+	Teljesítménybeli okokból általában csak a határ-commitokat tárja fel
+	az UNINTERESTING objektumok megtalálásához. A sekély (shallow)
+	klónok esetében azonban hasznos lehet az UNINTERESTING csúcs-commitokból
+	elérhető összes fát és blobot UNINTERESTING-ként megjelölni. Ez
+	megegyezik a `--objects-edge-aggressive` viselkedésével a revíziós
+	API-ban.
 
 `pl`::
-	This pattern list pointer allows focusing the path-walk search to
-	a set of patterns, only emitting paths that match the given
-	patterns. See linkgit:gitignore[5] or
-	linkgit:git-sparse-checkout[1] for details about pattern lists.
-	When the pattern list uses cone-mode patterns, then the path-walk
-	API can prune the set of paths it walks to improve performance.
+	Ez a mintalista-mutató lehetővé teszi a path-walk keresés
+	fókuszálását egy mintakészletre, csak a megadott mintákra illeszkedő
+	útvonalakat bocsátva ki. A mintalistákról lásd a
+	linkgit:gitignore[5] vagy a linkgit:git-sparse-checkout[1]
+	részleteit. Ha a mintalista cone-mode mintákat használ, akkor a
+	path-walk API metszheti a bejárt útvonalak halmazát a teljesítmény
+	javítása érdekében.
 
-Examples
---------
+[[_examples]]
+Példák
+------
 
-See example usages in:
+Példahasználatok itt:
 	`t/helper/test-path-walk.c`,
 	`builtin/pack-objects.c`,
 	`builtin/backfill.c`

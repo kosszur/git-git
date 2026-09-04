@@ -1,656 +1,673 @@
 Large Object Promisors
 ======================
 
-Since Git has been created, users have been complaining about issues
-with storing large files in Git. Some solutions have been created to
-help, but they haven't helped much with some issues.
+Amióta a Git létezik, a felhasználók folyamatosan panaszkodnak a nagy
+fájlok Gitben való tárolásával kapcsolatos problémákra. Néhány megoldás
+készült a segítségükre, de ezek nem sokat segítettek bizonyos gondokon.
 
-Git currently supports multiple promisor remotes, which could help
-with some of these remaining issues, but it's very hard to use them to
-help, because a number of important features are missing.
+A Git jelenleg támogatja a több promisor remote használatát, ami segíthetne
+néhány megmaradt probléma megoldásában, de nagyon nehéz őket erre használni,
+mert több fontos funkció is hiányzik.
 
-The goal of the effort described in this document is to add these
-important features.
+Az ebben a dokumentumban leírt munka célja ezeknek a fontos funkcióknak a
+hozzáadása.
 
-We will call a "Large Object Promisor", or "LOP" in short, a promisor
-remote which is used to store only large blobs and which is separate
-from the main remote that should store the other Git objects and the
-rest of the repos.
+„Large Object Promisor"-nak, röviden „LOP"-nak nevezünk egy olyan promisor
+remote-ot, amelyet kizárólag nagy blobok tárolására használnak, és amely
+külön van attól a fő remote-tól, amelynek a többi Git-objektumot és a repók
+maradékát kellene tárolnia.
 
-By extension, we will also call "Large Object Promisor", or LOP, the
-effort described in this document to add a set of features to make it
-easier to handle large blobs/files in Git by using LOPs.
+Kiterjesztve „Large Object Promisor"-nak, azaz LOP-nak nevezzük magát az
+ebben a dokumentumban leírt munkát is, amely egy sor funkció hozzáadását
+célozza, hogy a nagy blobok/fájlok kezelése a Gitben egyszerűbb legyen a
+LOP-ok használatával.
 
-This effort aims to especially improve things on the server side, and
-especially for large blobs that are already compressed in a binary
-format.
+Ez a munka különösen a szerveroldalon próbál javítani a helyzeten, és
+különösen az olyan nagy blobok esetében, amelyek már bináris formátumban
+tömörítve vannak.
 
-This effort aims to provide an alternative to Git LFS
-(https://git-lfs.com/) and similar tools like git-annex
-(https://git-annex.branchable.com/) for handling large files, even
-though a complete alternative would very likely require other efforts
-especially on the client side, where it would likely help to implement
-a new object representation for large blobs as discussed in:
+Ez a munka egy alternatívát kíván nyújtani a Git LFS-hez
+(https://git-lfs.com/) és a hasonló eszközökhöz, mint a git-annex
+(https://git-annex.branchable.com/), a nagy fájlok kezelésére, még akkor is,
+ha egy teljes értékű alternatíva nagyon valószínűen további munkát igényelne,
+különösen a kliensoldalon, ahol valószínűleg segítene egy új objektum-
+ábrázolás bevezetése a nagy blobokhoz, ahogyan itt szó esik róla:
 
 https://lore.kernel.org/git/xmqqbkdometi.fsf@gitster.g/
 
-Non goals
+[[_non_goals]]
+Nem célok
 ---------
 
-- We will not discuss those client side improvements here, as they
-  would require changes in different parts of Git than this effort.
+- Ezeket a kliensoldali fejlesztéseket itt nem tárgyaljuk, mivel a Git más
+  részeiben igényelnének módosításokat, mint ez a munka.
 +
-So we don't pretend to fully replace Git LFS with only this effort,
-but we nevertheless believe that it can significantly improve the
-current situation on the server side, and that other separate
-efforts could also improve the situation on the client side.
+Így nem állítjuk, hogy a Git LFS-t teljesen leváltjuk pusztán ezzel a
+munkával, de mindazonáltal úgy hisszük, hogy jelentősen javíthat a jelenlegi
+helyzeten a szerveroldalon, és hogy más, különálló munkák a kliensoldalon is
+javíthatnának a helyzeten.
 
-- In the same way, we are not going to discuss all the possible ways
-  to implement a LOP or their underlying object storage, or to
-  optimize how LOP works.
+- Ugyanígy nem fogjuk végigvenni az összes lehetséges módot arra, hogyan
+  valósítható meg egy LOP vagy annak alapját képező objektumtárolás, illetve
+  hogyan optimalizálható a LOP működése.
 +
-Our opinion is that the simplest solution for now is for LOPs to use
-object storage through a remote helper (see section II.2 below for
-more details) to store their objects. So we consider that this is the
-default implementation. If there are improvements on top of this,
-that's great, but our opinion is that such improvements are not
-necessary for LOPs to already be useful. Such improvements are likely
-a different technical topic, and can be taken care of separately
-anyway.
+A véleményünk szerint egyelőre a legegyszerűbb megoldás az, ha a LOP-ok egy
+remote helperen keresztül (lásd a lenti II.2. szakaszt a részletekért)
+használnak objektumtárolást az objektumaik tárolására. Ezért ezt tekintjük
+az alapértelmezett megvalósításnak. Ha ezen felül vannak fejlesztések, az
+nagyszerű, de a véleményünk szerint az ilyen fejlesztések nem szükségesek
+ahhoz, hogy a LOP-ok már így is hasznosak legyenek. Az ilyen fejlesztések
+valószínűleg más technikai téma, és külön is kezelhetők amúgy is.
+
+- Így különösen nem fogunk cserélhető ODB-kről vagy más
+  objektumadatbázis-backendekről beszélni, amelyek darabolhatnák a nagy
+  blobokat, dedupolhatnák a darabokat és hatékonyan tárolhatnák őket. Igaz,
+  ez szép javítás lenne a nagy blobok szerveroldali tárolására, de úgy
+  hisszük, ez lehet egy különálló munka is, mivel technikailag sem nagyon
+  kapcsolódik ehhez a munkához.
 +
-So in particular we are not going to discuss pluggable ODBs or other
-object database backends that could chunk large blobs, dedup the
-chunks and store them efficiently. Sure, that would be a nice
-improvement to store large blobs on the server side, but we believe
-it can just be a separate effort as it's also not technically very
-related to this effort.
-+
-We are also not going to discuss data transfer improvements between
-LOPs and clients or servers. Sure, there might be some easy and very
-effective optimizations there (as we know that objects on LOPs are
-very likely incompressible and not deltifying well), but this can be
-dealt with separately in a separate effort.
+Az adatátviteli fejlesztéseket sem fogjuk tárgyalni a LOP-ok és a kliensek
+vagy szerverek között. Igaz, lehetnek ott egyszerű és nagyon hatékony
+optimalizációk (mivel tudjuk, hogy a LOP-okon lévő objektumok nagyon
+valószínűen tömöríthetetlenek és rosszul deltásíthatók), de ez külön, egy
+különálló munkában kezelhető.
 
-In other words, the goal of this document is not to talk about all the
-possible ways to optimize how Git could handle large blobs, but to
-describe how a LOP based solution can already work well and alleviate
-a number of current issues in the context of Git clients and servers
-sharing Git objects.
+Más szóval ennek a dokumentumnak a célja nem az, hogy az összes lehetséges
+módról beszéljen, ahogyan a Git kezelhetné a nagy blobokat, hanem az, hogy
+leírja, hogyan működhet már most is jól egy LOP-alapú megoldás, és hogyan
+enyhítheti a jelenlegi problémák egy részét abban a kontextusban, ahol a Git
+kliensei és szerverei Git-objektumokat osztanak meg egymással.
 
-Even if LOPs are used not very efficiently, they can still be useful
-and worth using in some cases, as we will see in more details
-later in this document:
+Még ha a LOP-okat nem is túl hatékonyan használják, bizonyos esetekben akkor
+is hasznosak és érdemes használni őket, ahogyan a dokumentum későbbi
+részében részletesebben látni fogjuk:
 
-  - they can make it simpler for clients to use promisor remotes and
-    therefore avoid fetching a lot of large blobs they might not need
-    locally,
+  - egyszerűbbé tehetik a kliensek számára a promisor remote-ok használatát,
+    és így elkerülhető, hogy sok olyan nagy blobot fetcheljenek, amelyre
+    lehet, hogy helyben nincs is szükségük,
 
-  - they can make it significantly cheaper or easier for servers to
-    host a significant part of the current repository content, and
-    even more to host content with larger blobs or more large blobs
-    than currently.
+  - jelentősen olcsóbbá vagy egyszerűbbé tehetik a szerverek számára a
+    jelenlegi repository-tartalom jelentős részének kiszolgálását, sőt még
+    inkább a nagyobb blobokat vagy több nagy blobot tartalmazó tartalom
+    kiszolgálását, mint jelenleg.
 
-I Issues with the current situation
------------------------------------
+[[_i_issues_with_the_current_situation]]
+I A jelenlegi helyzet problémái
+-------------------------------
 
-- Some statistics made on GitLab repos have shown that more than 75%
-  of the disk space is used by blobs that are larger than 1MB and
-  often in a binary format.
+- A GitLab-repókon készített statisztikák azt mutatták, hogy a lemezterület
+  több mint 75%-át olyan blobok használják, amelyek 1MB-nál nagyobbak, és
+  gyakran bináris formátumúak.
 
-- So even if users could use Git LFS or similar tools to store a lot
-  of large blobs out of their repos, it's a fact that in practice they
-  don't do it as much as they probably should.
+- Így még ha a felhasználók használhatnák is a Git LFS-t vagy hasonló
+  eszközöket sok nagy blob repón kívüli tárolására, tény, hogy a gyakorlatban
+  ezt nem teszik meg olyan mértékben, mint valószínűleg kellene.
 
-- On the server side ideally, the server should be able to decide for
-  itself how it stores things. It should not depend on users deciding
-  to use tools like Git LFS on some blobs or not.
+- A szerveroldalon ideális esetben a szervernek magának kellene tudnia
+  eldönteni, hogyan tárolja a dolgokat. Nem szabadna attól függnie, hogy a
+  felhasználók úgy döntenek-e, hogy egyes blobokon használnak-e olyan
+  eszközöket, mint a Git LFS, vagy sem.
 
-- It's much more expensive to store large blobs that don't delta
-  compress well on regular fast seeking drives (like SSDs) than on
-  object storage (like Amazon S3 or GCP Buckets). Using fast drives
-  for regular Git repos makes sense though, as serving regular Git
-  content (blobs containing text or code) needs drives where seeking
-  is fast, but the content is relatively small. On the other hand,
-  object storage for Git LFS blobs makes sense as seeking speed is not
-  as important when dealing with large files, while costs are more
-  important. So the fact that users don't use Git LFS or similar tools
-  for a significant number of large blobs has likely some bad
-  consequences on the cost of repo storage for most Git hosting
-  platforms.
+- Sokkal drágább a rendszeres, gyors elérésű meghajtókon (mint az SSD-k)
+  tárolni olyan nagy blobokat, amelyek nem delta-tömöríthetők jól, mint az
+  objektumtárolón (mint az Amazon S3 vagy a GCP Buckets). A gyors meghajtók
+  használata a rendszeres Git-repókhoz viszont észszerű, mivel a rendszeres
+  Git-tartalom (szöveget vagy kódot tartalmazó blobok) kiszolgálásához olyan
+  meghajtók kellenek, ahol a keresés gyors, de a tartalom viszonylag kicsi.
+  Másrészről az objektumtárolás a Git LFS blobokhoz észszerű, mivel a
+  keresési sebesség nem annyira fontos nagy fájlok kezelésekor, míg a
+  költségek fontosabbak. Így az a tény, hogy a felhasználók nem használják a
+  Git LFS-t vagy hasonló eszközöket jelentős számú nagy blobhoz, valószínűleg
+  néhány rossz következménnyel jár a legtöbb Git-tárhelyplatform
+  repository-tárolási költségeire nézve.
 
-- Having large blobs handled in the same way as other blobs and Git
-  objects in Git repos instead of on object storage also has a cost in
-  increased memory and CPU usage, and therefore decreased performance,
-  when creating packfiles. (This is because Git tries to use delta
-  compression or zlib compression which is unlikely to work well on
-  already compressed binary content.) So it's not just a storage cost
-  increase.
+- Ha a nagy blobokat ugyanúgy kezeljük, mint a többi blobot és Git-objektumot
+  a Git-repókban, ahelyett, hogy objektumtárolón lennének, annak a
+  packfile-ok létrehozásakor megnövekedett memória- és CPU-használatban,
+  és így csökkent teljesítményben is ára van. (Ez azért van, mert a Git
+  megpróbál delta-tömörítést vagy zlib-tömörítést használni, ami valószínűen
+  nem működik jól a már tömörített bináris tartalmon.) Így ez nem csupán a
+  tárolási költség növekedése.
 
-- When a large blob has been committed into a repo, it might not be
-  possible to remove this blob from the repo without rewriting
-  history, even if the user then decides to use Git LFS or a similar
-  tool to handle it.
+- Ha egy nagy blobot már commitoltak egy repóba, előfordulhat, hogy ezt a
+  blobot nem lehet eltávolítani a repóból az előzmények átírása nélkül, még
+  akkor sem, ha a felhasználó ezután úgy dönt, hogy a Git LFS-t vagy hasonló
+  eszközt használ a kezeléséhez.
 
-- In fact Git LFS and similar tools are not very flexible in letting
-  users change their minds about the blobs they should handle or not.
+- Valójában a Git LFS és a hasonló eszközök nem túl rugalmasak abban, hogy a
+  felhasználók meggondolhassák magukat azzal kapcsolatban, mely blobokat
+  kellene kezelniük, és melyeket nem.
 
-- Even when users are using Git LFS or similar tools, they are often
-  complaining that these tools require significant effort to set up,
-  learn and use correctly.
+- Még amikor a felhasználók a Git LFS-t vagy hasonló eszközöket használnak,
+  gyakran panaszkodnak, hogy ezek az eszközök jelentős erőfeszítést
+  igényelnek a helyes beállításhoz, megtanuláshoz és használathoz.
 
-II Main features of the "Large Object Promisors" solution
----------------------------------------------------------
+[[_ii_main_features_of_the_large_object_promisors_solution]]
+II A „Large Object Promisors" megoldás fő funkciói
+--------------------------------------------------
 
-The main features below should give a rough overview of how the
-solution may work. Details about needed elements can be found in
-following sections.
+Az alábbi fő funkcióknak nagyjából áttekintést kell adniuk arról, hogyan
+működhet a megoldás. A szükséges elemek részleteit a következő szakaszokban
+találod.
 
-Even if each feature below is very useful for the full solution, it is
-very likely to be also useful on its own in some cases where the full
-solution is not required. However, we'll focus primarily on the big
-picture here.
+Bár az alábbi minden funkció nagyon hasznos a teljes megoldáshoz, nagyon
+valószínű, hogy önmagában is hasznos bizonyos esetekben, amikor a teljes
+megoldásra nincs szükség. Itt azonban elsősorban a nagy képre koncentrálunk.
 
-Also each feature doesn't need to be implemented entirely in Git
-itself. Some could be scripts, hooks or helpers that are not part of
-the Git repo. It would be helpful if those could be shared and
-improved on collaboratively though. So we want to encourage sharing
-them.
+Továbbá minden funkciót nem kell teljes egészében magában a Gitben
+megvalósítani. Néhány lehet szkript, hook vagy helper, amely nem része a Git
+repónak. Hasznos lenne viszont, ha ezeket meg lehetne osztani és
+együttműködésben javítani. Ezért szeretnénk bátorítani a megosztásukat.
 
-1) Large blobs are stored on LOPs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_1_large_blobs_are_stored_on_lops]]
+1) A nagy blobokat LOP-okon tárolják
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Large blobs should be stored on special promisor remotes that we will
-call "Large Object Promisors" or LOPs. These LOPs should be additional
-remotes dedicated to contain large blobs especially those in binary
-format. They should be used along with main remotes that contain the
-other objects.
+A nagy blobokat speciális promisor remote-okon kellene tárolni, amelyeket
+„Large Object Promisors"-nak vagy LOP-oknak fogunk nevezni. Ezeknek a
+LOP-oknak további remote-oknak kellene lenniük, amelyek a nagy blobok,
+különösen a bináris formátumúak tárolására szolgálnak. Olyan fő remote-okkal
+együtt kellene őket használni, amelyek a többi objektumot tartalmazzák.
 
 Note 1
 ^^^^^^
 
-To clarify, a LOP is a normal promisor remote, except that:
+Pontosításképpen: egy LOP egy normál promisor remote, kivéve hogy:
 
-- it should store only large blobs,
+- kizárólag nagy blobokat kellene tárolnia,
 
-- it should be separate from the main remote, so that the main remote
-  can focus on serving other objects and the rest of the repos (see
-  feature 4) below) and can use the LOP as a promisor remote for
-  itself.
+- külön kellene lennie a fő remote-tól, hogy a fő remote a többi objektum és
+  a repók maradékának kiszolgálására koncentrálhasson (lásd lent a 4)
+  funkciót), és magához a fő remote-hoz is használhassa a LOP-ot promisor
+  remote-ként.
 
 Note 2
 ^^^^^^
 
-Git already makes it possible for a main remote to also be a promisor
-remote storing both regular objects and large blobs for a client that
-clones from it with a filter on blob size. But here we explicitly want
-to avoid that.
+A Git már most is lehetővé teszi, hogy egy fő remote egyben promisor remote
+is legyen, amely rendszeres objektumokat és nagy blobokat is tárol egy olyan
+kliens számára, amely blobméret-szűrővel klónoz róla. De itt kifejezetten el
+akarjuk kerülni ezt.
 
 Rationale
 ^^^^^^^^^
 
-LOPs aim to be good at handling large blobs while main remotes are
-already good at handling other objects.
+A LOP-ok célja, hogy jók legyenek a nagy blobok kezelésében, míg a fő
+remote-ok már jók a többi objektum kezelésében.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-Git already has support for multiple promisor remotes, see
-link:partial-clone.html#using-many-promisor-remotes[the partial clone documentation].
+A Git már most is támogatja a több promisor remote-ot, lásd
+link:partial-clone.html#using-many-promisor-remotes[a partial clone
+dokumentációját].
 
-Also, Git already has support for partial clone using a filter on the
-size of the blobs (with `git clone --filter=blob:limit=<size>`).  Most
-of the other main features below are based on these existing features
-and are about making them easy and efficient to use for the purpose of
-better handling large blobs.
+Továbbá a Git már most is támogatja a partial clone-t a blobok méretére
+alkalmazott szűrővel (a `git clone --filter=blob:limit=<size>` paranccsal).
+Az alábbi többi fő funkció nagy része ezekre a meglévő funkciókra épül, és
+arról szól, hogy egyszerűvé és hatékonnyá tegye a használatukat a nagy blobok
+jobb kezelésének céljából.
 
-2) LOPs can use object storage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_2_lops_can_use_object_storage]]
+2) A LOP-ok használhatnak objektumtárolást
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LOPs can be implemented using object storage, like an Amazon S3 or GCP
-Bucket or MinIO (which is open source under the GNU AGPLv3 license) to
-actually store the large blobs, and can be accessed through a Git
-remote helper (see linkgit:gitremote-helpers[7]) which makes the
-underlying object storage appear like a remote to Git.
+A LOP-ok objektumtárolással valósíthatók meg, mint egy Amazon S3 vagy GCP
+Bucket vagy MinIO (amely nyílt forráskódú a GNU AGPLv3 licenc alatt), a nagy
+blobok tényleges tárolására, és egy Git remote helperen keresztül érhetők el
+(lásd linkgit:gitremote-helpers[7]), amely az alapját képező
+objektumtárolást remote-ként jeleníti meg a Git felé.
 
 Note
 ^^^^
 
-A LOP can be a promisor remote accessed using a remote helper by
-both some clients and the main remote.
+Egy LOP lehet promisor remote, amelyet remote helperen keresztül ér el
+egyes kliensek és a fő remote is.
 
 Rationale
 ^^^^^^^^^
 
-This looks like the simplest way to create LOPs that can cheaply
-handle many large blobs.
+Ez tűnik a legegyszerűbb módnak olyan LOP-ok létrehozására, amelyek olcsón
+kezelhetnek sok nagy blobot.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-Remote helpers are quite easy to write as shell scripts, but it might
-be more efficient and maintainable to write them using other languages
-like Go.
+A remote helpereket elég egyszerű shellszkriptként megírni, de hatékonyabb
+és karbantarthatóbb lehet más nyelveken, például Go-ban megírni őket.
 
-Some already exist under open source licenses, for example:
+Néhány már létezik nyílt forráskódú licencek alatt, például:
 
   - https://github.com/awslabs/git-remote-s3
   - https://gitlab.com/eric.p.ju/git-remote-gs
 
-Other ways to implement LOPs are certainly possible, but the goal of
-this document is not to discuss how to best implement a LOP or its
-underlying object storage (see the "0) Non goals" section above).
+A LOP-ok megvalósításának más módjai bizonyosan lehetségesek, de ennek a
+dokumentumnak nem célja megvitatni, hogyan valósítható meg legjobban egy LOP
+vagy az alapját képező objektumtárolás (lásd a fenti „0) Nem célok"
+szakaszt).
 
-3) LOP object storage can be Git LFS storage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_3_lop_object_storage_can_be_git_lfs_storage]]
+3) A LOP objektumtárolása lehet Git LFS-tárolás
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The underlying object storage that a LOP uses could also serve as
-storage for large files handled by Git LFS.
-
-Rationale
-^^^^^^^^^
-
-This would simplify the server side if it wants to both use a LOP and
-act as a Git LFS server.
-
-4) A main remote can offload to a LOP with a configurable threshold
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-On the server side, a main remote should have a way to offload to a
-LOP all its blobs with a size over a configurable threshold.
+Az alapját képező objektumtárolás, amelyet egy LOP használ, a Git LFS által
+kezelt nagy fájlok tárolójaként is szolgálhatna.
 
 Rationale
 ^^^^^^^^^
 
-This makes it easy to set things up and to clean things up. For
-example, an admin could use this to manually convert a repo not using
-LOPs to a repo using a LOP. On a repo already using a LOP but where
-some users would sometimes push large blobs, a cron job could use this
-to regularly make sure the large blobs are moved to the LOP.
+Ez egyszerűsítené a szerveroldalt, ha az egyszerre akar LOP-ot használni és
+Git LFS-szerverként működni.
+
+[[_4_a_main_remote_can_offload_to_a_lop_with_a_configurable_threshold]]
+4) Egy fő remote konfigurálható küszöbértékkel kihelyezhet egy LOP-ra
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A szerveroldalon egy fő remote-nak kellene, hogy legyen módja arra, hogy egy
+LOP-ra kihelyezze az összes olyan blobját, amelynek a mérete egy
+konfigurálható küszöbérték felett van.
+
+Rationale
+^^^^^^^^^
+
+Ez egyszerűvé teszi a dolgok beállítását és megtisztítását. Például egy admin
+ezt használhatná egy LOP-ot nem használó repó kézzel történő átalakítására
+LOP-ot használó repóvá. Egy olyan repón, amely már használ LOP-ot, de ahol
+egyes felhasználók néha nagy blobokat pusholnak, egy cron job ezt
+használhatná annak rendszeres biztosítására, hogy a nagy blobok átkerüljenek
+a LOP-ra.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-Using something based on `git repack --filter=...` to separate the
-blobs we want to offload from the other Git objects could be a good
-idea. The missing part is to connect to the LOP, check if the blobs we
-want to offload are already there and if not send them.
+Valami olyasmi használata, ami a `git repack --filter=...`-ra épül, hogy
+elkülönítse a kihelyezni kívánt blobokat a többi Git-objektumtól, jó ötlet
+lehet. A hiányzó rész az, hogy csatlakozzon a LOP-hoz, ellenőrizze, hogy a
+kihelyezni kívánt blobok már ott vannak-e, és ha nem, elküldje őket.
 
-5) A main remote should try to remain clean from large blobs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_5_a_main_remote_should_try_to_remain_clean_from_large_blobs]]
+5) Egy fő remote-nak igyekeznie kell nagy bloboktól mentesnek maradni
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A main remote should try to avoid containing a lot of oversize
-blobs. For that purpose, it should offload as needed to a LOP and it
-should have ways to prevent oversize blobs to be fetched, and also
-perhaps pushed, into it.
+Egy fő remote-nak igyekeznie kell elkerülni, hogy sok túlméretes blobot
+tartalmazzon. Ebből a célból szükség szerint kihelyez egy LOP-ra, és
+rendelkeznie kell módokkal a túlméretes blobok fetchelésének, és talán
+pusholásának a megakadályozására is.
 
 Rationale
 ^^^^^^^^^
 
-A main remote containing many oversize blobs would defeat the purpose
-of LOPs.
+Egy sok túlméretes blobot tartalmazó fő remote meghiúsítaná a LOP-ok
+célját.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-The way to offload to a LOP discussed in 4) above can be used to
-regularly offload oversize blobs. About preventing oversize blobs from
-being fetched into the repo see 6) below. About preventing oversize
-blob pushes, a pre-receive hook could be used.
+A fenti 4)-ben tárgyalt, LOP-ra való kihelyezés módja használható a
+túlméretes blobok rendszeres kihelyezésére. A túlméretes blobok repóba
+fetchelésének megakadályozásáról lásd lent a 6)-ot. A túlméretes blobok
+pusholásának megakadályozásáról: egy pre-receive hook használható lenne.
 
-Also there are different scenarios in which large blobs could get
-fetched into the main remote, for example:
+Vannak továbbá különböző forgatókönyvek, amelyekben nagy blobok kerülhetnek
+be fetcheléssel a fő remote-ba, például:
 
-- A client that doesn't implement the "promisor-remote" protocol
-  (described in 6) below) clones from the main remote.
+- Egy kliens, amely nem valósítja meg a „promisor-remote" protokollt (leírva
+  a lenti 6)-ban), klónoz a fő remote-ról.
 
-- The main remote gets a request for information about a large blob
-  and is not able to get that information without fetching the blob
-  from the LOP.
+- A fő remote kérést kap egy nagy blobbal kapcsolatos információért, és nem
+  tudja megszerezni azt az információt anélkül, hogy a blobot fetchelné a
+  LOP-ról.
 
-It might not be possible to completely prevent all these scenarios
-from happening. So the goal here should be to implement features that
-make the fetching of large blobs less likely. For example adding a
-`remote-object-info` command in the `git cat-file --batch` protocol
-and its variants might make it possible for a main repo to respond to
-some requests about large blobs without fetching them.
+Lehet, hogy nem lehet teljesen megakadályozni, hogy ezek a forgatókönyvek
+bekövetkezzenek. Ezért itt a cél az kellene legyen, hogy olyan funkciókat
+valósítsunk meg, amelyek kevésbé valószínűvé teszik a nagy blobok
+fetchelését. Például egy `remote-object-info` parancs hozzáadása a
+`git cat-file --batch` protokollhoz és annak változataihoz lehetővé tehetné,
+hogy egy fő repó néhány nagy blobbal kapcsolatos kérésre válaszoljon anélkül,
+hogy fetchelné őket.
 
-6) A protocol negotiation should happen when a client clones
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_6_a_protocol_negotiation_should_happen_when_a_client_clones]]
+6) Protokollegyeztetésnek kell történnie, amikor egy kliens klónoz
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a client clones from a main repo, there should be a protocol
-negotiation so that the server can advertise one or more LOPs and so
-that the client and the server can discuss if the client could
-directly use a LOP the server is advertising. If the client and the
-server can agree on that, then the client would be able to get the
-large blobs directly from the LOP and the server would not need to
-fetch those blobs from the LOP to be able to serve the client.
+Amikor egy kliens klónoz egy fő repóról, protokollegyeztetésnek kell
+történnie, hogy a szerver hirdethessen egy vagy több LOP-ot, és hogy a
+kliens és a szerver megvitathassa, használhatná-e a kliens közvetlenül a
+szerver által hirdetett LOP-ot. Ha a kliens és a szerver meg tud egyezni
+ebben, akkor a kliens képes lenne a nagy blobokat közvetlenül a LOP-ról
+megszerezni, és a szervernek nem kellene ezeket a blobokat a LOP-ról
+fetchelnie ahhoz, hogy kiszolgálja a klienst.
 
 Note
 ^^^^
 
-For fetches instead of clones, a protocol negotiation might not always
-happen, see the "What about fetches?" FAQ entry below for details.
+Fetchek esetén, klónozás helyett, nem mindig történik feltétlenül
+protokollegyeztetés, lásd lent a „Mi a helyzet a fetchekkel?" GYIK-bejegyzést
+a részletekért.
 
 Rationale
 ^^^^^^^^^
 
-Security, configurability and efficiency of setting things up.
+A dolgok beállításának biztonsága, konfigurálhatósága és hatékonysága.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-A "promisor-remote" protocol v2 capability looks like a good way to
-implement this. The way the client and server use this capability
-could be controlled by configuration variables.
+Egy „promisor-remote" protocol v2 képesség jó módnak tűnik ennek
+megvalósítására. Azt, ahogyan a kliens és a szerver ezt a képességet
+használja, konfigurációs változók vezérelhetnék.
 
-Information that the server could send to the client through that
-protocol could be things like: LOP name, LOP URL, filter-spec (for
-example `blob:limit=<size>`) or just size limit that should be used as
-a filter when cloning, token to be used with the LOP, etc.
+Az információ, amelyet a szerver a kliensnek ezen a protokollon keresztül
+küldhetne, olyasmi lehetne, mint: LOP neve, LOP URL-je, filter-spec (például
+`blob:limit=<size>`) vagy csak méretkorlát, amelyet szűrőként kell használni
+klónozáskor, a LOP-pal használandó token stb.
 
-7) A client can offload to a LOP
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_7_a_client_can_offload_to_a_lop]]
+7) Egy kliens kihelyezhet egy LOP-ra
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a client is using a LOP that is also a LOP of its main remote,
-the client should be able to offload some large blobs it has fetched,
-but might not need anymore, to the LOP.
+Amikor egy kliens olyan LOP-ot használ, amely a fő remote-jának is LOP-ja, a
+kliensnek képesnek kellene lennie néhány olyan nagy blob kihelyezésére a
+LOP-ra, amelyet fetchelt, de esetleg már nincs rá szüksége.
 
 Note
 ^^^^
 
-It might depend on the context if it should be OK or not for clients
-to offload large blobs they have created, instead of fetched, directly
-to the LOP without the main remote checking them in some ways
-(possibly using hooks or other tools).
+Kontextusfüggő lehet, hogy rendben van-e vagy sem, hogy a kliensek az általuk
+létrehozott – nem pedig fetchelt – nagy blobokat közvetlenül a LOP-ra
+helyezzék ki anélkül, hogy a fő remote valamilyen módon (esetleg hookok vagy
+más eszközök használatával) ellenőrizné őket.
 
-This should be discussed and refined when we get closer to
-implementing this feature.
+Ezt meg kell vitatni és pontosítani kell, amikor közelebb kerülünk ennek a
+funkciónak a megvalósításához.
 
 Rationale
 ^^^^^^^^^
 
-On the client, the easiest way to deal with unneeded large blobs is to
-offload them.
+A kliensen a felesleges nagy blobok kezelésének legegyszerűbb módja a
+kihelyezésük.
 
 Implementation
 ^^^^^^^^^^^^^^
 
-This is very similar to what 4) above is about, except on the client
-side instead of the server side. So a good solution to 4) could likely
-be adapted to work on the client side too.
+Ez nagyon hasonló ahhoz, amiről a fenti 4) szól, csak a kliensoldalon a
+szerveroldal helyett. Így a 4)-re adott jó megoldás valószínűleg
+átalakítható lenne, hogy a kliensoldalon is működjön.
 
-There might be some security issues here, as there is no negotiation,
-but they might be mitigated if the client can reuse a token it got
-when cloning (see 6) above). Also if the large blobs were fetched from
-a LOP, it is likely, and can easily be confirmed, that the LOP still
-has them, so that they can just be removed from the client.
+Lehetnek itt biztonsági problémák, mivel nincs egyeztetés, de ezek
+enyhíthetők, ha a kliens újra felhasználhat egy tokent, amelyet klónozáskor
+kapott (lásd a fenti 6)-ot). Továbbá, ha a nagy blobokat egy LOP-ról
+fetchelték, valószínű, és könnyen megerősíthető, hogy a LOP-nak még mindig
+megvannak, így egyszerűen eltávolíthatók a kliensről.
 
-III Benefits of using LOPs
---------------------------
+[[_iii_benefits_of_using_lops]]
+III A LOP-ok használatának előnyei
+----------------------------------
 
-Many benefits are related to the issues discussed in "I) Issues with
-the current situation" above:
+Sok előny kapcsolódik a fenti „I) A jelenlegi helyzet problémái" részben
+tárgyalt problémákhoz:
 
-- No need to rewrite history when deciding which blobs are worth
-  handling separately than other objects, or when moving or removing
-  the threshold.
+- Nem kell átírni az előzményeket, amikor eldöntjük, mely blobokat érdemes a
+  többi objektumtól elkülönítve kezelni, illetve amikor a küszöbértéket
+  áthelyezzük vagy eltávolítjuk.
 
-- If the protocol between client and server is developed and secured
-  enough, then many details might be setup on the server side only and
-  all the clients could then easily get all the configuration
-  information and use it to set themselves up mostly automatically.
+- Ha a kliens és a szerver közötti protokoll eléggé kidolgozott és biztonságos,
+  akkor sok részletet csak a szerveroldalon lehetne beállítani, és az összes
+  kliens könnyen megszerezhetné az összes konfigurációs információt, és
+  felhasználhatná arra, hogy nagyrészt automatikusan beállítsa magát.
 
-- Storage costs benefits on the server side.
+- Tárolási költségbeli előnyök a szerveroldalon.
 
-- Reduced memory and CPU needs on main remotes on the server side.
+- Csökkentett memória- és CPU-igény a szerveroldali fő remote-okon.
 
-- Reduced storage needs on the client side.
+- Csökkentett tárolási igény a kliensoldalon.
 
-IV FAQ
-------
+[[_iv_faq]]
+IV GYIK
+-------
 
-What about using multiple LOPs on the server and client side?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mi a helyzet több LOP használatával a szerver- és a kliensoldalon?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-That could perhaps be useful in some cases, but for now it's more
-likely that in most cases a single LOP will be advertised by the
-server and should be used by the client.
+Ez talán hasznos lehetne bizonyos esetekben, de egyelőre valószínűbb, hogy a
+legtöbb esetben egyetlen LOP-ot fog hirdetni a szerver, és azt kellene
+használnia a kliensnek.
 
-A case where it could be useful for a server to advertise multiple
-LOPs is if a LOP is better for some users while a different LOP is
-better for other users. For example some clients might have a better
-connection to a LOP than others.
+Egy olyan eset, ahol hasznos lehetne, hogy egy szerver több LOP-ot hirdessen,
+az, ha egy LOP jobb egyes felhasználóknak, míg egy másik LOP jobb más
+felhasználóknak. Például egyes kliensek jobb kapcsolattal rendelkezhetnek egy
+LOP-hoz, mint mások.
 
-In those cases it's the responsibility of the server to have some
-documentation to help clients. It could say for example something like
-"Users in this part of the world might want to pick only LOP A as it
-is likely to be better connected to them, while users in other parts
-of the world should pick only LOP B for the same reason."
+Ezekben az esetekben a szerver felelőssége, hogy legyen valamennyi
+dokumentációja a kliensek segítésére. Mondhatná például valami olyasmit, hogy
+„A világ ezen részén lévő felhasználók talán csak a LOP A-t akarják
+választani, mivel valószínűleg jobb kapcsolatuk van vele, míg a világ más
+részein lévő felhasználók ugyanezért csak a LOP B-t válasszák."
 
-When should we trust or not trust the LOPs advertised by the server?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mikor bízzunk meg és mikor ne a szerver által hirdetett LOP-okban?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In some contexts, like in corporate setup where the server and all the
-clients are parts of an internal network in a company where admins
-have all the rights on every system, it's OK, and perhaps even a good
-thing, if the clients fully trust the server, as it can help ensure
-that all the clients are on the same page.
+Bizonyos kontextusokban, például egy vállalati környezetben, ahol a szerver
+és az összes kliens egy cég belső hálózatának része, ahol az adminoknak
+minden joguk megvan minden rendszerhez, rendben van, sőt talán jó dolog, ha
+a kliensek teljesen megbíznak a szerverben, mivel ez segíthet biztosítani,
+hogy az összes kliens azonos állapotban legyen.
 
-There are also contexts in which clients trust a code hosting platform
-serving them some repos, but might not fully trust other users
-managing or contributing to some of these repos. For example, the code
-hosting platform could have hooks in place to check that any object it
-receives doesn't contain malware or otherwise bad content. In this
-case it might be OK for the client to use a main remote and its LOP if
-they are both hosted by the code hosting platform, but not if the LOP
-is hosted elsewhere (where the content is not checked).
+Vannak olyan kontextusok is, amelyekben a kliensek megbíznak egy
+kódtárhely-platformban, amely néhány repót szolgál ki nekik, de esetleg nem
+bíznak meg teljesen más felhasználókban, akik ezen repók egy részét kezelik
+vagy hozzájárulnak hozzájuk. Például a kódtárhely-platformon lehetnének
+hookok, amelyek ellenőrzik, hogy egyetlen általa kapott objektum sem
+tartalmaz malware-t vagy egyéb rossz tartalmat. Ebben az esetben rendben
+lehet, hogy a kliens egy fő remote-ot és annak LOP-ját használja, ha mindkettőt
+a kódtárhely-platform üzemelteti, de nem, ha a LOP-ot máshol üzemeltetik
+(ahol a tartalmat nem ellenőrzik).
 
-In other contexts, a client should just not trust a server.
+Más kontextusokban egy kliensnek egyszerűen nem szabadna megbíznia egy
+szerverben.
 
-So there should be different ways to configure how the client should
-behave when a server advertises a LOP to it at clone time.
+Ezért kellene, hogy különböző módok legyenek annak beállítására, hogyan
+viselkedjen a kliens, amikor egy szerver LOP-ot hirdet neki klónozáskor.
 
-As the basic elements that a server can advertise about a LOP are a
-LOP name and a LOP URL, the client should base its decision about
-accepting a LOP on these elements.
+Mivel az alapvető elemek, amelyeket egy szerver hirdethet egy LOP-ról, egy
+LOP-név és egy LOP-URL, a kliensnek ezekre az elemekre kellene alapoznia a
+LOP elfogadásáról szóló döntését.
 
-One simple way to be very strict in the LOP it accepts is for example
-for the client to check that the LOP is already configured on the
-client with the same name and URL as what the server advertises.
+Egy egyszerű mód arra, hogy nagyon szigorú legyen abban, mely LOP-ot fogadja
+el, például az, hogy a kliens ellenőrzi, hogy a LOP már ugyanazzal a névvel
+és URL-lel van-e konfigurálva a kliensen, mint amit a szerver hirdet.
 
-In general default and "safe" settings should require that the LOP are
-configured on the client separately from the "promisor-remote"
-protocol and that the client accepts a LOP only when information about
-it from the protocol matches what has been already configured
-separately.
+Általánosságban az alapértelmezett és „biztonságos" beállításoknak meg
+kellene követelniük, hogy a LOP-ok a kliensen a „promisor-remote"
+protokolltól elkülönítve legyenek konfigurálva, és hogy a kliens csak akkor
+fogadjon el egy LOP-ot, amikor a protokollból származó információ egyezik
+azzal, amit korábban külön konfiguráltak.
 
-What about LOP names?
-~~~~~~~~~~~~~~~~~~~~~
+Mi a helyzet a LOP-nevekkel?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In some contexts, for example if the clients sometimes fetch from each
-other, it can be a good idea for all the clients to use the same names
-for all the remotes they use, including LOPs.
+Bizonyos kontextusokban, például ha a kliensek néha egymástól fetchelnek, jó
+ötlet lehet, hogy az összes kliens ugyanazokat a neveket használja az összes
+általuk használt remote-hoz, beleértve a LOP-okat is.
 
-In other contexts, each client might want to be able to give the name
-it wants to each remote, including each LOP, it interacts with.
+Más kontextusokban minden kliens talán olyan nevet szeretne adni minden
+remote-nak, beleértve minden LOP-ot, amellyel kapcsolatba lép.
 
-So there should be different ways to configure how the client accepts
-or not the LOP name the server advertises.
+Ezért kellene, hogy különböző módok legyenek annak beállítására, hogyan
+fogadja el vagy sem a kliens a szerver által hirdetett LOP-nevet.
 
-If a default or "safe" setting is used, then as such a setting should
-require that the LOP be configured separately, then the name would be
-configured separately and there is no risk that the server could
-dictate a name to a client.
+Ha alapértelmezett vagy „biztonságos" beállítást használnak, akkor mivel egy
+ilyen beállításnak meg kellene követelnie, hogy a LOP külön legyen
+konfigurálva, a név külön lenne konfigurálva, és nincs kockázata annak, hogy
+a szerver nevet diktálhatna egy kliensnek.
 
-Could the main remote be bogged down by old or paranoid clients?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Elárasztódhatna a fő remote régi vagy paranoiás kliensektől?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes, it could happen if there are too many clients that are either
-unwilling to trust the main remote or that just don't implement the
-"promisor-remote" protocol because they are too old or not fully
-compatible with the 'git' client.
+Igen, megtörténhetne, ha túl sok olyan kliens van, amely vagy nem hajlandó
+megbízni a fő remote-ban, vagy egyszerűen nem valósítja meg a
+„promisor-remote" protokollt, mert túl régi vagy nem teljesen kompatibilis a
+'git' klienssel.
 
-When serving such a client, the main remote has no other choice than
-to first fetch from its LOP, to then be able to provide to the client
-everything it requested. So the main remote, even if it has cleanup
-mechanisms (see section II.4 above), would be burdened at least
-temporarily with the large blobs it had to fetch from its LOP.
+Egy ilyen kliens kiszolgálásakor a fő remote-nak nincs más választása, mint
+hogy először a LOP-járól fetcheljen, hogy aztán mindent biztosítani tudjon a
+kliensnek, amit kért. Így a fő remote, még ha vannak is takarítási
+mechanizmusai (lásd a fenti II.4. szakaszt), legalább átmenetileg
+megterhelődne azokkal a nagy blobokkal, amelyeket a LOP-járól kellett
+fetchelnie.
 
-Not behaving like this would be breaking backward compatibility, and
-could be seen as segregating clients. For example, it might be
-possible to implement a special mode that allows the server to just
-reject clients that don't implement the "promisor-remote" protocol or
-aren't willing to trust the main remote. This mode might be useful in
-a special context like a corporate environment. There is no plan to
-implement such a mode though, and this should be discussed separately
-later anyway.
+Ha nem így viselkedne, az megtörné a visszafelé kompatibilitást, és a
+kliensek szegregálásának lehetne tekinteni. Például lehetne megvalósítani egy
+speciális módot, amely lehetővé teszi a szervernek, hogy egyszerűen
+elutasítsa azokat a klienseket, amelyek nem valósítják meg a „promisor-remote"
+protokollt, vagy nem hajlandók megbízni a fő remote-ban. Ez a mód hasznos
+lehet egy speciális kontextusban, mint egy vállalati környezet. Nincs
+azonban terv egy ilyen mód megvalósítására, és ezt amúgy is külön kellene
+megvitatni később.
 
-A better way to proceed is probably for the main remote to show a
-message telling clients that don't implement the protocol or are
-unwilling to accept the advertised LOP(s) that they would get faster
-clone and fetches by upgrading client software or properly setting
-them up to accept LOP(s).
+Egy jobb módszer valószínűleg az, ha a fő remote üzenetet jelenít meg,
+amely elmondja a protokollt nem megvalósító vagy a hirdetett LOP-(ok)at
+elfogadni nem hajlandó klienseknek, hogy gyorsabb klónozást és fetcheket
+kapnának, ha frissítenék a kliensszoftvert, vagy megfelelően beállítanák
+őket a LOP-(ok) elfogadására.
 
-Waiting for clients to upgrade, monitoring these upgrades and limiting
-the use of LOPs to repos that are not very frequently accessed might
-be other good ways to make sure that some benefits are still reaped
-from LOPs. Over time, as more and more clients upgrade and benefit
-from LOPs, using them in more and more frequently accessed repos will
-become worth it.
+A kliensek frissítésére való várakozás, ezeknek a frissítéseknek a
+figyelése, és a LOP-ok használatának korlátozása a nem túl gyakran elért
+repókra más jó módok lehetnek annak biztosítására, hogy még mindig legyen
+valamennyi haszon a LOP-okból. Idővel, ahogy egyre több kliens frissül és
+profitál a LOP-okból, egyre gyakrabban elért repókban is megéri majd
+használni őket.
 
-Corporate environments, where it might be easier to make sure that all
-the clients are up-to-date and properly configured, could hopefully
-benefit more and earlier from using LOPs.
+A vállalati környezetek, ahol talán könnyebb biztosítani, hogy az összes
+kliens naprakész és megfelelően konfigurált legyen, remélhetőleg többet és
+korábban profitálhatnának a LOP-ok használatából.
 
-What about fetches?
-~~~~~~~~~~~~~~~~~~~
+Mi a helyzet a fetchekkel?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are different kinds of fetches. A regular fetch happens when
-some refs have been updated on the server and the client wants the ref
-updates and possibly the new objects added with them. A "backfill" or
-"lazy" fetch, on the contrary, happens when the client needs to use
-some objects it already knows about but doesn't have because they are
-on a promisor remote.
+Különböző fajta fetchek vannak. Egy rendszeres fetch akkor történik, amikor
+néhány refet frissítettek a szerveren, és a kliens szeretné a
+ref-frissítéseket és esetleg a velük hozzáadott új objektumokat. Egy
+„backfill" vagy „lazy" fetch ezzel szemben akkor történik, amikor a
+kliensnek olyan objektumokat kell használnia, amelyekről már tud, de nincsenek
+meg neki, mert egy promisor remote-on vannak.
 
-Regular fetch
-^^^^^^^^^^^^^
+Rendszeres fetch
+^^^^^^^^^^^^^^^^
 
-In a regular fetch, the client will contact the main remote and a
-protocol negotiation will happen between them. It's a good thing that
-a protocol negotiation happens every time, as the configuration on the
-client or the main remote could have changed since the previous
-protocol negotiation. In this case, the new protocol negotiation
-should ensure that the new fetch will happen in a way that satisfies
-the new configuration of both the client and the server.
+Egy rendszeres fetchnél a kliens kapcsolatba lép a fő remote-tal, és
+protokollegyeztetés történik közöttük. Jó dolog, hogy minden alkalommal
+történik protokollegyeztetés, mivel a kliensen vagy a fő remote-on a
+konfiguráció megváltozhatott az előző protokollegyeztetés óta. Ebben az
+esetben az új protokollegyeztetésnek biztosítania kellene, hogy az új fetch
+olyan módon történjen, amely kielégíti a kliens és a szerver új
+konfigurációját is.
 
-In most cases though, the configurations on the client and the main
-remote will not have changed between 2 fetches or between the initial
-clone and a subsequent fetch. This means that the result of a new
-protocol negotiation will be the same as the previous result, so the
-new fetch will happen in the same way as the previous clone or fetch,
-using, or not using, the same LOP(s) as last time.
+A legtöbb esetben azonban a kliensen és a fő remote-on lévő konfiguráció nem
+változott meg 2 fetch között, vagy a kezdeti klónozás és egy későbbi fetch
+között. Ez azt jelenti, hogy egy új protokollegyeztetés eredménye ugyanaz
+lesz, mint az előző eredmény, így az új fetch ugyanúgy fog történni, mint az
+előző klónozás vagy fetch, ugyanazt a LOP-(ot)at használva vagy nem
+használva, mint legutóbb.
 
-"Backfill" or "lazy" fetch
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+„Backfill" vagy „lazy" fetch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When there is a backfill fetch, the client doesn't necessarily contact
-the main remote first. It will try to fetch from its promisor remotes
-in the order they appear in the config file, except that a remote
-configured using the `extensions.partialClone` config variable will be
-tried last. See
-link:partial-clone.html#using-many-promisor-remotes[the partial clone documentation].
+Amikor backfill fetch van, a kliens nem feltétlenül lép először kapcsolatba a
+fő remote-tal. Megpróbál a promisor remote-jairól fetchelni abban a
+sorrendben, ahogyan a konfigurációs fájlban megjelennek, kivéve hogy egy
+`extensions.partialClone` konfigurációs változóval konfigurált remote-ot
+próbál utoljára. Lásd
+link:partial-clone.html#using-many-promisor-remotes[a partial clone
+dokumentációját].
 
-This is not new with this effort. In fact this is how multiple remotes
-have already been working for around 5 years.
+Ez nem újdonság ezzel a munkával. Valójában így működik a több remote már
+körülbelül 5 éve.
 
-When using LOPs, having the main remote configured using
-`extensions.partialClone`, so it's tried last, makes sense, as missing
-objects should only be large blobs that are on LOPs.
+LOP-ok használatakor észszerű, ha a fő remote `extensions.partialClone`-nal
+van konfigurálva, hogy utoljára próbálódjon, mivel a hiányzó objektumok csak
+LOP-okon lévő nagy blobok lehetnek.
 
-This means that a protocol negotiation will likely not happen as the
-missing objects will be fetched from the LOPs, and then there will be
-nothing left to fetch from the main remote.
+Ez azt jelenti, hogy valószínűleg nem történik protokollegyeztetés, mivel a
+hiányzó objektumokat a LOP-okról fogják fetchelni, és akkor nem marad semmi,
+amit a fő remote-ról kellene fetchelni.
 
-To secure that, it could be a good idea for LOPs to require a token
-from the client when it fetches from them. The client could get the
-token when performing a protocol negotiation with the main remote (see
-section II.6 above).
+Ennek biztosítására jó ötlet lehetne, ha a LOP-ok tokent követelnének meg a
+klienstől, amikor tőlük fetchel. A kliens megkaphatná a tokent, amikor
+protokollegyeztetést végez a fő remote-tal (lásd a fenti II.6. szakaszt).
 
-V Future improvements
----------------------
+[[_v_future_improvements]]
+V Jövőbeli fejlesztések
+-----------------------
 
-It is expected that at the beginning using LOPs will be mostly worth
-it either in a corporate context where the Git version that clients
-use can easily be controlled, or on repos that are infrequently
-accessed. (See the "Could the main remote be bogged down by old or
-paranoid clients?" section in the FAQ above.)
+Várható, hogy az elején a LOP-ok használata leginkább vagy egy vállalati
+kontextusban éri majd meg, ahol a kliensek által használt Git-verzió
+könnyen szabályozható, vagy a ritkán elért repókon. (Lásd az „Elárasztódhatna
+a fő remote régi vagy paranoiás kliensektől?" szakaszt a fenti GYIK-ban.)
 
-Over time, as more and more clients upgrade to a version that
-implements the "promisor-remote" protocol v2 capability described
-above in section II.6), it will be worth it to use LOPs more widely.
+Idővel, ahogy egyre több kliens frissül olyan verzióra, amely megvalósítja a
+fent, a II.6) szakaszban leírt „promisor-remote" protocol v2 képességet,
+megéri majd szélesebb körben használni a LOP-okat.
 
-A lot of improvements may also help using LOPs more widely. Some of
-these improvements are part of the scope of this document like the
-following:
+Sok fejlesztés is segíthet a LOP-ok szélesebb körű használatában. Ezeknek a
+fejlesztéseknek egy része ennek a dokumentumnak a hatókörébe tartozik, mint a
+következők:
 
-  - Implementing a "remote-object-info" command in the
-    `git cat-file --batch` protocol and its variants to allow main
-    remotes to respond to requests about large blobs without fetching
-    them. (Eric Ju has started working on this based on previous work
-    by Calvin Wan.)
+  - Egy „remote-object-info" parancs megvalósítása a
+    `git cat-file --batch` protokollban és annak változataiban, hogy a fő
+    remote-ok válaszolni tudjanak a nagy blobokkal kapcsolatos kérésekre
+    anélkül, hogy fetchelnék őket. (Eric Ju elkezdett ezen dolgozni Calvin
+    Wan korábbi munkája alapján.)
 
-  - Creating better cleanup and offload mechanisms for main remotes
-    and clients to prevent accumulation of large blobs.
+  - Jobb takarítási és kihelyezési mechanizmusok létrehozása a fő remote-ok
+    és a kliensek számára, hogy megelőzzék a nagy blobok felhalmozódását.
 
-  - Developing more sophisticated protocol negotiation capabilities
-    between clients and servers for handling LOPs, for example adding
-    a filter-spec (e.g., blob:limit=<size>) or size limit for
-    filtering when cloning, or adding a token for LOP authentication.
+  - Kifinomultabb protokollegyeztetési képességek kifejlesztése a kliensek és
+    a szerverek között a LOP-ok kezelésére, például egy filter-spec (pl.
+    blob:limit=<size>) vagy méretkorlát hozzáadása a klónozáskori szűréshez,
+    vagy egy token hozzáadása a LOP-hitelesítéshez.
 
-  - Improving security measures for LOP access, particularly around
-    token handling and authentication.
+  - A LOP-eléréshez tartozó biztonsági intézkedések javítása, különösen a
+    tokenkezelés és a hitelesítés körül.
 
-  - Developing standardized ways to configure and manage multiple LOPs
-    across different environments. Especially in the case where
-    different LOPs serve the same content to clients in different
-    geographical locations, there is a need for replication or
-    synchronization between LOPs.
+  - Szabványosított módok kifejlesztése több LOP konfigurálására és
+    kezelésére különböző környezetekben. Különösen abban az esetben, amikor
+    különböző LOP-ok ugyanazt a tartalmat szolgálják ki klienseknek különböző
+    földrajzi helyeken, szükség van a LOP-ok közötti replikációra vagy
+    szinkronizációra.
 
-Some improvements, including some that have been mentioned in the "0)
-Non Goals" section of this document, are out of the scope of this
-document:
+Néhány fejlesztés, beleértve néhányat, amelyet a dokumentum „0) Nem célok"
+szakaszában említettünk, ennek a dokumentumnak a hatókörén kívül esik:
 
-  - Implementing a new object representation for large blobs on the
-    client side.
+  - Egy új objektumábrázolás megvalósítása a nagy blobokhoz a kliensoldalon.
 
-  - Developing pluggable ODBs or other object database backends that
-    could chunk large blobs, dedup the chunks and store them
-    efficiently.
+  - Cserélhető ODB-k vagy más objektumadatbázis-backendek kifejlesztése,
+    amelyek darabolhatnák a nagy blobokat, dedupolhatnák a darabokat és
+    hatékonyan tárolhatnák őket.
 
-  - Optimizing data transfer between LOPs and clients/servers,
-    particularly for incompressible and non-deltifying content.
+  - Az adatátvitel optimalizálása a LOP-ok és a kliensek/szerverek között,
+    különösen a tömöríthetetlen és nem deltásítható tartalom esetében.
 
-  - Creating improved client side tools for managing large objects
-    more effectively, for example tools for migrating from Git LFS or
-    git-annex, or tools to find which objects could be offloaded and
-    how much disk space could be reclaimed by offloading them.
+  - Jobb kliensoldali eszközök létrehozása a nagy objektumok hatékonyabb
+    kezelésére, például eszközök a Git LFS-ről vagy a git-annexről való
+    átálláshoz, vagy eszközök annak megállapítására, mely objektumokat
+    lehetne kihelyezni, és mennyi lemezterület nyerhető vissza a
+    kihelyezésükkel.
 
-Some improvements could be seen as part of the scope of this document,
-but might already have their own separate projects from the Git
-project, like:
+Néhány fejlesztés a dokumentum hatókörének részének tekinthető, de esetleg
+már saját, a Git-projekttől különálló projektjük van, mint:
 
-  - Improving existing remote helpers to access object storage or
-    developing new ones.
+  - Meglévő remote helperek javítása az objektumtárolás eléréséhez, vagy
+    újak kifejlesztése.
 
-  - Improving existing object storage solutions or developing new
-    ones.
+  - Meglévő objektumtárolási megoldások javítása, vagy újak kifejlesztése.
 
-Even though all the above improvements may help, this document and the
-LOP effort should try to focus, at least first, on a relatively small
-number of improvements mostly those that are in its current scope.
+Bár az összes fenti fejlesztés segíthet, ennek a dokumentumnak és a LOP-
+munkának legalább először egy viszonylag kis számú fejlesztésre kellene
+próbálnia koncentrálni, leginkább azokra, amelyek a jelenlegi hatókörébe
+tartoznak.
 
-For example introducing pluggable ODBs and a new object database
-backend is likely a multi-year effort on its own that can happen
-separately in parallel. It has different technical requirements,
-touches other part of the Git code base and should have its own design
-document(s).
+Például a cserélhető ODB-k és egy új objektumadatbázis-backend bevezetése
+valószínűleg önmagában is több éves munka, amely külön, párhuzamosan
+történhet. Más technikai követelményei vannak, a Git kódbázis más részét
+érinti, és saját tervdokumentum(ok)nak kellene lennie hozzá.

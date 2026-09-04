@@ -1,29 +1,35 @@
-= Build Systems
+= Build rendszerek
 
-The build system is the primary way for both developers and system integrators
-to interact with the Git project. As such, being easy to use and extend for
-those who are not directly developing Git itself is just as important as other
-requirements we have on any potential build system.
+A build rendszer az elsődleges módja annak, hogy a fejlesztők és a
+rendszerintegrátorok is együttműködjenek a Git projekttel. Ezért az, hogy
+könnyen használható és bővíthető legyen azok számára, akik nem közvetlenül
+magát a Gitet fejlesztik, ugyanolyan fontos, mint a bármely lehetséges build
+rendszerrel szemben támasztott többi követelményünk.
 
-This document outlines the different requirements that we have for the build
-system and then compares available build systems using these criteria.
+Ez a dokumentum felvázolja a build rendszerrel szemben támasztott különböző
+követelményeinket, majd ezen kritériumok alapján összehasonlítja az elérhető
+build rendszereket.
 
-== Requirements
+[[_requirements]]
+== Követelmények
 
-The following subsections present a list of requirements that we have for any
-potential build system. Sections are sorted by decreasing priority.
+A következő alszakaszok bemutatják a bármely lehetséges build rendszerrel
+szemben támasztott követelmények listáját. A szakaszok csökkenő prioritás
+szerint rendezve.
 
-=== Platform support
+[[_platform_support]]
+=== Platformtámogatás
 
-The build system must have support for all of our platforms that we continually
-test against as outlined by our platform support policy. These platforms are:
+A build rendszernek támogatnia kell az összes olyan platformunkat, amelyekkel
+szemben folyamatosan tesztelünk, ahogy azt a platformtámogatási
+szabályzatunk körvonalazza. Ezek a platformok:
 
   - Linux
   - Windows
   - macOS
 
-Furthermore, the build system should have support for the following platforms
-that generally have somebody running test pipelines against regularly:
+Továbbá a build rendszernek támogatnia kell a következő platformokat,
+amelyekhez általában valaki rendszeresen futtat tesztfolyamatokat:
 
   - AIX
   - FreeBSD
@@ -31,151 +37,172 @@ that generally have somebody running test pipelines against regularly:
   - NonStop
   - OpenBSD
 
-The platforms which must be supported by the tool should be aligned with our
-platform support policy (see platform-support.adoc).
+Az eszköz által kötelezően támogatott platformoknak összhangban kell lenniük
+a platformtámogatási szabályzatunkkal (lásd platform-support.adoc).
 // once we lose AsciiDoc compatibility, we can start writing the above as:
 // xref:platform-support.adoc#platform-support-policy[platform support policy]
 // or something like that, but until then....
 
-=== Auto-detection of supported features
+[[_auto_detection_of_supported_features]]
+=== A támogatott funkciók automatikus felismerése
 
-The build system must support auto-detection of features which are or aren't
-available on the current platform. Platform maintainers should not be required
-to manually configure the complete build.
+A build rendszernek támogatnia kell azon funkciók automatikus felismerését,
+amelyek az aktuális platformon elérhetők vagy sem. A platform-maintainerektől
+nem szabad megkövetelni a teljes build kézi konfigurálását.
 
-Auto-detection of the following items is considered to be important:
+A következő elemek automatikus felismerése fontosnak számít:
 
-  - Check for the existence of headers.
-  - Check for the existence of libraries.
-  - Check for the existence of executables.
-  - Check for the runtime behavior of specific functions.
-  - Check for specific link order requirements when multiple libraries are
-    involved.
+  - Fejlécek meglétének ellenőrzése.
+  - Könyvtárak meglétének ellenőrzése.
+  - Futtatható állományok meglétének ellenőrzése.
+  - Bizonyos függvények futásidejű viselkedésének ellenőrzése.
+  - Bizonyos linkelési sorrend-követelmények ellenőrzése, amikor több
+    könyvtár érintett.
 
-=== Ease of use
+[[_ease_of_use]]
+=== Egyszerű használat
 
-The build system should be both easy to use and easy to extend. While this is
-naturally a subjective metric it is likely not controversial to say that some
-build systems are considerably harder to use than others.
+A build rendszernek egyszerűen használhatónak és egyszerűen bővíthetőnek is
+kell lennie. Bár ez természetesen szubjektív mérőszám, valószínűleg nem
+vitatható, hogy egyes build rendszerek jelentősen nehezebben használhatók,
+mint mások.
 
-=== IDE support
+[[_ide_support]]
+=== IDE-támogatás
 
-The build system should integrate with well-known IDEs. Well-known IDEs include:
+A build rendszernek integrálódnia kell a jól ismert IDE-kkel. A jól ismert
+IDE-k közé tartozik:
 
   - Microsoft Visual Studio
   - Visual Studio Code
   - Xcode
 
-There are four levels of support:
+A támogatásnak négy szintje van:
 
-  - Native integration into the IDE.
-  - Integration into the IDE via a plugin.
-  - Integration into the IDE via generating a project description with the build
-    system.
-  - No integration.
+  - Natív integráció az IDE-be.
+  - Integráció az IDE-be egy bővítményen keresztül.
+  - Integráció az IDE-be úgy, hogy a build rendszerrel projektleírást
+    generálunk.
+  - Nincs integráció.
 
-Native integration is preferable, but integration via either a plugin or by
-generating a project description via the build system are considered feasible
-alternatives.
+A natív integráció előnyösebb, de a bővítményen keresztüli integráció vagy a
+build rendszerrel generált projektleírás is elfogadható alternatívának
+számít.
 
-Another important distinction is the level of integration. There are two
-features that one generally wants to have:
+Egy másik fontos megkülönböztetés az integráció szintje. Két olyan funkció
+van, amelyet az ember általában szeretne:
 
-  - Integration of build targets.
-  - Automatic setup of features like code completion with detected build
-    dependencies.
+  - A build-célok integrációja.
+  - Az olyan funkciók automatikus beállítása, mint a kódkiegészítés a
+    felismert build-függőségekkel.
 
-The first bullet point is the bare minimum, but is not sufficient to be
-considered proper integration.
+Az első pont a legszükségesebb minimum, de nem elegendő ahhoz, hogy megfelelő
+integrációnak számítson.
 
-=== Out-of-tree builds
+[[_out_of_tree_builds]]
+=== Fán kívüli buildek
 
-The build system should support out-of-tree builds. Out-of-tree builds allow a
-developer to configure multiple different build directories with different
-configuration, e.g. one "debug" build and one "release" build.
+A build rendszernek támogatnia kell a fán kívüli buildeket. A fán kívüli
+buildek lehetővé teszik a fejlesztő számára, hogy több különböző
+build-könyvtárat konfiguráljon eltérő konfigurációval, pl. egy "debug" és egy
+"release" buildet.
 
-=== Cross-platform builds
+[[_cross_platform_builds]]
+=== Platformfüggetlen buildek
 
-The build system should support cross-platform builds, e.g. building for arm on
-an x86-64 host.
+A build rendszernek támogatnia kell a platformfüggetlen buildeket, pl. arm-ra
+való buildelést egy x86-64 hoszton.
 
-=== Language support
+[[_language_support]]
+=== Nyelvi támogatás
 
-The following languages and toolchains are of relevance and should be supported
-by the build system:
+A következő nyelvek és eszközláncok relevánsak, és a build rendszernek
+támogatnia kell őket:
 
-  - C: the primary compiled language used by Git, must be supported. Relevant
-    toolchains are GCC, Clang and MSVC.
-  - Rust: candidate as a second compiled language, should be supported. Relevant
-    toolchains is the LLVM-based rustc.
+  - C: a Git által használt elsődleges fordított nyelv, kötelezően
+    támogatandó. A releváns eszközláncok a GCC, a Clang és az MSVC.
+  - Rust: jelölt második fordított nyelvként, támogatandó. A releváns
+    eszközlánc az LLVM-alapú rustc.
 
-Built-in support for the respective languages is preferred over support that
-needs to be wired up manually to avoid unnecessary complexity. Native support
-includes the following features:
+A szóban forgó nyelvek beépített támogatása előnyösebb a kézzel bekötendő
+támogatásnál, hogy elkerüljük a felesleges bonyolultságot. A natív támogatás
+a következő funkciókat tartalmazza:
 
-  - Compiling objects.
-  - Dependency tracking.
-  - Detection of available features.
-  - Discovery of relevant toolchains.
-  - Linking libraries and executables.
-  - Templating placeholders in scripts.
+  - Objektumok fordítása.
+  - Függőségkövetés.
+  - Elérhető funkciók felismerése.
+  - Releváns eszközláncok felderítése.
+  - Könyvtárak és futtatható állományok linkelése.
+  - Helyőrzők sablonozása a szkriptekben.
 
-=== Test integration
+[[_test_integration]]
+=== Tesztintegráció
 
-It should be possible to integrate tests into the build system such that it is
-possible to build and test Git within the build system. Features which are nice
-to have:
+Lehetővé kell tenni a tesztek integrálását a build rendszerbe úgy, hogy a Git
+buildelése és tesztelése a build rendszeren belül lehetséges legyen. Jó lenne,
+ha meglennének a következő funkciók:
 
-  - Track build-time dependencies for respective tests. Unit tests have
-    different requirements than integration tests.
-  - Allow filtering of which tests to run.
-  - Allow running tests such that utilities like `test_pause` or `debug` work.
+  - Az egyes tesztek build-idejű függőségeinek követése. Az egységteszteknek
+    más követelményeik vannak, mint az integrációs teszteknek.
+  - A futtatandó tesztek szűrésének lehetővé tétele.
+  - A tesztek olyan futtatásának lehetővé tétele, hogy az olyan segédeszközök,
+    mint a `test_pause` vagy a `debug`, működjenek.
 
-== Comparison
+[[_comparison]]
+== Összehasonlítás
 
-The following list of build systems are considered:
+A build rendszerek következő listáját vesszük figyelembe:
 
 - GNU Make
 - autoconf
 - CMake
 - Meson
 
+[[_gnu_make]]
 === GNU Make
 
-- Platform support: ubiquitous on all platforms, but not well-integrated into Windows.
-- Auto-detection: no built-in support for auto-detection of features.
-- Ease of use: easy to use, but discovering available options is hard. Makefile
-  rules can quickly get out of hand once reaching a certain scope.
-- IDE support: execution of Makefile targets is supported by many IDEs
-- Out-of-tree builds: supported in theory, not wired up in practice.
-- Cross-platform builds: supported in theory, not wired up in practice.
-- Language support:
-  - C: Limited built-in support, many parts need to be wired up manually.
-  - Rust: No built-in support, needs to be wired up manually.
-- Test integration: partially supported, many parts need to be wired up
-  manually.
+- Platformtámogatás: mindenütt jelen van minden platformon, de Windowsba nincs
+  jól integrálva.
+- Automatikus felismerés: nincs beépített támogatás a funkciók automatikus
+  felismeréséhez.
+- Egyszerű használat: könnyen használható, de az elérhető opciók felfedezése
+  nehéz. A Makefile-szabályok gyorsan elszabadulhatnak, ha egy bizonyos
+  méretet elérnek.
+- IDE-támogatás: a Makefile-célok végrehajtását sok IDE támogatja
+- Fán kívüli buildek: elméletben támogatott, a gyakorlatban nincs bekötve.
+- Platformfüggetlen buildek: elméletben támogatott, a gyakorlatban nincs
+  bekötve.
+- Nyelvi támogatás:
+  - C: korlátozott beépített támogatás, sok részt kézzel kell bekötni.
+  - Rust: nincs beépített támogatás, kézzel kell bekötni.
+- Tesztintegráció: részben támogatott, sok részt kézzel kell
+  bekötni.
 
+[[_autoconf]]
 === autoconf
 
-- Platform support: ubiquitous on all platforms, but not well-integrated into Windows.
-- Auto-detection: supported.
-- Ease of use: easy to use, discovering available options is comparatively
-  easy. The autoconf syntax is prohibitively hard to extend though due to its
-  complex set of interacting files and the hard-to-understand M4 language.
-- IDE support: no integration into IDEs at generation time. The generated
-  Makefiles have the same level of support as GNU Make.
-- Out-of-tree builds: supported in theory, not wired up in practice.
-- Cross-platform builds: supported.
-- Language support:
-  - C: Limited built-in support, many parts need to be wired up manually.
-  - Rust: No built-in support, needs to be wired up manually.
-- Test integration: partially supported, many parts need to be wired up
-  manually.
+- Platformtámogatás: mindenütt jelen van minden platformon, de Windowsba nincs
+  jól integrálva.
+- Automatikus felismerés: támogatott.
+- Egyszerű használat: könnyen használható, az elérhető opciók felfedezése
+  viszonylag egyszerű. Az autoconf szintaxisa azonban a bonyolultan
+  egymásra ható fájlok halmaza és a nehezen érthető M4 nyelv miatt
+  megengedhetetlenül nehezen bővíthető.
+- IDE-támogatás: generáláskor nincs integráció az IDE-kbe. A generált
+  Makefile-ok ugyanolyan szintű támogatással rendelkeznek, mint a GNU Make.
+- Fán kívüli buildek: elméletben támogatott, a gyakorlatban nincs bekötve.
+- Platformfüggetlen buildek: támogatott.
+- Nyelvi támogatás:
+  - C: korlátozott beépített támogatás, sok részt kézzel kell bekötni.
+  - Rust: nincs beépített támogatás, kézzel kell bekötni.
+- Tesztintegráció: részben támogatott, sok részt kézzel kell
+  bekötni.
 
+[[_cmake]]
 === CMake
 
-- Platform support: not as extensive as GNU Make or autoconf, but all major
-  platforms are supported.
+- Platformtámogatás: nem olyan kiterjedt, mint a GNU Make vagy az autoconf, de
+  minden fő platform támogatott.
   - AIX
   - Cygwin
   - FreeBSD
@@ -184,25 +211,26 @@ The following list of build systems are considered:
   - Solaris
   - Windows
   - macOS
-- Ease of use: easy to use, discovering available options is not always
-  trivial. The scripting language used by CMake is somewhat cumbersome to use,
-  but extending CMake build instructions is doable.
-- IDE support: natively integrated into Microsoft Visual Studio. Can generate
-  project descriptions for Xcode. An extension is available for Visual Studio
-  Code. Many other IDEs have plugins for CMake.
-- Out-of-tree builds: supported.
-- Cross-platform builds: supported.
-- Language support:
-  - C: Supported for GCC, Clang, MSVC and other toolchains.
-  - Rust: No built-in support, needs to be wired up manually.
-- Test integration: supported, even though test dependencies are a bit
-  cumbersome to use via "test fixtures". Interactive test runs are not
-  supported.
+- Egyszerű használat: könnyen használható, az elérhető opciók felfedezése nem
+  mindig triviális. A CMake által használt szkriptnyelv kissé nehézkesen
+  használható, de a CMake build-utasítások bővítése megoldható.
+- IDE-támogatás: natívan integrálva a Microsoft Visual Studióba. Xcode-hoz
+  tud projektleírásokat generálni. A Visual Studio Code-hoz elérhető egy
+  bővítmény. Sok más IDE-hez van CMake-bővítmény.
+- Fán kívüli buildek: támogatott.
+- Platformfüggetlen buildek: támogatott.
+- Nyelvi támogatás:
+  - C: támogatott GCC-hez, Clang-hez, MSVC-hez és más eszközláncokhoz.
+  - Rust: nincs beépített támogatás, kézzel kell bekötni.
+- Tesztintegráció: támogatott, bár a tesztfüggőségek kissé nehézkesen
+  használhatók a "test fixtures"-ökön keresztül. Az interaktív tesztfuttatás
+  nem támogatott.
 
+[[_meson]]
 === Meson
 
-- Platform: not as extensive as GNU Make or autoconf, but all major platforms
-  and some smaller ones are supported.
+- Platform: nem olyan kiterjedt, mint a GNU Make vagy az autoconf, de minden
+  fő platform és néhány kisebb is támogatott.
   - AIX
   - Cygwin
   - DragonflyBSD
@@ -214,14 +242,14 @@ The following list of build systems are considered:
   - Solaris
   - Windows
   - macOS
-- Ease of use: easy to use, discovering available options is easy. The
-  scripting language is straight-forward to use.
-- IDE support: Supports generating build instructions for Xcode and Microsoft
-  Visual Studio, a plugin exists for Visual Studio Code.
-- Out-of-tree builds: supported.
-- Cross-platform builds: supported.
-- Language support:
-  - C: Supported for GCC, Clang, MSVC and other toolchains.
-  - Rust: Supported for rustc.
-- Test integration: supported. Interactive tests are supported starting with
-  Meson 1.5.0 via the `--interactive` flag.
+- Egyszerű használat: könnyen használható, az elérhető opciók felfedezése
+  egyszerű. A szkriptnyelv egyértelműen használható.
+- IDE-támogatás: támogatja a build-utasítások generálását Xcode-hoz és
+  Microsoft Visual Studióhoz, a Visual Studio Code-hoz létezik bővítmény.
+- Fán kívüli buildek: támogatott.
+- Platformfüggetlen buildek: támogatott.
+- Nyelvi támogatás:
+  - C: támogatott GCC-hez, Clang-hez, MSVC-hez és más eszközláncokhoz.
+  - Rust: támogatott rustc-hez.
+- Tesztintegráció: támogatott. Az interaktív tesztek a Meson 1.5.0-tól
+  támogatottak a `--interactive` jelzőn keresztül.

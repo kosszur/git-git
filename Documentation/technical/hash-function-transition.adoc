@@ -1,155 +1,162 @@
-Git hash function transition
-============================
+A Git hashfüggvény-átállása
+===========================
 
-Objective
----------
-Migrate Git from SHA-1 to a stronger hash function.
+[[_objective]]
+Cél
+---
+A Git átállítása SHA-1-ről egy erősebb hashfüggvényre.
 
-Background
-----------
-At its core, the Git version control system is a content addressable
-filesystem. It uses the SHA-1 hash function to name content. For
-example, files, directories, and revisions are referred to by hash
-values unlike in other traditional version control systems where files
-or versions are referred to via sequential numbers. The use of a hash
-function to address its content delivers a few advantages:
+[[_background]]
+Háttér
+------
+Alapjában véve a Git verziókövető rendszer egy tartalomcímzett
+fájlrendszer. A SHA-1 hashfüggvényt használja a tartalom elnevezésére.
+Például a fájlokra, könyvtárakra és revíziókra hashértékekkel hivatkozik,
+szemben más hagyományos verziókövető rendszerekkel, ahol a fájlokra
+vagy verziókra sorszámokkal hivatkoznak. A tartalom címzésére szolgáló hash-
+függvény használata néhány előnnyel jár:
 
-* Integrity checking is easy. Bit flips, for example, are easily
-  detected, as the hash of corrupted content does not match its name.
-* Lookup of objects is fast.
+* Az integritásellenőrzés egyszerű. A bitfordulások például könnyen
+  észlelhetők, mivel a sérült tartalom hash-e nem egyezik a nevével.
+* Az objektumok keresése gyors.
 
-Using a cryptographically secure hash function brings additional
-advantages:
+Egy kriptográfiailag biztonságos hashfüggvény használata további
+előnyökkel jár:
 
-* Object names can be signed and third parties can trust the hash to
-  address the signed object and all objects it references.
-* Communication using Git protocol and out of band communication
-  methods have a short reliable string that can be used to reliably
-  address stored content.
+* Az objektumnevek aláírhatók, és harmadik felek megbízhatnak abban, hogy a
+  hash az aláírt objektumot és az általa hivatkozott összes objektumot címzi.
+* A Git protokollt használó kommunikáció és a sávon kívüli kommunikációs
+  módszerek rövid, megbízható karakterlánccal rendelkeznek, amely a tárolt
+  tartalom megbízható címzésére használható.
 
-Over time some flaws in SHA-1 have been discovered by security
-researchers. On 23 February 2017 the SHAttered attack
-(https://shattered.io) demonstrated a practical SHA-1 hash collision.
+Idővel a biztonsági kutatók néhány hibát fedeztek fel a SHA-1-ben. 2017.
+február 23-án a SHAttered támadás
+(https://shattered.io) gyakorlati SHA-1 hash-ütközést mutatott be.
 
-Git v2.13.0 and later subsequently moved to a hardened SHA-1
-implementation by default, which isn't vulnerable to the SHAttered
-attack, but SHA-1 is still weak.
+A Git v2.13.0 és későbbi verziói ezt követően alapértelmezés szerint egy
+megerősített SHA-1 implementációra tértek át, amely nem sebezhető a SHAttered
+támadással szemben, de a SHA-1 továbbra is gyenge.
 
-Thus it's considered prudent to move past any variant of SHA-1
-to a new hash. There's no guarantee that future attacks on SHA-1 won't
-be published in the future, and those attacks may not have viable
-mitigations.
+Ezért körültekintőnek tekinthető, hogy a SHA-1 bármely változatán túllépve egy
+új hashre váltsunk. Nincs garancia arra, hogy a jövőben nem publikálnak további
+SHA-1 elleni támadásokat, és ezeknek a támadásoknak esetleg nincs életképes
+kivédési módja.
 
-If SHA-1 and its variants were to be truly broken, Git's hash function
-could not be considered cryptographically secure any more. This would
-impact the communication of hash values because we could not trust
-that a given hash value represented the known good version of content
-that the speaker intended.
+Ha a SHA-1 és változatai valóban feltörnének, a Git hashfüggvénye többé nem
+lenne kriptográfiailag biztonságosnak tekinthető. Ez hatással lenne a
+hashértékek kommunikációjára, mert nem bízhatnánk abban, hogy egy adott
+hashérték a tartalom ismerten jó verzióját képviseli, amelyet a beszélő
+szándékozott.
 
-SHA-1 still possesses the other properties such as fast object lookup
-and safe error checking, but other hash functions are equally suitable
-that are believed to be cryptographically secure.
+A SHA-1 továbbra is rendelkezik a többi tulajdonsággal, például a gyors
+objektumkereséssel és a biztonságos hibaellenőrzéssel, de más hashfüggvények
+ugyanúgy megfelelnek, amelyekről feltételezik, hogy kriptográfiailag biztonságosak.
 
-Choice of Hash
---------------
-The hash to replace the hardened SHA-1 should be stronger than SHA-1
-was: we would like it to be trustworthy and useful in practice for at
-least 10 years.
+[[_choice_of_hash]]
+A hash megválasztása
+--------------------
+A megerősített SHA-1-et leváltó hashnek erősebbnek kell lennie, mint amilyen a
+SHA-1 volt: azt szeretnénk, hogy megbízható és a gyakorlatban hasznos legyen
+legalább 10 évig.
 
-Some other relevant properties:
+Néhány további releváns tulajdonság:
 
-1. A 256-bit hash (long enough to match common security practice; not
-   excessively long to hurt performance and disk usage).
+1. 256 bites hash (elég hosszú ahhoz, hogy megfeleljen az általános biztonsági
+   gyakorlatnak; nem túl hosszú, hogy rontsa a teljesítményt és a lemezhasználatot).
 
-2. High quality implementations should be widely available (e.g., in
-   OpenSSL and Apple CommonCrypto).
+2. Kiváló minőségű implementációknak széles körben elérhetőnek kell lenniük (pl.
+   az OpenSSL-ben és az Apple CommonCryptóban).
 
-3. The hash function's properties should match Git's needs (e.g. Git
-   requires collision and 2nd preimage resistance and does not require
-   length extension resistance).
+3. A hashfüggvény tulajdonságainak meg kell felelniük a Git igényeinek (pl. a Git
+   ütközés- és második őskép-ellenállást igényel, és nem igényel
+   hosszkiterjesztés-ellenállást).
 
-4. As a tiebreaker, the hash should be fast to compute (fortunately
-   many contenders are faster than SHA-1).
+4. Döntetlen esetén a hashnek gyorsan kiszámíthatónak kell lennie (szerencsére
+   sok jelölt gyorsabb a SHA-1-nél).
 
-There were several contenders for a successor hash to SHA-1, including
-SHA-256, SHA-512/256, SHA-256x16, K12, and BLAKE2bp-256.
+Több jelölt is volt a SHA-1 utódhashére, köztük a
+SHA-256, a SHA-512/256, a SHA-256x16, a K12 és a BLAKE2bp-256.
 
-In late 2018 the project picked SHA-256 as its successor hash.
+2018 végén a projekt a SHA-256-ot választotta utódhashének.
 
-See 0ed8d8da374 (doc hash-function-transition: pick SHA-256 as
-NewHash, 2018-08-04) and numerous mailing list threads at the time,
-particularly the one starting at
+További információért lásd a 0ed8d8da374 (doc hash-function-transition: pick SHA-256 as
+NewHash, 2018-08-04) committot és az akkori számos levelezőlistás szálat,
+különösen az itt kezdődőt:
 https://lore.kernel.org/git/20180609224913.GC38834@genre.crustytoothpaste.net/
-for more information.
 
-Goals
+[[_goals]]
+Célok
 -----
-1. The transition to SHA-256 can be done one local repository at a time.
-   a. Requiring no action by any other party.
-   b. A SHA-256 repository can communicate with SHA-1 Git servers
+1. A SHA-256-ra való átállás egyszerre egy helyi repositoryn végezhető el.
+   a. Nem igényel semmilyen műveletet más féltől.
+   b. Egy SHA-256 repository tud kommunikálni SHA-1-es Git-szerverekkel
       (push/fetch).
-   c. Users can use SHA-1 and SHA-256 identifiers for objects
-      interchangeably (see "Object names on the command line", below).
-   d. New signed objects make use of a stronger hash function than
-      SHA-1 for their security guarantees.
-2. Allow a complete transition away from SHA-1.
-   a. Local metadata for SHA-1 compatibility can be removed from a
-      repository if compatibility with SHA-1 is no longer needed.
-3. Maintainability throughout the process.
-   a. The object format is kept simple and consistent.
-   b. Creation of a generalized repository conversion tool.
+   c. A felhasználók felcserélhetően használhatnak SHA-1 és SHA-256
+      objektumazonosítókat (lásd lentebb az „Objektumnevek a parancssorban" szakaszt).
+   d. Az új aláírt objektumok a SHA-1-nél erősebb hashfüggvényt használnak a
+      biztonsági garanciáikhoz.
+2. Lehetővé tenni a SHA-1-től való teljes elszakadást.
+   a. A SHA-1 kompatibilitáshoz szükséges helyi metaadatok eltávolíthatók egy
+      repositoryból, ha a SHA-1 kompatibilitásra már nincs szükség.
+3. Karbantarthatóság a folyamat során végig.
+   a. Az objektumformátum egyszerű és konzisztens marad.
+   b. Egy általánosított repository-konverziós eszköz létrehozása.
 
-Non-Goals
+[[_non_goals]]
+Nem célok
 ---------
-1. Add SHA-256 support to Git protocol. This is valuable and the
-   logical next step but it is out of scope for this initial design.
-2. Transparently improving the security of existing SHA-1 signed
-   objects.
-3. Intermixing objects using multiple hash functions in a single
-   repository.
-4. Taking the opportunity to fix other bugs in Git's formats and
-   protocols.
-5. Shallow clones and fetches into a SHA-256 repository. (This will
-   change when we add SHA-256 support to Git protocol.)
-6. Skip fetching some submodules of a project into a SHA-256
-   repository. (This also depends on SHA-256 support in Git
-   protocol.)
+1. SHA-256 támogatás hozzáadása a Git protokollhoz. Ez értékes és a
+   logikus következő lépés, de kívül esik ennek a kezdeti tervnek a hatókörén.
+2. A meglévő SHA-1-gyel aláírt objektumok biztonságának átlátszó
+   javítása.
+3. Több hashfüggvényt használó objektumok keverése egyetlen
+   repositoryn belül.
+4. Az alkalom megragadása a Git formátumainak és protokolljainak egyéb
+   hibái kijavítására.
+5. Sekély klónok és fetchek egy SHA-256 repositoryba. (Ez meg fog
+   változni, amikor SHA-256 támogatást adunk a Git protokollhoz.)
+6. Egy projekt bizonyos submodule-jainak kihagyása egy SHA-256
+   repositoryba történő fetch során. (Ez szintén a Git protokoll SHA-256
+   támogatásától függ.)
 
-Overview
---------
-We introduce a new repository format extension. Repositories with this
-extension enabled use SHA-256 instead of SHA-1 to name their objects.
-This affects both object names and object content -- both the names
-of objects and all references to other objects within an object are
-switched to the new hash function.
+[[_overview]]
+Áttekintés
+----------
+Bevezetünk egy új repository-formátum-kiterjesztést. Az ezt a kiterjesztést
+engedélyező repository-k SHA-1 helyett SHA-256-ot használnak az objektumaik
+elnevezésére. Ez az objektumneveket és az objektumtartalmat is érinti -- az
+objektumok nevei és az egy objektumon belüli, más objektumokra mutató összes
+hivatkozás is átvált az új hashfüggvényre.
 
-SHA-256 repositories cannot be read by older versions of Git.
+A SHA-256 repository-kat a Git régebbi verziói nem tudják olvasni.
 
-Alongside the packfile, a SHA-256 repository stores a bidirectional
-mapping between SHA-256 and SHA-1 object names. The mapping is generated
-locally and can be verified using "git fsck". Object lookups use this
-mapping to allow naming objects using either their SHA-1 and SHA-256 names
-interchangeably.
+A packfile mellett egy SHA-256 repository kétirányú leképezést tárol a
+SHA-256 és a SHA-1 objektumnevek között. A leképezés helyben jön létre, és a
+"git fsck" paranccsal ellenőrizhető. Az objektumkeresések ezt a leképezést
+használják, hogy az objektumok felcserélhetően legyenek elnevezhetők a SHA-1 és
+a SHA-256 nevükkel is.
 
-"git cat-file" and "git hash-object" gain options to display an object
-in its SHA-1 form and write an object given its SHA-1 form. This
-requires all objects referenced by that object to be present in the
-object database so that they can be named using the appropriate name
-(using the bidirectional hash mapping).
+A "git cat-file" és a "git hash-object" opciókat kap egy objektum SHA-1
+alakban való megjelenítésére és egy objektum SHA-1 alakja alapján történő
+kiírására. Ehhez az adott objektum által hivatkozott összes objektumnak jelen
+kell lennie az objektumadatbázisban, hogy a megfelelő névvel legyenek
+elnevezhetők (a kétirányú hash-leképezéssel).
 
-Fetches from a SHA-1 based server convert the fetched objects into
-SHA-256 form and record the mapping in the bidirectional mapping table
-(see below for details). Pushes to a SHA-1 based server convert the
-objects being pushed into SHA-1 form so the server does not have to be
-aware of the hash function the client is using.
+Egy SHA-1 alapú szerverről történő fetchek a lekért objektumokat SHA-256
+alakra konvertálják, és rögzítik a leképezést a kétirányú leképezőtáblában
+(részletekért lásd lentebb). Egy SHA-1 alapú szerverre történő pushok a
+pusholt objektumokat SHA-1 alakra konvertálják, így a szervernek nem kell
+tudnia, milyen hashfüggvényt használ a kliens.
 
-Detailed Design
----------------
-Repository format extension
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-A SHA-256 repository uses repository format version `1` (see
-linkgit:gitrepository-layout[5]) with `extensions.objectFormat` and
-`extensions.compatObjectFormat` (see linkgit:git-config[1]) set to:
+[[_detailed_design]]
+Részletes terv
+--------------
+[[_repository_format_extension]]
+Repository-formátum-kiterjesztés
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Egy SHA-256 repository az `1`-es repository-formátumverziót használja (lásd:
+linkgit:gitrepository-layout[5]), ahol az `extensions.objectFormat` és az
+`extensions.compatObjectFormat` (lásd: linkgit:git-config[1]) a következőre van állítva:
 
 	[core]
 		repositoryFormatVersion = 1
@@ -157,10 +164,10 @@ linkgit:gitrepository-layout[5]) with `extensions.objectFormat` and
 		objectFormat = sha256
 		compatObjectFormat = sha1
 
-The combination of setting `core.repositoryFormatVersion=1` and
-populating `extensions.*` ensures that all versions of Git later than
-`v0.99.9l` will die instead of trying to operate on the SHA-256
-repository, instead producing an error message.
+A `core.repositoryFormatVersion=1` beállítása és az `extensions.*` kitöltése
+együtt biztosítja, hogy a Git minden `v0.99.9l`-nél újabb verziója kilépjen
+ahelyett, hogy megpróbálna a SHA-256 repositoryn dolgozni, és helyette
+hibaüzenetet ad.
 
 	# Between v0.99.9l and v2.7.0
 	$ git status
@@ -171,412 +178,430 @@ repository, instead producing an error message.
 		objectformat
 		compatobjectformat
 
-See the "Transition plan" section below for more details on these
-repository extensions.
+Ezekről a repository-kiterjesztésekről bővebben lásd lentebb az „Átállási terv"
+szakaszt.
 
-Object names
-~~~~~~~~~~~~
-Objects can be named by their 40 hexadecimal digit SHA-1 name or 64
-hexadecimal digit SHA-256 name, plus names derived from those (see
-gitrevisions(7)).
-
-The SHA-1 name of an object is the SHA-1 of the concatenation of its
-type, length, a nul byte, and the object's SHA-1 content. This is the
-traditional <sha1> used in Git to name objects.
-
-The SHA-256 name of an object is the SHA-256 of the concatenation of its
-type, length, a nul byte, and the object's SHA-256 content.
-
-Object format
+[[_object_names]]
+Objektumnevek
 ~~~~~~~~~~~~~
-The content as a byte sequence of a tag, commit, or tree object named
-by SHA-1 and SHA-256 differ because an object named by SHA-256 name refers to
-other objects by their SHA-256 names and an object named by SHA-1 name
-refers to other objects by their SHA-1 names.
+Az objektumok elnevezhetők a 40 hexadecimális számjegyű SHA-1 nevükkel vagy a 64
+hexadecimális számjegyű SHA-256 nevükkel, valamint az ezekből származtatott
+nevekkel (lásd: gitrevisions(7)).
 
-The SHA-256 content of an object is the same as its SHA-1 content, except
-that objects referenced by the object are named using their SHA-256 names
-instead of SHA-1 names. Because a blob object does not refer to any
-other object, its SHA-1 content and SHA-256 content are the same.
+Egy objektum SHA-1 neve a típusának, a hosszának, egy nul bájtnak és az
+objektum SHA-1 tartalmának az összefűzéséből képzett SHA-1. Ez a Git-ben az
+objektumok elnevezésére használt hagyományos <sha1>.
 
-The format allows round-trip conversion between SHA-256 content and
-SHA-1 content.
+Egy objektum SHA-256 neve a típusának, a hosszának, egy nul bájtnak és az
+objektum SHA-256 tartalmának az összefűzéséből képzett SHA-256.
 
-Object storage
-~~~~~~~~~~~~~~
-Loose objects use zlib compression and packed objects use the packed
-format described in linkgit:gitformat-pack[5], just like
-today. The content that is compressed and stored uses SHA-256 content
-instead of SHA-1 content.
+[[_object_format]]
+Objektumformátum
+~~~~~~~~~~~~~~~~
+Egy SHA-1-gyel és egy SHA-256-tal elnevezett tag-, commit- vagy tree-objektum
+bájtsorozatként vett tartalma eltér, mert egy SHA-256 névvel elnevezett objektum
+más objektumokra a SHA-256 nevükkel hivatkozik, egy SHA-1 névvel elnevezett
+objektum pedig más objektumokra a SHA-1 nevükkel hivatkozik.
 
-Pack index
+Egy objektum SHA-256 tartalma megegyezik a SHA-1 tartalmával, azzal a
+kivétellel, hogy az objektum által hivatkozott objektumok a SHA-256 nevükkel
+vannak elnevezve a SHA-1 nevük helyett. Mivel egy blob-objektum nem hivatkozik
+más objektumra, a SHA-1 tartalma és a SHA-256 tartalma azonos.
+
+A formátum lehetővé teszi az oda-vissza konverziót a SHA-256 tartalom és a
+SHA-1 tartalom között.
+
+[[_object_storage]]
+Objektumtárolás
+~~~~~~~~~~~~~~~
+A laza objektumok zlib tömörítést használnak, a csomagolt objektumok pedig a
+linkgit:gitformat-pack[5] dokumentumban leírt csomagolt formátumot, akárcsak
+ma. A tömörített és tárolt tartalom SHA-256 tartalmat használ SHA-1 tartalom
+helyett.
+
+[[_pack_index]]
+Pack-index
 ~~~~~~~~~~
-Pack index (.idx) files use a new v3 format that supports multiple
-hash functions. They have the following format (all integers are in
-network byte order):
+A pack-index (.idx) fájlok egy új v3 formátumot használnak, amely több
+hashfüggvényt támogat. A következő formátumuk van (minden egész szám
+hálózati bájtsorrendben):
 
-- A header appears at the beginning and consists of the following:
-  * The 4-byte pack index signature: '\377t0c'
-  * 4-byte version number: 3
-  * 4-byte length of the header section, including the signature and
-    version number
-  * 4-byte number of objects contained in the pack
-  * 4-byte number of object formats in this pack index: 2
-  * For each object format:
-    ** 4-byte format identifier (e.g., 'sha1' for SHA-1)
-    ** 4-byte length in bytes of shortened object names. This is the
-      shortest possible length needed to make names in the shortened
-      object name table unambiguous.
-    ** 8-byte integer, recording where tables relating to this format
-      are stored in this index file, as an offset from the beginning.
-  * 8-byte offset to the trailer from the beginning of this file.
-  * Zero or more additional key/value pairs (4-byte key, 4-byte
-    value). Only one key is supported: 'PSRC'. See the "Loose objects
-    and unreachable objects" section for supported values and how this
-    is used.  All other keys are reserved. Readers must ignore
-    unrecognized keys.
-- Zero or more NUL bytes. This can optionally be used to improve the
-  alignment of the full object name table below.
-- Tables for the first object format:
-  * A sorted table of shortened object names.  These are prefixes of
-    the names of all objects in this pack file, packed together
-    without offset values to reduce the cache footprint of the binary
-    search for a specific object name.
+- Az elején egy fejléc szerepel, amely a következőkből áll:
+  * A 4 bájtos pack-index-aláírás: '\377t0c'
+  * 4 bájtos verziószám: 3
+  * A fejlécszakasz 4 bájtos hossza, az aláírással és a
+    verziószámmal együtt
+  * A packben lévő objektumok 4 bájtos száma
+  * Az ebben a pack-indexben lévő objektumformátumok 4 bájtos száma: 2
+  * Minden objektumformátumhoz:
+    ** 4 bájtos formátumazonosító (pl. 'sha1' a SHA-1-hez)
+    ** A rövidített objektumnevek 4 bájtos hossza bájtban. Ez a
+      lehető legrövidebb hossz, amely ahhoz szükséges, hogy a rövidített
+      objektumnév-táblában lévő nevek egyértelműek legyenek.
+    ** 8 bájtos egész szám, amely rögzíti, hol tárolódnak az ehhez a formátumhoz
+      tartozó táblák ebben az indexfájlban, az elejétől számított eltolásként.
+  * 8 bájtos eltolás a fájl elejétől a záró részhez.
+  * Nulla vagy több további kulcs/érték pár (4 bájtos kulcs, 4 bájtos
+    érték). Csak egy kulcs támogatott: 'PSRC'. A támogatott értékekért és
+    ennek használatáért lásd a „Laza objektumok és elérhetetlen objektumok"
+    szakaszt.  Minden más kulcs fenntartott. Az olvasóknak figyelmen kívül kell
+    hagyniuk a fel nem ismert kulcsokat.
+- Nulla vagy több NUL bájt. Ez opcionálisan az alábbi teljes objektumnév-tábla
+  igazításának javítására használható.
+- Táblák az első objektumformátumhoz:
+  * A rövidített objektumnevek rendezett táblája.  Ezek az ebben a pack fájlban
+    lévő összes objektum nevének előtagjai, eltolásértékek nélkül összecsomagolva,
+    hogy csökkentsék egy adott objektumnév bináris keresésének
+    gyorsítótár-lábnyomát.
 
-  * A table of full object names in pack order. This allows resolving
-    a reference to "the nth object in the pack file" (from a
-    reachability bitmap or from the next table of another object
-    format) to its object name.
+  * A teljes objektumnevek táblája pack sorrendben. Ez lehetővé teszi, hogy „a
+    pack fájl n. objektumára" mutató hivatkozást (egy elérhetőségi bittérképből
+    vagy egy másik objektumformátum következő táblájából) feloldjunk az
+    objektumnevére.
 
-  * A table of 4-byte values mapping object name order to pack order.
-    For an object in the table of sorted shortened object names, the
-    value at the corresponding index in this table is the index in the
-    previous table for that same object.
-    This can be used to look up the object in reachability bitmaps or
-    to look up its name in another object format.
+  * 4 bájtos értékek táblája, amely az objektumnév-sorrendet a pack sorrendre
+    képezi le. Egy objektumhoz a rendezett rövidített objektumnevek táblájában a
+    megfelelő indexen lévő érték ebben a táblában az előző táblában
+    ugyanahhoz az objektumhoz tartozó index.
+    Ez az objektum elérhetőségi bittérképekben való kereséséhez vagy a nevének
+    egy másik objektumformátumban való kereséséhez használható.
 
-  * A table of 4-byte CRC32 values of the packed object data, in the
-    order that the objects appear in the pack file. This is to allow
-    compressed data to be copied directly from pack to pack during
-    repacking without undetected data corruption.
+  * A csomagolt objektumadatok 4 bájtos CRC32-értékeinek táblája abban a
+    sorrendben, ahogy az objektumok a pack fájlban megjelennek. Ez lehetővé teszi,
+    hogy a tömörített adatokat újracsomagolás során közvetlenül packből packbe
+    másoljuk észrevétlen adatsérülés nélkül.
 
-  * A table of 4-byte offset values. The index of this table in pack order
-    indicates where that object can be found in the pack file. These are
-    usually 31-bit pack file offsets, but large offsets are encoded as
-    an index into the next table with the most significant bit set.
+  * 4 bájtos eltolásértékek táblája. Ennek a táblának az indexe pack sorrendben
+    jelzi, hol található az adott objektum a pack fájlban. Ezek
+    általában 31 bites pack fájl eltolások, de a nagy eltolások a
+    következő táblába mutató indexként vannak kódolva, a legmagasabb helyi értékű bit beállításával.
 
-  * A table of 8-byte offset entries (empty for pack files less than
-    2 GiB). Pack files are organized with heavily used objects toward
-    the front, so most object references should not need to refer to
-    this table.
-- Zero or more NUL bytes.
-- Tables for the second object format, with the same layout as above,
-  up to and not including the table of CRC32 values.
-- Zero or more NUL bytes.
-- The trailer consists of the following:
-  * A copy of the full main hash checksum at the end of the
-    corresponding packfile.
+  * 8 bájtos eltolásbejegyzések táblája (üres a 2 GiB-nál kisebb pack
+    fájloknál). A pack fájlok úgy vannak rendezve, hogy a sokat használt objektumok
+    az elejére kerüljenek, így a legtöbb objektumhivatkozásnak nem kellene erre a
+    táblára hivatkoznia.
+- Nulla vagy több NUL bájt.
+- Táblák a második objektumformátumhoz, a fentivel azonos elrendezéssel,
+  a CRC32-értékek tábláját nem beleértve.
+- Nulla vagy több NUL bájt.
+- A záró rész a következőkből áll:
+  * A megfelelő packfile végén lévő teljes fő hash ellenőrzőösszegének
+    másolata.
 
-  * Full main hash checksum of all of the above.
+  * A fentiek mindegyikének teljes fő hash ellenőrzőösszege.
 
-The "full main hash" is a full-length hash of the main (not compatibility)
-algorithm in the repository.  Thus, if the main algorithm is SHA-256, this is
-a 32-byte SHA-256 hash and for SHA-1, it's a 20-byte SHA-1 hash.
+A „teljes fő hash" a repositoryban lévő fő (nem kompatibilitási) algoritmus
+teljes hosszúságú hash-e.  Így ha a fő algoritmus a SHA-256, ez egy
+32 bájtos SHA-256 hash, a SHA-1 esetén pedig egy 20 bájtos SHA-1 hash.
 
-Loose object index
-~~~~~~~~~~~~~~~~~~
-A new file $GIT_OBJECT_DIR/loose-object-idx contains information about
-all loose objects. Its format is
+[[_loose_object_index]]
+Laza objektum index
+~~~~~~~~~~~~~~~~~~~
+Egy új $GIT_OBJECT_DIR/loose-object-idx fájl minden laza objektumról
+információt tartalmaz. A formátuma:
 
   # loose-object-idx
   (sha256-name SP sha1-name LF)*
 
-where the object names are in hexadecimal format. The file is not
-sorted.
+ahol az objektumnevek hexadecimális formátumúak. A fájl nincs
+rendezve.
 
-The loose object index is protected against concurrent writes by a
-lock file $GIT_OBJECT_DIR/loose-object-idx.lock. To add a new loose
-object:
+A laza objektum indexet egy $GIT_OBJECT_DIR/loose-object-idx.lock
+zárolófájl védi az egyidejű írásoktól. Egy új laza objektum
+hozzáadásához:
 
-1. Write the loose object to a temporary file, like today.
-2. Open loose-object-idx.lock with O_CREAT | O_EXCL to acquire the lock.
-3. Rename the loose object into place.
-4. Open loose-object-idx with O_APPEND and write the new object
-5. Unlink loose-object-idx.lock to release the lock.
+1. Írd a laza objektumot egy ideiglenes fájlba, akárcsak ma.
+2. Nyisd meg a loose-object-idx.lock-ot O_CREAT | O_EXCL-lel a zár megszerzéséhez.
+3. Nevezd át a laza objektumot a helyére.
+4. Nyisd meg a loose-object-idx-et O_APPEND-del, és írd bele az új objektumot
+5. Töröld (unlink) a loose-object-idx.lock-ot a zár feloldásához.
 
-To remove entries (e.g. in "git pack-refs" or "git-prune"):
+Bejegyzések eltávolításához (pl. a "git pack-refs"-ben vagy a "git-prune"-ban):
 
-1. Open loose-object-idx.lock with O_CREAT | O_EXCL to acquire the
-   lock.
-2. Write the new content to loose-object-idx.lock.
-3. Unlink any loose objects being removed.
-4. Rename to replace loose-object-idx, releasing the lock.
+1. Nyisd meg a loose-object-idx.lock-ot O_CREAT | O_EXCL-lel a zár
+   megszerzéséhez.
+2. Írd az új tartalmat a loose-object-idx.lock-ba.
+3. Töröld (unlink) az eltávolítandó laza objektumokat.
+4. Nevezd át, hogy leváltsd a loose-object-idx-et, feloldva a zárat.
 
-Translation table
-~~~~~~~~~~~~~~~~~
-The index files support a bidirectional mapping between SHA-1 names
-and SHA-256 names. The lookup proceeds similarly to ordinary object
-lookups. For example, to convert a SHA-1 name to a SHA-256 name:
+[[_translation_table]]
+Fordítótábla
+~~~~~~~~~~~~
+Az indexfájlok kétirányú leképezést támogatnak a SHA-1 nevek és a
+SHA-256 nevek között. A keresés a szokásos objektumkeresésekhez
+hasonlóan zajlik. Például egy SHA-1 név SHA-256 névre alakításához:
 
- 1. Look for the object in idx files. If a match is present in the
-    idx's sorted list of truncated SHA-1 names, then:
-    a. Read the corresponding entry in the SHA-1 name order to pack
-       name order mapping.
-    b. Read the corresponding entry in the full SHA-1 name table to
-       verify we found the right object. If it is, then
-    c. Read the corresponding entry in the full SHA-256 name table.
-       That is the object's SHA-256 name.
- 2. Check for a loose object. Read lines from loose-object-idx until
-    we find a match.
+ 1. Keresd meg az objektumot az idx fájlokban. Ha van egyezés az idx
+    csonkolt SHA-1 neveinek rendezett listájában, akkor:
+    a. Olvasd be a megfelelő bejegyzést a SHA-1 névsorrend → pack
+       névsorrend leképezésben.
+    b. Olvasd be a megfelelő bejegyzést a teljes SHA-1 névtáblában, hogy
+       ellenőrizd, a megfelelő objektumot találtuk-e meg. Ha igen, akkor
+    c. Olvasd be a megfelelő bejegyzést a teljes SHA-256 névtáblában.
+       Ez az objektum SHA-256 neve.
+ 2. Ellenőrizd, van-e laza objektum. Olvass sorokat a loose-object-idx-ből,
+    amíg egyezést nem találsz.
 
-Step (1) takes the same amount of time as an ordinary object lookup:
-O(number of packs * log(objects per pack)). Step (2) takes O(number of
-loose objects) time. To maintain good performance it will be necessary
-to keep the number of loose objects low. See the "Loose objects and
-unreachable objects" section below for more details.
+Az (1) lépés ugyanannyi ideig tart, mint egy szokásos objektumkeresés:
+O(packek száma * log(objektumok packenként)). A (2) lépés O(laza objektumok
+száma) ideig tart. A jó teljesítmény fenntartásához szükséges lesz
+alacsonyan tartani a laza objektumok számát. Bővebben lásd lentebb a „Laza
+objektumok és elérhetetlen objektumok" szakaszt.
 
-Since all operations that make new objects (e.g., "git commit") add
-the new objects to the corresponding index, this mapping is possible
-for all objects in the object store.
+Mivel minden új objektumot létrehozó művelet (pl. "git commit") hozzáadja az
+új objektumokat a megfelelő indexhez, ez a leképezés az objektumtár minden
+objektumára lehetséges.
 
-Reading an object's SHA-1 content
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The SHA-1 content of an object can be read by converting all SHA-256 names
-of its SHA-256 content references to SHA-1 names using the translation table.
+[[_reading_an_object_s_sha_1_content]]
+Egy objektum SHA-1 tartalmának olvasása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Egy objektum SHA-1 tartalma úgy olvasható be, hogy a SHA-256 tartalma
+hivatkozásainak összes SHA-256 nevét SHA-1 nevekre alakítjuk a fordítótáblával.
 
+[[_fetch]]
 Fetch
 ~~~~~
-Fetching from a SHA-1 based server requires translating between SHA-1
-and SHA-256 based representations on the fly.
+Egy SHA-1 alapú szerverről történő fetchhez menet közben kell fordítani a
+SHA-1 és a SHA-256 alapú reprezentációk között.
 
-SHA-1s named in the ref advertisement that are present on the client
-can be translated to SHA-256 and looked up as local objects using the
-translation table.
+A ref-hirdetésben megnevezett, a kliensen jelen lévő SHA-1-ek SHA-256-ra
+fordíthatók, és helyi objektumként kereshetők ki a
+fordítótáblával.
 
-Negotiation proceeds as today. Any "have"s generated locally are
-converted to SHA-1 before being sent to the server, and SHA-1s
-mentioned by the server are converted to SHA-256 when looking them up
-locally.
+Az egyeztetés a mai módon zajlik. A helyben generált "have"-ek
+SHA-1-re konvertálódnak, mielőtt a szerverre küldenék őket, a szerver által
+említett SHA-1-ek pedig SHA-256-ra konvertálódnak, amikor helyben keresik
+ki őket.
 
-After negotiation, the server sends a packfile containing the
-requested objects. We convert the packfile to SHA-256 format using
-the following steps:
+Az egyeztetés után a szerver egy packfile-t küld, amely a kért
+objektumokat tartalmazza. A packfile-t a következő lépésekkel konvertáljuk
+SHA-256 formátumra:
 
-1. index-pack: inflate each object in the packfile and compute its
-   SHA-1. Objects can contain deltas in OBJ_REF_DELTA format against
-   objects the client has locally. These objects can be looked up
-   using the translation table and their SHA-1 content read as
-   described above to resolve the deltas.
-2. topological sort: starting at the "want"s from the negotiation
-   phase, walk through objects in the pack and emit a list of them,
-   excluding blobs, in reverse topologically sorted order, with each
-   object coming later in the list than all objects it references.
-   (This list only contains objects reachable from the "wants". If the
-   pack from the server contained additional extraneous objects, then
-   they will be discarded.)
-3. convert to SHA-256: open a new SHA-256 packfile. Read the topologically
-   sorted list just generated. For each object, inflate its
-   SHA-1 content, convert to SHA-256 content, and write it to the SHA-256
-   pack. Record the new SHA-1<-->SHA-256 mapping entry for use in the idx.
-4. sort: reorder entries in the new pack to match the order of objects
-   in the pack the server generated and include blobs. Write a SHA-256 idx
-   file
-5. clean up: remove the SHA-1 based pack file, index, and
-   topologically sorted list obtained from the server in steps 1
-   and 2.
+1. index-pack: fújd ki (inflate) a packfile minden objektumát, és számítsd ki a
+   SHA-1-ét. Az objektumok tartalmazhatnak deltákat OBJ_REF_DELTA formátumban
+   olyan objektumokhoz képest, amelyek a kliensen helyben megvannak. Ezek az
+   objektumok kikereshetők a fordítótáblával, és a SHA-1 tartalmuk a fent leírt
+   módon olvasható be a delták feloldásához.
+2. topologikus rendezés: az egyeztetési fázis "want"-jaiból kiindulva járd be a
+   pack objektumait, és bocsáss ki róluk egy listát, a blobokat kizárva,
+   fordított topologikusan rendezett sorrendben, ahol minden objektum később
+   kerül a listába, mint az összes általa hivatkozott objektum.
+   (Ez a lista csak a "wants"-ból elérhető objektumokat tartalmazza. Ha a
+   szervertől kapott pack további felesleges objektumokat tartalmazott, akkor
+   azokat eldobjuk.)
+3. konvertálás SHA-256-ra: nyiss egy új SHA-256 packfile-t. Olvasd be az imént
+   generált topologikusan rendezett listát. Minden objektumhoz fújd ki a
+   SHA-1 tartalmát, konvertáld SHA-256 tartalommá, és írd bele a SHA-256
+   packbe. Rögzítsd az új SHA-1<-->SHA-256 leképezésbejegyzést az idx-ben való felhasználáshoz.
+4. rendezés: rendezd át az új pack bejegyzéseit, hogy megfeleljenek az
+   objektumok sorrendjének abban a packben, amelyet a szerver generált, és vedd
+   bele a blobokat. Írj egy SHA-256 idx fájlt
+5. takarítás: távolítsd el a SHA-1 alapú pack fájlt, indexet és a szervertől az
+   1. és 2. lépésben kapott topologikusan rendezett listát.
 
-Step 3 requires every object referenced by the new object to be in the
-translation table. This is why the topological sort step is necessary.
+A 3. lépéshez az kell, hogy az új objektum által hivatkozott minden objektum
+benne legyen a fordítótáblában. Ezért van szükség a topologikus rendezési lépésre.
 
-As an optimization, step 1 could write a file describing what non-blob
-objects each object it has inflated from the packfile references. This
-makes the topological sort in step 2 possible without inflating the
-objects in the packfile for a second time. The objects need to be
-inflated again in step 3, for a total of two inflations.
+Optimalizációként az 1. lépés írhatna egy fájlt, amely leírja, hogy a
+packfile-ból kifújt minden objektum milyen nem blob objektumokra hivatkozik. Ez
+lehetővé teszi a 2. lépésbeli topologikus rendezést anélkül, hogy a
+packfile objektumait másodszor is ki kellene fújni. A 3. lépésben az objektumokat
+újra ki kell fújni, így összesen két kifújás történik.
 
-Step 4 is probably necessary for good read-time performance. "git
-pack-objects" on the server optimizes the pack file for good data
-locality (see Documentation/technical/pack-heuristics.adoc).
+A 4. lépés valószínűleg szükséges a jó olvasásidejű teljesítményhez. A szerveren
+a "git pack-objects" a pack fájlt jó adatlokalitásra optimalizálja
+(lásd: Documentation/technical/pack-heuristics.adoc).
 
-Details of this process are likely to change. It will take some
-experimenting to get this to perform well.
+Ennek a folyamatnak a részletei valószínűleg változni fognak. Némi
+kísérletezésbe fog telni, hogy ez jól teljesítsen.
 
+[[_push]]
 Push
 ~~~~
-Push is simpler than fetch because the objects referenced by the
-pushed objects are already in the translation table. The SHA-1 content
-of each object being pushed can be read as described in the "Reading
-an object's SHA-1 content" section to generate the pack written by git
-send-pack.
+A push egyszerűbb, mint a fetch, mert a pusholt objektumok által hivatkozott
+objektumok már benne vannak a fordítótáblában. Minden pusholt objektum SHA-1
+tartalma az „Egy objektum SHA-1 tartalmának olvasása" szakaszban leírt módon
+olvasható be, hogy létrejöjjön a git send-pack által írt pack.
 
-Signed Commits
-~~~~~~~~~~~~~~
-We add a new field "gpgsig-sha256" to the commit object format to allow
-signing commits without relying on SHA-1. It is similar to the
-existing "gpgsig" field. Its signed payload is the SHA-256 content of the
-commit object with any "gpgsig" and "gpgsig-sha256" fields removed.
+[[_signed_commits]]
+Aláírt commitok
+~~~~~~~~~~~~~~~
+Egy új "gpgsig-sha256" mezőt adunk a commit-objektum formátumához, hogy a
+commitok a SHA-1-re támaszkodás nélkül legyenek aláírhatók. Hasonló a
+meglévő "gpgsig" mezőhöz. Az aláírt payloadja a commit-objektum SHA-256
+tartalma, minden "gpgsig" és "gpgsig-sha256" mezőt eltávolítva belőle.
 
-This means commits can be signed
+Ez azt jelenti, hogy a commitok aláírhatók
 
-1. using SHA-1 only, as in existing signed commit objects
-2. using both SHA-1 and SHA-256, by using both gpgsig-sha256 and gpgsig
-   fields.
-3. using only SHA-256, by only using the gpgsig-sha256 field.
+1. csak SHA-1-gyel, mint a meglévő aláírt commit-objektumokban
+2. SHA-1-gyel és SHA-256-tal is, a gpgsig-sha256 és a gpgsig mező
+   együttes használatával.
+3. csak SHA-256-tal, csak a gpgsig-sha256 mező használatával.
 
-Old versions of "git verify-commit" can verify the gpgsig signature in
-cases (1) and (2) without modifications and view case (3) as an
-ordinary unsigned commit.
+A "git verify-commit" régi verziói módosítás nélkül tudják ellenőrizni a
+gpgsig aláírást az (1) és a (2) esetben, a (3) esetet pedig
+közönséges, alá nem írt commitnak látják.
 
-Signed Tags
-~~~~~~~~~~~
-We add new fields "gpgsig" and "gpgsig-sha256" to the tag object format to
-allow signing tags in both formats.  The in-body signature is used for the
-signature in the current hash algorithm and the header is used for the
-signature in the other algorithm.  Thus, a dual-signature tag will contain both
-an in-body signature and a gpgsig-sha256 header for the SHA-1 format of an
-object or both an in-body signature and a gpgsig header for the SHA-256 format
-of and object.
+[[_signed_tags]]
+Aláírt tagek
+~~~~~~~~~~~~
+Új "gpgsig" és "gpgsig-sha256" mezőket adunk a tag-objektum formátumához, hogy a
+tagek mindkét formátumban aláírhatók legyenek.  A törzsön belüli aláírás a
+jelenlegi hash-algoritmusbeli aláíráshoz használatos, a fejléc pedig a másik
+algoritmusbeli aláíráshoz.  Így egy kétaláírásos tag tartalmazni fog egy
+törzsön belüli aláírást és egy gpgsig-sha256 fejlécet egy objektum SHA-1
+formátumához, vagy egy törzsön belüli aláírást és egy gpgsig fejlécet egy
+objektum SHA-256 formátumához.
 
-The signed payload of the tag is the content of the tag in the current
-algorithm with both its gpgsig and gpgsig-sha256 fields and
-"-----BEGIN PGP SIGNATURE-----" delimited in-body signature removed.
+A tag aláírt payloadja a tag jelenlegi algoritmusbeli tartalma, mind a
+gpgsig, mind a gpgsig-sha256 mezőjét, valamint a
+"-----BEGIN PGP SIGNATURE-----" által határolt törzsön belüli aláírást eltávolítva.
 
-This means tags can be signed using one or both algorithms.
+Ez azt jelenti, hogy a tagek egy vagy mindkét algoritmussal aláírhatók.
 
-Mergetag embedding
+[[_mergetag_embedding]]
+Mergetag-beágyazás
 ~~~~~~~~~~~~~~~~~~
-The mergetag field in the SHA-1 content of a commit contains the
-SHA-1 content of a tag that was merged by that commit.
+Egy commit SHA-1 tartalmában lévő mergetag mező egy olyan tag SHA-1
+tartalmát tartalmazza, amelyet az a commit merge-elt.
 
-The mergetag field in the SHA-256 content of the same commit contains the
-SHA-256 content of the same tag.
+Ugyanannak a commitnak a SHA-256 tartalmában lévő mergetag mező ugyanannak a
+tagnek a SHA-256 tartalmát tartalmazza.
 
-Submodules
-~~~~~~~~~~
-To convert recorded submodule pointers, you need to have the converted
-submodule repository in place. The translation table of the submodule
-can be used to look up the new hash.
+[[_submodules]]
+Submodule-ok
+~~~~~~~~~~~~
+A rögzített submodule-mutatók konvertálásához a helyén kell lennie a konvertált
+submodule repositorynak. A submodule fordítótáblája használható az új
+hash kikereséséhez.
 
-Loose objects and unreachable objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Fast lookups in the loose-object-idx require that the number of loose
-objects not grow too high.
+[[_loose_objects_and_unreachable_objects]]
+Laza objektumok és elérhetetlen objektumok
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A loose-object-idx-ben végzett gyors keresésekhez az kell, hogy a laza
+objektumok száma ne nőjön túl nagyra.
 
-"git gc --auto" currently waits for there to be 6700 loose objects
-present before consolidating them into a packfile. We will need to
-measure to find a more appropriate threshold for it to use.
+A "git gc --auto" jelenleg megvárja, hogy 6700 laza objektum legyen
+jelen, mielőtt egy packfile-ba vonná össze őket. Mérnünk kell majd, hogy
+megfelelőbb küszöböt találjunk a számára.
 
-"git gc --auto" currently waits for there to be 50 packs present
-before combining packfiles. Packing loose objects more aggressively
-may cause the number of pack files to grow too quickly. This can be
-mitigated by using a strategy similar to Martin Fick's exponential
-rolling garbage collection script:
+A "git gc --auto" jelenleg megvárja, hogy 50 pack legyen jelen,
+mielőtt egyesítené a packfile-okat. A laza objektumok agresszívabb
+csomagolása azt okozhatja, hogy a pack fájlok száma túl gyorsan nő. Ez
+enyhíthető egy olyan stratégiával, amely Martin Fick exponenciális
+gördülő szemétgyűjtő szkriptjéhez hasonló:
 https://gerrit-review.googlesource.com/c/gerrit/+/35215
 
-"git gc" currently expels any unreachable objects it encounters in
-pack files to loose objects in an attempt to prevent a race when
-pruning them (in case another process is simultaneously writing a new
-object that refers to the about-to-be-deleted object). This leads to
-an explosion in the number of loose objects present and disk space
-usage due to the objects in delta form being replaced with independent
-loose objects.  Worse, the race is still present for loose objects.
+A "git gc" jelenleg minden általa a pack fájlokban talált elérhetetlen
+objektumot laza objektumként kilök, hogy megelőzzön egy versenyhelyzetet
+a törlésükkor (arra az esetre, ha egy másik folyamat egyidejűleg egy új,
+a törlés előtt álló objektumra hivatkozó objektumot ír). Ez a jelen lévő laza
+objektumok számának és a lemezterület-használatnak a robbanásához vezet, mivel
+a delta formában lévő objektumok önálló laza objektumokkal helyettesítődnek.
+Ami rosszabb, a versenyhelyzet a laza objektumoknál továbbra is fennáll.
 
-Instead, "git gc" will need to move unreachable objects to a new
-packfile marked as UNREACHABLE_GARBAGE (using the PSRC field; see
-below). To avoid the race when writing new objects referring to an
-about-to-be-deleted object, code paths that write new objects will
-need to copy any objects from UNREACHABLE_GARBAGE packs that they
-refer to new, non-UNREACHABLE_GARBAGE packs (or loose objects).
-UNREACHABLE_GARBAGE are then safe to delete if their creation time (as
-indicated by the file's mtime) is long enough ago.
+Ehelyett a "git gc"-nek az elérhetetlen objektumokat egy új, UNREACHABLE_GARBAGE-
+ként megjelölt packfile-ba kell mozgatnia (a PSRC mezővel; lásd
+lentebb). Hogy elkerüljük a versenyhelyzetet, amikor egy törlés előtt álló
+objektumra hivatkozó új objektumokat írunk, az új objektumokat író
+kódútvonalaknak át kell másolniuk minden olyan objektumot az UNREACHABLE_GARBAGE
+packekből, amelyekre új, nem UNREACHABLE_GARBAGE packek (vagy laza objektumok)
+hivatkoznak. Az UNREACHABLE_GARBAGE ezután biztonságosan törölhető, ha a
+létrehozási idejük (amelyet a fájl mtime-ja jelez) elég régen volt.
 
-To avoid a proliferation of UNREACHABLE_GARBAGE packs, they can be
-combined under certain circumstances. If "gc.garbageTtl" is set to
-greater than one day, then packs created within a single calendar day,
-UTC, can be coalesced together. The resulting packfile would have an
-mtime before midnight on that day, so this makes the effective maximum
-ttl the garbageTtl + 1 day. If "gc.garbageTtl" is less than one day,
-then we divide the calendar day into intervals one-third of that ttl
-in duration. Packs created within the same interval can be coalesced
-together. The resulting packfile would have an mtime before the end of
-the interval, so this makes the effective maximum ttl equal to the
-garbageTtl * 4/3.
+Az UNREACHABLE_GARBAGE packek elszaporodásának elkerülésére bizonyos
+körülmények között összevonhatók. Ha a "gc.garbageTtl" egy napnál nagyobbra van
+állítva, akkor az egyetlen UTC naptári napon belül létrehozott packek
+összeolvaszthatók. A keletkező packfile mtime-ja aznap éjfél előtti volna, így
+ez az effektív maximális ttl-t garbageTtl + 1 nappá teszi. Ha a "gc.garbageTtl"
+egy napnál kevesebb, akkor a naptári napot ennek a ttl-nek a harmadával
+megegyező hosszúságú intervallumokra osztjuk. Az ugyanazon az intervallumon
+belül létrehozott packek összeolvaszthatók. A keletkező packfile mtime-ja az
+intervallum vége előtti volna, így ez az effektív maximális ttl-t
+garbageTtl * 4/3-dá teszi.
 
-This rule comes from Thirumala Reddy Mutchukota's JGit change
+Ez a szabály Thirumala Reddy Mutchukota JGit-változtatásából származik:
 https://git.eclipse.org/r/90465.
 
-The UNREACHABLE_GARBAGE setting goes in the PSRC field of the pack
-index. More generally, that field indicates where a pack came from:
+Az UNREACHABLE_GARBAGE beállítás a pack-index PSRC mezőjébe kerül.
+Általánosabban ez a mező jelzi, honnan származik egy pack:
 
- - 1 (PACK_SOURCE_RECEIVE) for a pack received over the network
- - 2 (PACK_SOURCE_AUTO) for a pack created by a lightweight
-   "gc --auto" operation
- - 3 (PACK_SOURCE_GC) for a pack created by a full gc
- - 4 (PACK_SOURCE_UNREACHABLE_GARBAGE) for potential garbage
-   discovered by gc
- - 5 (PACK_SOURCE_INSERT) for locally created objects that were
-   written directly to a pack file, e.g. from "git add ."
+ - 1 (PACK_SOURCE_RECEIVE) a hálózaton keresztül kapott packhez
+ - 2 (PACK_SOURCE_AUTO) egy könnyűsúlyú "gc --auto" művelet által létrehozott
+   packhez
+ - 3 (PACK_SOURCE_GC) egy teljes gc által létrehozott packhez
+ - 4 (PACK_SOURCE_UNREACHABLE_GARBAGE) a gc által felfedezett lehetséges
+   szeméthez
+ - 5 (PACK_SOURCE_INSERT) a helyben létrehozott objektumokhoz, amelyeket
+   közvetlenül egy pack fájlba írtak, pl. a "git add ."-ból
 
-This information can be useful for debugging and for "gc --auto" to
-make appropriate choices about which packs to coalesce.
+Ez az információ hasznos lehet a hibakereséshez és ahhoz, hogy a "gc --auto"
+megfelelő döntéseket hozzon arról, mely packeket vonja össze.
 
-Caveats
--------
-Invalid objects
-~~~~~~~~~~~~~~~
-The conversion from SHA-1 content to SHA-256 content retains any
-brokenness in the original object (e.g., tree entry modes encoded with
-leading 0, tree objects whose paths are not sorted correctly, and
-commit objects without an author or committer). This is a deliberate
-feature of the design to allow the conversion to round-trip.
+[[_caveats]]
+Figyelmeztetések
+----------------
+[[_invalid_objects]]
+Érvénytelen objektumok
+~~~~~~~~~~~~~~~~~~~~~~
+A SHA-1 tartalomról SHA-256 tartalomra való konverzió megtart minden
+sérülést az eredeti objektumban (pl. a bevezető 0-val kódolt tree-bejegyzés-
+módokat, a helytelenül rendezett útvonalú tree-objektumokat és a szerző vagy
+committer nélküli commit-objektumokat). Ez a terv szándékos jellemzője, hogy a
+konverzió oda-vissza járható legyen.
 
-More profoundly broken objects (e.g., a commit with a truncated "tree"
-header line) cannot be converted but were not usable by current Git
-anyway.
+A mélyebben sérült objektumok (pl. egy csonkolt "tree" fejlécsorú commit) nem
+konvertálhatók, de amúgy sem voltak használhatók a jelenlegi Git
+számára.
 
-Shallow clone and submodules
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Because it requires all referenced objects to be available in the
-locally generated translation table, this design does not support
-shallow clone or unfetched submodules. Protocol improvements might
-allow lifting this restriction.
+[[_shallow_clone_and_submodules]]
+Sekély klón és submodule-ok
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mivel megköveteli, hogy minden hivatkozott objektum elérhető legyen a helyben
+generált fordítótáblában, ez a terv nem támogatja a sekély klónt vagy a le nem
+kért submodule-okat. Protokollfejlesztések esetleg lehetővé tehetik ennek a
+korlátozásnak a feloldását.
 
-Alternates
-~~~~~~~~~~
-For the same reason, a SHA-256 repository cannot borrow objects from a
-SHA-1 repository using objects/info/alternates or
-$GIT_ALTERNATE_OBJECT_DIRECTORIES.
+[[_alternates]]
+Alternate-ek
+~~~~~~~~~~~~
+Ugyanezen okból egy SHA-256 repository nem kölcsönözhet objektumokat egy
+SHA-1 repositoryból az objects/info/alternates vagy a
+$GIT_ALTERNATE_OBJECT_DIRECTORIES használatával.
 
+[[_git_notes]]
 git notes
 ~~~~~~~~~
-The "git notes" tool annotates objects using their SHA-1 name as key.
-This design does not describe a way to migrate notes trees to use
-SHA-256 names. That migration is expected to happen separately (for
-example using a file at the root of the notes tree to describe which
-hash it uses).
+A "git notes" eszköz az objektumokat a SHA-1 nevükkel mint kulccsal annotálja.
+Ez a terv nem ír le módot a notes-fák SHA-256 nevekre való migrálására.
+Az a migráció várhatóan külön fog megtörténni (például a notes-fa gyökerében
+lévő fájllal, amely leírja, melyik hasht használja).
 
-Server-side cost
-~~~~~~~~~~~~~~~~
-Until Git protocol gains SHA-256 support, using SHA-256 based storage
-on public-facing Git servers is strongly discouraged. Once Git
-protocol gains SHA-256 support, SHA-256 based servers are likely not
-to support SHA-1 compatibility, to avoid what may be a very expensive
-hash re-encode during clone and to encourage peers to modernize.
-
-The design described here allows fetches by SHA-1 clients of a
-personal SHA-256 repository because it's not much more difficult than
-allowing pushes from that repository. This support needs to be guarded
-by a configuration option -- servers like git.kernel.org that serve a
-large number of clients would not be expected to bear that cost.
-
-Meaning of signatures
+[[_server_side_cost]]
+Szerveroldali költség
 ~~~~~~~~~~~~~~~~~~~~~
-The signed payload for signed commits and tags does not explicitly
-name the hash used to identify objects. If some day Git adopts a new
-hash function with the same length as the current SHA-1 (40
-hexadecimal digit) or SHA-256 (64 hexadecimal digit) objects then the
-intent behind the PGP signed payload in an object signature is
-unclear:
+Amíg a Git protokoll nem kap SHA-256 támogatást, a nyilvánosan elérhető
+Git-szervereken erősen ellenjavallt a SHA-256 alapú tárolás használata. Amint a
+Git protokoll SHA-256 támogatást kap, a SHA-256 alapú szerverek valószínűleg
+nem fogják támogatni a SHA-1 kompatibilitást, hogy elkerüljék a klónozás során
+esetleg nagyon költséges hash-újrakódolást, és hogy a partnereket
+modernizálásra ösztönözzék.
+
+Az itt leírt terv lehetővé teszi, hogy SHA-1-es kliensek fetcheljenek egy
+személyes SHA-256 repositoryból, mert ez nem sokkal nehezebb, mint az adott
+repositoryból történő push engedélyezése. Ezt a támogatást egy konfigurációs
+opcióval kell védeni -- a git.kernel.orghoz hasonló szerverektől, amelyek nagy
+számú klienst szolgálnak ki, nem várható el, hogy viseljék ezt a költséget.
+
+[[_meaning_of_signatures]]
+Az aláírások jelentése
+~~~~~~~~~~~~~~~~~~~~~~
+Az aláírt commitok és tagek aláírt payloadja nem nevezi meg kifejezetten az
+objektumok azonosítására használt hasht. Ha egy nap a Git a jelenlegi SHA-1
+(40 hexadecimális számjegy) vagy SHA-256 (64 hexadecimális számjegy)
+objektumokkal azonos hosszúságú új hashfüggvényt vezet be, akkor egy
+objektumaláírásban a PGP-vel aláírt payload mögötti szándék
+tisztázatlan:
 
 	object e7e07d5a4fcc2a203d9873968ad3e6bd4d7419d7
 	type commit
@@ -585,201 +610,207 @@ unclear:
 
 	Git 2.12
 
-Does this mean Git v2.12.0 is the commit with SHA-1 name
-e7e07d5a4fcc2a203d9873968ad3e6bd4d7419d7 or the commit with
-new-40-digit-hash-name e7e07d5a4fcc2a203d9873968ad3e6bd4d7419d7?
+Azt jelenti-e ez, hogy a Git v2.12.0 az e7e07d5a4fcc2a203d9873968ad3e6bd4d7419d7
+SHA-1 nevű commit, vagy az e7e07d5a4fcc2a203d9873968ad3e6bd4d7419d7
+új-40-számjegyű-hashnevű commit?
 
-Fortunately SHA-256 and SHA-1 have different lengths. If Git starts
-using another hash with the same length to name objects, then it will
-need to change the format of signed payloads using that hash to
-address this issue.
+Szerencsére a SHA-256 és a SHA-1 hossza eltér. Ha a Git egy másik, azonos
+hosszúságú hasht kezd használni az objektumok elnevezésére, akkor meg kell
+változtatnia az azt a hasht használó aláírt payloadok formátumát, hogy
+kezelje ezt a problémát.
 
-Object names on the command line
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To support the transition (see Transition plan below), this design
-supports four different modes of operation:
+[[_object_names_on_the_command_line]]
+Objektumnevek a parancssorban
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Az átállás támogatására (lásd lentebb az Átállási tervet) ez a terv négy
+különböző működési módot támogat:
 
- 1. ("dark launch") Treat object names input by the user as SHA-1 and
-    convert any object names written to output to SHA-1, but store
-    objects using SHA-256.  This allows users to test the code with no
-    visible behavior change except for performance.  This allows
-    running even tests that assume the SHA-1 hash function, to
-    sanity-check the behavior of the new mode.
+ 1. („dark launch") A felhasználó által bevitt objektumneveket SHA-1-ként kezeli,
+    és a kimenetre írt minden objektumnevet SHA-1-re konvertál, de az
+    objektumokat SHA-256-tal tárolja.  Ez lehetővé teszi, hogy a felhasználók a
+    kódot a teljesítményen kívül semmilyen látható viselkedésváltozás nélkül
+    teszteljék.  Ez lehetővé teszi, hogy még a SHA-1 hashfüggvényt feltételező
+    teszteket is lefuttassuk, hogy leellenőrizzük az új mód viselkedését.
 
- 2. ("early transition") Allow both SHA-1 and SHA-256 object names in
-    input. Any object names written to output use SHA-1. This allows
-    users to continue to make use of SHA-1 to communicate with peers
-    (e.g. by email) that have not migrated yet and prepares for mode 3.
+ 2. („early transition") Engedélyezi a SHA-1 és a SHA-256 objektumneveket is a
+    bemeneten. A kimenetre írt minden objektumnév SHA-1-et használ. Ez lehetővé
+    teszi, hogy a felhasználók továbbra is használják a SHA-1-et olyan partnerekkel
+    (pl. e-mailben) való kommunikációhoz, akik még nem álltak át, és felkészít a 3. módra.
 
- 3. ("late transition") Allow both SHA-1 and SHA-256 object names in
-    input. Any object names written to output use SHA-256. In this
-    mode, users are using a more secure object naming method by
-    default.  The disruption is minimal as long as most of their peers
-    are in mode 2 or mode 3.
+ 3. („late transition") Engedélyezi a SHA-1 és a SHA-256 objektumneveket is a
+    bemeneten. A kimenetre írt minden objektumnév SHA-256-ot használ. Ebben a
+    módban a felhasználók alapértelmezés szerint biztonságosabb objektumelnevezési
+    módszert használnak.  A fennakadás minimális, amíg a partnereik többsége
+    a 2. vagy a 3. módban van.
 
- 4. ("post-transition") Treat object names input by the user as
-    SHA-256 and write output using SHA-256. This is safer than mode 3
-    because there is less risk that input is incorrectly interpreted
-    using the wrong hash function.
+ 4. („post-transition") A felhasználó által bevitt objektumneveket SHA-256-ként
+    kezeli, és a kimenetet SHA-256-tal írja. Ez biztonságosabb a 3. módnál,
+    mert kisebb a kockázata, hogy a bemenetet helytelenül, a rossz
+    hashfüggvénnyel értelmezzük.
 
-The mode is specified in configuration.
+A módot a konfigurációban adjuk meg.
 
-The user can also explicitly specify which format to use for a
-particular revision specifier and for output, overriding the mode. For
-example:
+A felhasználó explicit módon is megadhatja, melyik formátumot használja egy
+adott revíziómegadóhoz és a kimenethez, felülbírálva a módot. Például:
 
     git --output-format=sha1 log abac87a^{sha1}..f787cac^{sha256}
 
-Transition plan
----------------
-Some initial steps can be implemented independently of one another:
+[[_transition_plan]]
+Átállási terv
+-------------
+Néhány kezdeti lépés egymástól függetlenül megvalósítható:
 
-- adding a hash function API (vtable)
-- teaching fsck to tolerate the gpgsig-sha256 field
-- excluding gpgsig-* from the fields copied by "git commit --amend"
-- annotating tests that depend on SHA-1 values with a SHA1 test
-  prerequisite
-- using "struct object_id", GIT_MAX_RAWSZ, and GIT_MAX_HEXSZ
-  consistently instead of "unsigned char *" and the hardcoded
-  constants 20 and 40.
-- introducing index v3
-- adding support for the PSRC field and safer object pruning
+- egy hashfüggvény-API (vtable) hozzáadása
+- az fsck megtanítása, hogy tolerálja a gpgsig-sha256 mezőt
+- a gpgsig-* kizárása a "git commit --amend" által másolt mezők közül
+- a SHA-1 értékektől függő tesztek megjelölése SHA1 teszt-
+  előfeltétellel
+- a "struct object_id", a GIT_MAX_RAWSZ és a GIT_MAX_HEXSZ
+  következetes használata az "unsigned char *" és a beégetett
+  20-as és 40-es konstansok helyett.
+- az index v3 bevezetése
+- a PSRC mező és a biztonságosabb objektumtörlés támogatásának hozzáadása
 
-The first user-visible change is the introduction of the objectFormat
-extension (without compatObjectFormat). This requires:
+Az első felhasználó által látható változás az objectFormat kiterjesztés
+bevezetése (compatObjectFormat nélkül). Ehhez kell:
 
-- teaching fsck about this mode of operation
-- using the hash function API (vtable) when computing object names
-- signing objects and verifying signatures
-- rejecting attempts to fetch from or push to an incompatible
-  repository
+- az fsck megtanítása erre a működési módra
+- a hashfüggvény-API (vtable) használata az objektumnevek kiszámításakor
+- objektumok aláírása és aláírások ellenőrzése
+- a nem kompatibilis repositoryból történő fetch vagy oda történő push
+  kísérleteinek elutasítása
 
-Next comes introduction of compatObjectFormat:
+Ezután jön a compatObjectFormat bevezetése:
 
-- implementing the loose-object-idx
-- translating object names between object formats
-- translating object content between object formats
-- generating and verifying signatures in the compat format
-- adding appropriate index entries when adding a new object to the
-  object store
-- --output-format option
-- ^{sha1} and ^{sha256} revision notation
-- configuration to specify default input and output format (see
-  "Object names on the command line" above)
+- a loose-object-idx megvalósítása
+- objektumnevek fordítása objektumformátumok között
+- objektumtartalom fordítása objektumformátumok között
+- aláírások generálása és ellenőrzése a kompat formátumban
+- megfelelő indexbejegyzések hozzáadása, amikor új objektumot adunk az
+  objektumtárhoz
+- --output-format opció
+- a ^{sha1} és a ^{sha256} revíziójelölés
+- konfiguráció az alapértelmezett bemeneti és kimeneti formátum megadására (lásd
+  fentebb az „Objektumnevek a parancssorban" szakaszt)
 
-The next step is supporting fetches and pushes to SHA-1 repositories:
+A következő lépés a SHA-1 repository-kból történő fetch és az oda történő push támogatása:
 
-- allow pushes to a repository using the compat format
-- generate a topologically sorted list of the SHA-1 names of fetched
-  objects
-- convert the fetched packfile to SHA-256 format and generate an idx
-  file
-- re-sort to match the order of objects in the fetched packfile
+- a kompat formátumot használó repositoryba történő pushok engedélyezése
+- a lekért objektumok SHA-1 neveiből topologikusan rendezett lista
+  generálása
+- a lekért packfile SHA-256 formátumra konvertálása és egy idx fájl
+  generálása
+- újrarendezés, hogy megfeleljen az objektumok sorrendjének a lekért packfile-ban
 
-The infrastructure supporting fetch also allows converting an existing
-repository. In converted repositories and new clones, end users can
-gain support for the new hash function without any visible change in
-behavior (see "dark launch" in the "Object names on the command line"
-section). In particular this allows users to verify SHA-256 signatures
-on objects in the repository, and it should ensure the transition code
-is stable in production in preparation for using it more widely.
+A fetchet támogató infrastruktúra egy meglévő repository konvertálását is
+lehetővé teszi. A konvertált repository-kban és az új klónokban a végfelhasználók
+a viselkedés bármilyen látható változása nélkül kaphatnak támogatást az új
+hashfüggvényhez (lásd a „dark launch"-ot az „Objektumnevek a parancssorban"
+szakaszban). Ez különösen lehetővé teszi, hogy a felhasználók ellenőrizzék a
+repositoryban lévő objektumok SHA-256 aláírásait, és biztosítania kell, hogy az
+átállási kód stabil legyen éles környezetben, felkészülve a szélesebb körű használatra.
 
-Over time projects would encourage their users to adopt the "early
-transition" and then "late transition" modes to take advantage of the
-new, more futureproof SHA-256 object names.
+Idővel a projektek arra ösztönöznék a felhasználóikat, hogy az „early transition",
+majd a „late transition" módot vegyék fel, hogy kihasználják az új, jobban
+jövőállóbb SHA-256 objektumneveket.
 
-When objectFormat and compatObjectFormat are both set, commands
-generating signatures would generate both SHA-1 and SHA-256 signatures
-by default to support both new and old users.
+Amikor az objectFormat és a compatObjectFormat is be van állítva, az aláírásokat
+generáló parancsok alapértelmezés szerint SHA-1 és SHA-256 aláírásokat is
+generálnának, hogy támogassák az új és a régi felhasználókat is.
 
-In projects using SHA-256 heavily, users could be encouraged to adopt
-the "post-transition" mode to avoid accidentally making implicit use
-of SHA-1 object names.
+A SHA-256-ot sokat használó projektekben a felhasználókat arra lehetne
+ösztönözni, hogy a „post-transition" módot vegyék fel, hogy elkerüljék a SHA-1
+objektumnevek véletlen implicit használatát.
 
-Once a critical mass of users have upgraded to a version of Git that
-can verify SHA-256 signatures and have converted their existing
-repositories to support verifying them, we can add support for a
-setting to generate only SHA-256 signatures. This is expected to be at
-least a year later.
+Amint a felhasználók kritikus tömege frissített a Git olyan verziójára, amely
+tudja ellenőrizni a SHA-256 aláírásokat, és konvertálta a meglévő
+repository-jait, hogy támogassa az ellenőrzésüket, hozzáadhatunk támogatást egy
+olyan beállításhoz, amely csak SHA-256 aláírásokat generál. Ez várhatóan legalább
+egy évvel később lesz.
 
-That is also a good moment to advertise the ability to convert
-repositories to use SHA-256 only, stripping out all SHA-1 related
-metadata. This improves performance by eliminating translation
-overhead and security by avoiding the possibility of accidentally
-relying on the safety of SHA-1.
+Ez egyben jó pillanat annak meghirdetésére, hogy a repository-k átalakíthatók
+csak SHA-256 használatára, minden SHA-1-hez kapcsolódó metaadatot kigyomlálva.
+Ez javítja a teljesítményt a fordítási többletköltség kiküszöbölésével, és a
+biztonságot azzal, hogy elkerüli a SHA-1 biztonságosságára való véletlen
+támaszkodás lehetőségét.
 
-Updating Git's protocols to allow a server to specify which hash
-functions it supports is also an important part of this transition. It
-is not discussed in detail in this document but this transition plan
-assumes it happens. :)
+A Git protokolljainak frissítése, hogy egy szerver megadhassa, mely
+hashfüggvényeket támogatja, szintén fontos része ennek az átállásnak. Ezt a
+dokumentum nem tárgyalja részletesen, de ez az átállási terv feltételezi, hogy
+megtörténik. :)
 
-Alternatives considered
+[[_alternatives_considered]]
+Megfontolt alternatívák
 -----------------------
-Upgrading everyone working on a particular project on a flag day
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Projects like the Linux kernel are large and complex enough that
-flipping the switch for all projects based on the repository at once
-is infeasible.
+[[_upgrading_everyone_working_on_a_particular_project_on_a_flag_day]]
+Egy adott projekten dolgozók egyszerre, egy kijelölt napon való átállítása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Az olyan projektek, mint a Linux kernel, elég nagyok és összetettek ahhoz, hogy
+a repositoryn alapuló összes projektnél egyszerre átkapcsolni
+kivitelezhetetlen.
 
-Not only would all developers and server operators supporting
-developers have to switch on the same flag day, but supporting tooling
-(continuous integration, code review, bug trackers, etc) would have to
-be adapted as well. This also makes it difficult to get early feedback
-from some project participants testing before it is time for mass
-adoption.
+Nemcsak minden fejlesztőnek és a fejlesztőket kiszolgáló szerverüzemeltetőnek
+kellene ugyanazon a kijelölt napon átváltania, hanem a támogató eszközkészletet
+(folyamatos integráció, kódfelülvizsgálat, hibakövetők stb.) is át kellene
+alakítani. Ez azt is megnehezíti, hogy korai visszajelzést kapjunk néhány
+tesztelő projektrésztvevőtől, mielőtt eljön a tömeges bevezetés ideje.
 
-Using hash functions in parallel
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-(e.g. https://lore.kernel.org/git/22708.8913.864049.452252@chiark.greenend.org.uk/ )
-Objects newly created would be addressed by the new hash, but inside
-such an object (e.g. commit) it is still possible to address objects
-using the old hash function.
+[[_using_hash_functions_in_parallel]]
+Hashfüggvények párhuzamos használata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(pl. https://lore.kernel.org/git/22708.8913.864049.452252@chiark.greenend.org.uk/ )
+Az újonnan létrehozott objektumokat az új hash címezné, de egy ilyen
+objektumon belül (pl. commit) továbbra is lehetséges volna az objektumokat a
+régi hashfüggvénnyel címezni.
 
-* You cannot trust its history (needed for bisectability) in the
-  future without further work
-* Maintenance burden as the number of supported hash functions grows
-  (they will never go away, so they accumulate). In this proposal, by
-  comparison, converted objects lose all references to SHA-1.
+* Az előzményeiben (amely a bisectelhetőséghez szükséges) a jövőben nem
+  bízhatsz további munka nélkül
+* Karbantartási teher, ahogy a támogatott hashfüggvények száma nő
+  (soha nem tűnnek el, így felhalmozódnak). Ebben a javaslatban ezzel
+  szemben a konvertált objektumok minden SHA-1-re mutató hivatkozásukat elveszítik.
 
-Signed objects with multiple hashes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Instead of introducing the gpgsig-sha256 field in commit and tag objects
-for SHA-256 content based signatures, an earlier version of this design
-added "hash sha256 <SHA-256 name>" fields to strengthen the existing
-SHA-1 content based signatures.
+[[_signed_objects_with_multiple_hashes]]
+Több hasht tartalmazó aláírt objektumok
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ahelyett, hogy a SHA-256 tartalom alapú aláírásokhoz bevezette volna a
+gpgsig-sha256 mezőt a commit- és tag-objektumokban, ennek a tervnek egy korábbi
+verziója "hash sha256 <SHA-256 név>" mezőket adott hozzá a meglévő SHA-1
+tartalom alapú aláírások megerősítésére.
 
-In other words, a single signature was used to attest to the object
-content using both hash functions. This had some advantages:
+Más szóval egyetlen aláírást használtak arra, hogy mindkét hashfüggvénnyel
+tanúsítsák az objektum tartalmát. Ennek voltak előnyei:
 
-* Using one signature instead of two speeds up the signing process.
-* Having one signed payload with both hashes allows the signer to
-  attest to the SHA-1 name and SHA-256 name referring to the same object.
-* All users consume the same signature. Broken signatures are likely
-  to be detected quickly using current versions of git.
+* Kettő helyett egy aláírás használata felgyorsítja az aláírási folyamatot.
+* Egyetlen, mindkét hasht tartalmazó aláírt payload lehetővé teszi az aláírónak,
+  hogy tanúsítsa, hogy a SHA-1 név és a SHA-256 név ugyanarra az objektumra mutat.
+* Minden felhasználó ugyanazt az aláírást fogyasztja. A sérült aláírások
+  valószínűleg gyorsan felfedeződnek a git jelenlegi verzióival.
 
-However, it also came with disadvantages:
+Voltak azonban hátrányai is:
 
-* Verifying a signed object requires access to the SHA-1 names of all
-  objects it references, even after the transition is complete and
-  translation table is no longer needed for anything else. To support
-  this, the design added fields such as "hash sha1 tree <SHA-1 name>"
-  and "hash sha1 parent <SHA-1 name>" to the SHA-256 content of a signed
-  commit, complicating the conversion process.
-* Allowing signed objects without a SHA-1 (for after the transition is
-  complete) complicated the design further, requiring a "nohash sha1"
-  field to suppress including "hash sha1" fields in the SHA-256 content
-  and signed payload.
+* Egy aláírt objektum ellenőrzéséhez hozzáférés kell az általa hivatkozott
+  összes objektum SHA-1 nevéhez, még azután is, hogy az átállás befejeződött, és a
+  fordítótáblára már semmi máshoz nincs szükség. Ennek támogatására a terv olyan
+  mezőket adott hozzá, mint a "hash sha1 tree <SHA-1 név>" és a
+  "hash sha1 parent <SHA-1 név>" egy aláírt commit SHA-256 tartalmához, ami
+  bonyolította a konverziós folyamatot.
+* Az SHA-1 nélküli aláírt objektumok engedélyezése (az átállás befejezése
+  utáni időre) tovább bonyolította a tervet, és szükségessé tett egy "nohash sha1"
+  mezőt a "hash sha1" mezők SHA-256 tartalomba és aláírt payloadba való
+  belefoglalásának elnyomására.
 
-Lazily populated translation table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Some of the work of building the translation table could be deferred to
-push time, but that would significantly complicate and slow down pushes.
-Calculating the SHA-1 name at object creation time at the same time it is
-being streamed to disk and having its SHA-256 name calculated should be
-an acceptable cost.
+[[_lazily_populated_translation_table]]
+Lustán feltöltött fordítótábla
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A fordítótábla felépítésének egy része elhalasztható volna push időre, de ez
+jelentősen bonyolítaná és lassítaná a pushokat.
+A SHA-1 név kiszámítása az objektum létrehozásakor, azzal egy időben, hogy a
+lemezre streamelik, és a SHA-256 nevének kiszámítása elfogadható költség
+volna.
 
-Document History
-----------------
+[[_document_history]]
+Dokumentumtörténet
+------------------
 
 2017-03-03
 bmwill@google.com, jonathantanmy@google.com, jrnieder@gmail.com,

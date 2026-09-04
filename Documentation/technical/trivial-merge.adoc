@@ -1,17 +1,18 @@
-Trivial merge rules
-===================
+Triviális merge-szabályok
+=========================
 
-This document describes the outcomes of the trivial merge logic in read-tree.
+Ez a dokumentum a read-tree triviális merge-logikájának kimeneteit írja le.
 
-One-way merge
+[[_one_way_merge]]
+Egyutas merge
 -------------
 
-This replaces the index with a different tree, keeping the stat info
-for entries that don't change, and allowing -u to make the minimum
-required changes to the working tree to have it match.
+Ez az indexet egy másik tree-re cseréli, megtartva a nem változó
+bejegyzések stat-információját, és a -u révén lehetővé teszi a
+munkakönyvtár minimálisan szükséges módosítását az egyezéshez.
 
-Entries marked '+' have stat information. Spaces marked '*' don't
-affect the result.
+A '+' jellel jelölt bejegyzések stat-információval rendelkeznek. A '*'
+jellel jelölt helyek nem befolyásolják az eredményt.
 
    index   tree    result
    -----------------------
@@ -20,22 +21,23 @@ affect the result.
    index+  tree    tree
    index+  index   index+
 
-Two-way merge
+[[_two_way_merge]]
+Kétutas merge
 -------------
 
-It is permitted for the index to lack an entry; this does not prevent
-any case from applying.
+Megengedett, hogy az indexből hiányozzon egy bejegyzés; ez egyetlen
+eset alkalmazását sem akadályozza meg.
 
-If the index exists, it is an error for it not to match either the old
-or the result.
+Ha az index létezik, hiba, ha nem egyezik sem a régivel, sem az
+eredménnyel.
 
-If multiple cases apply, the one used is listed first.
+Ha több eset is alkalmazható, az elsőként felsorolt lép életbe.
 
-A result which changes the index is an error if the index is not empty
-and not up to date.
+Az indexet megváltoztató eredmény hiba, ha az index nem üres és nem
+naprakész.
 
-Entries marked '+' have stat information. Spaces marked '*' don't
-affect the result.
+A '+' jellel jelölt bejegyzések stat-információval rendelkeznek. A '*'
+jellel jelölt helyek nem befolyásolják az eredményt.
 
  case  index   old     new     result
  -------------------------------------
@@ -48,31 +50,32 @@ affect the result.
  18/19 index+  old     index   index+
  20    index+  index   new     new
 
-Three-way merge
+[[_three_way_merge]]
+Háromutas merge
 ---------------
 
-It is permitted for the index to lack an entry; this does not prevent
-any case from applying.
+Megengedett, hogy az indexből hiányozzon egy bejegyzés; ez egyetlen
+eset alkalmazását sem akadályozza meg.
 
-If the index exists, it is an error for it not to match either the
-head or (if the merge is trivial) the result.
+Ha az index létezik, hiba, ha nem egyezik sem a headdel, sem (ha a
+merge triviális) az eredménnyel.
 
-If multiple cases apply, the one used is listed first.
+Ha több eset is alkalmazható, az elsőként felsorolt lép életbe.
 
-A result of "no merge" means that index is left in stage 0, ancest in
-stage 1, head in stage 2, and remote in stage 3 (if any of these are
-empty, no entry is left for that stage). Otherwise, the given entry is
-left in stage 0, and there are no other entries.
+A "no merge" eredmény azt jelenti, hogy az index a 0. stage-ben marad, az
+ancest az 1.-ben, a head a 2.-ban, a remote pedig a 3.-ban (ha ezek
+bármelyike üres, ahhoz a stage-hez nem marad bejegyzés). Egyébként az adott
+bejegyzés a 0. stage-ben marad, és nincs más bejegyzés.
 
-A result of "no merge" is an error if the index is not empty and not
-up to date.
+A "no merge" eredmény hiba, ha az index nem üres és nem
+naprakész.
 
-*empty* means that the tree must not have a directory-file conflict
- with the entry.
+Az *empty* azt jelenti, hogy a tree-ben nem lehet könyvtár-fájl ütközés
+ a bejegyzéssel.
 
-For multiple ancestors, a '+' means that this case applies even if
-only one ancestor or remote fits; a '^' means all of the ancestors
-must be the same.
+Több ős esetén a '+' azt jelenti, hogy ez az eset akkor is érvényes, ha
+csak egy ős vagy remote illeszkedik; a '^' azt jelenti, hogy az összes
+ősnek azonosnak kell lennie.
 
  case  ancest    head    remote    result
  ----------------------------------------
@@ -93,29 +96,29 @@ must be the same.
  14    ancest+   ancest  remote    remote
  11    ancest+   head    remote    no merge
 
-Only #2ALT and #3ALT use *empty*, because these are the only cases
-where there can be conflicts that didn't exist before. Note that we
-allow directory-file conflicts between things in different stages
-after the trivial merge.
+Csak a #2ALT és a #3ALT használ *empty*-t, mert csak ezekben az esetekben
+fordulhatnak elő korábban nem létező ütközések. Vedd figyelembe, hogy a
+triviális merge után megengedjük a könyvtár-fájl ütközéseket a különböző
+stage-ekben lévő dolgok között.
 
-A possible alternative for #6 is (empty), which would make it like
-#1. This is not used, due to the likelihood that it arises due to
-moving the file to multiple different locations or moving and deleting
-it in different branches.
+A #6 egy lehetséges alternatívája az (empty), ami a #1-hez tenné hasonlóvá.
+Ezt nem használjuk, mert valószínűleg abból ered, hogy a fájlt több
+különböző helyre mozgatták, vagy különböző branchekben mozgatták és
+törölték.
 
-Case #1 is included for completeness, and also in case we decide to
-put on '+' markings; any path that is never mentioned at all isn't
-handled.
+A #1 eset a teljesség kedvéért szerepel, és arra az esetre is, ha úgy
+döntünk, hogy '+' jelöléseket teszünk ki; az egyáltalán meg nem említett
+útvonalak nincsenek kezelve.
 
-Note that #16 is when both #13 and #14 apply; in this case, we refuse
-the trivial merge, because we can't tell from this data which is
-right. This is a case of a reverted patch (in some direction, maybe
-multiple times), and the right answer depends on looking at crossings
-of history or common ancestors of the ancestors.
+Vedd figyelembe, hogy a #16 az, amikor a #13 és a #14 is érvényes; ebben az
+esetben elutasítjuk a triviális merge-t, mert ezekből az adatokból nem
+tudjuk megmondani, melyik a helyes. Ez egy visszavont patch esete (valamely
+irányban, esetleg többször is), és a helyes válasz az előzmények
+kereszteződéseinek vagy az ősök közös őseinek vizsgálatától függ.
 
-Note that, between #6, #7, #9, and #11, all cases not otherwise
-covered are handled in this table.
+Vedd figyelembe, hogy a #6, #7, #9 és #11 együtt lefedi ebben a táblázatban
+az összes máshol nem kezelt esetet.
 
-For #8 and #10, there is alternative behavior, not currently
-implemented, where the result is (empty). As currently implemented,
-the automatic merge will generally give this effect.
+A #8 és a #10 esetében van egy jelenleg nem implementált alternatív
+viselkedés, ahol az eredmény (empty). A jelenlegi implementációban az
+automatikus merge általában ezt a hatást adja.

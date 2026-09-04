@@ -1,30 +1,32 @@
-= Unambiguous types
+= Egyértelmű típusok
 
-Most of these mappings are obvious, but there are some nuances and gotchas with
-Rust FFI (Foreign Function Interface).
+A leképezések többsége nyilvánvaló, de a Rust FFI-vel (Foreign Function
+Interface) kapcsolatban van néhány árnyalatnyi különbség és buktató.
 
-This document defines clear, one-to-one mappings between primitive types in C,
-Rust (and possible other languages in the future). Its purpose is to eliminate
-ambiguity in type widths, signedness, and binary representation across
-platforms and languages.
+Ez a dokumentum világos, egy-az-egyhez leképezéseket határoz meg a C, a Rust
+(és a jövőben esetleg más nyelvek) primitív típusai között. Célja, hogy
+kiküszöbölje a típusszélességek, az előjelesség és a bináris ábrázolás
+körüli többértelműséget a különböző platformok és nyelvek között.
 
-For Git, the only header required to use these unambiguous types in C is
-`git-compat-util.h`.
+A Gitben C-ben ezeknek az egyértelmű típusoknak a használatához az egyetlen
+szükséges header a `git-compat-util.h`.
 
-== Boolean types
+[[_boolean_types]]
+== Logikai típusok
 [cols="1,1", options="header"]
 |===
-| C Type | Rust Type
+| C-típus | Rust-típus
 | bool^1^       | bool
 |===
 
-== Integer types
+[[_integer_types]]
+== Egész típusok
 
-In C, `<stdint.h>` (or an equivalent) must be included.
+C-ben be kell húzni a `<stdint.h>`-t (vagy egy megfelelőjét).
 
 [cols="1,1", options="header"]
 |===
-| C Type | Rust Type
+| C-típus | Rust-típus
 | uint8_t    | u8
 | uint16_t   | u16
 | uint32_t   | u32
@@ -36,90 +38,100 @@ In C, `<stdint.h>` (or an equivalent) must be included.
 | int64_t    | i64
 |===
 
-== Floating-point types
+[[_floating_point_types]]
+== Lebegőpontos típusok
 
-Rust requires IEEE-754 semantics.
-In C, that is typically true, but not guaranteed by the standard.
+A Rust IEEE-754 szemantikát követel meg.
+C-ben ez jellemzően igaz, de a szabvány nem garantálja.
 
 [cols="1,1", options="header"]
 |===
-| C Type | Rust Type
+| C-típus | Rust-típus
 | float^2^      | f32
 | double^2^     | f64
 |===
 
-== Size types
+[[_size_types]]
+== Méret-típusok
 
-These types represent pointer-sized integers and are typically defined in
-`<stddef.h>` or an equivalent header.
+Ezek a típusok mutató méretű egész számokat képviselnek, és jellemzően a
+`<stddef.h>`-ban vagy egy megfelelő headerben vannak definiálva.
 
-Size types should be used any time pointer arithmetic is performed e.g.
-indexing an array, describing the number of elements in memory, etc...
+Méret-típusokat kell használni minden alkalommal, amikor mutatóaritmetika
+történik, pl. tömb indexelése, a memóriában lévő elemek számának megadása
+stb...
 
 [cols="1,1", options="header"]
 |===
-| C Type | Rust Type
+| C-típus | Rust-típus
 | size_t^3^     | usize
 | ptrdiff_t^3^  | isize
 |===
 
-== Character types
+[[_character_types]]
+== Karaktertípusok
 
-This is where C and Rust don't have a clean one-to-one mapping.
+Itt nincs tiszta egy-az-egyhez leképezés a C és a Rust között.
 
-A C `char` and a Rust `u8` share the same bit width, so any C struct containing
-a `char` will have the same size as the corresponding Rust struct using `u8`.
-In that sense, such structs are safe to pass over the FFI boundary, because
-their fields will be laid out identically. However, beyond bit width, C `char`
-has additional semantics and platform-dependent behavior that can cause
-problems, as discussed below.
+A C `char` és a Rust `u8` bitszélessége azonos, így bármely `char`-t
+tartalmazó C struct mérete megegyezik a `u8`-at használó megfelelő Rust
+structéval. Ilyen értelemben az ilyen structok biztonságosan átadhatók az
+FFI-határon, mert a mezőik elrendezése azonos lesz. A bitszélességen túl
+azonban a C `char` további szemantikával és platformfüggő viselkedéssel
+rendelkezik, ami az alább tárgyalt módon problémákat okozhat.
 
-The C language leaves the signedness of `char` implementation defined. Because
-our developer build enables -Wsign-compare, comparison of a value of `char`
-type with either signed or unsigned integers may trigger warnings from the
-compiler.
+A C nyelv a `char` előjelességét implementációfüggőként hagyja. Mivel a
+fejlesztői buildünk bekapcsolja a -Wsign-compare-t, egy `char` típusú érték
+előjeles vagy előjel nélküli egészekkel való összehasonlítása
+figyelmeztetéseket válthat ki a fordítóból.
 
-Note: Rust's `char` type is an unsigned 32-bit integer that is used to describe
-Unicode code points.
+Megjegyzés: a Rust `char` típusa egy előjel nélküli 32 bites egész szám,
+amely Unicode kódpontok leírására szolgál.
 
-=== Notes
-^1^ This is only true if stdbool.h (or equivalent) is used. +
-^2^ C does not enforce IEEE-754 compatibility, but Rust expects it. If the
-platform/arch for C does not follow IEEE-754 then this equivalence does not
-hold. Also, it's assumed that `float` is 32 bits and `double` is 64, but
-there may be a strange platform/arch where even this isn't true. +
-^3^ C also defines uintptr_t, ssize_t and intptr_t, but these types are
-discouraged for FFI purposes. For functions like `read()` and `write()` ssize_t
-should be cast to a different, and unambiguous, type before being passed over
-the FFI boundary. +
+[[_notes]]
+=== Megjegyzések
+^1^ Ez csak akkor igaz, ha a stdbool.h-t (vagy megfelelőjét) használják. +
+^2^ A C nem kényszeríti ki az IEEE-754 kompatibilitást, de a Rust elvárja azt.
+Ha a C platformja/architektúrája nem követi az IEEE-754-et, akkor ez az
+ekvivalencia nem áll fenn. Továbbá feltételezzük, hogy a `float` 32 bites, a
+`double` pedig 64, de lehet olyan furcsa platform/architektúra, ahol még ez
+sem igaz. +
+^3^ A C definiálja az uintptr_t, ssize_t és intptr_t típusokat is, de ezek a
+típusok FFI célokra nem ajánlottak. Az olyan függvényeknél, mint a `read()` és
+a `write()`, az ssize_t-t egy másik, egyértelmű típusra kell kasztolni, mielőtt
+átadnák az FFI-határon. +
 
-== Problems with std::ffi::c_* types in Rust
-TL;DR: In practice, Rust's `c_*` types aren't guaranteed to match C types for
-all possible C compilers, platforms, or architectures, because Rust only
-ensures correctness of C types on officially supported targets. These
-definitions have changed over time to match more targets which means that the
-c_* definitions will differ based on which Rust version Git chooses to use.
+[[_problems_with_std_ffi_c_types_in_rust]]
+== A std::ffi::c_* típusok problémái a Rustban
+TL;DR: a gyakorlatban a Rust `c_*` típusai nem garantáltan egyeznek a C
+típusokkal az összes lehetséges C fordító, platform vagy architektúra esetén,
+mert a Rust csak a hivatalosan támogatott célpontokon biztosítja a C típusok
+helyességét. Ezek a definíciók az idők során változtak, hogy több célpontot
+lefedjenek, ami azt jelenti, hogy a c_* definíciók attól függően különböznek,
+melyik Rust verziót választja a Git.
 
-Current list of safe, Rust side, FFI types in Git: +
+A biztonságos, Rust oldali FFI típusok jelenlegi listája a Gitben: +
 
 * `c_void`
 * `CStr`
 * `CString`
 
-Even then, they should be used sparingly, and only where the semantics match
-exactly.
+Még ekkor is takarékosan kell használni őket, és csak ott, ahol a szemantika
+pontosan egyezik.
 
-The std::os::raw::c_* directly inherits the problems of core::ffi, which
-changes over time and seems to make a best guess at the correct definition for
-a given platform/target. This probably isn't a problem for all other platforms
-that Rust supports currently, but can anyone say that Rust got it right for all
-C compilers of all platforms/targets?
+A std::os::raw::c_* közvetlenül örökli a core::ffi problémáit, amely az idők
+során változik, és úgy tűnik, hogy egy adott platformhoz/célponthoz a helyes
+definícióra tett legjobb becsléssel dolgozik. Ez valószínűleg nem probléma az
+összes többi platformon, amelyet a Rust jelenleg támogat, de meg tudja-e
+bárki mondani, hogy a Rust minden platform/célpont minden C fordítójára
+helyesen csinálta?
 
-To give an example: c_long is defined in
-footnote:[https://doc.rust-lang.org/1.63.0/src/core/ffi/mod.rs.html#175-189[c_long in 1.63.0]]
-footnote:[https://doc.rust-lang.org/1.89.0/src/core/ffi/primitives.rs.html#135-151[c_long in 1.89.0]]
+Egy példa: a c_long így van definiálva:
+footnote:[https://doc.rust-lang.org/1.63.0/src/core/ffi/mod.rs.html#175-189[c_long az 1.63.0-ban]]
+footnote:[https://doc.rust-lang.org/1.89.0/src/core/ffi/primitives.rs.html#135-151[c_long az 1.89.0-ban]]
 
-=== Rust version 1.63.0
+[[_rust_version_1_63_0]]
+=== Rust 1.63.0-s verzió
 
 ```
 mod c_long_definition {
@@ -140,7 +152,8 @@ mod c_long_definition {
 }
 ```
 
-=== Rust version 1.89.0
+[[_rust_version_1_89_0]]
+=== Rust 1.89.0-s verzió
 
 ```
 mod c_long_definition {
@@ -162,43 +175,49 @@ mod c_long_definition {
 }
 ```
 
-Even for the cases where C types are correctly mapped to Rust types via
-std::ffi::c_* there are still problems. Let's take c_char for example. On some
-platforms it's u8 on others it's i8.
+Még azokban az esetekben is vannak problémák, amikor a C típusok helyesen
+vannak leképezve Rust típusokra a std::ffi::c_* révén. Vegyük például a
+c_char-t. Egyes platformokon u8, másokon i8.
 
-=== Subtraction underflow in debug mode
+[[_subtraction_underflow_in_debug_mode]]
+=== Kivonási alulcsordulás debug módban
 
-The following code will panic in debug on platforms that define c_char as u8,
-but won't if it's an i8.
+A következő kód debug módban pánikol azokon a platformokon, amelyek a
+c_char-t u8-ként definiálják, de nem, ha az i8.
 
 ```
 let mut x: std::ffi::c_char = 0;
 x -= 1;
 ```
 
-=== Inconsistent shift behavior
+[[_inconsistent_shift_behavior]]
+=== Inkonzisztens eltolási viselkedés
 
-`x` will be 0xC0 for platforms that use i8, but will be 0x40 where it's u8.
+Az `x` értéke 0xC0 lesz az i8-at használó platformokon, de 0x40 ott, ahol u8.
 
 ```
 let mut x: std::ffi::c_char = 0x80;
 x >>= 1;
 ```
 
-=== Equality fails to compile on some platforms
+[[_equality_fails_to_compile_on_some_platforms]]
+=== Az egyenlőség egyes platformokon nem fordul le
 
-The following will not compile on platforms that define c_char as i8, but will
-if it's u8. You can cast x e.g. `assert_eq!(x as u8, b'a');`, but then you get
-a warning on platforms that use u8 and a clean compilation where i8 is used.
+A következő nem fordul le azokon a platformokon, amelyek a c_char-t
+i8-ként definiálják, de lefordul, ha u8. Az x kasztolható, pl.
+`assert_eq!(x as u8, b'a');`, de akkor az u8-at használó platformokon
+figyelmeztetést kapsz, ott pedig, ahol i8-at használnak, tiszta fordítást.
 
 ```
 let mut x: std::ffi::c_char = 0x61;
 assert_eq!(x, b'a');
 ```
 
-== Enum types
-Rust enum types should not be used as FFI types. Rust enum types are more like
-C union types than C enum's. For something like:
+[[_enum_types]]
+== Enum típusok
+A Rust enum típusokat nem szabad FFI típusként használni. A Rust enum
+típusok inkább a C union típusokra hasonlítanak, mint a C enumjaira. Valami
+ilyesmihez:
 
 ```
 #[repr(C, u8)]
@@ -209,8 +228,8 @@ enum Fruit {
 }
 ```
 
-It's easy enough to make sure the Rust enum matches what C would expect, but a
-more complex type like.
+Elég egyszerű biztosítani, hogy a Rust enum megfeleljen annak, amit a C
+elvárna, de egy összetettebb típus, mint például.
 
 ```
 enum HashResult {
@@ -219,6 +238,6 @@ enum HashResult {
 }
 ```
 
-The Rust compiler has to add a discriminant to the enum to distinguish between
-the variants. The width, location, and values for that discriminant is up to
-the Rust compiler and is not ABI stable.
+A Rust fordítónak diszkriminánst kell hozzáadnia az enumhoz, hogy
+megkülönböztesse a variánsokat. Ennek a diszkriminánsnak a szélessége, helye
+és értékei a Rust fordítóra vannak bízva, és nem ABI-stabilak.
