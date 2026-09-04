@@ -43,7 +43,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-archimport.adoc | [x] |  | 2026-09-04 |
 | git-archive.adoc | [x] |  | 2026-09-04 |
 | git-backfill.adoc | [x] |  | 2026-09-04 |
-| git-bisect-lk2009.adoc | [ ] |  |  |
+| git-bisect-lk2009.adoc | [x] |  | 2026-09-04 |
 | git-bisect.adoc | [ ] |  |  |
 | git-blame.adoc | [ ] |  |  |
 | git-branch.adoc | [x] |  | 2026-09-04 |

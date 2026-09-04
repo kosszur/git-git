@@ -468,3 +468,114 @@ amit a placeholder-hossz eltérése okozott:**
 A fájl ezután teljes és hibátlan (`progress-git-git-docs.md`: `[x]`, 2026-09-04). Ez a tapasztalat
 általánosítva a 4. blokk „CSERE-NNN placeholder-kísérlet" jegyzetébe került.
 
+## 9. blokk — `git-bisect-lk2009.adoc` — 2026-09-04
+
+**Módszer:** egyetlen munkamenet, célzott `Edit`-ekkel, a fájl teljes egészében lefordítva.
+
+**Stale progress-jelölés — megismétlődött minta:** a progress-tábla `~34%`-osnak jelölte ezt a
+fájlt, de a munkamenet elején végzett `Read` szerint a fájl **teljes egészében angol** volt (0%
+lefordítva) — ugyanaz a jelenség, mint amit a `git-bisect.adoc`-nál korábban dokumentáltak (l. az
+5. blokk előtti bejegyzés a „Blokk lezárása" naplóban: „a korábbi `~33%` jelölés téves/elavult
+volt"). A `~NN%` jelölések tehát **nem megbízhatók** ennél a fájlnál/projektnél; minden folytatásos
+munkamenetnek friss `Read`-del kell ellenőriznie a tényleges állapotot, függetlenül a progress-tábla
+tartalmától.
+
+**Ez NEM man page:** 2009-es blogbejegyzés-stílusú cikk („Fighting regressions with git bisect",
+Christian Couder, Linux-Kongress 2009). A főcím és **minden** alcím (nem csak man-page szekciócímek)
+fordítva lett, kétsoros aláhúzás-hosszigazítással (`====` cím / `----` szint1 / `~~~~` szint2).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| regression | **„regresszió"** (új, git-docs-specifikus általános szakszó) | nincs a `progit2` örökölt táblában; a cikk kulcsfogalma |
+| "good" / "bad" (bisect-állapot jelző) | **angolul, idézőjelben marad**, első előforduláskor magyar glosszával: `"bad" (rossz)`, `"good" (jó)` | a `git-bisect.adoc` (33/34/44. sor) már bevezetett konvenciójának követése, konzisztencia miatt |
+| "first bad commit" | **egész kifejezésként angolul, idézőjelben marad** (`"first bad commit"`), első előforduláskor glosszázva: `(az első "bad" commit)` | a cikk saját maga vezeti be definícióként; a „good"/„bad" mintáját követve egyben hagytuk, nem tagoltuk szét |
+| "git bisect" (a cikk egész szövegében idézőjelben) | **megtartva idézőjelben**, angolul | a szerző saját tipográfiai konvenciója; a címben és élő szövegben egyaránt |
+| merge base | **„merge-alap"** | `"D" is called a "merge base"` → `"D" commitot a … "merge-alapjának" nevezzük` |
+| bisection / bisecting (általános főnév) | **„bisect-folyamat" / „bisectelés"** | a `bisectel` ige (0. blokk öröklött tétel) továbbragozva |
+| bisection point / bisection commit | **„bisect-pont" / „bisect-commit"** | új, cikk-specifikus összetétel |
+| best bisection point | **„legjobb bisect-pont"** | |
+| BBC / BFC (a cikk saját rövidítése: bisect breaking/fixing commit) | **angolul marad**, első előforduláskor kiírva: „BBC-nek, azaz »bisect breaking commit«-nek" | coined term, csak ebben a cikkben |
+| work-flow | **„munkafolyamat"** (a `progit2`-ből örökölt „workflow" → „munkafolyamat" mintája) | |
+| evil merge | **„gonosz merge"** (`"evil merges"` idézőjelben tartva) | |
+| end node principle | **„»end node principle«"** — angolul hagyva idézőjelben, a David Miller-idézeten belül, tehát maga a mondat is a verbatim blokk része (nem fordítva) | l. lent, a teljes idézetblokk angolul maradt |
+| sh -c "some commands" (alcím) | **„A sh -c "parancsok" átadása a "git bisect run"-nak"** | a `sh -c` és a beágyazott idézőjelek megtartva, backtick NÉLKÜL (a `-c` kapcsoló és a parancs önmagában nem kapott kódformázást, hogy illeszkedjen a cikk tipográfiai stílusához) |
+
+### Verbatim (angolul) hagyott blokkok — indoklással
+
+A cikk `_____________`-tal határolt idézetblokkjai (AsciiDoc quote block) **mindegyike szó szerint
+idézett külső forrás vagy személy** (NIST-tanulmány, Wikipédia, Ingo Molnar, David Miller, Andreas
+Ericsson mailing list-/interjú-idézetei) — ezeket **bájtazonosan angolul hagytuk**, a skill
+„e-mail-idézetek bájtazonosak maradnak" szabályát kiterjesztve rájuk (analóg a `CSERE-003`
+KVM-commit-log-gal, ami szintén egy valódi, szó szerint idézett forrás). Csak a **bevezető/lezáró
+kapcsolómondatokat** fordítottuk (pl. „És aztán:", „Végül a következtetés így kezdődött:").
+Ugyanez vonatkozik a program tényleges, lokalizálatlan kimeneti szövegeire (pl. „There are only
+'skip'ped commits left to test.", „The merge base BBBBBB is bad." stb.) — ezek a `git-clean.adoc`
+(5. blokk) és `git-daemon.adoc` (6. blokk) precedensét követik.
+
+A záró **„Hivatkozások" (References) szakasz bibliográfiai tételei** (szerzők, művek címei, URL-ek)
+**teljes egészében angolul maradtak** — akadémiai idézési konvenció szerint a hivatkozott munkák
+címét nem fordítjuk le; csak a szakaszcím (`References` → `Hivatkozások`) és a szakasz feletti
+`Acknowledgments` (→ `Köszönetnyilvánítás`) fordult. **Eldöntendő**, ha a felhasználó mégis
+fordítást kér a bibliográfiai leíró szövegekre (pl. „Nist News Release.", „LWN.net.").
+
+### `CSERE-002` / `CSERE-003` opaque token — kezelés ebben a fájlban
+
+A munkamenetet kiadó (nem ehhez a blokkhoz tartozó, korábbi) technikai lépés két opaque tokent
+helyezett a szövegbe: `CSERE-002` (6 előfordulás) és `CSERE-003` (2 előfordulás, mindkettő egyetlen,
+szó szerint idézett Linux kernel commit-log-sorban). **A tokenek jelentését nem fejtettük meg és nem
+próbáltuk visszafejteni.**
+
+- **Kódblokkban / idézett commit-logban (5 előfordulás):** teljesen bájtazonosan hagyva.
+  - `[66c0b394f08fd89236515c1c84485ea712a157be] KVM: CSERE-002 file->f_count CSERE-003 in kvm`
+    — 2 helyen (245., illetve 316. sor volt eredetileg; a fordítás után 253. és 324. sor), mindkétszer
+    egy `-------------` kódblokkban, szó szerint idézett kernel commit-log-sor.
+  - `if CSERE-002 -0 $pid` és `CSERE-002 $pid; sleep 1; CSERE-002 $pid;` — egy `#!/bin/sh`
+    példaszkript `-------------` kódblokkjában (eredetileg kb. a 949., 952. sor; a fordítás után 972.,
+    975. sor) — ez utóbbi sorban a token **kétszer** fordul elő.
+- **Prózában, EGYETLEN helyen (1 előfordulás):** az eredeti angol mondat („Exit code between 128 and
+  255 are special to 'git bisect run'. … because you can CSERE-002 it with a signal and it will stop
+  the bisection process.") a fordításban:
+
+  > „A 128 és 255 közötti kilépési kódok speciálisak a "git bisect run" számára. Ezek azonnal
+  > leállítják a bisect-folyamatot. Ez akkor hasznos például, ha az átadott parancs végrehajtása túl
+  > sokáig tart, mert ilyenkor CSERE-002-vel egy szignál segítségével, és ez megállítja a
+  > bisect-folyamatot."
+
+  Ez a fordítás **a feladatkiírásban megadott mintamondatot szinte szó szerint követi** — a token
+  instrumentális (`-vel`) ragot kapott, a mondat nyelvtanilag nem teljesen zárt (hiányzik egy explicit
+  ige a „CSERE-002-vel" mellől), **szándékosan**, mert a token mögötti eredeti szó (feltehetően
+  „kill") kitalálását el kellett kerülni. **Ha egy jövőbeli munkamenet visszaállítja a valódi szót**,
+  ezt a mondatot minden bizonnyal át kell fogalmazni természetesebb nyelvtani szerkezetre (pl. „mert
+  ilyenkor egy szignállal kilőheted, és ez megállítja a bisect-folyamatot", ha a szó „kill").
+  **Ez az egyetlen prózai előfordulás a fájlban**, pontos sorszáma a fordítás utáni állapotban: 357.
+
+### Címsor-anchorok
+
+- A fájlban **nincs egyetlen `[[...]]` anchor vagy `<<...>>` xref sem** a bibliográfiai `<<1>>`–`<<9>>`
+  (→ `[[[1]]]`–`[[[9]]]` References-tételek) kivételével — ezek AsciiDoc bibliográfia-hivatkozások,
+  nem címsor-xrefek, **változatlanul hagyva** (mindkét irányban, 9 pár, ellenőrizve).
+- A fájl **nincs máshonnan hivatkozva** a `Documentation/` fából (nem `linkgit:`-elt cél, csak
+  önállóan olvasható cikk), ezért egyetlen alcímnek sem kellett defenzív `[[...]]` anchort adni.
+
+### Man-page címként angolul hagyott címsorok
+
+- **Nincs egy sem** — ez a fájl explicit NEM man page (a feladatkiírás szerint), a főcím és minden
+  alcím lefordítva lett, aláhúzás-igazítással.
+
+### Megőrzött markup / megjegyzések
+
+- 45 pár `-------------` (13 kötőjel) kódblokk-határoló és 10 pár `_____________` (13 aláhúzás)
+  idézetblokk-határoló — mindkettő páros számú, egyik sem sérült a fordítás során (utólag
+  ellenőrizve, a fordítás előtti/utáni állapot között egyetlen határoló-sor sem változott).
+  A `-------------` blokkok tartalma (parancspéldák, gráf-ASCII-art, matematikai képletek,
+  a `#!/bin/sh` példaszkript) bájtazonos, csak a blokkok közötti/feletti/alatti próza fordult.
+- A kétsoros (setext) aláhúzások mind a fordított cím pontos hosszára lettek igazítva (0. és a
+  fordítás közbeni, illetve utólagos, teljes fájlra kiterjedő automatizált — PowerShell `.Length`
+  alapú — ellenőrzéssel; 12 eltérés került elő és javításra menet közben, mind ±1 karakteres
+  elütés volt).
+- A `:Author:`, `:Email:`, `:Date:` AsciiDoc-attribútum-sorok változatlanok.
+- A `<<1>>`–`<<9>>` bibliográfia-xrefek és a `- [[[1]]] …` – `- [[[9]]] …` References-tételek
+  (URL-ek, idézőjeles műcímek, kiadói/forrás-nevek) bájtazonosak.
+
