@@ -3,7 +3,7 @@ git-daemon(1)
 
 NAME
 ----
-git-daemon - A really simple server for Git repositories
+git-daemon - Egy nagyon egyszerű szerver Git repository-khoz
 
 SYNOPSIS
 --------
@@ -25,250 +25,262 @@ git daemon [--verbose] [--syslog] [--export-all]
 
 DESCRIPTION
 -----------
-A really simple TCP Git daemon that normally listens on port "DEFAULT_GIT_PORT"
-aka 9418.  It waits for a connection asking for a service, and will serve
-that service if it is enabled.
+Egy nagyon egyszerű TCP Git daemon, amely normál esetben a
+"DEFAULT_GIT_PORT" porton, azaz a 9418-on figyel. Egy szolgáltatást
+kérő kapcsolatra vár, és kiszolgálja azt a szolgáltatást, ha az
+engedélyezve van.
 
-It verifies that the directory has the magic file "git-daemon-export-ok", and
-it will refuse to export any Git directory that hasn't explicitly been marked
-for export this way (unless the `--export-all` parameter is specified). If you
-pass some directory paths as `git daemon` arguments, the offers are limited to
-repositories within those directories.
+Ellenőrzi, hogy a könyvtár tartalmazza-e a "git-daemon-export-ok" mágikus
+fájlt, és megtagadja bármely olyan Git-könyvtár exportálását, amely
+nincs kifejezetten így exportálásra megjelölve (hacsak nincs megadva
+az `--export-all` paraméter). Ha megadsz néhány könyvtár-útvonalat a
+`git daemon` argumentumaiként, a kínálat az ezeken a könyvtárakon
+belüli repository-kra korlátozódik.
 
-By default, only `upload-pack` service is enabled, which serves
-`git fetch-pack` and `git ls-remote` clients, which are invoked
-from `git fetch`, `git pull`, and `git clone`.
+Alapértelmezetten csak az `upload-pack` szolgáltatás van engedélyezve,
+amely a `git fetch-pack` és `git ls-remote` klienseket szolgálja ki,
+amelyeket a `git fetch`, `git pull` és `git clone` hív meg.
 
-This is ideally suited for read-only updates, i.e., pulling from
-Git repositories.
+Ez ideálisan alkalmas csak olvasható frissítésekhez, azaz Git
+repository-kból való pull-ozáshoz.
 
-An `upload-archive` also exists to serve `git archive`.
+Létezik egy `upload-archive` is a `git archive` kiszolgálására.
 
 OPTIONS
 -------
 `--strict-paths`::
-	Match paths exactly (i.e. don't allow "/foo/repo" when the real path is
-	"/foo/repo.git" or "/foo/repo/.git") and don't do user-relative paths.
-	`git daemon` will refuse to start when this option is enabled and no
-	directory arguments are provided.
+	Az útvonalak pontos egyezését kényszeríti ki (azaz nem engedi meg a
+	"/foo/repo" alakot, ha a valódi útvonal "/foo/repo.git" vagy
+	"/foo/repo/.git"), és nem alkalmaz felhasználóhoz relatív útvonalakat.
+	A `git daemon` megtagadja az indulást, ha ez az opció engedélyezve
+	van, és nincs megadva egyetlen könyvtár-argumentum sem.
 
 `--base-path=<path>`::
-	Remap all the path requests as relative to the given path.
-	This is sort of "Git root" - if you run `git daemon` with
-	`--base-path=/srv/git` on `example.com`, then if you later try
-	to pull from `git://example.com/hello.git`, `git daemon` will
-	interpret the path as `/srv/git/hello.git`.
+	Az összes útvonalkérést a megadott útvonalhoz képest relatívként
+	képezi le. Ez egyfajta "Git-gyökér" - ha a `git daemon`-t az
+	`example.com`-on `--base-path=/srv/git` kapcsolóval futtatod, majd
+	utóbb megpróbálsz pull-ozni a `git://example.com/hello.git`
+	címről, a `git daemon` az útvonalat `/srv/git/hello.git`-ként
+	fogja értelmezni.
 
 `--base-path-relaxed`::
-	If `--base-path` is enabled and repo lookup fails, with this option
-	`git daemon` will attempt to lookup without prefixing the base path.
-	This is useful for switching to `--base-path` usage, while still
-	allowing the old paths.
+	Ha a `--base-path` engedélyezve van és a repository-keresés
+	sikertelen, ezzel az opcióval a `git daemon` megpróbálja a
+	keresést az alap-útvonal előtagja nélkül is elvégezni. Ez hasznos
+	a `--base-path` használatára való átálláshoz, miközben a régi
+	útvonalak is továbbra is elérhetők maradnak.
 
 `--interpolated-path=<pathtemplate>`::
-	To support virtual hosting, an interpolated path template can be
-	used to dynamically construct alternate paths.  The template
-	supports `%H` for the target hostname as supplied by the client but
-	converted to all lowercase, `%CH` for the canonical hostname,
-	`%IP` for the server's IP address, `%P` for the port number,
-	and `%D` for the absolute path of the named repository.
-	After interpolation, the path is validated against the directory
-	list.
+	A virtuális hosztolás támogatásához egy interpolált útvonal-sablon
+	használható alternatív útvonalak dinamikus felépítésére. A sablon
+	támogatja a `%H`-t a kliens által megadott, de csupa kisbetűssé
+	alakított célhosztnévhez, a `%CH`-t a kanonikus hosztnévhez, a
+	`%IP`-t a szerver IP-címéhez, a `%P`-t a portszámhoz, és a `%D`-t
+	a megnevezett repository abszolút útvonalához. Az interpoláció után
+	az útvonal a könyvtárlistával szemben ellenőrzésre kerül.
 
 `--export-all`::
-	Allow pulling from all directories that look like Git repositories
-	(have the 'objects' and 'refs' subdirectories), even if they
-	do not have the `git-daemon-export-ok` file.
+	Engedélyezi a pull-ozást minden olyan könyvtárból, amely Git
+	repository-nak látszik (van benne 'objects' és 'refs'
+	alkönyvtár), még akkor is, ha nincs benne `git-daemon-export-ok`
+	fájl.
 
 `--inetd`::
-	Have the server run as an inetd service. Implies `--syslog` (may
-	be overridden with `--log-destination=`).
-	Incompatible with `--detach`, `--port`, `--listen`, `--user` and
-	`--group` options.
+	A szervert inetd szolgáltatásként futtatja. Ez maga után vonja a
+	`--syslog`-ot (felülbírálható a `--log-destination=`-nel).
+	Nem kompatibilis a `--detach`, `--port`, `--listen`, `--user` és
+	`--group` opciókkal.
 
 `--listen=<host-or-ipaddr>`::
-	Listen on a specific IP address or hostname.  IP addresses can
-	be either an IPv4 address or an IPv6 address if supported.  If IPv6
-	is not supported, then `--listen=<hostname>` is also not supported
-	and `--listen` must be given an IPv4 address.
-	Can be given more than once.
-	Incompatible with `--inetd` option.
+	Egy konkrét IP-címen vagy hosztnéven figyel. Az IP-cím lehet IPv4-
+	vagy - ha támogatott - IPv6-cím. Ha az IPv6 nem támogatott, akkor a
+	`--listen=<hostname>` sem támogatott, és a `--listen`-nek IPv4-címet
+	kell megadni.
+	Többször is megadható.
+	Nem kompatibilis a `--inetd` opcióval.
 
 `--port=<n>`::
-	Listen on an alternative port.  Incompatible with `--inetd` option.
+	Egy alternatív porton figyel. Nem kompatibilis a `--inetd` opcióval.
 
 `--init-timeout=<n>`::
-	Timeout (in seconds) between the moment the connection is established
-	and the client request is received (typically a rather low value, since
-	that should be basically immediate).
+	Időkorlát (másodpercben) a kapcsolat létrejötte és a kliens
+	kérésének megérkezése között (jellemzően eléggé alacsony érték,
+	mivel ennek alapvetően azonnalinak kell lennie).
 
 `--timeout=<n>`::
-	Timeout (in seconds) for specific client sub-requests. This includes
-	the time it takes for the server to process the sub-request and the
-	time spent waiting for the next client's request.
+	Időkorlát (másodpercben) az egyes kliens-alkérésekre. Ez magában
+	foglalja azt az időt, amíg a szerver feldolgozza az alkérést, és
+	azt az időt is, amíg a következő kliens-kérésre vár.
 
 `--max-connections=<n>`::
-	Maximum number of concurrent clients, defaults to 32.  Set it to
-	zero for no limit.
+	A párhuzamos kliensek maximális száma, alapértelmezetten 32. Ha
+	nem akarsz korlátot, állítsd nullára.
 
 `--syslog`::
-	Short for `--log-destination=syslog`.
+	Rövidítés a `--log-destination=syslog` helyett.
 
 `--log-destination=<destination>`::
-	Send log messages to the specified destination.
-	Note that this option does not imply `--verbose`,
-	thus by default only error conditions will be logged.
-	The _<destination>_ must be one of:
+	A naplóüzeneteket a megadott célra küldi.
+	Vedd figyelembe, hogy ez az opció nem vonja maga után a
+	`--verbose`-t, ezért alapértelmezetten csak a hibaállapotok
+	kerülnek naplózásra.
+	A _<destination>_ a következők egyike lehet:
 +
 --
 `stderr`::
-	Write to standard error.
-	Note that if `--detach` is specified,
-	the process disconnects from the real standard error,
-	making this destination effectively equivalent to `none`.
+	A standard hibakimenetre írja.
+	Vedd figyelembe, hogy ha a `--detach` meg van adva, a folyamat
+	leválik a valódi standard hibakimenetről, így ez a célpont
+	gyakorlatilag egyenértékű a `none`-nal.
 `syslog`::
-	Write to syslog, using the `git-daemon` identifier.
+	A syslogba írja, a `git-daemon` azonosítót használva.
 `none`::
-	Disable all logging.
+	Kikapcsolja az összes naplózást.
 --
 +
-The default destination is `syslog` if `--inetd` or `--detach` is specified,
-otherwise `stderr`.
+Az alapértelmezett célpont `syslog`, ha a `--inetd` vagy a `--detach` meg
+van adva, egyébként `stderr`.
 
 `--user-path`::
 `--user-path=<path>`::
-	Allow {tilde}user notation to be used in requests.  When
-	specified with no parameter, a request to
-	git://host/{tilde}alice/foo is taken as a request to access
-	'foo' repository in the home directory of user `alice`.
-	If `--user-path=<path>` is specified, the same request is
-	taken as a request to access `<path>/foo` repository in
-	the home directory of user `alice`.
+	Engedélyezi a {tilde}user jelölés használatát a kérésekben. Ha
+	paraméter nélkül van megadva, a git://host/{tilde}alice/foo
+	kérés az `alice` felhasználó saját könyvtárában lévő 'foo'
+	repository elérésére irányuló kérésként értelmeződik.
+	Ha a `--user-path=<path>` van megadva, ugyanez a kérés a
+	`<path>/foo` repository elérésére irányuló kérésként
+	értelmeződik az `alice` felhasználó saját könyvtárában.
 
 `--verbose`::
-	Log details about the incoming connections and requested files.
+	Naplózza a bejövő kapcsolatok és a kért fájlok részleteit.
 
 `--reuseaddr`::
-	Use `SO_REUSEADDR` when binding the listening socket.
-	This allows the server to restart without waiting for
-	old connections to time out.
+	A `SO_REUSEADDR`-t használja a figyelő socket bindeléséhez.
+	Ez lehetővé teszi a szerver újraindítását anélkül, hogy meg
+	kellene várni a régi kapcsolatok időtúllépését.
 
 `--detach`::
-	Detach from the shell. Implies `--syslog`.
+	Leválik a shellről. Ez maga után vonja a `--syslog`-ot.
 
 `--pid-file=<file>`::
-	Save the process id in _<file>_.  Ignored when the daemon
-	is run under `--inetd`.
+	Elmenti a folyamatazonosítót a _<file>_-ba. Figyelmen kívül
+	marad, ha a daemon `--inetd` alatt fut.
 
 `--user=<user>`::
 `--group=<group>`::
-	Change daemon's uid and gid before entering the service loop.
-	When only `--user` is given without `--group`, the
-	primary group ID for the user is used.  The values of
-	the option are given to `getpwnam(3)` and `getgrnam(3)`
-	and numeric IDs are not supported.
+	Megváltoztatja a daemon uid-jét és gid-jét, mielőtt belépne a
+	kiszolgálási ciklusba. Ha csak a `--user` van megadva a
+	`--group` nélkül, a felhasználó elsődleges csoportazonosítója
+	kerül felhasználásra. Az opció értékei a `getpwnam(3)` és a
+	`getgrnam(3)` számára kerülnek átadásra, numerikus azonosítók
+	nem támogatottak.
 +
-Giving these options is an error when used with `--inetd`; use
-the facility of inet daemon to achieve the same before spawning
-`git daemon` if needed.
+Ezen opciók megadása hiba, ha a `--inetd`-vel együtt van
+használva; ha szükséges, az inet daemon eszközkészletét
+használd ugyanennek eléréséhez a `git daemon` elindítása előtt.
 +
-Like many programs that switch user id, the daemon does not reset
-environment variables such as `HOME` when it runs git programs,
-e.g. `upload-pack` and `receive-pack`. When using this option, you
-may also want to set and export `HOME` to point at the home
-directory of _<user>_ before starting the daemon, and make sure any
-Git configuration files in that directory are readable by _<user>_.
+Mint a legtöbb, felhasználói azonosítót váltó program, a daemon
+sem állítja vissza az olyan környezeti változókat, mint a `HOME`,
+amikor git programokat futtat, pl. az `upload-pack`-et és a
+`receive-pack`-et. Ennek az opciónak a használatakor érdemes lehet
+a `HOME`-ot is beállítanod és exportálnod, hogy a _<user>_ saját
+könyvtárára mutasson a daemon elindítása előtt, és győződj meg
+róla, hogy az abban a könyvtárban lévő Git konfigurációs fájlok
+olvashatók a _<user>_ számára.
 
 `--enable=<service>`::
 `--disable=<service>`::
-	Enable/disable the service site-wide per default.  Note
-	that a service disabled site-wide can still be enabled
-	per repository if it is marked overridable and the
-	repository enables the service with a configuration
-	item.
+	Engedélyezi/letiltja a szolgáltatást site-szinten,
+	alapértelmezésként. Vedd figyelembe, hogy egy site-szinten
+	letiltott szolgáltatás repository-nként még mindig
+	engedélyezhető, ha felülbírálhatóként van megjelölve, és a
+	repository egy konfigurációs tétellel engedélyezi a
+	szolgáltatást.
 
 `--allow-override=<service>`::
 `--forbid-override=<service>`::
-	Allow/forbid overriding the site-wide default with per
-	repository configuration.  By default, all the services
-	may be overridden.
+	Engedélyezi/tiltja a site-szintű alapértelmezés felülbírálását
+	repository-nkénti konfigurációval. Alapértelmezetten minden
+	szolgáltatás felülbírálható.
 
 `--informative-errors`::
 `--no-informative-errors`::
-	When informative errors are turned on, git-daemon will report
-	more verbose errors to the client, differentiating conditions
-	like "no such repository" from "repository not exported". This
-	is more convenient for clients, but may leak information about
-	the existence of unexported repositories.  When informative
-	errors are not enabled, all errors report "access denied" to the
-	client. The default is `--no-informative-errors`.
+	Ha az informatív hibák be vannak kapcsolva, a git-daemon
+	részletesebb hibákat jelent a kliensnek, megkülönböztetve az
+	olyan állapotokat, mint a "no such repository" a "repository not
+	exported"-től. Ez kényelmesebb a kliensek számára, de kiszivárogtathatja
+	a nem exportált repository-k létezésére vonatkozó információt. Ha az
+	informatív hibák nincsenek engedélyezve, minden hiba "access denied"
+	üzenetet jelent a kliensnek. Az alapértelmezés a
+	`--no-informative-errors`.
 
 `--access-hook=<path>`::
-	Every time a client connects, first run an external command
-	specified by the <path> with service name (e.g. "upload-pack"),
-	path to the repository, hostname (`%H`), canonical hostname
-	(`%CH`), IP address (`%IP`), and TCP port (`%P`) as its command-line
-	arguments. The external command can decide to decline the
-	service by exiting with a non-zero status (or to allow it by
-	exiting with a zero status).  It can also look at the $REMOTE_ADDR
-	and `$REMOTE_PORT` environment variables to learn about the
-	requestor when making this decision.
+	Minden alkalommal, amikor egy kliens kapcsolódik, először lefuttat
+	egy a <path> által megadott külső parancsot a szolgáltatás nevével
+	(pl. "upload-pack"), a repository útvonalával, a hosztnévvel
+	(`%H`), a kanonikus hosztnévvel (`%CH`), az IP-címmel (`%IP`) és a
+	TCP-porttal (`%P`) mint parancssori argumentumokkal. A külső
+	parancs eldöntheti, hogy elutasítja-e a szolgáltatást egy nem
+	nulla állapottal való kilépéssel (vagy engedélyezheti azt nulla
+	állapottal való kilépéssel). A döntés meghozatalakor a kérelmezőről
+	a $REMOTE_ADDR és a `$REMOTE_PORT` környezeti változókból is
+	tájékozódhat.
 +
-The external command can optionally write a single line to its
-standard output to be sent to the requestor as an error message when
-it declines the service.
+A külső parancs opcionálisan egyetlen sort írhat a standard
+kimenetére, amelyet a kérelmezőnek hibaüzenetként küldünk, ha
+elutasítja a szolgáltatást.
 
 _<directory>_::
-	The remaining arguments provide a list of directories. If any
-	directories are specified, then the `git-daemon` process will
-	serve a requested directory only if it is contained in one of
-	these directories. If `--strict-paths` is specified, then the
-	requested directory must match one of these directories exactly.
+	A megmaradt argumentumok könyvtárak listáját adják meg. Ha meg van
+	adva bármilyen könyvtár, a `git-daemon` folyamat csak akkor
+	szolgál ki egy kért könyvtárat, ha az valamelyik ezen könyvtárak
+	közül tartalmazza azt. Ha a `--strict-paths` meg van adva, a kért
+	könyvtárnak pontosan meg kell egyeznie ezen könyvtárak egyikével.
 
 SERVICES
 --------
 
-These services can be globally enabled/disabled using the
-command-line options of this command.  If finer-grained
-control is desired (e.g. to allow `git archive` to be run
-against only in a few selected repositories the daemon serves),
-the per-repository configuration file can be used to enable or
-disable them.
+Ezek a szolgáltatások globálisan engedélyezhetők/letilthatók e parancs
+parancssori opcióival. Ha finomabb szemcsézettségű vezérlés kívánatos
+(pl. hogy a `git archive` csak néhány kiválasztott, a daemon által
+kiszolgált repository ellenében legyen futtatható), a
+repository-nkénti konfigurációs fájl használható az engedélyezésükre
+vagy letiltásukra.
 
 upload-pack::
-	This serves `git fetch-pack` and `git ls-remote`
-	clients.  It is enabled by default, but a repository can
-	disable it by setting `daemon.uploadpack` configuration
-	item to `false`.
+	Ez a `git fetch-pack` és a `git ls-remote` klienseket szolgálja
+	ki. Alapértelmezetten engedélyezve van, de egy repository
+	letilthatja a `daemon.uploadpack` konfigurációs tétel
+	`false`-ra állításával.
 
 upload-archive::
-	This serves `git archive --remote`.  It is disabled by
-	default, but a repository can enable it by setting
-	`daemon.uploadarch` configuration item to `true`.
+	Ez a `git archive --remote`-ot szolgálja ki. Alapértelmezetten
+	le van tiltva, de egy repository engedélyezheti a
+	`daemon.uploadarch` konfigurációs tétel `true`-ra állításával.
 
 receive-pack::
-	This serves `git send-pack` clients, allowing anonymous
-	push.  It is disabled by default, as there is _no_
-	authentication in the protocol (in other words, anybody
-	can push anything into the repository, including removal
-	of refs).  This is solely meant for a closed LAN setting
-	where everybody is friendly.  This service can be
-	enabled by setting `daemon.receivepack` configuration item to
-	`true`.
+	Ez a `git send-pack` klienseket szolgálja ki, lehetővé téve az
+	anonim push-t. Alapértelmezetten le van tiltva, mivel a
+	protokollban _nincs_ hitelesítés (más szóval bárki bármit
+	push-olhat a repository-ba, beleértve a referenciák törlését
+	is). Ez kizárólag zárt LAN-környezetre szánt, ahol mindenki
+	barátságos. Ez a szolgáltatás a `daemon.receivepack`
+	konfigurációs tétel `true`-ra állításával engedélyezhető.
 
 EXAMPLES
 --------
-We assume the following in /etc/services::
+Feltételezzük a következőt a /etc/services fájlban::
 +
 ------------
 $ grep 9418 /etc/services
 git		9418/tcp		# Git Version Control System
 ------------
 
-'git daemon' as inetd server::
-	To set up 'git daemon' as an inetd service that handles any
-	repository within `/pub/foo` or `/pub/bar`, place an entry like
-	the following into `/etc/inetd` all on one line:
+A 'git daemon' mint inetd szerver::
+	Ahhoz, hogy a 'git daemon'-t olyan inetd szolgáltatásként
+	állítsd be, amely a `/pub/foo` vagy a `/pub/bar` alatti bármely
+	repository-t kezeli, helyezz el egy a következőhöz hasonló
+	bejegyzést a `/etc/inetd`-be, egyetlen sorban:
 +
 ------------------------------------------------
 	git stream tcp nowait nobody  /usr/bin/git
@@ -277,11 +289,12 @@ git		9418/tcp		# Git Version Control System
 ------------------------------------------------
 
 
-'git daemon' as inetd server for virtual hosts::
-	To set up 'git daemon' as an inetd service that handles
-	repositories for different virtual hosts, `www.example.com`
-	and `www.example.org`, place an entry like the following into
-	`/etc/inetd` all on one line:
+A 'git daemon' mint inetd szerver virtuális hosztokhoz::
+	Ahhoz, hogy a 'git daemon'-t olyan inetd szolgáltatásként
+	állítsd be, amely különböző virtuális hosztok, a
+	`www.example.com` és a `www.example.org` repository-jait
+	kezeli, helyezz el egy a következőhöz hasonló bejegyzést a
+	`/etc/inetd`-be, egyetlen sorban:
 +
 ------------------------------------------------
 	git stream tcp nowait nobody /usr/bin/git
@@ -292,18 +305,20 @@ git		9418/tcp		# Git Version Control System
 		/software
 ------------------------------------------------
 +
-In this example, the root-level directory `/pub` will contain
-a subdirectory for each virtual host name supported.
-Further, both hosts advertise repositories simply as
-`git://www.example.com/software/repo.git`.  For pre-1.4.0
-clients, a symlink from `/software` into the appropriate
-default repository could be made as well.
+Ebben a példában a gyökérszintű `/pub` könyvtár minden támogatott
+virtuális hosztnévhez egy alkönyvtárat fog tartalmazni.
+Továbbá mindkét hoszt egyszerűen
+`git://www.example.com/software/repo.git`-ként hirdeti a
+repository-kat. Az 1.4.0 előtti kliensek számára egy szimbolikus
+link is készíthető a `/software`-ből a megfelelő alapértelmezett
+repository-ba.
 
 
-'git daemon' as regular daemon for virtual hosts::
-	To set up `git daemon` as a regular, non-inetd service that
-	handles repositories for multiple virtual hosts based on
-	their IP addresses, start the daemon like this:
+A `git daemon` mint reguláris daemon virtuális hosztokhoz::
+	Ahhoz, hogy a `git daemon`-t olyan reguláris, nem inetd
+	szolgáltatásként állítsd be, amely az IP-címeik alapján több
+	virtuális hoszt repository-jait kezeli, indítsd el a daemont
+	így:
 +
 ------------------------------------------------
 	git daemon --verbose --export-all
@@ -312,16 +327,16 @@ default repository could be made as well.
 		/pub/10.10.220.23/software
 ------------------------------------------------
 +
-In this example, the root-level directory `/pub` will contain
-a subdirectory for each virtual host IP address supported.
-Repositories can still be accessed by hostname though, assuming
-they correspond to these IP addresses.
+Ebben a példában a gyökérszintű `/pub` könyvtár minden támogatott
+virtuális hoszt IP-címéhez egy alkönyvtárat fog tartalmazni.
+A repository-k továbbra is elérhetők hosztnév alapján is,
+feltéve, hogy ezek megfelelnek ezeknek az IP-címeknek.
 
-selectively enable/disable services per repository::
-	To enable `git archive --remote` and disable `git fetch` against
-	a repository, have the following in the configuration file in the
-	repository (that is the file 'config' next to `HEAD`, 'refs' and
-	'objects').
+szolgáltatások szelektív engedélyezése/letiltása repository-nként::
+	Ahhoz, hogy engedélyezd a `git archive --remote`-ot és letiltsd
+	a `git fetch`-et egy repository ellenében, tedd bele a
+	következőt a repository konfigurációs fájljába (ez a `HEAD`,
+	'refs' és 'objects' melletti 'config' fájl).
 +
 ----------------------------------------------------------------
 	[daemon]
@@ -332,11 +347,11 @@ selectively enable/disable services per repository::
 
 ENVIRONMENT
 -----------
-`git daemon` will set `REMOTE_ADDR` to the IP address of the client
-that connected to it, if the IP address is available. `REMOTE_ADDR` will
-be available in the environment of hooks called when
-services are performed.
+A `git daemon` be fogja állítani a `REMOTE_ADDR`-t a hozzá
+kapcsolódó kliens IP-címére, ha az IP-cím elérhető. A `REMOTE_ADDR`
+elérhető lesz a szolgáltatások teljesítésekor meghívott hookok
+környezetében.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

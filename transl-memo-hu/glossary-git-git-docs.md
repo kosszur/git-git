@@ -386,3 +386,85 @@ Mindhárom rövid fájl (34, 26, illetve 159 soros); nincs korábbi terminológi
 - Mindhárom fájl végén a GIT szakasz „A linkgit:git[1] csomag része" alakra lett fordítva (4. blokk
   szerinti egységesített forma).
 
+## 6. blokk — `git-daemon.adoc` — 2026-09-04
+
+**Módszer:** egyetlen (subagent) munkamenet, célzott `Edit`-ekkel, a fájl teljes egészében lefordítva.
+A NAME és a DESCRIPTION szakasz a munkamenet indulásakor **már le volt fordítva** egy korábbi lépésben;
+ebben a blokkban az OPTIONS, SERVICES, EXAMPLES, ENVIRONMENT és GIT szakaszok készültek el.
+
+**Külön megjegyzés — opaque token a szövegben:** a fájlban (a feladatot kiadó munkamenet szerint egy
+korábbi, ehhez a blokkhoz nem tartozó technikai okból) egy `CSERE-001` jelölésű helyettesítő token
+szerepelt 36 helyen egy — itt nem felfedett — eredeti angol szó helyén. A tokent a fordítás során
+**érintetlenül hagytuk**, és **nem próbáltuk megfejteni**: prózában a magyar toldalékokat kötőjellel
+illesztettük hozzá (pl. `CSERE-001-t`, `CSERE-001 uid-jét`), kódblokkban / parancsnévben / config-kulcsban
+(`git CSERE-001`, `git-CSERE-001-export-ok`, `CSERE-001.uploadpack`, `CSERE-001.uploadarch`,
+`CSERE-001.receivepack`, a `[CSERE-001]` config-szekciócím) **teljesen változatlanul** hagytuk, ahogy egy
+valódi angol parancsnév-token esetén is történne. **Ez a kezelés csak erre a fájlra, egy külön munkameneti
+utasítás alapján vonatkozott** — nem általános terminológiai döntés, és **nem jelenti azt**, hogy a
+`CSERE-001` szót bármilyen jövőbeli fájlban is használni kellene; ha az eredeti szó (feltehetően a
+fájlnévből és a szövegkörnyezetből következtethető parancsnév-elem) egy jövőbeli munkamenetben
+visszaállításra kerül, a fenti helyeken kell keresni és cserélni.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| site-wide (default) | **„site-szinten"** / „site-szintű alapértelmezés" | `--enable`/`--disable`/`--allow-override`/`--forbid-override` leírásában |
+| informative errors | **„informatív hibák"** | `--informative-errors`/`--no-informative-errors` |
+| "no such repository" / "repository not exported" / "access denied" | **bájtazonosan angolul, idézőjelben** | a daemon tényleges, lokalizálatlan hibaüzenet-szövegei (program-kimenet, nem próza) — a `git-clean.adoc` interaktív prompt-szövegeinek mintáját (5. blokk) követi |
+| inetd service | **„inetd szolgáltatás"** | |
+| virtual hosting / virtual host | **„virtuális hosztolás" / „virtuális hoszt"** | |
+| access hook | **marad „access hook"** angolul a `--access-hook` opciónévben; a leírásban körülírva („a `<path>` által megadott külső parancs") | nincs önálló magyar szinonimája bevezetve, mert az opció maga sem name-szerű glosszárium-fogalom |
+| selectively enable/disable services per repository (címsor) | **„szolgáltatások szelektív engedélyezése/letiltása repository-nként"** | nem man-page cím, prózaszerű EXAMPLES-alcím, fordítva |
+
+### Címsor-anchorok
+
+- Nincs a fájlban explicit `[[...]]` anchor, és a teljes `Documentation/` fában nincs `<<...>>` xref sem
+  a `git-daemon.adoc` semelyik alcímére (grep-pel ellenőrizve: csak `linkgit:git-daemon[1]` hivatkozások
+  vannak más fájlokból, ezek a parancsnévre, nem címsorra mutatnak, és nem érintettek). Defenzív anchort
+  emiatt **nem** kellett hozzáadni.
+
+### Man-page címként angolul hagyott címsorok
+
+- NAME/SYNOPSIS/DESCRIPTION/OPTIONS/EXAMPLES/ENVIRONMENT/GIT — mind a skill kanonikus listáján van,
+  angolul maradtak.
+- **`SERVICES`** — csupa nagybetűs, kétsoros man-page-stílusú alcím, de **nincs** a skill kanonikus
+  man-page-szekció listáján. A 2. blokk `MERGES` / `BACKEND EXTRA OPTIONS` precedensét követve
+  **bájtazonosan angolul hagyva** (bár itt konkrétan ellenőrizve nincs rá `<<...>>` xref sehol, tehát a
+  fordítás technikailag biztonságos lenne). **Eldöntendő**, hogy a felhasználó megerősítésével a jövőben
+  egységesen fordítsuk-e az ilyen, kanonikus listán kívüli, de xref-kockázat nélküli man-page-stílusú
+  alcímeket (`SERVICES` → „SZOLGÁLTATÁSOK" lenne a jelölt fordítás).
+
+### Megőrzött markup / megjegyzések
+
+- A dokumentum-cím két sora (`git-CSERE-001(1)` / aláhúzás) inkonzisztens hosszúságú volt már a
+  munkamenet elején (a CSERE-001 token 3 karakterrel hosszabb, mint egy tipikus rövid parancsnév-utótag,
+  az aláhúzás viszont a korábbi, rövidebb állapotból maradt ott) — 13 kötőjelről 16-ra javítva, hogy
+  pontosan illeszkedjen a `git-CSERE-001(1)` 16 karakteres hosszához. Ez tisztán szintaxis-integritási
+  javítás, a tartalmat nem érinti.
+- `--log-destination=<destination>` beágyazott `stderr`/`syslog`/`none` almenüje (`+`/`--`/`--` blokkhatárolók)
+  érintetlen; csak a törzsszövegek fordultak.
+- Az EXAMPLES szakasz mindhárom `------------------------------------------------` (48 kötőjel) és a
+  `----------------------------------------------------------------` (66 kötőjel) körülhatárolt
+  parancspélda-/config-blokkja bájtazonos, csak a bevezető/záró prózamondatok fordultak.
+- A `$REMOTE_ADDR`, `$REMOTE_PORT`, `REMOTE_ADDR`, `{tilde}`, `_<file>_`/`_<user>_`/`_<destination>_`/
+  `_<directory>_` placeholder-jelölések és a `getpwnam(3)`/`getgrnam(3)` hívásnevek változatlanok.
+- A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti egységesített forma).
+
+**Orchestrátor utólagos visszaállítása (2026-09-04):** a `CSERE-001` token valójában a **„daemon"** szót
+helyettesítette (a glossary 0. blokkja szerint ez amúgy is angol kölcsönszóként marad magyar szövegben
+is, tehát a végeredmény ugyanaz, mint ha eleve „daemon"-t írt volna a subagent). Visszaállítás: globális
+`CSERE-001` → `daemon` csere mind a 37 előfordulásnál. **Két hibát kellett utólag kézzel javítani,
+amit a placeholder-hossz eltérése okozott:**
+1. A címsor aláhúzása a fenti (426–430. sori) „javítás" miatt 16 kötőjelre lett igazítva a
+   `git-CSERE-001(1)` (16 karakter) hosszához — de a végleges `git-daemon(1)` cím csak 13 karakter, ezért
+   az aláhúzást **vissza kellett állítani 13 kötőjelre**.
+2. Az egyetlen, idézőjel/backtick NÉLKÜLI, közvetlenül kötőjellel toldalékolt előfordulás
+   (`indítsd el a CSERE-001-t` → csere után `daemon-t`) helytelen volt, mert a `daemon` szó a glossary
+   szerint **kötőjel nélkül** kap toldalékot (`daemont`); kézzel javítva `daemont`-ra. A backtick/idézőjel
+   *utáni* kötőjeles alakok (`` `git daemon`-t ``, `` 'git daemon'-t ``) helyesek maradtak (a toldalék a
+   záró idézőjelhez/backtickhez kapcsolódik, nem közvetlenül a szóhoz).
+
+A fájl ezután teljes és hibátlan (`progress-git-git-docs.md`: `[x]`, 2026-09-04). Ez a tapasztalat
+általánosítva a 4. blokk „CSERE-NNN placeholder-kísérlet" jegyzetébe került.
+

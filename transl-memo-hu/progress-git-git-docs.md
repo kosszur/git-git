@@ -74,7 +74,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-cvsexportcommit.adoc | [x] |  | 2026-09-04 |
 | git-cvsimport.adoc | [x] |  | 2026-09-04 |
 | git-cvsserver.adoc | [x] |  | 2026-09-04 |
-| git-daemon.adoc | [ ] |  |  |
+| git-daemon.adoc | [x] |  | 2026-09-04 |
 | git-describe.adoc | [ ] |  |  |
 | git-diagnose.adoc | [ ] |  |  |
 | git-diff-files.adoc | [ ] |  |  |
