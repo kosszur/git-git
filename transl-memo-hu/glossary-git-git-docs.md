@@ -579,3 +579,74 @@ próbáltuk visszafejteni.**
 - A `<<1>>`–`<<9>>` bibliográfia-xrefek és a `- [[[1]]] …` – `- [[[9]]] …` References-tételek
   (URL-ek, idézőjeles műcímek, kiadói/forrás-nevek) bájtazonosak.
 
+## 7. blokk — `git-bisect.adoc`, `git-blame.adoc`, `git-describe.adoc` — 2026-09-04
+
+**Módszer:** egyetlen munkamenet, célzott `Edit`-ekkel, mindegyik fájl teljes egészében lefordítva.
+
+**Fontos megállapítás — `git-bisect.adoc` progress-jelölés téves volt:** a fájl a
+`progress-git-git-docs.md`-ben `~33%` részlegesként volt jelölve, de a tényleges tartalom (friss
+`Read`-del ellenőrizve, `[áéíóöőúüű]` grep-pel is megerősítve) **teljes egészében angol volt, semmi
+magyar szöveget nem tartalmazott**. A `~33%` jelölés minden bizonnyal elavult/hibás volt (egy korábbi
+részleges mentés soha nem került lemezre, vagy egy visszaállítás felülírta). A fájl emiatt **a nulláról**
+lett lefordítva, nem folytatásként.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| NAME szakasz egysoros leírása | **fordul** (2. blokk precedense szerint) | mindhárom fájlban |
+| "MAPPING AUTHORS" (nem man-page, csupa nagybetűs alcím) | **„Szerzők leképezése"** | `git-blame.adoc` — megismétli a 3. blokk `git-check-mailmap.adoc`-beli döntését, most egy másik fájlban is; konzisztens a két fájl között |
+| "THE DEFAULT FORMAT" / "THE PORCELAIN FORMAT" | **„Az alapértelmezett formátum" / „A porcelain formátum"** | `git-blame.adoc` — nem man-page cím (nincs a skill kanonikus listáján), lefordítva; `porcelain` a 0. blokk szerint angolul marad |
+| "SPECIFYING RANGES" (`git-blame.adoc`) | **„Tartományok megadása"** | nem man-page cím; grep-pel ellenőrizve: a `git-diff.adoc`/`git-range-diff.adoc`/`revisions.adoc` szövegében is előfordul ugyanez a szókapcsolat, de azok a `gitrevisions.adoc` **saját, különálló** "SPECIFYING RANGES" szakaszára utalnak prózaszövegben (nem `<<...>>` xref-fel), nem a `git-blame.adoc`-éra — nincs tényleges kereszthivatkozási ütközés |
+| "INCREMENTAL OUTPUT" (`git-blame.adoc`) | **„Inkrementális kimenet"** | nem man-page cím, nincs rá xref sehol |
+| "SEARCH STRATEGY" (`git-describe.adoc`) | **„Keresési stratégia"** | nem man-page cím, nincs rá xref sehol |
+| "Bisect reset" / "Bisect skip" / "Bisect run" / "Bisect next" / "Bisect visualize/view" (`git-bisect.adoc` alcímek) | **változatlanul angolul maradtak** | mindkét összetevő (a „Bisect" Git-fogalom és a szó szerinti alparancsnév: `reset`/`skip`/`run`/`next`/`visualize`/`view`) a 0. blokk szerint úgyis angolul maradna prózában is — nincs bennük tényleges lefordítandó angol prózaszó, ezért a cím szövege érintetlen, csak defenzív anchort kapott |
+| "Bisect log and bisect replay" (`git-bisect.adoc`) | **„Bisect log és bisect replay"** | az „and" kötőszó lefordítva, a két alparancsnév (`log`, `replay`) angolul maradt |
+| "Basic bisect commands: start, bad, good" | **„Alap bisect parancsok: start, bad, good"** | a leíró rész fordult, a felsorolt alparancsnevek (`start, bad, good`) angolul maradtak |
+| "Alternate terms" (`git-bisect.adoc`) | **„Alternatív kifejezések"** | a DESCRIPTION szakasz elején lévő „see section "Alternate terms" below" prózautalást is átírtuk a fordított címre, hogy konzisztens maradjon (nem `<<...>>` xref, csak idézőjeles prózahivatkozás) |
+| "Cutting down bisection by giving more parameters to bisect start" | **„A keresés leszűkítése további paraméterek megadásával a bisect start parancsnál"** | a „bisection" szót „keresés"-nek fordítottuk (a bisect maga bináris keresés); a „bisect start" szókapcsolat parancsnévként angolul maradt |
+| "Getting help" (`git-bisect.adoc`) | **„Segítség kérése"** | |
+| repository toldalékolása | **kötőjellel** (`repository-ban`, `repository-n`) a 0. blokk szabálya szerint | mindhárom fájlban javítva néhány kötőjel nélküli előfordulás (`repositoryban` → `repository-ban`, `repositoryn` → `repository-n`) |
+| branch toldalékolása | **kötőjel NÉLKÜL** (`brancheket`, `brancheken`) a 0. blokk szabálya szerint | `git-describe.adoc`-ban javítva 2 hibásan kötőjelezett előfordulás |
+
+### Címsor-anchorok
+
+- `git-bisect.adoc`: defenzív `[[...]]` anchor került minden nem-man-page alcím elé (autogen slug az
+  eredeti angol címszövegből): `[[_basic_bisect_commands_start_bad_good]]`, `[[_bisect_reset]]`,
+  `[[_alternate_terms]]`, `[[_bisect_visualize_view]]`, `[[_bisect_log_and_bisect_replay]]`,
+  `[[_avoiding_testing_a_commit]]`, `[[_bisect_skip]]`, `[[_bisect_next]]`,
+  `[[_cutting_down_bisection_by_giving_more_parameters_to_bisect_start]]`, `[[_bisect_run]]`,
+  `[[_getting_help]]`. Egyik alcímre sincs `<<...>>` hivatkozás a fában (grep-pel ellenőrizve) — tisztán
+  védelmi célú anchorok.
+- `git-blame.adoc`: `[[_the_default_format]]`, `[[_the_porcelain_format]]`, `[[_specifying_ranges]]`,
+  `[[_incremental_output]]`, `[[_mapping_authors]]` — mind defenzív, nincs rájuk `<<...>>` hivatkozás.
+- `git-describe.adoc`: `[[_search_strategy]]` — defenzív, nincs rá `<<...>>` hivatkozás.
+- Mindhárom fájlban a kétsoros (setext) címsorok aláhúzását a lefordított cím pontos hosszához
+  igazítottuk (Python-nal ellenőrizve karakterszám-egyezésre, nem csak becsléssel).
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- Mindhárom fájlban a szokásos NAME/SYNOPSIS/DESCRIPTION/OPTIONS/EXAMPLES/CONFIGURATION/SEE ALSO/GIT
+  angolul maradt. `git-describe.adoc`-ban a `BUGS` is a kanonikus listán van, angolul maradt.
+- Lásd fent a döntés-táblát a nem man-page, de mégis angolul hagyott `git-bisect.adoc` alcímekről
+  (`Bisect reset` stb.) — ez nem „óvatosságból angolul hagyás", hanem az, hogy a cím szövegében nincs
+  ténylegesen lefordítandó szó a glossary szerint.
+
+### Megőrzött markup / megjegyzések
+
+- `git-bisect.adoc`: minden `------------------------------------------------` és `------------`
+  körülhatárolt parancspélda-/kimeneti blokk bájtazonos, beleértve a bennük lévő `#`-kommenteket is
+  (pl. `# Current version is bad`, `# tweak the working tree by merging the hot-fix branch`). A `[synopsis]`
+  attribútum-sorok és az utánuk lévő parancsminták (`git bisect old [<rev>]` stb.) változatlanok.
+- `git-blame.adoc`: `include::blame-options.adoc[]`, `include::diff-algorithm-option.adoc[]`,
+  `include::includes/cmd-config-section-all.adoc[]`, `include::config/blame.adoc[]` változatlanok (nem
+  ebben a batchben fordítandó fájlok). A tab-indentált, nem `----`-határolt kódpéldák (`git blame -L 40,60
+  foo` stb., a `# count the number of lines...` kommentes shell-pipeline) bájtazonosak.
+- `git-describe.adoc`: a `[torvalds@g5 git]$ git describe ...` tab-indentált parancspéldák és kimeneteik
+  bájtazonosak, csak a köréjük ékelt magyarázó bekezdések fordultak.
+- Mindhárom fájl végén a GIT szakasz „A linkgit:git[1] csomag része" alakra lett fordítva (4. blokk
+  szerinti egységesített forma).
+- `git-bisect.adoc` SEE ALSO: `link:git-bisect-lk2009.html[Fighting regressions with git bisect]` látható
+  szövege lefordítva „Regressziók elleni küzdelem a git bisect-tel"-re; a `link:` cél és a
+  `linkgit:git-blame[1]` változatlan.
+

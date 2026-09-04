@@ -3,7 +3,7 @@ git-blame(1)
 
 NAME
 ----
-git-blame - Show what revision and author last modified each line of a file
+git-blame - Megmutatja, mely revízió és szerző módosította utoljára a fájl egyes sorait
 
 SYNOPSIS
 --------
@@ -17,28 +17,33 @@ git blame [-c] [-b] [-l] [--root] [-t] [-f] [-n] [-s] [-e] [-p] [-w] [--incremen
 DESCRIPTION
 -----------
 
-Annotates each line in the given file with information from the revision which
-last modified the line. Optionally, start annotating from the given revision.
+Annotálja a megadott fájl minden sorát azzal az információval, amely
+abból a revízióból származik, amelyik utoljára módosította az adott
+sort. Opcionálisan a megadott revíziótól kezdve is elindítható az
+annotálás.
 
-When specified one or more times, `-L` restricts annotation to the requested
-lines.
+Ha egy vagy több alkalommal megadod, a `-L` a kért sorokra korlátozza
+az annotálást.
 
-The origin of lines is automatically followed across whole-file
-renames (currently there is no option to turn the rename-following
-off). To follow lines moved from one file to another, or to follow
-lines that were copied and pasted from another file, etc., see the
-`-C` and `-M` options.
+A sorok eredete automatikusan követve van a teljes fájlt érintő
+átnevezéseken keresztül (jelenleg nincs opció az átnevezés-követés
+kikapcsolására). Ahhoz, hogy kövesd az egyik fájlból a másikba
+áthelyezett sorokat, vagy egy másik fájlból másolt és beillesztett
+sorokat stb., lásd a `-C` és `-M` opciókat.
 
-The report does not tell you anything about lines which have been deleted or
-replaced; you need to use a tool such as `git diff` or the "pickaxe"
-interface briefly mentioned in the following paragraph.
+A jelentés nem mond semmit azokról a sorokról, amelyeket töröltek
+vagy lecseréltek; ehhez olyan eszközt kell használnod, mint a
+`git diff`, vagy a következő bekezdésben röviden említett "pickaxe"
+felületet.
 
-Apart from supporting file annotation, Git also supports searching the
-development history for when a code snippet occurred in a change. This makes it
-possible to track when a code snippet was added to a file, moved or copied
-between files, and eventually deleted or replaced. It works by searching for
-a text string in the diff. A small example of the pickaxe interface
-that searches for `blame_usage`:
+A fájlannotáció támogatása mellett a Git a fejlesztési történet
+keresését is támogatja, hogy megtudd, mikor jelent meg egy
+kódrészlet egy változtatásban. Ez lehetővé teszi annak nyomon
+követését, hogy egy kódrészlet mikor került egy fájlba, mikor lett
+áthelyezve vagy másolva fájlok között, és mikor lett végül törölve
+vagy lecserélve. Ez úgy működik, hogy egy szövegsztringet keres a
+diffben. Egy kis példa a pickaxe felületre, amely a `blame_usage`-ra
+keres:
 
 -----------------------------------------------------------------------------
 $ git log --pretty=oneline -S'blame_usage'
@@ -51,98 +56,102 @@ OPTIONS
 include::blame-options.adoc[]
 
 `-c`::
-	Use the same output mode as linkgit:git-annotate[1] (Default: off).
+	Ugyanazt a kimeneti módot használja, mint a linkgit:git-annotate[1] (Alapértelmezés: ki).
 
 `--score-debug`::
-	Include debugging information related to the movement of
-	lines between files (see `-C`) and lines moved within a
-	file (see `-M`).  The first number listed is the score.
-	This is the number of alphanumeric characters detected
-	as having been moved between or within files.  This must be above
-	a certain threshold for `git blame` to consider those lines
-	of code to have been moved.
+	Belefoglalja a fájlok közötti sormozgásokra (lásd `-C`) és a
+	fájlon belüli sormozgásokra (lásd `-M`) vonatkozó hibakeresési
+	információt. Az elsőként felsorolt szám a pontszám. Ez azoknak
+	az alfanumerikus karaktereknek a száma, amelyekről érzékelte,
+	hogy fájlok között vagy fájlon belül mozogtak. Ennek egy adott
+	küszöbérték felett kell lennie ahhoz, hogy a `git blame` úgy
+	tekintse, hogy az adott kódsorok mozgásra kerültek.
 
 `-f`::
 `--show-name`::
-	Show the filename in the original commit.  By default
-	the filename is shown if there is any line that came from a
-	file with a different name, due to rename detection.
+	Megjeleníti a fájlnevet az eredeti commitban. Alapértelmezetten
+	a fájlnév akkor jelenik meg, ha van olyan sor, amely egy más
+	nevű fájlból származik, az átnevezés-felismerés miatt.
 
 `-n`::
 `--show-number`::
-	Show the line number in the original commit (Default: off).
+	Megjeleníti a sorszámot az eredeti commitban (Alapértelmezés: ki).
 
 `-s`::
-	Suppress the author name and timestamp from the output.
+	Elnyomja a szerző nevét és az időbélyeget a kimenetből.
 
 `-e`::
 `--show-email`::
-	Show the author email instead of the author name (Default: off).
-	This can also be controlled via the `blame.showEmail` config
-	option.
+	A szerző neve helyett a szerző e-mail-címét jeleníti meg
+	(Alapértelmezés: ki). Ez a `blame.showEmail` config-opcióval
+	is vezérelhető.
 
 `-w`::
-	Ignore whitespace when comparing the parent's version and
-	the child's to find where the lines came from.
+	Figyelmen kívül hagyja a whitespace-t a szülő és a gyermek
+	verziójának összehasonlításakor, amikor megkeresi, honnan
+	származnak a sorok.
 
 include::diff-algorithm-option.adoc[]
 
 `--abbrev=<n>`::
-	Instead of using the default _7_ hexadecimal digits as the
-	abbreviated object name, use at least _<n>_ digits, but ensure
-	the commit object names are unique.
-	If commits marked with caret (boundary), question mark (ignored)
-	or asterisk (unblamable) are shown, extend unmarked object names
-	to align them.
+	Az alapértelmezett _7_ hexadecimális számjegy helyett, amit
+	rövidített objektumnévként használ, legalább _<n>_ számjegyet
+	használ, de biztosítja, hogy a commit objektumnevek egyediek
+	legyenek. Ha kúpjellel (boundary), kérdőjellel (ignored) vagy
+	csillaggal (unblamable) megjelölt commitok jelennek meg, a nem
+	megjelölt objektumneveket kiterjeszti, hogy igazodjanak hozzájuk.
 
 
-THE DEFAULT FORMAT
-------------------
+[[_the_default_format]]
+Az alapértelmezett formátum
+---------------------------
 
-When neither `--porcelain` nor `--incremental` option is specified,
-`git blame` will output annotation for each line with:
+Ha sem a `--porcelain`, sem a `--incremental` opció nincs megadva, a
+`git blame` a következőkkel adja ki az annotációt minden sorhoz:
 
-- abbreviated object name for the commit the line came from;
-- author ident (by default the author name and date, unless `-s` or `-e`
-  is specified); and
-- line number
+- annak a commitnak a rövidített objektumneve, amelyből a sor származik;
+- a szerző azonosítója (alapértelmezetten a szerző neve és a dátum,
+  hacsak nincs megadva a `-s` vagy a `-e`); és
+- sorszám
 
-before the line contents.
+a sor tartalma előtt.
 
-THE PORCELAIN FORMAT
+[[_the_porcelain_format]]
+A porcelain formátum
 --------------------
 
-In this format, each line is output after a header; the
-header at the minimum has the first line which has:
+Ebben a formátumban minden sor egy fejléc után kerül kiadásra; a
+fejléc legalább az első sort tartalmazza, amelynek van:
 
-- 40-byte SHA-1 of the commit the line is attributed to;
-- the line number of the line in the original file;
-- the line number of the line in the final file;
-- on a line that starts a group of lines from a different
-  commit than the previous one, the number of lines in this
-  group.  On subsequent lines this field is absent.
+- annak a commitnak a 40 bájtos SHA-1-e, amelynek a sor tulajdonítható;
+- a sor sorszáma az eredeti fájlban;
+- a sor sorszáma a végleges fájlban;
+- egy olyan soron, amely egy, az előzőtől eltérő commitból származó
+  sorcsoportot indít, a csoportban lévő sorok száma. A rákövetkező
+  sorokban ez a mező hiányzik.
 
-This header line is followed by the following information
-at least once for each commit:
+Ezt a fejlécsort a következő információ követi legalább egyszer minden
+commithoz:
 
-- the author name (`author`), email (`author-mail`), time
-  (`author-time`), and time zone (`author-tz`); similarly
-  for committer.
-- the filename in the commit that the line is attributed to.
-- the first line of the commit log message (`summary`).
+- a szerző neve (`author`), e-mail-címe (`author-mail`), ideje
+  (`author-time`) és időzónája (`author-tz`); hasonlóan a
+  commiterhez is.
+- annak a commitnak a fájlneve, amelynek a sor tulajdonítható.
+- a commit napló-üzenetének első sora (`summary`).
 
-The contents of the actual line are output after the above
-header, prefixed by a _TAB_. This is to allow adding more
-header elements later.
+Az adott sor tartalma a fenti fejléc után kerül kiadásra, egy _TAB_
+karakterrel megelőzve. Ez azért van, hogy később további fejléc-
+elemeket lehessen hozzáadni.
 
-The porcelain format generally suppresses commit information that has
-already been seen. For example, two lines that are blamed to the same
-commit will both be shown, but the details for that commit will be shown
-only once. Information which is specific to individual lines will not be
-grouped together, like revs to be marked `ignored` or `unblamable`. This
-is more efficient, but may require more state be kept by the reader. The
-`--line-porcelain` option can be used to output full commit information
-for each line, allowing simpler (but less efficient) usage like:
+A porcelain formátum általában elnyomja a már látott commit-
+információt. Például, ha két sor ugyanannak a commitnak tulajdonítható,
+mindkettő megjelenik, de az adott commit részletei csak egyszer
+jelennek meg. Az egyedi sorokra jellemző információ (mint az
+`ignored` vagy `unblamable` jelölésű revíziók) nem lesz csoportosítva.
+Ez hatékonyabb, de több állapot megőrzését igényelheti az
+olvasótól. A `--line-porcelain` opcióval a teljes commit-információ
+kiadható minden sorhoz, ami egyszerűbb (de kevésbé hatékony)
+használatot tesz lehetővé, például:
 
 	# count the number of lines attributed to each author
 	git blame --line-porcelain file |
@@ -150,102 +159,105 @@ for each line, allowing simpler (but less efficient) usage like:
 	sort | uniq -c | sort -rn
 
 
-SPECIFYING RANGES
------------------
+[[_specifying_ranges]]
+Tartományok megadása
+--------------------
 
-Unlike `git blame` and `git annotate` in older versions of git, the extent
-of the annotation can be limited to both line ranges and revision
-ranges. The `-L` option, which limits annotation to a range of lines, may be
-specified multiple times.
+A git régebbi verzióiban lévő `git blame`-mel és `git annotate`-tel
+ellentétben az annotáció kiterjedése sortartományokra és
+revíziótartományokra egyaránt korlátozható. A `-L` opció, amely az
+annotációt sorok egy tartományára korlátozza, több alkalommal is
+megadható.
 
-When you are interested in finding the origin for
-lines 40-60 for file `foo`, you can use the `-L` option like so
-(they mean the same thing -- both ask for 21 lines starting at
-line 40):
+Ha az érdekel, hogy megtaláld a `foo` fájl 40-60. sorainak eredetét,
+így használhatod a `-L` opciót (ugyanazt jelentik -- mindkettő 21
+sort kér a 40. sortól kezdve):
 
 	git blame -L 40,60 foo
 	git blame -L 40,+21 foo
 
-Also you can use a regular expression to specify the line range:
+A sortartomány megadásához reguláris kifejezést is használhatsz:
 
 	git blame -L '/^sub hello {/,/^}$/' foo
 
-which limits the annotation to the body of the `hello` subroutine.
+amely a `hello` szubrutin törzsére korlátozza az annotációt.
 
-When you are not interested in changes older than version
-v2.6.18, or changes older than 3 weeks, you can use revision
-range specifiers similar to `git rev-list`:
+Ha nem érdekelnek a v2.6.18 verziónál vagy 3 hétnél régebbi
+változtatások, a `git rev-list`-hez hasonló revíziótartomány-
+specifikátorokat használhatsz:
 
 	git blame v2.6.18.. -- foo
 	git blame --since=3.weeks -- foo
 
-When revision range specifiers are used to limit the annotation,
-lines that have not changed since the range boundary (either the
-commit v2.6.18 or the most recent commit that is more than 3
-weeks old in the above example) are blamed for that range
-boundary commit.
+Ha revíziótartomány-specifikátorokat használnak az annotáció
+korlátozására, azok a sorok, amelyek a tartományhatár óta nem
+változtak (a fenti példában vagy a v2.6.18 commit, vagy a
+legutolsó 3 hétnél régebbi commit), a tartományhatár commitjának
+tulajdoníthatók.
 
-A particularly useful way is to see if an added file has lines
-created by copy-and-paste from existing files.  Sometimes this
-indicates that the developer was being sloppy and did not
-refactor the code properly.  You can first find the commit that
-introduced the file with:
+Egy különösen hasznos módszer megnézni, hogy egy hozzáadott
+fájlnak vannak-e meglévő fájlokból másolt és beillesztett sorai.
+Ez néha azt jelzi, hogy a fejlesztő hanyag volt, és nem
+refaktorálta megfelelően a kódot. Először megtalálhatod a fájlt
+bevezető commitot a következővel:
 
 	git log --diff-filter=A --pretty=short -- foo
 
-and then annotate the change between the commit and its
-parents, using `commit^!` notation:
+majd annotáld a változást a commit és a szülei között, a
+`commit^!` jelölés használatával:
 
 	git blame -C -C -f $commit^! -- foo
 
 
-INCREMENTAL OUTPUT
-------------------
+[[_incremental_output]]
+Inkrementális kimenet
+---------------------
 
-When called with `--incremental` option, the command outputs the
-result as it is built.  The output generally will talk about
-lines touched by more recent commits first (i.e. the lines will
-be annotated out of order) and is meant to be used by
-interactive viewers.
+Amikor a `--incremental` opcióval hívod meg, a parancs a felépülése
+közben adja ki az eredményt. A kimenet általában a legfrissebb
+commitok által érintett sorokról beszél először (azaz a sorok
+sorrenden kívül lesznek annotálva), és interaktív megjelenítőkkel
+való használatra szánták.
 
-The output format is similar to the Porcelain format, but it
-does not contain the actual lines from the file that is being
-annotated.
+A kimeneti formátum hasonló a Porcelain formátumhoz, de nem
+tartalmazza az annotálandó fájl tényleges sorait.
 
-. Each blame entry always starts with a line of:
+. Minden blame bejegyzés mindig a következő formátumú sorral kezdődik:
 +
 [synopsis]
 <40-byte-hex-sha1> <sourceline> <resultline> <num-lines>
 +
-Line numbers count from 1.
+A sorszámozás 1-től indul.
 
-. The first time that a commit shows up in the stream, it has various
-  other information about it printed out with a one-word tag at the
-  beginning of each line describing the extra commit information (author,
-  email, committer, dates, summary, etc.).
+. Amikor egy commit először jelenik meg a streamben, róla különféle
+  további információ kerül kiírásra, minden sor elején egy
+  egyszavas címkével, amely a további commit-információt írja le
+  (szerző, e-mail, committer, dátumok, summary stb.).
 
-. Unlike the Porcelain format, the filename information is always
-  given and terminates the entry:
+. A Porcelain formátummal ellentétben a fájlnévinformáció mindig
+  meg van adva, és ez zárja le a bejegyzést:
 +
 [synopsis]
 filename <whitespace-quoted-filename-goes-here>
 +
-and thus it is really quite easy to parse for some line- and word-oriented
-parser (which should be quite natural for most scripting languages).
+így egy sor- és szóorientált parser (ami a legtöbb szkriptnyelvhez
+egészen természetes) számára valóban egyszerű a feldolgozás.
 +
 [NOTE]
-For people who do parsing: to make it more robust, just ignore any
-lines between the first and last one (_<40-byte-hex-sha1>_ and `filename`
-lines) where you do not recognize the tag words (or care about that particular
-one) at the beginning of the "extended information" lines. That way, if
-there is ever added information (like the commit encoding or extended
-commit commentary), a blame viewer will not care.
+Azoknak, akik parszolnak: hogy robusztusabbá tedd, egyszerűen hagyj
+figyelmen kívül minden sort az első és az utolsó (_<40-byte-hex-sha1>_
+és `filename` sorok) között, ahol nem ismered fel a címkeszavakat (vagy
+nem érdekel az adott sor) a "kiterjesztett információ" sorok elején.
+Így, ha valaha is hozzáadnak új információt (mint a commit kódolása
+vagy kiterjesztett commit-kommentár), egy blame-megjelenítőt ez nem
+fog zavarni.
 
 
-MAPPING AUTHORS
----------------
+[[_mapping_authors]]
+Szerzők leképezése
+------------------
 
-See linkgit:gitmailmap[5].
+Lásd linkgit:gitmailmap[5].
 
 CONFIGURATION
 -------------
@@ -260,4 +272,4 @@ linkgit:git-annotate[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

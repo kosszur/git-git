@@ -44,8 +44,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-archive.adoc | [x] |  | 2026-09-04 |
 | git-backfill.adoc | [x] |  | 2026-09-04 |
 | git-bisect-lk2009.adoc | [x] |  | 2026-09-04 |
-| git-bisect.adoc | [ ] |  |  |
-| git-blame.adoc | [ ] |  |  |
+| git-bisect.adoc | [x] |  | 2026-09-04 |
+| git-blame.adoc | [x] |  | 2026-09-04 |
 | git-branch.adoc | [x] |  | 2026-09-04 |
 | git-bugreport.adoc | [x] |  | 2026-09-04 |
 | git-bundle.adoc | [x] |  | 2026-09-04 |
@@ -75,7 +75,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-cvsimport.adoc | [x] |  | 2026-09-04 |
 | git-cvsserver.adoc | [x] |  | 2026-09-04 |
 | git-daemon.adoc | [x] |  | 2026-09-04 |
-| git-describe.adoc | [ ] |  |  |
+| git-describe.adoc | [x] |  | 2026-09-04 |
 | git-diagnose.adoc | [ ] |  |  |
 | git-diff-files.adoc | [ ] |  |  |
 | git-diff-index.adoc | [ ] |  |  |
@@ -503,4 +503,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `~NN%` jelölés): `git-add`, `git-apply`, `git-bisect-lk2009`, `git-check-ignore`,
   `git-cherry-pick`. Érintetlen (ekkor): `git-annotate`, `git-citool`, `git-blame`, `git-clean`,
   `git-checkout`, `git-clone`, `git-commit-graph`, `git-commit`, `git-config`, `git-daemon`, `git-describe`.
-
+- **2026-09-04 — `git-bisect.adoc`, `git-blame.adoc`, `git-describe.adoc` kész.** A `git-bisect.adoc`
+  progress-táblában `~33%`-osként jelölt fájl a tényleges tartalom szerint (Read-del ellenőrizve,
+  nem tartalmazott magyar szöveget) **0%-os, teljesen angol** volt — a korábbi `~33%` jelölés
+  téves/elavult volt (feltehetően egy korábbi részleges mentés elveszett vagy soha nem került lemezre).
+  A fájl a nulláról lett lefordítva. Részletek + terminológia + anchor-döntések:
+  `glossary-git-git-docs.md` „5. blokk".

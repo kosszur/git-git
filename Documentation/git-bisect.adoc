@@ -3,7 +3,7 @@ git-bisect(1)
 
 NAME
 ----
-git-bisect - Use binary search to find the commit that introduced a bug
+git-bisect - Bináris kereséssel megkeresi a hibát bevezető commitot
 
 
 SYNOPSIS
@@ -25,28 +25,32 @@ git bisect help
 
 DESCRIPTION
 -----------
-This command uses a binary search algorithm to find which commit in
-your project's history introduced a bug. You use it by first telling
-it a "bad" commit that is known to contain the bug, and a "good"
-commit that is known to be before the bug was introduced. Then `git
-bisect` picks a commit between those two endpoints and asks you
-whether the selected commit is "good" or "bad". It continues narrowing
-down the range until it finds the exact commit that introduced the
-change.
+Ez a parancs bináris kereső algoritmussal keresi meg, hogy a
+projekted történetében melyik commit vezetett be egy hibát. Úgy
+használod, hogy először megadsz egy "bad" (rossz) commitot, amelyről
+tudott, hogy tartalmazza a hibát, és egy "good" (jó) commitot,
+amelyről tudott, hogy a hiba bevezetése előttről van. Ezután a `git
+bisect` kiválaszt egy commitot a két végpont között, kicheckoutolja, és
+megkérdezi, hogy a kiválasztott commit "good" vagy "bad". Ezt a
+tartomány szűkítését addig folytatja, amíg meg nem találja azt a
+pontos commitot, amelyik a változást bevezette.
 
-In fact, `git bisect` can be used to find the commit that changed
-*any* property of your project; e.g., the commit that fixed a bug, or
-the commit that caused a benchmark's performance to improve. To
-support this more general usage, the terms "old" and "new" can be used
-in place of "good" and "bad", or you can choose your own terms. See
-section "Alternate terms" below for more information.
+Valójában a `git bisect` felhasználható a projekted *bármely*
+tulajdonságát megváltoztató commit megkeresésére; például annak a
+commitnak a megkeresésére, amelyik kijavított egy hibát, vagy amelyik
+javította egy benchmark teljesítményét. Ennek az általánosabb
+használatnak a támogatására a "good" és "bad" helyett használhatók az
+"old" (régi) és "new" (új) kifejezések is, vagy választhatsz saját
+kifejezéseket. Bővebb információért lásd a lenti "Alternatív
+kifejezések" szakaszt.
 
-Basic bisect commands: start, bad, good
+[[_basic_bisect_commands_start_bad_good]]
+Alap bisect parancsok: start, bad, good
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As an example, suppose you are trying to find the commit that broke a
-feature that was known to work in version `v2.6.13-rc2` of your
-project. You start a bisect session as follows:
+Példaként tegyük fel, hogy meg akarod találni azt a commitot, amelyik
+elrontott egy olyan funkciót, amely a projekted `v2.6.13-rc2` verziójában
+még tudottan működött. A bisect munkamenetet a következőképpen indítod:
 
 ------------------------------------------------
 $ git bisect start
@@ -54,193 +58,205 @@ $ git bisect bad                 # Current version is bad
 $ git bisect good v2.6.13-rc2    # v2.6.13-rc2 is known to be good
 ------------------------------------------------
 
-Once you have specified at least one bad and one good commit, `git
-bisect` selects a commit in the middle of that range of history,
-checks it out, and outputs something similar to the following:
+Miután megadtál legalább egy bad és egy good commitot, a `git
+bisect` kiválaszt egy commitot a történet ezen tartományának
+közepéről, kicheckoutolja, és kiír valami ehhez hasonlót:
 
 ------------------------------------------------
 Bisecting: 675 revisions left to test after this (roughly 10 steps)
 ------------------------------------------------
 
-You should now compile the checked-out version and test it. If that
-version works correctly, type
+Most fordítsd le a kicheckoutolt verziót, és teszteld le. Ha ez a
+verzió megfelelően működik, írd be:
 
 ------------------------------------------------
 $ git bisect good
 ------------------------------------------------
 
-If that version is broken, type
+Ha ez a verzió hibás, írd be:
 
 ------------------------------------------------
 $ git bisect bad
 ------------------------------------------------
 
-Then `git bisect` will respond with something like
+Ekkor a `git bisect` valami ilyesmivel válaszol
 
 ------------------------------------------------
 Bisecting: 337 revisions left to test after this (roughly 9 steps)
 ------------------------------------------------
 
-Keep repeating the process: compile the tree, test it, and depending
-on whether it is good or bad run `git bisect good` or `git bisect bad`
-to ask for the next commit that needs testing.
+Ismételd a folyamatot: fordítsd le a fát, teszteld le, és attól
+függően, hogy jó vagy rossz, futtasd a `git bisect good` vagy a
+`git bisect bad` parancsot, hogy bekérd a következő tesztelendő
+commitot.
 
-Eventually there will be no more revisions left to inspect, and the
-command will print out a description of the first bad commit. The
-reference `refs/bisect/bad` will be left pointing at that commit.
+Végül nem marad több megvizsgálandó revízió, és a parancs kiírja az
+első bad commit leírását. A `refs/bisect/bad` referencia ezen a
+commiton marad.
 
 
+[[_bisect_reset]]
 Bisect reset
 ~~~~~~~~~~~~
 
-After a bisect session, to clean up the bisection state and return to
-the original `HEAD`, issue the following command:
+Egy bisect munkamenet után, a bisect állapot letakarításához és az
+eredeti `HEAD`-hez való visszatéréshez add ki a következő parancsot:
 
 [synopsis]
 git bisect reset
 
-By default, this will return your tree to the commit that was checked
-out before `git bisect start`.  (A new `git bisect start` will also do
-that, as it cleans up the old bisection state.)
+Alapértelmezetten ez visszaállítja a fádat arra a commitra, amely a
+`git bisect start` előtt volt kicheckoutolva. (Egy új `git bisect
+start` is ezt teszi, mivel letakarítja a régi bisect állapotot.)
 
-With an optional argument, you can return to a different commit
-instead:
+Egy opcionális argumentummal helyette egy másik commitra is
+visszatérhetsz:
 
 [synopsis]
 git bisect reset <commit>
 
 
-For example, `git bisect reset bisect/bad` will check out the first
-bad revision, while `git bisect reset HEAD` will leave you on the
-current bisection commit and avoid switching commits at all.
+Például a `git bisect reset bisect/bad` kicheckoutolja az első bad
+revíziót, míg a `git bisect reset HEAD` az aktuális bisect commitnál
+hagy, és teljesen elkerüli a commitváltást.
 
 
-Alternate terms
-~~~~~~~~~~~~~~~
+[[_alternate_terms]]
+Alternatív kifejezések
+~~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes you are not looking for the commit that introduced a
-breakage, but rather for a commit that caused a change between some
-other "old" state and "new" state. For example, you might be looking
-for the commit that introduced a particular fix. Or you might be
-looking for the first commit in which the source-code filenames were
-finally all converted to your company's naming standard. Or whatever.
+Néha nem egy hibát bevezető commitot keresel, hanem egy olyan
+commitot, amelyik változást okozott valamilyen másik "old" (régi) és
+"new" (új) állapot között. Például kereshetsz egy adott javítást
+bevezető commitot. Vagy kereshetsz egy olyan első commitot, amelyben a
+forráskód fájlnevei végre teljesen átálltak a céged elnevezési
+szabványára. Vagy bármi más.
 
-In such cases it can be very confusing to use the terms "good" and
-"bad" to refer to "the state before the change" and "the state after
-the change". So instead, you can use the terms "old" and "new",
-respectively, in place of "good" and "bad". (But note that you cannot
-mix "good" and "bad" with "old" and "new" in a single session.)
+Ilyen esetekben nagyon zavaró lehet a "good" és "bad" kifejezéseket
+használni "a változás előtti állapot" és "a változás utáni állapot"
+jelölésére. Ehelyett tehát az "old" és "new" kifejezéseket
+használhatod a "good" és "bad" helyett. (De vedd figyelembe, hogy egy
+munkamenetben nem keverheted a "good"-ot és a "bad"-et az "old"-dal és
+a "new"-vel.)
 
-In this more general usage, you provide `git bisect` with a "new"
-commit that has some property and an "old" commit that doesn't have that
-property. Each time `git bisect` checks out a commit, you test if that
-commit has the property. If it does, mark the commit as "new";
-otherwise, mark it as "old". When the bisection is done, `git bisect`
-will report which commit introduced the property.
+Ebben az általánosabb használatban egy "new" commitot adsz meg a `git
+bisect`-nek, amelyiknek megvan egy adott tulajdonsága, és egy "old"
+commitot, amelyiknek nincs meg. Minden alkalommal, amikor a `git
+bisect` kicheckoutol egy commitot, teszteled, hogy megvan-e benne a
+tulajdonság. Ha igen, jelöld meg a commitot "new"-ként; ha nem,
+jelöld meg "old"-ként. Amikor a bisect befejeződött, a `git bisect`
+jelenti, melyik commit vezette be a tulajdonságot.
 
-To use "old" and "new" instead of "good" and bad, you must run `git
-bisect start` without commits as argument and then run the following
-commands to add the commits:
+Ahhoz, hogy "old"-ot és "new"-et használj "good" és "bad" helyett, a
+`git bisect start` parancsot commitok nélkül, argumentum nélkül kell
+futtatnod, majd a következő parancsokkal add hozzá a commitokat:
 
 [synopsis]
 git bisect old [<rev>]
 
-to indicate that a commit was before the sought change, or
+annak jelzésére, hogy egy commit a keresett változás előtti volt, vagy
 
 [synopsis]
 git bisect new [<rev>...]
 
-to indicate that it was after.
+annak jelzésére, hogy utána volt.
 
-To get a reminder of the currently used terms, use
+Ahhoz, hogy emlékeztetőt kapj a jelenleg használt kifejezésekről,
+használd a következőt
 
 [synopsis]
 git bisect terms
 
-You can get just the old term with `git bisect terms --term-old`
-or `git bisect terms --term-good`; `git bisect terms --term-new`
-and `git bisect terms --term-bad` can be used to learn how to call
-the commits more recent than the sought change.
+A régi kifejezést önmagában megkaphatod a `git bisect terms
+--term-old` vagy a `git bisect terms --term-good` paranccsal; a `git
+bisect terms --term-new` és a `git bisect terms --term-bad` pedig
+arra használható, hogy megtudd, hogyan kell hívni a keresett
+változásnál újabb commitokat.
 
-If you would like to use your own terms instead of "bad"/"good" or
-"new"/"old", you can choose any names you like (except existing bisect
-subcommands like `reset`, `start`, ...) by starting the
-bisection using
+Ha a "bad"/"good" vagy "new"/"old" helyett saját kifejezéseket
+szeretnél használni, tetszőleges neveket választhatsz (a meglévő
+bisect alparancsok, mint a `reset`, `start`, ... kivételével) a
+bisect indításával, a következőt használva
 
 [synopsis]
 git bisect start --term-old <term-old> --term-new <term-new>
 
-For example, if you are looking for a commit that introduced a
-performance regression, you might use
+Például ha egy teljesítményromlást bevezető commitot keresel, ezt
+használhatod
 
 ------------------------------------------------
 $ git bisect start --term-old fast --term-new slow
 ------------------------------------------------
 
-Or if you are looking for the commit that fixed a bug, you might use
+Vagy ha egy hibát kijavító commitot keresel, ezt használhatod
 
 ------------------------------------------------
 $ git bisect start --term-new fixed --term-old broken
 ------------------------------------------------
 
-Then, use `git bisect <term-old>` and `git bisect <term-new>` instead
-of `git bisect good` and `git bisect bad` to mark commits.
+Ezután a commitok megjelöléséhez a `git bisect good` és a `git bisect
+bad` helyett a `git bisect <term-old>` és a `git bisect <term-new>`
+parancsokat használd.
 
+[[_bisect_visualize_view]]
 Bisect visualize/view
 ~~~~~~~~~~~~~~~~~~~~~
 
-To see the currently remaining suspects in `gitk`, issue the following
-command during the bisection process (the subcommand `view` can be used
-as an alternative to `visualize`):
+Ahhoz, hogy megnézd a jelenleg fennmaradó gyanúsítottakat a `gitk`-ban,
+add ki a következő parancsot a bisect folyamat közben (a `visualize`
+alternatívájaként a `view` alparancs is használható):
 
 ------------
 $ git bisect visualize
 ------------
 
-Git detects a graphical environment through various environment variables:
+A Git különféle környezeti változókon keresztül érzékeli a grafikus
+környezetet:
 
-`DISPLAY`:: which is set in X Window System environments on Unix systems.
-`SESSIONNAME`:: which is set under Cygwin in interactive desktop sessions.
-`MSYSTEM`:: which is set under Msys2 and Git for Windows.
-`SECURITYSESSIONID`:: which may be set on macOS in interactive desktop sessions.
+`DISPLAY`:: amely Unix rendszereken X Window System környezetekben van beállítva.
+`SESSIONNAME`:: amely Cygwin alatt interaktív asztali munkameneteknél van beállítva.
+`MSYSTEM`:: amely Msys2 és a Git for Windows alatt van beállítva.
+`SECURITYSESSIONID`:: amely macOS-en interaktív asztali munkameneteknél lehet beállítva.
 
-If none of these environment variables is set, `git log` is used instead.
-You can also give command-line options such as `-p` and `--stat`.
+Ha egyik ilyen környezeti változó sincs beállítva, helyette a `git log`
+kerül használatra. Parancssori opciókat is megadhatsz, például
+`-p`-t és `--stat`-ot.
 
 ------------
 $ git bisect visualize --stat
 ------------
 
-Bisect log and bisect replay
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_bisect_log_and_bisect_replay]]
+Bisect log és bisect replay
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After having marked revisions as good or bad, issue the following
-command to show what has been done so far:
+Miután megjelölted a revíziókat good-ként vagy bad-ként, add ki a
+következő parancsot, hogy megnézd, mi történt eddig:
 
 ------------
 $ git bisect log
 ------------
 
-If you discover that you made a mistake in specifying the status of a
-revision, you can save the output of this command to a file, edit it to
-remove the incorrect entries, and then issue the following commands to
-return to a corrected state:
+Ha rájössz, hogy hibáztál egy revízió állapotának megadásában, elmentheted
+ennek a parancsnak a kimenetét egy fájlba, szerkesztheted, hogy eltávolítsd
+a hibás bejegyzéseket, majd a következő parancsokkal visszatérhetsz a
+javított állapotra:
 
 ------------
 $ git bisect reset
 $ git bisect replay that-file
 ------------
 
-Avoiding testing a commit
-~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_avoiding_testing_a_commit]]
+Egy commit tesztelésének elkerülése
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If, in the middle of a bisect session, you know that the suggested
-revision is not a good one to test (e.g. it fails to build and you
-know that the failure does not have anything to do with the bug you
-are chasing), you can manually select a nearby commit and test that
-one instead.
+Ha egy bisect munkamenet közepén tudod, hogy a felajánlott revízió
+nem jó választás a teszteléshez (pl. nem fordul le, és tudod, hogy a
+hiba semmi köze ahhoz a bughoz, amit üldözöl), kézzel is
+kiválaszthatsz egy közeli commitot, és helyette azt tesztelheted.
 
-For example:
+Például:
 
 ------------
 $ git bisect good/bad			# previous round was good or bad.
@@ -250,71 +266,75 @@ $ git reset --hard HEAD~3		# try 3 revisions before what
 					# was suggested
 ------------
 
-Then compile and test the chosen revision, and afterwards mark
-the revision as good or bad in the usual manner.
+Ezután fordítsd le és teszteld le a kiválasztott revíziót, majd a
+szokásos módon jelöld meg a revíziót good-nak vagy bad-nek.
 
+[[_bisect_skip]]
 Bisect skip
 ~~~~~~~~~~~
 
-Instead of choosing a nearby commit by yourself, you can ask Git to do
-it for you by issuing the command:
+Ahelyett, hogy magad választanál egy közeli commitot, megkérheted a
+Gitet, hogy tegye ezt meg helyetted, a következő parancs kiadásával:
 
 ------------
 $ git bisect skip                 # Current version cannot be tested
 ------------
 
-However, if you skip a commit adjacent to the one you are looking for,
-Git will be unable to tell exactly which of those commits was the
-first bad one.
+Ha azonban a keresett commit szomszédját ugrod át, a Git nem fogja
+tudni pontosan megmondani, hogy ezek közül a commitok közül melyik
+volt az első bad.
 
-You can also skip a range of commits, instead of just one commit,
-using range notation. For example:
+Egyetlen commit helyett commitok tartományát is átugorhatod, a
+tartomány-jelölés használatával. Például:
 
 ------------
 $ git bisect skip v2.5..v2.6
 ------------
 
-This tells the bisect process that no commit after `v2.5`, up to and
-including `v2.6`, should be tested.
+Ez azt mondja a bisect folyamatnak, hogy `v2.5` után egyetlen commitot
+se teszteljen `v2.6`-ig bezárólag.
 
-Note that if you also want to skip the first commit of the range you
-would issue the command:
+Vedd figyelembe, hogy ha a tartomány első commitját is át akarod
+ugrani, a következő parancsot kell kiadnod:
 
 ------------
 $ git bisect skip v2.5 v2.5..v2.6
 ------------
 
-This tells the bisect process that the commits between `v2.5` and
-`v2.6` (inclusive) should be skipped.
+Ez azt mondja a bisect folyamatnak, hogy a `v2.5` és `v2.6` közötti
+(bezárólag) commitokat ugorja át.
 
+[[_bisect_next]]
 Bisect next
 ~~~~~~~~~~~
 
-Normally, after marking a revision as good or bad, Git automatically
-computes and checks out the next revision to test. However, if you need to
-explicitly request the next bisection step, you can use:
+Normál esetben, miután megjelöltél egy revíziót good-nak vagy
+bad-nek, a Git automatikusan kiszámítja és kicheckoutolja a következő
+tesztelendő revíziót. Ha azonban explicit módon kell kérned a
+következő bisect lépést, ezt használhatod:
 
 ------------
 $ git bisect next
 ------------
 
-You might use this to resume the bisection process after interrupting it
-by checking out a different revision.
+Ezt akkor használhatod, ha egy másik revízió kicheckoutolásával
+megszakított bisect folyamatot szeretnél folytatni.
 
-Cutting down bisection by giving more parameters to bisect start
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_cutting_down_bisection_by_giving_more_parameters_to_bisect_start]]
+A keresés leszűkítése további paraméterek megadásával a bisect start parancsnál
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can further cut down the number of trials, if you know what part of
-the tree is involved in the problem you are tracking down, by specifying
-pathspec parameters when issuing the `bisect start` command:
+Tovább csökkentheted a próbálkozások számát, ha tudod, hogy a fa mely
+része érintett a felkutatandó problémában: ehhez adj meg pathspec
+paramétereket a `bisect start` parancs kiadásakor:
 
 ------------
 $ git bisect start -- arch/i386 include/asm-i386
 ------------
 
-If you know beforehand more than one good commit, you can narrow the
-bisect space down by specifying all of the good commits immediately after
-the bad commit when issuing the `bisect start` command:
+Ha előre tudsz több good commitot, leszűkítheted a bisect keresési
+teret az összes good commit megadásával közvetlenül a bad commit
+után, a `bisect start` parancs kiadásakor:
 
 ------------
 $ git bisect start v2.6.20-rc6 v2.6.20-rc4 v2.6.20-rc1 --
@@ -322,83 +342,87 @@ $ git bisect start v2.6.20-rc6 v2.6.20-rc4 v2.6.20-rc1 --
                    # v2.6.20-rc4 and v2.6.20-rc1 are good
 ------------
 
+[[_bisect_run]]
 Bisect run
 ~~~~~~~~~~
 
-If you have a script that can tell if the current source code is good
-or bad, you can bisect by issuing the command:
+Ha van egy szkripted, amelyik meg tudja mondani, hogy az aktuális
+forráskód good vagy bad, a következő parancs kiadásával bisectelhetsz:
 
 [synopsis]
 git bisect run <cmd> [<arg>...]
 
-Note that _<cmd>_ run with _<arg>_  should exit
-with code 0 if the current source code is good/old, and exit with a
-code between 1 and 127 (inclusive), except 125, if the current source
-code is bad/new.
+Vedd figyelembe, hogy az _<arg>_-gal futtatott _<cmd>_-nek 0 kóddal
+kell kilépnie, ha az aktuális forráskód good/old, és 1 és 127 közötti
+(bezárólag) kóddal, kivéve a 125-öt, ha az aktuális forráskód bad/new.
 
-Any other exit code will abort the bisect process. It should be noted
-that a program that terminates via `exit(-1)` leaves `$?` = 255, (see the
-`exit`(3) manual page), as the value is chopped with `& 0377`.
+Bármilyen más kilépési kód megszakítja a bisect folyamatot. Meg kell
+jegyezni, hogy egy `exit(-1)`-en keresztül kilépő program `$?` = 255
+értéket hagy hátra (lásd az `exit`(3) man page-et), mivel az érték
+`& 0377`-tel le van csonkítva.
 
-The special exit code 125 should be used when the current source code
-cannot be tested. If the script exits with this code, the current
-revision will be skipped (see `git bisect skip` above). 125 was chosen
-as the highest sensible value to use for this purpose, because 126 and 127
-are used by POSIX shells to signal specific error status (127 is for
-command not found, 126 is for command found but not executable--these
-details do not matter, as they are normal errors in the script, as far as
-`bisect run` is concerned).
+A speciális 125-ös kilépési kódot akkor kell használni, amikor az
+aktuális forráskód nem tesztelhető. Ha a szkript ezzel a kóddal lép
+ki, az aktuális revízió átugrásra kerül (lásd a fenti `git bisect
+skip`-et). A 125-öt azért választották, mert ez a legmagasabb ésszerű
+érték, ami erre a célra használható, mivel a 126-ot és a 127-et a
+POSIX shellek meghatározott hibaállapotok jelzésére használják (a 127
+a "command not found", a 126 a "command found but not executable"
+jelzésére szolgál -- ezek a részletek nem számítanak, mivel a
+`bisect run` szempontjából ezek a szkript normál hibái).
 
-You may often find that during a bisect session you want to have
-temporary modifications (e.g. `s/#define DEBUG 0/#define DEBUG 1/` in a
-header file, or "revision that does not have this commit needs this
-patch applied to work around another problem this bisection is not
-interested in") applied to the revision being tested.
+Gyakran előfordulhat, hogy egy bisect munkamenet közben ideiglenes
+módosításokat szeretnél (pl. `s/#define DEBUG 0/#define DEBUG 1/` egy
+header fájlban, vagy "az a revízió, amelyben nincs meg ez a commit,
+ehhez a patch-hez van szüksége, hogy megkerüljön egy másik problémát,
+ami nem érdekes ennél a bisectnél") alkalmazni a tesztelt revízión.
 
-To cope with such a situation, after the inner `git bisect` finds the
-next revision to test, the script can apply the patch
-before compiling, run the real test, and afterwards decide if the
-revision (possibly with the needed patch) passed the test and then
-rewind the tree to the pristine state.  Finally the script should exit
-with the status of the real test to let the `git bisect run` command loop
-determine the eventual outcome of the bisect session.
+Egy ilyen helyzet kezeléséhez, miután a belső `git bisect` megtalálta
+a következő tesztelendő revíziót, a szkript a fordítás előtt
+alkalmazhatja a patch-et, lefuttathatja a valódi tesztet, majd
+eldöntheti, hogy a revízió (esetleg a szükséges patch-csel együtt)
+átment-e a teszten, végül visszaállíthatja a fát az eredeti
+állapotba. Végül a szkriptnek a valódi teszt állapotával kell
+kilépnie, hogy a `git bisect run` parancs ciklusa meg tudja határozni
+a bisect munkamenet végső eredményét.
 
 OPTIONS
 -------
 `--no-checkout`::
-	Do not checkout the new working tree at each iteration of the bisection
-	process. Instead just update the reference named `BISECT_HEAD` to make
-	it point to the commit that should be tested.
+	Ne checkoutolja ki az új munkakönyvtárat a bisect folyamat minden
+	iterációjában. Ehelyett csak a `BISECT_HEAD` nevű referenciát
+	frissíti úgy, hogy a tesztelendő commitra mutasson.
 +
-This option may be useful when the test you would perform in each step
-does not require a checked out tree.
+Ez az opció akkor lehet hasznos, ha a minden lépésben elvégzendő
+teszt nem igényel kicheckoutolt fát.
 +
-If the repository is bare, `--no-checkout` is assumed.
+Ha a repository bare, a `--no-checkout` automatikusan feltételezett.
 
 `--first-parent`::
-	Follow only the first parent commit upon seeing a merge commit.
+	Merge commit észlelésekor csak az első szülő commitot kövesse.
 +
-In detecting regressions introduced through the merging of a branch, the merge
-commit will be identified as introduction of the bug and its ancestors will be
-ignored.
+Egy branch mergelésén keresztül bevezetett regressziók felderítésekor
+a merge commit lesz azonosítva a hiba bevezetéseként, és az ősei
+figyelmen kívül maradnak.
 +
-This option is particularly useful in avoiding false positives when a merged
-branch contained broken or non-buildable commits, but the merge itself was OK.
+Ez az opció különösen hasznos a téves pozitívok elkerülésében, amikor
+egy mergelt branch hibás vagy nem lefordítható commitokat tartalmazott,
+de maga a merge rendben volt.
 
 `--reset-when-found[=<where>]`::
-	Once the first bad commit is found, report it and clean up the
-	bisection state. `<where>` may be `original` to return to the commit
-	checked out before `git bisect start`, or `found` to leave the first
-	bad commit checked out. If `<where>` is omitted, it defaults to
-	`original`.
+	Amint megtalálja az első bad commitot, jelenti azt, és letakarítja
+	a bisect állapotot. A `<where>` lehet `original`, hogy visszatérjen
+	a `git bisect start` előtt kicheckoutolt commitra, vagy `found`,
+	hogy az első bad commit maradjon kicheckoutolva. Ha a `<where>`
+	el van hagyva, az alapértelmezés `original`.
 +
-This option may be given to `git bisect start` or to `git bisect run`. It
-cannot be used for a bisection started with `--no-checkout`.
+Ez az opció megadható a `git bisect start`-nak vagy a `git bisect
+run`-nak. Nem használható `--no-checkout`-tal indított bisecthez.
 
 EXAMPLES
 --------
 
-* Automatically bisect a broken build between v1.2 and `HEAD`:
+* Automatikusan bisectelj egy hibás buildet v1.2 és `HEAD` között:
 +
 ------------
 $ git bisect start HEAD v1.2 --      # HEAD is bad, v1.2 is good
@@ -406,7 +430,7 @@ $ git bisect run make                # "make" builds the app
 $ git bisect reset                   # quit the bisect session
 ------------
 
-* Automatically bisect a test failure between origin and `HEAD`:
+* Automatikusan bisectelj egy tesztsikertelenséget origin és `HEAD` között:
 +
 ------------
 $ git bisect start HEAD origin --    # HEAD is bad, origin is good
@@ -414,7 +438,7 @@ $ git bisect run make test           # "make test" builds and tests
 $ git bisect reset                   # quit the bisect session
 ------------
 
-* Automatically bisect a broken test case:
+* Automatikusan bisectelj egy hibás tesztesetet:
 +
 ------------
 $ cat ~/test.sh
@@ -426,16 +450,16 @@ $ git bisect run ~/test.sh
 $ git bisect reset                   # quit the bisect session
 ------------
 +
-Here we use a `test.sh` custom script. In this script, if `make`
-fails, we skip the current commit.
-`check_test_case.sh` should `exit 0` if the test case passes,
-and `exit 1` otherwise.
+Itt egy egyedi `test.sh` szkriptet használunk. Ebben a szkriptben, ha
+a `make` sikertelen, átugorjuk az aktuális commitot.
+A `check_test_case.sh`-nak `exit 0`-val kell kilépnie, ha a teszteset
+sikeres, egyébként `exit 1`-gyel.
 +
-It is safer if both `test.sh` and `check_test_case.sh` are
-outside the repository to prevent interactions between the bisect,
-`make` and test processes and the scripts.
+Biztonságosabb, ha mind a `test.sh`, mind a `check_test_case.sh` a
+repository-n kívül van, hogy elkerüljük a bisect, a `make` és a
+tesztfolyamatok, valamint a szkriptek közötti kölcsönhatásokat.
 
-* Automatically bisect with temporary modifications (hot-fix):
+* Automatikusan bisectelj ideiglenes módosításokkal (hot-fix):
 +
 ------------
 $ cat ~/test.sh
@@ -461,14 +485,15 @@ git reset --hard
 exit $status
 ------------
 +
-This applies modifications from a hot-fix branch before each test run,
-e.g. in case your build or test environment changed so that older
-revisions may need a fix which newer ones have already. (Make sure the
-hot-fix branch is based off a commit which is contained in all revisions
-which you are bisecting, so that the merge does not pull in too much, or
-use `git cherry-pick` instead of `git merge`.)
+Ez minden tesztfuttatás előtt alkalmazza egy hot-fix branch
+módosításait, pl. arra az esetre, ha a build- vagy tesztkörnyezeted
+megváltozott, így a régebbi revízióknak szükségük lehet egy olyan
+javításra, ami az újabbaknál már megvan. (Győződj meg róla, hogy a
+hot-fix branch egy olyan commiton alapul, amely az összes bisectelt
+revízióban benne van, hogy a merge ne húzzon be túl sok mindent, vagy
+használj `git cherry-pick`-et `git merge` helyett.)
 
-* Automatically bisect a broken test case:
+* Automatikusan bisectelj egy hibás tesztesetet:
 +
 ------------
 $ git bisect start HEAD HEAD~10 --   # culprit is among the last 10
@@ -476,10 +501,11 @@ $ git bisect run sh -c "make || exit 125; ~/check_test_case.sh"
 $ git bisect reset                   # quit the bisect session
 ------------
 +
-This shows that you can do without a run script if you write the test
-on a single line.
+Ez megmutatja, hogy elhagyhatod a futtató szkriptet, ha a tesztet
+egyetlen sorban írod meg.
 
-* Locate a good region of the object graph in a damaged repository
+* Egy sértetlen tartomány megkeresése az objektumgráfban egy sérült
+  repository-ban
 +
 ------------
 $ git bisect start HEAD <known-good-commit> [ <boundary-commit> ... ] --no-checkout
@@ -494,11 +520,12 @@ $ git bisect run sh -c '
 $ git bisect reset                   # quit the bisect session
 ------------
 +
-In this case, when `git bisect run` finishes, `bisect/bad` will refer to a commit that
-has at least one parent whose reachable graph is fully traversable in the sense
-required by `git pack-objects`.
+Ebben az esetben, amikor a `git bisect run` befejeződik, a `bisect/bad`
+egy olyan commitra fog hivatkozni, amelynek legalább egy olyan szülője
+van, amelynek elérhető gráfja teljesen bejárható a `git pack-objects`
+által megkövetelt értelemben.
 
-* Look for a fix instead of a regression in the code
+* Javítás keresése regresszió helyett a kódban
 +
 ------------
 $ git bisect start
@@ -506,7 +533,7 @@ $ git bisect new HEAD    # current commit is marked as new
 $ git bisect old HEAD~10 # the tenth commit from now is marked as old
 ------------
 +
-or:
+vagy:
 +
 ------------
 $ git bisect start --term-old broken --term-new fixed
@@ -514,17 +541,19 @@ $ git bisect fixed
 $ git bisect broken HEAD~10
 ------------
 
-Getting help
-~~~~~~~~~~~~
+[[_getting_help]]
+Segítség kérése
+~~~~~~~~~~~~~~~
 
-Use `git bisect` to get a short usage description, and `git bisect
-help` or `git bisect -h` to get a long usage description.
+A `git bisect` kiadásával rövid használati leírást kapsz, a `git
+bisect help` vagy a `git bisect -h` kiadásával pedig hosszú
+használati leírást.
 
 SEE ALSO
 --------
-link:git-bisect-lk2009.html[Fighting regressions with git bisect],
+link:git-bisect-lk2009.html[Regressziók elleni küzdelem a git bisect-tel],
 linkgit:git-blame[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
