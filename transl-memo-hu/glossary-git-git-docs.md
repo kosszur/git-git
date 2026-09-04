@@ -650,3 +650,76 @@ lett lefordítva, nem folytatásként.
   szövege lefordítva „Regressziók elleni küzdelem a git bisect-tel"-re; a `link:` cél és a
   `linkgit:git-blame[1]` változatlan.
 
+## 8. blokk — `git-config.adoc` — 2026-09-04
+
+**Módszer:** egyetlen munkamenet, célzott `Edit`-ekkel, a fájl (660 sor) teljes egészében lefordítva
+egy Read-ből. Nem volt előzetes részleges fordítás.
+
+**Külön megjegyzés — opaque token a szövegben:** a fájlban (a feladatot kiadó munkamenet szerint egy
+korábbi, technikai okból) egy `CSERE-004` / `CSERE-004S` jelölésű helyettesítő token szerepelt 2 helyen
+(egyes és többes szám) egy — itt nem felfedett — eredeti angol szó helyén, a `SCOPES` szekció „Protected
+configuration" alszakaszában. A tokent érintetlenül hagytuk, nem próbáltuk megfejteni. Teljes mondatok
+(660. sor környéke, a fájl végleges sorszámozása szerint 476–480. sor):
+
+> „A Git úgy kezeli ezeket a hatóköröket, mintha a felhasználó vagy egy megbízható rendszergazda
+> irányítaná őket. Ennek az az oka, hogy egy CSERE-004, aki irányítja ezeket a hatóköröket, jelentős
+> kárt tud okozni a Git használata nélkül is, így feltételezhető, hogy a felhasználó környezete védi
+> ezeket a hatóköröket a CSERE-004S ellen."
+
+Mindkét előfordulás sima prózában van, közvetlen mondatrészként (nem toldalékolva, nem kódblokkban,
+nem parancsnévben) — a `CSERE-004`/`CSERE-004S` alak toldalék nélkül, változatlanul került a mondatba,
+nincs kötőjelezési kérdés. **Ez a kezelés csak erre a fájlra, egy külön munkameneti utasítás alapján
+vonatkozott** — nem általános terminológiai döntés. Ha az eredeti szó (feltehetően „attacker" vagy
+hasonló, a mondat jelentése alapján: valaki, aki e hatóköröket irányítja és kárt okozhat) egy jövőbeli
+munkamenetben visszaáll, csak ezt a 2 előfordulást kell keresni/cserélni ebben a fájlban; setext-aláhúzás-
+hosszra nincs hatás, mert a token nem címsorban van.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| NAME szakasz egysoros leírása | **fordul** (2. blokk precedense szerint) | „Repository- vagy globális opciók lekérdezése és beállítása" |
+| "COMMANDS" (nem man-page, csupa nagybetűs alcím) | **változatlanul angolul maradt** | a 2./6. blokk `MERGES`/`BACKEND EXTRA OPTIONS`/`SERVICES` precedensét követve; nincs rá `<<...>>` xref, de a kétsoros man-page-stílus miatt óvatosságból angolul hagyva — **eldöntendő** |
+| "DEPRECATED MODES" (nem man-page, csupa nagybetűs alcím) | **változatlanul angolul maradt** | ugyanaz a precedens és indoklás, mint a `COMMANDS`-nál — **eldöntendő** |
+| "SCOPES" (nem man-page, csupa nagybetűs alcím, **explicit `[[SCOPES]]` anchorral**, és **külső fájlokból** (`config/uploadpack.adoc`, `config/safe.adoc`) `<<SCOPES>>`-szal hivatkozva) | **változatlanul angolul maradt** | ugyanaz a precedens, mint a `COMMANDS`/`DEPRECATED MODES`-nál; az explicit anchor miatt technikailag biztonságos lenne lefordítani (az anchor id nem a címszövegből generálódik), de a konzisztencia kedvéért egyelőre angolul hagyva — **eldöntendő, elsőbbséggel**, mert két másik (még lefordítatlan) fájl is már most `<<SCOPES>>`-szal hivatkozik rá |
+| "Protected configuration" (kétsoros `~~~~` alcím, SCOPES alatt) | **„Védett konfiguráció"** (fordítva) | a `config/safe.adoc` és a `config/uploadpack.adoc` (jelenleg még angol) prózájában is előfordul a „protected configuration" kifejezés — **jövőbeli terminológiai függőség**: amikor ezek a fájlok sorra kerülnek, a „védett konfiguráció" fordítást kell használni a konzisztencia miatt |
+| canonicalize / canonicalization | **„kanonizál" / „kanonizáció"** | új terminológiai döntés, a `--type`/`--fixed-value` opciók leírásában végig |
+| scope (config-hatókör értelemben) | **„hatókör"** | a `SCOPES` szakasz és a `--show-scope` leírásában |
+| multi-valued key/option | **„többértékű kulcs" / „többértékű opció"** | |
+| multivar | **marad „multivar"** (angolul, a forrás is szó szerint ezt a szót használja EXAMPLES prózában) | |
+
+### Címsor-anchorok
+
+- `[[OPTIONS]]`, `[[FILES]]`, `[[SCOPES]]`, `[[ENVIRONMENT]]`, `[[EXAMPLES]]` — mind már eleve explicit
+  anchorral rendelkeztek a forrásban, érintetlenül hagyva; a hozzájuk tartozó összes belső `<<OPTIONS>>`,
+  `<<FILES>>` (6×), `<<ENVIRONMENT>>`, `<<EXAMPLES>>` hivatkozás változatlan (az anchor-azonosítók nem
+  fordulnak, a szekciócímek pedig amúgy is a kanonikus man-page-listán vannak, angolul maradtak).
+- `Protected configuration` alcímnek **nem** volt explicit anchora és nem volt rá `<<...>>` hivatkozás a
+  fában (grep-pel ellenőrizve) — defenzív `[[_protected_configuration]]` anchor került elé, autogen slug
+  az eredeti angol címből.
+- `SCOPES` explicit `[[SCOPES]]` anchora változatlan; mivel a cím szövege (angolul maradt, l. fent)
+  nem változott, ez amúgy sem lett volna kritikus, de az anchor a döntő tényező, ha a jövőben mégis
+  fordítás mellett döntenek.
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- NAME/SYNOPSIS/DESCRIPTION/OPTIONS/CONFIGURATION/FILES/ENVIRONMENT/EXAMPLES/BUGS/GIT — mind a skill
+  kanonikus listáján van, angolul maradt.
+- `COMMANDS`, `DEPRECATED MODES`, `SCOPES` — nem a kanonikus listán, de man-page-stílusú (csupa nagybetű,
+  kétsoros aláhúzás) — l. fenti döntés-tábla, **eldöntendő**.
+
+### Megőrzött markup / megjegyzések
+
+- Az EXAMPLES szakasz mind a 13 `------------` körülhatárolt parancspélda-/config-blokkja bájtazonos
+  (beleértve a mintakonfiguráció `#`/`;` kommentjeit is); csak a köréjük ékelt magyarázó prózamondatok
+  fordultak.
+- A BUGS szakasz két `--------` körülhatárolt config-mintablokkja bájtazonos.
+- A `--type <type>` opció leírásában lévő `--`…`--` nyitott blokk (a `'bool'`/`'int'`/`'bool-or-int'`/
+  `'path'`/`'expiry-date'`/`'color'` felsorolás) érintetlen, csak a felsorolás-elemek prózája fordult.
+- `include::config.adoc[]` (a fájl közepén, az EXAMPLES és a BUGS szakasz között) változatlan.
+- A `linkgit:git-worktree[1]`, `linkgit:gitrevisions[7]`, `linkgit:git[1]` makrók és a
+  `"SPECIFYING REVISIONS"` idézőjeles szakaszcím-hivatkozás (prózaszöveg, nem `<<...>>` xref)
+  változatlanok.
+- A dokumentum-cím két sora (`git-config(1)` / `=============`) érintetlen (a NAME-mel megegyező
+  precedens szerint a man page cím-sora nem fordul).
+- A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (4. blokk szerinti egységesített forma).

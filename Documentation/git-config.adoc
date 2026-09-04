@@ -3,7 +3,7 @@ git-config(1)
 
 NAME
 ----
-git-config - Get and set repository or global options
+git-config - Repository- vagy globális opciók lekérdezése és beállítása
 
 
 SYNOPSIS
@@ -20,407 +20,415 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-You can query/set/replace/unset options with this command. The name is
-actually the section and the key separated by a dot, and the value will be
-escaped.
+Ezzel a paranccsal lekérdezhetsz/beállíthatsz/lecserélhetsz/törölhetsz
+opciókat. A név valójában a szekció és a kulcs, ponttal elválasztva, az
+érték pedig escape-elve lesz.
 
-Multiple lines can be added to an option by using the `--append` option.
-If you want to update or unset an option which can occur on multiple
-lines, `--value=<pattern>` (which is an extended regular expression,
-unless the `--fixed-value` option is given) needs to be given.  Only the
-existing values that match the pattern are updated or unset.  If
-you want to handle the lines that do *not* match the pattern, just
-prepend a single exclamation mark in front (see also <<EXAMPLES>>),
-but note that this only works when the `--fixed-value` option is not
-in use.
+Egy opcióhoz a `--append` opcióval több sor is hozzáadható. Ha egy olyan
+opciót akarsz frissíteni vagy törölni, amely több sorban is előfordulhat,
+meg kell adni a `--value=<pattern>` opciót (ez egy kiterjesztett reguláris
+kifejezés, hacsak nincs megadva a `--fixed-value` opció). Csak azok a
+meglévő értékek frissülnek vagy törlődnek, amelyek illeszkednek a mintára.
+Ha azokat a sorokat akarod kezelni, amelyek *nem* illeszkednek a mintára,
+egyszerűen tegyél egy felkiáltójelet a minta elé (lásd még: <<EXAMPLES>>),
+de vedd figyelembe, hogy ez csak akkor működik, ha a `--fixed-value`
+opció nincs használatban.
 
-The `--type=<type>` option instructs 'git config' to ensure that incoming and
-outgoing values are canonicalize-able under the given <type>.  If no
-`--type=<type>` is given, no canonicalization will be performed. Callers may
-unset an existing `--type` specifier with `--no-type`.
+A `--type=<type>` opció arra utasítja a 'git config'-ot, hogy biztosítsa,
+hogy a bejövő és kimenő értékek kanonizálhatók legyenek a megadott
+<type> alatt. Ha nincs megadva `--type=<type>`, nem történik
+kanonizáció. A hívók a `--no-type` opcióval törölhetik egy már beállított
+`--type` specifikátort.
 
-When reading, the values are read from the system, global and
-repository local configuration files by default, and options
-`--system`, `--global`, `--local`, `--worktree` and
-`--file <filename>` can be used to tell the command to read from only
-that location (see <<FILES>>).
+Olvasáskor az értékek alapértelmezés szerint a rendszerszintű, globális
+és repository-helyi konfigurációs fájlokból olvasódnak be, és a
+`--system`, `--global`, `--local`, `--worktree` és `--file <filename>`
+opciókkal utasítható a parancs, hogy csak abból az egy helyről olvasson
+(lásd: <<FILES>>).
 
-When writing, the new value is written to the repository local
-configuration file by default, and options `--system`, `--global`,
-`--worktree`, `--file <filename>` can be used to tell the command to
-write to that location (you can say `--local` but that is the
-default).
+Íráskor az új érték alapértelmezés szerint a repository-helyi
+konfigurációs fájlba íródik, és a `--system`, `--global`, `--worktree`,
+`--file <filename>` opciókkal utasítható a parancs, hogy oda írjon (a
+`--local`-t is megadhatod, de ez az alapértelmezés).
 
-This command will fail with non-zero status upon error.  Some exit
-codes are:
+Ez a parancs nullától eltérő státusszal hibázik. Néhány kilépési kód:
 
-- The section or key is invalid (ret=1),
-- no section or name was provided (ret=2),
-- the config file is invalid (ret=3),
-- the config file cannot be written (ret=4),
-- you try to unset an option which does not exist (ret=5),
-- you try to unset/set an option for which multiple lines match (ret=5), or
-- you try to use an invalid regexp (ret=6).
+- a szekció vagy a kulcs érvénytelen (ret=1),
+- nem lett megadva szekció vagy név (ret=2),
+- a konfigurációs fájl érvénytelen (ret=3),
+- a konfigurációs fájl nem írható (ret=4),
+- egy nem létező opciót próbálsz törölni (ret=5),
+- egy olyan opciót próbálsz törölni/beállítani, amelyre több sor is
+  illeszkedik (ret=5), vagy
+- egy érvénytelen reguláris kifejezést próbálsz használni (ret=6).
 
-On success, the command returns the exit code 0.
+Sikeres futás esetén a parancs a 0 kilépési kóddal tér vissza.
 
-A list of all available configuration variables can be obtained using the
-`git help --config` command.
+Az összes elérhető konfigurációs változó listája a `git help --config`
+paranccsal kérhető le.
 
 COMMANDS
 --------
 
 list::
-	List all variables set in config file, along with their values.
+	Kilistázza a config fájlban beállított összes változót, az
+	értékükkel együtt.
 
 get::
-	Emits the value of the specified key. If key is present multiple times
-	in the configuration, emits the last value. If `--all` is specified,
-	emits all values associated with key. Returns error code 1 if key is
-	not present.
+	Kiadja a megadott kulcs értékét. Ha a kulcs többször is szerepel a
+	konfigurációban, az utolsó értéket adja ki. Ha meg van adva a
+	`--all`, minden, a kulcshoz tartozó értéket kiad. 1-es hibakóddal
+	tér vissza, ha a kulcs nincs jelen.
 
 set::
-	Set value for one or more config options. By default, this command
-	refuses to write multi-valued config options. Passing `--all` will
-	replace all multi-valued config options with the new value, whereas
-	`--value=` will replace all config options whose values match the given
-	pattern.
+	Beállítja egy vagy több konfigurációs opció értékét. Alapértelmezés
+	szerint ez a parancs megtagadja a többértékű konfigurációs opciók
+	írását. A `--all` megadásával az összes többértékű konfigurációs
+	opció lecserélődik az új értékre, míg a `--value=` megadásával
+	minden olyan konfigurációs opció lecserélődik, amelynek értéke
+	illeszkedik a megadott mintára.
 
 unset::
-	Unset value for one or more config options. By default, this command
-	refuses to unset multi-valued keys. Passing `--all` will unset all
-	multi-valued config options, whereas `--value` will unset all config
-	options whose values match the given pattern.
+	Törli egy vagy több konfigurációs opció értékét. Alapértelmezés
+	szerint ez a parancs megtagadja a többértékű kulcsok törlését. A
+	`--all` megadásával az összes többértékű konfigurációs opció
+	törlődik, míg a `--value` megadásával minden olyan konfigurációs
+	opció törlődik, amelynek értéke illeszkedik a megadott mintára.
 
 rename-section::
-	Rename the given section to a new name.
+	Átnevezi a megadott szekciót egy új névre.
 
 remove-section::
-	Remove the given section from the configuration file.
+	Eltávolítja a megadott szekciót a konfigurációs fájlból.
 
 edit::
-	Opens an editor to modify the specified config file; either
-	`--system`, `--global`, `--local` (default), `--worktree`, or
-	`--file <config-file>`.
+	Megnyit egy szerkesztőt a megadott config fájl módosításához;
+	ez a `--system`, `--global`, `--local` (alapértelmezett),
+	`--worktree` vagy a `--file <config-file>` valamelyike lehet.
 
 [[OPTIONS]]
 OPTIONS
 -------
 
 --replace-all::
-	Default behavior is to replace at most one line. This replaces
-	all lines matching the key (and optionally `--value=<pattern>`).
+	Az alapértelmezett viselkedés az, hogy legfeljebb egy sort cserél
+	le. Ez az összes, a kulcsra illeszkedő sort lecseréli (és
+	opcionálisan a `--value=<pattern>`-re illeszkedőket).
 
 --append::
-	Adds a new line to the option without altering any existing
-	values. This is the same as providing '--value=^$' in `set`.
+	Új sort ad hozzá az opcióhoz, a meglévő értékek megváltoztatása
+	nélkül. Ez ugyanaz, mintha '--value=^$'-t adnál meg a `set`-nél.
 
 --comment <message>::
-	Append a comment at the end of new or modified lines.
+	Megjegyzést fűz az új vagy módosított sorok végéhez.
 +
-If _<message>_ begins with one or more whitespaces followed
-by `#`, it is used as-is.  If it begins with `#`, a space is
-prepended before it is used.  Otherwise, a string `" # "` (a
-space followed by a hash followed by a space) is prepended
-to it.  The resulting string is placed immediately after
-the value defined for the variable.  The _<message>_ must
-not contain linefeed characters (no multi-line comments are
-permitted).
+Ha az _<message>_ egy vagy több szóközzel kezdődik, amit `#` követ,
+változatlanul kerül felhasználásra. Ha `#`-vel kezdődik, egy szóköz
+kerül elé, mielőtt felhasználásra kerülne. Egyébként egy `" # "`
+karakterlánc (szóköz, kettőskereszt, szóköz) kerül elé. A kapott
+karakterlánc közvetlenül a változóhoz tartozó érték után kerül
+elhelyezésre. Az _<message>_ nem tartalmazhat soremelés-karaktert
+(többsoros megjegyzések nem megengedettek).
 
 --all::
-	With `get`, return all values for a multi-valued key.
+	A `get`-tel együtt egy többértékű kulcs összes értékét adja vissza.
 
 --regexp::
-	With `get`, interpret the name as a regular expression. Regular
-	expression matching is currently case-sensitive and done against a
-	canonicalized version of the key in which section and variable names
-	are lowercased, but subsection names are not.
+	A `get`-tel együtt reguláris kifejezésként értelmezi a nevet. A
+	reguláris kifejezés illesztése jelenleg kis- és nagybetűérzékeny,
+	és a kulcs egy kanonizált változata ellen történik, amelyben a
+	szekció- és változónevek kisbetűsek, de az alszekciónevek nem.
 
 --url=<URL>::
-	When given a two-part <name> as <section>.<key>, the value for
-	<section>.<URL>.<key> whose <URL> part matches the best to the
-	given URL is returned (if no such key exists, the value for
-	<section>.<key> is used as a fallback).  When given just the
-	<section> as name, do so for all the keys in the section and
-	list them.  Returns error code 1 if no value is found.
+	Ha egy kétrészes <name>-et adsz meg <section>.<key> formában,
+	akkor a <section>.<URL>.<key> értéke jön vissza, amelynek <URL>
+	része a legjobban illeszkedik a megadott URL-re (ha nincs ilyen
+	kulcs, a <section>.<key> értéke szolgál tartalékként). Ha csak a
+	<section>-t adod meg névként, ugyanez történik a szekció összes
+	kulcsával, és kilistázza őket. 1-es hibakóddal tér vissza, ha
+	nem talál értéket.
 
 --global::
-	For writing options: write to global `~/.gitconfig` file
-	rather than the repository `.git/config`, write to
-	`$XDG_CONFIG_HOME/git/config` file if this file exists and the
-	`~/.gitconfig` file doesn't.
+	Íráskor: a globális `~/.gitconfig` fájlba ír a repository
+	`.git/config` fájlja helyett, illetve a `$XDG_CONFIG_HOME/git/config`
+	fájlba ír, ha ez a fájl létezik, a `~/.gitconfig` fájl pedig nem.
 +
-For reading options: read only from global `~/.gitconfig` and from
-`$XDG_CONFIG_HOME/git/config` rather than from all available files.
+Olvasáskor: csak a globális `~/.gitconfig`-ból és a
+`$XDG_CONFIG_HOME/git/config`-ból olvas, nem az összes elérhető fájlból.
 +
-See also <<FILES>>.
+Lásd még: <<FILES>>.
 
 --system::
-	For writing options: write to system-wide
-	`$(prefix)/etc/gitconfig` rather than the repository
-	`.git/config`.
+	Íráskor: a rendszerszintű `$(prefix)/etc/gitconfig` fájlba ír a
+	repository `.git/config` fájlja helyett.
 +
-For reading options: read only from system-wide `$(prefix)/etc/gitconfig`
-rather than from all available files.
+Olvasáskor: csak a rendszerszintű `$(prefix)/etc/gitconfig`-ból olvas,
+nem az összes elérhető fájlból.
 +
-See also <<FILES>>.
+Lásd még: <<FILES>>.
 
 --local::
-	For writing options: write to the repository `.git/config` file.
-	This is the default behavior.
+	Íráskor: a repository `.git/config` fájljába ír. Ez az
+	alapértelmezett viselkedés.
 +
-For reading options: read only from the repository `.git/config` rather than
-from all available files.
+Olvasáskor: csak a repository `.git/config` fájljából olvas, nem az
+összes elérhető fájlból.
 +
-See also <<FILES>>.
+Lásd még: <<FILES>>.
 
 --worktree::
-	Similar to `--local` except that `$GIT_DIR/config.worktree` is
-	read from or written to if `extensions.worktreeConfig` is
-	enabled. If not it's the same as `--local`. Note that `$GIT_DIR`
-	is equal to `$GIT_COMMON_DIR` for the main working tree, but is of
-	the form `$GIT_DIR/worktrees/<id>/` for other working trees. See
-	linkgit:git-worktree[1] to learn how to enable
-	`extensions.worktreeConfig`.
+	Hasonló a `--local`-hoz, azzal a különbséggel, hogy a
+	`$GIT_DIR/config.worktree` fájlból olvas, illetve abba ír, ha az
+	`extensions.worktreeConfig` engedélyezve van. Ha nincs, ugyanaz,
+	mint a `--local`. Vedd figyelembe, hogy a `$GIT_DIR` megegyezik a
+	`$GIT_COMMON_DIR`-rel a fő munkakönyvtár esetében, de más
+	munkakönyvtáraknál `$GIT_DIR/worktrees/<id>/` alakú. Lásd a
+	linkgit:git-worktree[1]-et, hogy megtudd, hogyan engedélyezheted
+	az `extensions.worktreeConfig`-ot.
 
 -f <config-file>::
 --file <config-file>::
-	For writing options: write to the specified file rather than the
-	repository `.git/config`.
+	Íráskor: a megadott fájlba ír a repository `.git/config` fájlja
+	helyett.
 +
-For reading options: read only from the specified file rather than from all
-available files.
+Olvasáskor: csak a megadott fájlból olvas, nem az összes elérhető
+fájlból.
 +
-See also <<FILES>>.
+Lásd még: <<FILES>>.
 
 --blob <blob>::
-	Similar to `--file` but use the given blob instead of a file. E.g.
-	you can use 'master:.gitmodules' to read values from the file
-	'.gitmodules' in the master branch. See "SPECIFYING REVISIONS"
-	section in linkgit:gitrevisions[7] for a more complete list of
-	ways to spell blob names.
+	Hasonló a `--file`-hoz, de a megadott blobot használja fájl
+	helyett. Például a 'master:.gitmodules' megadásával a '.gitmodules'
+	fájlból olvashatók be értékek a master branchen. Lásd a
+	linkgit:gitrevisions[7] "SPECIFYING REVISIONS" szakaszát a blob
+	nevek megadási módjainak teljesebb listájáért.
 
 `--value=<pattern>`::
 `--no-value`::
-	With `get`, `set`, and `unset`, match only against
-	_<pattern>_. The pattern is an extended regular expression unless
-	`--fixed-value` is given.
+	A `get`-tel, `set`-tel és `unset`-tel együtt csak az _<pattern>_-re
+	illeszkedik. A minta egy kiterjesztett reguláris kifejezés, hacsak
+	nincs megadva a `--fixed-value`.
 +
-Use `--no-value` to unset _<pattern>_.
+A `--no-value`-val törölheted az _<pattern>_-et.
 
 --fixed-value::
-	When used with `--value=<pattern>`, treat _<pattern>_ as
-	an exact string instead of a regular expression. This will restrict
-	the name/value pairs that are matched to only those where the value
-	is exactly equal to _<pattern>_.
+	A `--value=<pattern>`-nel együtt használva az _<pattern>_-et pontos
+	karakterláncként kezeli reguláris kifejezés helyett. Ez azokra a
+	név/érték párokra korlátozza az illesztést, amelyeknek az értéke
+	pontosan megegyezik az _<pattern>_-nel.
 
 --type <type>::
-  'git config' will ensure that any input or output is valid under the given
-  type constraint(s), and will canonicalize outgoing values in `<type>`'s
-  canonical form.
+  A 'git config' biztosítja, hogy minden bemenet vagy kimenet érvényes
+  legyen a megadott típus-megszorítás(ok) alatt, és a kimenő értékeket
+  a `<type>` kanonikus formájában kanonizálja.
 +
-Valid `<type>`'s include:
+Az érvényes `<type>` értékek a következők:
 +
 --
-- 'bool': canonicalize values `true`, `yes`, `on`, and positive
-  numbers as "true", and values `false`, `no`, `off` and `0` as
-  "false".
-- 'int': canonicalize values as simple decimal numbers. An optional suffix of
-  'k', 'm', or 'g' will cause the value to be multiplied by 1024, 1048576, or
-  1073741824 upon input.
-- 'bool-or-int': canonicalize according to either 'bool' or 'int', as described
-  above.
-- 'path': canonicalize by expanding a leading `~` to the value of `$HOME` and
-  `~user` to the home directory for the specified user. This specifier has no
-  effect when setting the value (but you can use `git config section.variable
-  ~/` from the command line to let your shell do the expansion.)
-- 'expiry-date': canonicalize by converting from a fixed or relative date-string
-  to a timestamp. This specifier has no effect when setting the value.
-- 'color': When getting a value, canonicalize by converting to an ANSI color
-  escape sequence. When setting a value, a sanity-check is performed to ensure
-  that the given value is canonicalize-able as an ANSI color, but it is written
-  as-is.
+- 'bool': a `true`, `yes`, `on` és a pozitív számok "true"-ra, a
+  `false`, `no`, `off` és `0` pedig "false"-ra kanonizálódnak.
+- 'int': az értékek egyszerű decimális számokká kanonizálódnak. Egy
+  opcionális 'k', 'm' vagy 'g' utótag hatására az érték bemenetkor
+  1024-gyel, 1048576-tal, illetve 1073741824-gyel szorzódik.
+- 'bool-or-int': a fentebb leírt 'bool' vagy 'int' szerint kanonizál.
+- 'path': úgy kanonizál, hogy a kezdő `~`-t a `$HOME` értékére, a
+  `~user`-t pedig a megadott felhasználó saját könyvtárára cseréli.
+  Ennek a specifikátornak nincs hatása az érték beállításakor (de a
+  parancssorból használhatod a `git config section.variable ~/`
+  alakot, hogy a shell végezze el a kifejtést).
+- 'expiry-date': úgy kanonizál, hogy egy fix vagy relatív
+  dátum-karakterláncból időbélyeggé alakít. Ennek a specifikátornak
+  nincs hatása az érték beállításakor.
+- 'color': érték lekérdezésekor egy ANSI szín-escape-szekvenciává
+  alakítva kanonizál. Érték beállításakor egy ellenőrzés történik
+  annak biztosítására, hogy a megadott érték kanonizálható legyen
+  ANSI színként, de az érték változatlanul kerül beírásra.
 --
 +
-If the command is in `list` mode, then the `--type <type>` argument will apply
-to each listed config value. If the value does not successfully parse in that
-format, then it will be omitted from the list.
+Ha a parancs `list` módban van, a `--type <type>` argumentum minden
+kilistázott konfigurációs értékre alkalmazásra kerül. Ha egy érték nem
+elemezhető sikeresen abban a formátumban, kimarad a listából.
 
 --bool::
 --int::
 --bool-or-int::
 --path::
 --expiry-date::
-  Historical options for selecting a type specifier. Prefer instead `--type`
-  (see above).
+  Elavult opciók egy típus-specifikátor kiválasztására. Helyettük a
+  `--type` használata javasolt (l. fent).
 
 --no-type::
-  Un-sets the previously set type specifier (if one was previously set). This
-  option requests that 'git config' not canonicalize the retrieved variable.
-  `--no-type` has no effect without `--type=<type>` or `--<type>`.
+  Törli az előzőleg beállított típus-specifikátort (ha volt ilyen
+  beállítva). Ez az opció azt kéri, hogy a 'git config' ne kanonizálja
+  a lekérdezett változót. A `--no-type`-nak nincs hatása `--type=<type>`
+  vagy `--<type>` nélkül.
 
 -z::
 --null::
-	For all options that output values and/or keys, always
-	end values with the null character (instead of a
-	newline). Use newline instead as a delimiter between
-	key and value. This allows for secure parsing of the
-	output without getting confused e.g. by values that
-	contain line breaks.
+	Minden olyan opciónál, amely értékeket és/vagy kulcsokat ad ki,
+	mindig a null karakterrel zárja le az értékeket (soremelés
+	helyett). A kulcs és az érték közötti elválasztóként soremelést
+	használ helyette. Ez lehetővé teszi a kimenet biztonságos
+	elemzését anélkül, hogy pl. a sortörést tartalmazó értékek
+	összezavarnák.
 
 --name-only::
-	Output only the names of config variables for `list` or
-	`get`.
+	Csak a konfigurációs változók neveit adja ki a `list`-nél vagy a
+	`get`-nél.
 
 `--show-names`::
 `--no-show-names`::
-	With `get`, show config keys in addition to their values. The
-	default is `--no-show-names` unless `--url` is given and there
-	are no subsections in _<name>_.
+	A `get`-tel együtt az értékeik mellett a konfigurációs kulcsokat is
+	megjeleníti. Az alapértelmezés a `--no-show-names`, hacsak nincs
+	megadva a `--url`, és nincsenek alszekciók az _<name>_-ben.
 
 --show-origin::
-	Augment the output of all queried config options with the
-	origin type (file, standard input, blob, command line) and
-	the actual origin (config file path, ref, or blob id if
-	applicable).
+	Kiegészíti az összes lekérdezett konfigurációs opció kimenetét az
+	eredet típusával (fájl, standard bemenet, blob, parancssor) és a
+	tényleges eredettel (a config fájl útvonala, ref, vagy adott
+	esetben a blob azonosítója).
 
 --show-scope::
-	Similar to `--show-origin` in that it augments the output of
-	all queried config options with the scope of that value
-	(worktree, local, global, system, command).
+	Hasonló a `--show-origin`-hoz abban, hogy kiegészíti az összes
+	lekérdezett konfigurációs opció kimenetét az adott érték
+	hatókörével (worktree, local, global, system, command).
 
 --get-colorbool <name> [<stdout-is-tty>]::
 
-	Find the color setting for `<name>` (e.g. `color.diff`) and output
-	"true" or "false".  `<stdout-is-tty>` should be either "true" or
-	"false", and is taken into account when configuration says
-	"auto".  If `<stdout-is-tty>` is missing, then checks the standard
-	output of the command itself, and exits with status 0 if color
-	is to be used, or exits with status 1 otherwise.
-	When the color setting for `name` is undefined, the command uses
-	`color.ui` as fallback.
+	Megkeresi a `<name>` szín-beállítását (pl. `color.diff`), és
+	kiadja, hogy "true" vagy "false". A `<stdout-is-tty>` értéke
+	"true" vagy "false" legyen, és figyelembe vétetik, amikor a
+	konfiguráció "auto"-t mond. Ha a `<stdout-is-tty>` hiányzik, akkor
+	magának a parancsnak a szabványos kimenetét ellenőrzi, és 0-s
+	státusszal lép ki, ha színt kell használni, egyébként 1-es
+	státusszal lép ki.
+	Ha a `name` szín-beállítása nincs megadva, a parancs a
+	`color.ui`-t használja tartalékként.
 
 --includes::
 --no-includes::
-	Respect `include.*` directives in config files when looking up
-	values. Defaults to `off` when a specific file is given (e.g.,
-	using `--file`, `--global`, etc) and `on` when searching all
-	config files.
+	Figyelembe veszi az `include.*` direktívákat a config fájlokban az
+	értékek keresésekor. Alapértelmezés szerint `off`, ha egy konkrét
+	fájl van megadva (pl. a `--file`, `--global` stb. használatával),
+	és `on`, ha az összes config fájlt keresi.
 
 --default <value>::
-  When using `get`, and the requested variable is not found, behave as if
-  <value> were the value assigned to that variable.
+  Amikor a `get`-et használod, és a kért változó nem található, úgy
+  viselkedik, mintha <value> lenne a változóhoz rendelt érték.
 
 DEPRECATED MODES
 ----------------
 
-The following modes have been deprecated in favor of subcommands. It is
-recommended to migrate to the new syntax.
+Az alábbi módok elavultnak minősülnek az alparancsok javára. Az új
+szintaxisra való átállás javasolt.
 
 'git config <name>'::
-	Replaced by `git config get <name>`.
+	Helyette: `git config get <name>`.
 
 'git config <name> <value> [<value-pattern>]'::
-	Replaced by `git config set [--value=<pattern>] <name> <value>`.
+	Helyette: `git config set [--value=<pattern>] <name> <value>`.
 
 -l::
 --list::
-	Replaced by `git config list`.
+	Helyette: `git config list`.
 
 --get <name> [<value-pattern>]::
-	Replaced by `git config get [--value=<pattern>] <name>`.
+	Helyette: `git config get [--value=<pattern>] <name>`.
 
 --get-all <name> [<value-pattern>]::
-	Replaced by `git config get [--value=<pattern>] --all <name>`.
+	Helyette: `git config get [--value=<pattern>] --all <name>`.
 
 --get-regexp <name-regexp>::
-	Replaced by `git config get --all --show-names --regexp <name-regexp>`.
+	Helyette: `git config get --all --show-names --regexp <name-regexp>`.
 
 --get-urlmatch <name> <URL>::
-	Replaced by `git config get --url=<URL> <name>`.
+	Helyette: `git config get --url=<URL> <name>`.
 
 --get-color <name> [<default>]::
-	Replaced by `git config get --type=color [--default=<default>] <name>`.
+	Helyette: `git config get --type=color [--default=<default>] <name>`.
 
 --add <name> <value>::
-	Replaced by `git config set --append <name> <value>`.
+	Helyette: `git config set --append <name> <value>`.
 
 --unset <name> [<value-pattern>]::
-	Replaced by `git config unset [--value=<pattern>] <name>`.
+	Helyette: `git config unset [--value=<pattern>] <name>`.
 
 --unset-all <name> [<value-pattern>]::
-	Replaced by `git config unset [--value=<pattern>] --all <name>`.
+	Helyette: `git config unset [--value=<pattern>] --all <name>`.
 
 --rename-section <old-name> <new-name>::
-	Replaced by `git config rename-section <old-name> <new-name>`.
+	Helyette: `git config rename-section <old-name> <new-name>`.
 
 --remove-section <name>::
-	Replaced by `git config remove-section <name>`.
+	Helyette: `git config remove-section <name>`.
 
 -e::
 --edit::
-	Replaced by `git config edit`.
+	Helyette: `git config edit`.
 
 CONFIGURATION
 -------------
-`pager.config` is only respected when listing configuration, i.e., when
-using `list` or `get` which may return multiple results. The default is to use
-a pager.
+A `pager.config` csak konfiguráció listázásakor vétetik figyelembe, azaz
+a `list` vagy a `get` használatakor, amelyek több eredményt is
+visszaadhatnak. Az alapértelmezés egy pager használata.
 
 [[FILES]]
 FILES
 -----
 
-By default, 'git config' will read configuration options from multiple
-files:
+Alapértelmezés szerint a 'git config' több fájlból is beolvassa a
+konfigurációs opciókat:
 
 $(prefix)/etc/gitconfig::
-	System-wide configuration file.
+	Rendszerszintű konfigurációs fájl.
 
 $XDG_CONFIG_HOME/git/config::
 ~/.gitconfig::
-	User-specific configuration files. When the XDG_CONFIG_HOME environment
-	variable is not set or empty, $HOME/.config/ is used as
-	$XDG_CONFIG_HOME.
+	Felhasználó-specifikus konfigurációs fájlok. Ha az XDG_CONFIG_HOME
+	környezeti változó nincs beállítva vagy üres, a $HOME/.config/
+	kerül felhasználásra $XDG_CONFIG_HOME-ként.
 +
-These are also called "global" configuration files. If both files exist, both
-files are read in the order given above.
+Ezeket „globális" konfigurációs fájloknak is nevezik. Ha mindkét fájl
+létezik, mindkettő beolvasásra kerül a fenti sorrendben.
 
 $GIT_DIR/config::
-	Repository specific configuration file.
+	Repository-specifikus konfigurációs fájl.
 
 $GIT_DIR/config.worktree::
-	This is optional and is only searched when
-	`extensions.worktreeConfig` is present in $GIT_DIR/config.
+	Ez opcionális, és csak akkor keresi a rendszer, ha az
+	`extensions.worktreeConfig` jelen van a $GIT_DIR/config fájlban.
 
-You may also provide additional configuration parameters when running any
-git command by using the `-c` option. See linkgit:git[1] for details.
+Bármely git parancs futtatásakor a `-c` opcióval további konfigurációs
+paramétereket is megadhatsz. Részletekért lásd a linkgit:git[1]-et.
 
-Options will be read from all of these files that are available. If the
-global or the system-wide configuration files are missing or unreadable they
-will be ignored. If the repository configuration file is missing or unreadable,
-'git config' will exit with a non-zero error code. An error message is produced
-if the file is unreadable, but not if it is missing.
+Az opciók az összes elérhető fájlból beolvasásra kerülnek. Ha a
+globális vagy a rendszerszintű konfigurációs fájlok hiányoznak vagy
+nem olvashatók, figyelmen kívül maradnak. Ha a repository konfigurációs
+fájlja hiányzik vagy nem olvasható, a 'git config' nullától eltérő
+hibakóddal lép ki. Hibaüzenet keletkezik, ha a fájl nem olvasható, de
+nem keletkezik, ha hiányzik.
 
-The files are read in the order given above, with last value found taking
-precedence over values read earlier.  When multiple values are taken then all
-values of a key from all files will be used.
+A fájlok a fenti sorrendben kerülnek beolvasásra, és az utolsóként
+talált érték élvez elsőbbséget a korábban beolvasottakkal szemben. Ha
+több érték is fel van véve, egy kulcs összes értéke felhasználásra
+kerül az összes fájlból.
 
-By default, options are only written to the repository specific
-configuration file. Note that this also affects options like `set`
-and `unset`. *'git config' will only ever change one file at a time*.
+Alapértelmezés szerint az opciók csak a repository-specifikus
+konfigurációs fájlba íródnak. Vedd figyelembe, hogy ez az olyan
+opciókra is vonatkozik, mint a `set` és az `unset`. *A 'git config'
+mindig csak egyetlen fájlt módosít egyszerre*.
 
-You can limit which configuration sources are read from or written to by
-specifying the path of a file with the `--file` option, or by specifying a
-configuration scope with `--system`, `--global`, `--local`, or `--worktree`.
-For more, see <<OPTIONS>> above.
+Korlátozhatod, hogy mely konfigurációs forrásokból történjen olvasás
+vagy írás, ha megadod egy fájl útvonalát a `--file` opcióval, vagy egy
+konfigurációs hatókört a `--system`, `--global`, `--local` vagy
+`--worktree` opcióval. Bővebben lásd a fenti <<OPTIONS>>-t.
 
 [[SCOPES]]
 SCOPES
 ------
 
-Each configuration source falls within a configuration scope. The scopes
-are:
+Minden konfigurációs forrás egy konfigurációs hatókörön belülre esik. A
+hatókörök a következők:
 
 system::
 	$(prefix)/etc/gitconfig
@@ -437,34 +445,39 @@ worktree::
 	$GIT_DIR/config.worktree
 
 command::
-	GIT_CONFIG_{COUNT,KEY,VALUE} environment variables (see <<ENVIRONMENT>>
-	below)
+	GIT_CONFIG_{COUNT,KEY,VALUE} környezeti változók (lásd lent:
+	<<ENVIRONMENT>>)
 +
-the `-c` option
+a `-c` opció
 
-With the exception of 'command', each scope corresponds to a command line
-option: `--system`, `--global`, `--local`, `--worktree`.
+A 'command' kivételével minden hatókör egy parancssori opciónak felel
+meg: `--system`, `--global`, `--local`, `--worktree`.
 
-When reading options, specifying a scope will only read options from the
-files within that scope. When writing options, specifying a scope will write
-to the files within that scope (instead of the repository specific
-configuration file). See <<OPTIONS>> above for a complete description.
+Opciók olvasásakor egy hatókör megadása csak az adott hatókörön belüli
+fájlokból olvassa be az opciókat. Opciók írásakor egy hatókör megadása
+az adott hatókörön belüli fájlokba ír (a repository-specifikus
+konfigurációs fájl helyett). A teljes leírásért lásd a fenti
+<<OPTIONS>>-t.
 
-Most configuration options are respected regardless of the scope it is
-defined in, but some options are only respected in certain scopes. See the
-respective option's documentation for the full details.
+A legtöbb konfigurációs opció attól függetlenül figyelembe vétetik,
+hogy melyik hatókörben van megadva, de néhány opció csak bizonyos
+hatókörökben vétetik figyelembe. A teljes részletekért lásd az adott
+opció dokumentációját.
 
-Protected configuration
-~~~~~~~~~~~~~~~~~~~~~~~
+[[_protected_configuration]]
+Védett konfiguráció
+~~~~~~~~~~~~~~~~~~~
 
-Protected configuration refers to the 'system', 'global', and 'command' scopes.
-For security reasons, certain options are only respected when they are
-specified in protected configuration, and ignored otherwise.
+A védett konfiguráció (angolul: protected configuration) a 'system',
+'global' és 'command' hatókörökre utal. Biztonsági okokból bizonyos
+opciók csak akkor vétetnek figyelembe, ha védett konfigurációban vannak
+megadva, egyébként figyelmen kívül maradnak.
 
-Git treats these scopes as if they are controlled by the user or a trusted
-administrator. This is because an attacker who controls these scopes can do
-substantial harm without using Git, so it is assumed that the user's environment
-protects these scopes against attackers.
+A Git úgy kezeli ezeket a hatóköröket, mintha a felhasználó vagy egy
+megbízható rendszergazda irányítaná őket. Ennek az az oka, hogy egy
+támadó, aki irányítja ezeket a hatóköröket, jelentős kárt tud
+okozni a Git használata nélkül is, így feltételezhető, hogy a
+felhasználó környezete védi ezeket a hatóköröket a támadók ellen.
 
 [[ENVIRONMENT]]
 ENVIRONMENT
@@ -472,43 +485,44 @@ ENVIRONMENT
 
 GIT_CONFIG_GLOBAL::
 GIT_CONFIG_SYSTEM::
-	Take the configuration from the given files instead from global or
-	system-level configuration. See linkgit:git[1] for details.
+	A globális vagy rendszerszintű konfiguráció helyett a megadott
+	fájlokból veszi a konfigurációt. Részletekért lásd a linkgit:git[1]-et.
 
 GIT_CONFIG_NOSYSTEM::
-	Whether to skip reading settings from the system-wide
-	$(prefix)/etc/gitconfig file. See linkgit:git[1] for details.
+	Hogy kihagyja-e a beállítások beolvasását a rendszerszintű
+	$(prefix)/etc/gitconfig fájlból. Részletekért lásd a linkgit:git[1]-et.
 
-See also <<FILES>>.
+Lásd még: <<FILES>>.
 
 GIT_CONFIG_COUNT::
 GIT_CONFIG_KEY_<n>::
 GIT_CONFIG_VALUE_<n>::
-	If GIT_CONFIG_COUNT is set to a positive number, all environment pairs
-	GIT_CONFIG_KEY_<n> and GIT_CONFIG_VALUE_<n> up to that number will be
-	added to the process's runtime configuration. The config pairs are
-	zero-indexed. Any missing key or value is treated as an error. An empty
-	GIT_CONFIG_COUNT is treated the same as GIT_CONFIG_COUNT=0, namely no
-	pairs are processed. These environment variables will override values
-	in configuration files, but will be overridden by any explicit options
-	passed via `git -c`.
+	Ha a GIT_CONFIG_COUNT egy pozitív számra van beállítva, az összes
+	GIT_CONFIG_KEY_<n> és GIT_CONFIG_VALUE_<n> környezeti pár, egészen
+	eddig a számig, hozzáadódik a folyamat futásidejű konfigurációjához.
+	A config-párok nulla-indexeltek. Bármely hiányzó kulcs vagy érték
+	hibaként kezelendő. Egy üres GIT_CONFIG_COUNT ugyanúgy kezelendő,
+	mint a GIT_CONFIG_COUNT=0, azaz egyetlen pár sem kerül feldolgozásra.
+	Ezek a környezeti változók felülírják a konfigurációs fájlokban
+	lévő értékeket, de a `git -c`-n keresztül átadott bármely explicit
+	opció felülírja őket.
 +
-This is useful for cases where you want to spawn multiple git commands
-with a common configuration but cannot depend on a configuration file,
-for example when writing scripts.
+Ez olyan esetekben hasznos, amikor több git parancsot akarsz indítani
+egy közös konfigurációval, de nem támaszkodhatsz konfigurációs fájlra,
+például szkriptek írásakor.
 
 GIT_CONFIG::
-	If no `--file` option is provided to `git config`, use the file
-	given by `GIT_CONFIG` as if it were provided via `--file`. This
-	variable has no effect on other Git commands, and is mostly for
-	historical compatibility; there is generally no reason to use it
-	instead of the `--file` option.
+	Ha a `git config`-nak nincs megadva `--file` opció, a `GIT_CONFIG`
+	által megadott fájlt használja, mintha az a `--file`-on keresztül
+	lett volna megadva. Ez a változó nincs hatással más Git parancsokra,
+	és leginkább történelmi kompatibilitási célt szolgál; általában
+	nincs ok arra, hogy a `--file` opció helyett ezt használd.
 
 [[EXAMPLES]]
 EXAMPLES
 --------
 
-Given a .git/config like this:
+Egy ilyen .git/config esetén:
 
 ------------
 #
@@ -540,77 +554,82 @@ Given a .git/config like this:
 	cookieFile = /tmp/cookie.txt
 ------------
 
-you can set the filemode to true with
+a filemode-ot true-ra állíthatod ezzel
 
 ------------
 % git config set core.filemode true
 ------------
 
-The hypothetical proxy command entries actually have a postfix to discern
-what URL they apply to. Here is how to change the entry for kernel.org
-to "ssh".
+A hipotetikus proxy-parancs bejegyzéseknek valójában van egy utótagjuk,
+amely megmondja, melyik URL-re vonatkoznak. Íme, hogyan lehet a
+kernel.org-hoz tartozó bejegyzést "ssh"-ra változtatni.
 
 ------------
 % git config set --value='for kernel.org$' core.gitproxy '"ssh" for kernel.org'
 ------------
 
-This makes sure that only the key/value pair for kernel.org is replaced.
+Ez biztosítja, hogy csak a kernel.org-hoz tartozó kulcs/érték pár
+cserélődjön le.
 
-To delete the entry for renames, do
+A renames bejegyzés törléséhez add ki ezt
 
 ------------
 % git config unset diff.renames
 ------------
 
-If you want to delete an entry for a multivar (like core.gitproxy above),
-you have to provide a regex matching the value of exactly one line.
+Ha egy multivar bejegyzését akarod törölni (mint a fenti
+core.gitproxy), meg kell adnod egy reguláris kifejezést, amely
+pontosan egy sor értékére illeszkedik.
 
-To query the value for a given key, do
+Egy adott kulcs értékének lekérdezéséhez add ki ezt
 
 ------------
 % git config get core.filemode
 ------------
 
-or, to query a multivar:
+vagy egy multivar lekérdezéséhez:
 
 ------------
 % git config get --value="for kernel.org$" core.gitproxy
 ------------
 
-If you want to know all the values for a multivar, do:
+Ha egy multivar összes értékét meg akarod tudni, add ki ezt:
 
 ------------
 % git config get --all --show-names core.gitproxy
 ------------
 
-If you like to live dangerously, you can replace *all* core.gitproxy by a
-new one with
+Ha szeretsz veszélyesen élni, lecserélheted *az összes* core.gitproxy-t
+egy újra ezzel
 
 ------------
 % git config set --all core.gitproxy ssh
 ------------
 
-However, if you really only want to replace the line for the default proxy,
-i.e. the one without a "for ..." postfix, do something like this:
+Ha viszont tényleg csak az alapértelmezett proxy sorát akarod
+lecserélni, azaz azt, amelyiknek nincs "for ..." utótagja, tegyél
+valami ilyesmit:
 
 ------------
 % git config set --value='! for ' core.gitproxy ssh
 ------------
 
-To actually match only values with an exclamation mark, you have to
+Ahhoz, hogy ténylegesen csak a felkiáltójelet tartalmazó értékekre
+illeszkedjen, ezt kell tenned
 
 ------------
 % git config set --value='[!]' section.key value
 ------------
 
-To add a new proxy, without altering any of the existing ones, use
+Egy új proxy hozzáadásához, a meglévők megváltoztatása nélkül, használd
+ezt
 
 ------------
 % git config set --append core.gitproxy '"proxy-command" for example.com'
 ------------
 
-An example to use customized color from the configuration in your
-script:
+Egy példa arra, hogyan használj testreszabott színt a konfigurációból a
+szkriptedben:
 
 ------------
 #!/bin/sh
@@ -619,8 +638,8 @@ RESET=$(git config get --type=color --default="reset" "")
 echo "${WS}your whitespace color or blue reverse${RESET}"
 ------------
 
-For URLs in `https://weak.example.com`, `http.sslVerify` is set to
-false, while it is set to `true` for all others:
+A `https://weak.example.com` URL-eknél a `http.sslVerify` false-ra van
+állítva, míg minden más URL-nél `true`-ra:
 
 ------------
 % git config get --type=bool --url=https://good.example.com http.sslverify
@@ -636,17 +655,18 @@ include::config.adoc[]
 
 BUGS
 ----
-When using the deprecated `[section.subsection]` syntax, changing a value
-will result in adding a multi-line key instead of a change, if the subsection
-is given with at least one uppercase character. For example when the config
-looks like
+Ha az elavult `[section.subsection]` szintaxist használod, egy érték
+megváltoztatása egy többsoros kulcs hozzáadását fogja eredményezni
+módosítás helyett, ha az alszekció legalább egy nagybetűs karakterrel
+van megadva. Például amikor a config így néz ki
 
 --------
   [section.subsection]
     key = value1
 --------
 
-and running `git config section.Subsection.key value2` will result in
+a `git config section.Subsection.key value2` futtatása ezt fogja
+eredményezni
 
 --------
   [section.subsection]
@@ -657,4 +677,4 @@ and running `git config section.Subsection.key value2` will result in
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

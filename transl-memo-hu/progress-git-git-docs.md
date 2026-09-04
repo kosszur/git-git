@@ -65,7 +65,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-commit-graph.adoc | [ ] |  |  |
 | git-commit-tree.adoc | [x] |  | 2026-09-04 |
 | git-commit.adoc | [ ] |  |  |
-| git-config.adoc | [ ] |  |  |
+| git-config.adoc | [x] |  | 2026-09-04 |
 | git-count-objects.adoc | [x] |  | 2026-09-04 |
 | git-credential-cache--daemon.adoc | [x] |  | 2026-09-04 |
 | git-credential-cache.adoc | [x] |  | 2026-09-04 |
