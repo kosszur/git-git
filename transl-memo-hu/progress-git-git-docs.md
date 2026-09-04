@@ -40,8 +40,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-am.adoc | [ ] |  |  |
 | git-annotate.adoc | [ ] |  |  |
 | git-apply.adoc | [ ] |  |  |
-| git-archimport.adoc | [ ] |  |  |
-| git-archive.adoc | [ ] |  |  |
+| git-archimport.adoc | [x] |  | 2026-09-04 |
+| git-archive.adoc | [x] |  | 2026-09-04 |
 | git-backfill.adoc | [ ] |  |  |
 | git-bisect-lk2009.adoc | [ ] |  |  |
 | git-bisect.adoc | [ ] |  |  |
@@ -61,9 +61,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-citool.adoc | [ ] |  |  |
 | git-clean.adoc | [ ] |  |  |
 | git-clone.adoc | [ ] |  |  |
-| git-column.adoc | [ ] |  |  |
+| git-column.adoc | [x] |  | 2026-09-04 |
 | git-commit-graph.adoc | [ ] |  |  |
-| git-commit-tree.adoc | [ ] |  |  |
+| git-commit-tree.adoc | [x] |  | 2026-09-04 |
 | git-commit.adoc | [ ] |  |  |
 | git-config.adoc | [ ] |  |  |
 | git-count-objects.adoc | [ ] |  |  |

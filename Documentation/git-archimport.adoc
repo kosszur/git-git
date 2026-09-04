@@ -3,7 +3,7 @@ git-archimport(1)
 
 NAME
 ----
-git-archimport - Import a GNU Arch repository into Git
+git-archimport - GNU Arch repository importálása Git-be
 
 
 SYNOPSIS
@@ -14,100 +14,106 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Imports a project from one or more GNU Arch repositories.
-It will follow branches
-and repositories within the namespaces defined by the <archive>/<branch>
-parameters supplied. If it cannot find the remote branch a merge comes from
-it will just import it as a regular commit. If it can find it, it will mark it
-as a merge whenever possible (see discussion below).
+Importál egy projektet egy vagy több GNU Arch repository-ból.
+A megadott <archive>/<branch> paraméterek által meghatározott névtereken
+belül követi a brancheket és a repository-kat. Ha nem találja meg azt a
+remote branchet, amelyből egy merge származik, egyszerű, rendes commitként
+importálja. Ha megtalálja, ahol csak lehet, merge-ként jelöli meg
+(lásd a lenti tárgyalást).
 
-The script expects you to provide the key roots where it can start the import
-from an 'initial import' or 'tag' type of Arch commit. It will follow and
-import new branches within the provided roots.
+A szkript elvárja, hogy megadd azokat a kulcsfontosságú gyökereket,
+ahonnan elindíthatja az importot egy 'initial import' vagy 'tag' típusú
+Arch commitból. A megadott gyökereken belül követi és importálja az új
+brancheket.
 
-It expects to be dealing with one project only. If it sees
-branches that have different roots, it will refuse to run. In that case,
-edit your <archive>/<branch> parameters to define clearly the scope of the
-import.
+Azt várja, hogy csak egyetlen projekttel foglalkozzon. Ha eltérő
+gyökerű brancheket észlel, megtagadja a futást. Ebben az esetben
+szerkeszd az <archive>/<branch> paramétereidet, hogy egyértelműen
+meghatározzák az import hatókörét.
 
-'git archimport' uses `tla` extensively in the background to access the
-Arch repository.
-Make sure you have a recent version of `tla` available in the path. `tla` must
-know about the repositories you pass to 'git archimport'.
+A 'git archimport' a háttérben nagymértékben a `tla`-t használja az Arch
+repository eléréséhez.
+Győződj meg róla, hogy a `tla` egy friss verziója elérhető a path-on. A
+`tla`-nak ismernie kell azokat a repository-kat, amelyeket a 'git archimport'-nak
+átadsz.
 
-For the initial import, 'git archimport' expects to find itself in an empty
-directory. To follow the development of a project that uses Arch, rerun
-'git archimport' with the same parameters as the initial import to perform
-incremental imports.
+A kezdeti importhoz a 'git archimport' azt várja, hogy egy üres könyvtárban
+találja magát. Ahhoz, hogy egy Arch-ot használó projekt fejlesztését
+kövesd, futtasd újra a 'git archimport'-ot ugyanazokkal a paraméterekkel,
+mint a kezdeti importnál, hogy inkrementális importokat végezz.
 
-While 'git archimport' will try to create sensible branch names for the
-archives that it imports, it is also possible to specify Git branch names
-manually.  To do so, write a Git branch name after each <archive>/<branch>
-parameter, separated by a colon.  This way, you can shorten the Arch
-branch names and convert Arch jargon to Git jargon, for example mapping a
-"PROJECT{litdd}devo{litdd}VERSION" branch to "master".
+Bár a 'git archimport' megpróbál értelmes branchneveket létrehozni az
+importált archívumokhoz, Git branchneveket kézzel is meg lehet adni.
+Ehhez írj egy Git branchnevet minden <archive>/<branch> paraméter után,
+kettősponttal elválasztva. Ily módon lerövidítheted az Arch branchneveket,
+és az Arch zsargont Git zsargonra fordíthatod, például egy
+"PROJECT{litdd}devo{litdd}VERSION" branch "master"-re való leképezésével.
 
-Associating multiple Arch branches to one Git branch is possible; the
-result will make the most sense only if no commits are made to the first
-branch, after the second branch is created.  Still, this is useful to
-convert Arch repositories that had been rotated periodically.
+Több Arch branch egyetlen Git branchhez társítása is lehetséges; az
+eredmény csak akkor lesz igazán értelmes, ha az első branchbe nem
+kerülnek commitok azután, hogy a második branch létrejött. Ennek ellenére
+hasznos az időszakosan rotált Arch repository-k konvertálásához.
 
 
 MERGES
 ------
-Patch merge data from Arch is used to mark merges in Git as well. Git
-does not care much about tracking patches, and only considers a merge when a
-branch incorporates all the commits since the point they forked. The end result
-is that Git will have a good idea of how far branches have diverged. So the
-import process does lose some patch-trading metadata.
+Az Archból származó patch-merge adatokat a Gitben is a merge-ek
+megjelölésére használjuk. A Gitet nem nagyon érdekli a patchek követése,
+és csak akkor tekint egy merge-et merge-nek, ha egy branch magába
+foglalja az összes commitot az elágazás pontja óta. Ennek eredményeként
+a Git jó képet kap arról, mennyire tértek el egymástól a branchek. Az
+import folyamat így elveszít némi patch-cserélési metaadatot.
 
-Fortunately, when you try and merge branches imported from Arch,
-Git will find a good merge base, and it has a good chance of identifying
-patches that have been traded out-of-sequence between the branches.
+Szerencsére amikor Archból importált brancheket próbálsz merge-elni,
+a Git jó merge-alapot talál, és jó eséllyel azonosítja azokat a
+patcheket, amelyeket a branchek között nem sorrendben cseréltek ki.
 
 OPTIONS
 -------
 
 -h::
-	Display usage.
+	Használat kiírása.
 
 -v::
-	Verbose output.
+	Részletes kimenet.
 
 -T::
-	Many tags. Will create a tag for every commit, reflecting the commit
-	name in the Arch repository.
+	Sok tag. Minden commithoz létrehoz egy taget, amely tükrözi a
+	commit nevét az Arch repository-ban.
 
 -f::
-	Use the fast patchset import strategy.  This can be significantly
-	faster for large trees, but cannot handle directory renames or
-	permissions changes.  The default strategy is slow and safe.
+	A gyors patchset-import stratégia használata. Ez nagy fáknál
+	jelentősen gyorsabb lehet, de nem tud kezelni könyvtár-átnevezéseket
+	vagy jogosultságváltozásokat. Az alapértelmezett stratégia lassú, de
+	biztonságos.
 
 -o::
-	Use this for compatibility with old-style branch names used by
-	earlier versions of 'git archimport'.  Old-style branch names
-	were category{litdd}branch, whereas new-style branch names are
-	archive,category{litdd}branch{litdd}version.  In both cases, names given
-	on the command-line will override the automatically-generated
-	ones.
+	Ezt a korábbi 'git archimport' verziók által használt régi stílusú
+	branchnevekkel való kompatibilitáshoz használd. A régi stílusú
+	branchnevek category{litdd}branch alakúak voltak, míg az új stílusú
+	branchnevek archive,category{litdd}branch{litdd}version alakúak.
+	Mindkét esetben a parancssorban megadott nevek felülírják az
+	automatikusan generáltakat.
 
 -D <depth>::
-	Follow merge ancestry and attempt to import trees that have been
-	merged from.  Specify a depth greater than 1 if patch logs have been
-	pruned.
+	Követi a merge-származást, és megpróbálja importálni azokat a
+	fákat, amelyekből merge-eltek. Adj meg 1-nél nagyobb mélységet,
+	ha a patch-naplókat megnyesték.
 
 -a::
-	Attempt to auto-register archives at `http://mirrors.sourcecontrol.net`
-	This is particularly useful with the -D option.
+	Megpróbálja automatikusan regisztrálni az archívumokat a
+	`http://mirrors.sourcecontrol.net` címen.
+	Ez különösen hasznos a -D opcióval együtt.
 
 -t <tmpdir>::
-	Override the default tempdir.
+	Felülírja az alapértelmezett tempdir-t.
 
 
 <archive>/<branch>::
-	<archive>/<branch> identifier in a format that `tla log` understands.
+	<archive>/<branch> azonosító olyan formátumban, amelyet a
+	`tla log` megért.
 
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

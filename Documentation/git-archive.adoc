@@ -3,7 +3,7 @@ git-archive(1)
 
 NAME
 ----
-git-archive - Create an archive of files from a named tree
+git-archive - Fájlarchívum létrehozása egy megnevezett fából
 
 
 SYNOPSIS
@@ -16,110 +16,113 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Creates an archive of the specified format containing the tree
-structure for the named tree, and writes it out to the standard
-output.  If <prefix> is specified it is
-prepended to the filenames in the archive.
+Létrehoz egy archívumot a megadott formátumban, amely tartalmazza a
+megnevezett fa fastruktúráját, és kiírja a standard kimenetre. Ha meg
+van adva <prefix>, azt az archívumban lévő fájlnevek elé illeszti.
 
-'git archive' behaves differently when given a tree ID as opposed to a
-commit ID or tag ID. When a tree ID is provided, the current time is
-used as the modification time of each file in the archive. On the
-other hand, when a commit ID or tag ID is provided, the commit time as
-recorded in the referenced commit object is used instead.
-Additionally the commit ID is stored in a global extended pax header
-if the tar format is used; it can be extracted using 'git
-get-tar-commit-id'. In ZIP files it is stored as a file comment.
+A 'git archive' másképp viselkedik, ha egy fa ID-t kap, mint amikor egy
+commit ID-t vagy tag ID-t. Ha egy fa ID van megadva, az archívumban
+minden fájl módosítási idejeként az aktuális időt használja. Ezzel
+szemben, ha egy commit ID vagy tag ID van megadva, akkor a hivatkozott
+commit objektumban rögzített commit-időt használja helyette.
+Emellett a commit ID a tar formátum használata esetén egy globális,
+kiterjesztett pax fejlécben tárolódik; ez a 'git get-tar-commit-id'
+paranccsal nyerhető ki. ZIP fájlokban fájlmegjegyzésként tárolódik.
 
 OPTIONS
 -------
 
 --format=<fmt>::
-	Format of the resulting archive. Possible values are `tar`,
-	`zip`, `tar.gz`, `tgz`, and any format defined using the
-	configuration option `tar.<format>.command`. If `--format`
-	is not given, and the output file is specified, the format is
-	inferred from the filename if possible (e.g. writing to `foo.zip`
-	makes the output to be in the `zip` format). Otherwise the output
-	format is `tar`.
+	A keletkező archívum formátuma. A lehetséges értékek: `tar`,
+	`zip`, `tar.gz`, `tgz`, és bármely, a `tar.<format>.command`
+	konfigurációs opcióval definiált formátum. Ha a `--format` nincs
+	megadva, és a kimeneti fájl meg van adva, a formátum a fájlnévből
+	következik ki, ha lehetséges (pl. a `foo.zip` fájlba írás a
+	kimenetet `zip` formátumúvá teszi). Egyébként a kimeneti formátum
+	`tar`.
 
 -l::
 --list::
-	Show all available formats.
+	Az összes elérhető formátum megjelenítése.
 
 -v::
 --verbose::
-	Report progress to stderr.
+	Az előrehaladás jelentése az stderr-re.
 
 --prefix=<prefix>/::
-	Prepend <prefix>/ to paths in the archive.  Can be repeated; its
-	rightmost value is used for all tracked files.  See below which
-	value gets used by `--add-file`.
+	<prefix>/ előtag illesztése az archívumban lévő útvonalak elé.
+	Ismételhető; a legutolsó (legjobbra eső) értéke lesz használva
+	az összes követett fájlhoz. Lásd lentebb, melyik értéket
+	használja a `--add-file`.
 +
-The <prefix> is used as given and is not normalized. It may
-include leading slashes or parent directory components (e.g.,
-`../`). Some archive consumers may treat such paths as
-potentially unsafe and adjust or warn during extraction.
+A <prefix> a megadott formában kerül felhasználásra, és nem
+normalizálódik. Tartalmazhat kezdő perjeleket vagy szülőkönyvtár-
+komponenseket (pl. `../`). Egyes archívumfeldolgozók az ilyen
+útvonalakat potenciálisan nem biztonságosnak tekinthetik, és
+kicsomagoláskor módosíthatják vagy figyelmeztethetnek rájuk.
 
 -o <file>::
 --output=<file>::
-	Write the archive to <file> instead of stdout.
+	Az archívum kiírása <file>-ba a stdout helyett.
 
 --add-file=<file>::
-	Add a non-tracked file to the archive.  Can be repeated to add
-	multiple files.  The path of the file in the archive is built by
-	concatenating the value of the last `--prefix` option (if any)
-	before this `--add-file` and the basename of <file>.
+	Nem követett fájl hozzáadása az archívumhoz. Ismételhető több
+	fájl hozzáadásához. A fájl útvonala az archívumban az utolsó,
+	ez elé a `--add-file` elé eső `--prefix` opció értékének (ha van)
+	és a <file> basename-jének összefűzésével épül fel.
 
 --add-virtual-file=<path>:<content>::
-	Add the specified contents to the archive.  Can be repeated to add
-	multiple files.
+	A megadott tartalom hozzáadása az archívumhoz. Ismételhető több
+	fájl hozzáadásához.
 +
-The `<path>` argument can start and end with a literal double-quote
-character; the contained file name is interpreted as a C-style string,
-i.e. the backslash is interpreted as escape character. The path must
-be quoted if it contains a colon, to avoid the colon from being
-misinterpreted as the separator between the path and the contents, or
-if the path begins or ends with a double-quote character.
+A `<path>` argumentum kezdődhet és végződhet egy literál idézőjel
+karakterrel; a benne foglalt fájlnév C-stílusú stringként értelmeződik,
+azaz a backslash escape karakterként értelmeződik. Az útvonalat
+idézőjelbe kell tenni, ha kettőspontot tartalmaz, hogy elkerüljük a
+kettőspont téves értelmezését az útvonal és a tartalom közötti
+elválasztóként, vagy ha az útvonal idézőjel karakterrel kezdődik vagy
+végződik.
 +
-The file mode is limited to a regular file, and the option may be
-subject to platform-dependent command-line limits. For non-trivial
-cases, write an untracked file and use `--add-file` instead.
+A fájlmód rendes fájlra korlátozódik, és az opcióra platformfüggő
+parancssor-korlátozások vonatkozhatnak. Nem triviális esetekben inkább
+írj egy nem követett fájlt, és használd helyette a `--add-file`-t.
 +
-Note that unlike `--add-file` the path created in the archive is not
-affected by the `--prefix` option, as a full `<path>` can be given as
-the value of the option.
+Vedd figyelembe, hogy a `--add-file`-tól eltérően az archívumban
+létrehozott útvonalra nincs hatással a `--prefix` opció, mivel a
+teljes `<path>` megadható az opció értékeként.
 
 --worktree-attributes::
-	Look for attributes in .gitattributes files in the working tree
-	as well (see <<ATTRIBUTES>>).
+	Az attribútumok keresése a munkakönyvtárban lévő .gitattributes
+	fájlokban is (lásd <<ATTRIBUTES>>).
 
 --mtime=<time>::
-	Set modification time of archive entries.  Without this option
-	the committer time is used if `<tree-ish>` is a commit or tag,
-	and the current time if it is a tree.
+	Az archívumbejegyzések módosítási idejének beállítása. Ezen
+	opció nélkül a committer-idő kerül felhasználásra, ha a
+	`<tree-ish>` egy commit vagy tag, és az aktuális idő, ha egy fa.
 
 <extra>::
-	This can be any options that the archiver backend understands.
-	See next section.
+	Ez bármilyen opció lehet, amelyet az archiváló backend megért.
+	Lásd a következő szakaszt.
 
 --remote=<repo>::
-	Instead of making a tar archive from the local repository,
-	retrieve a tar archive from a remote repository. Note that the
-	remote repository may place restrictions on which sha1
-	expressions may be allowed in `<tree-ish>`. See
-	linkgit:git-upload-archive[1] for details.
+	Ahelyett, hogy a helyi repository-ból készítene tar archívumot,
+	egy remote repository-ból kér le egy tar archívumot. Vedd
+	figyelembe, hogy a remote repository korlátozásokat írhat elő
+	arra vonatkozóan, hogy milyen sha1-kifejezések engedélyezettek a
+	`<tree-ish>`-ben. A részletekért lásd:
+	linkgit:git-upload-archive[1].
 
 --exec=<git-upload-archive>::
-	Used with --remote to specify the path to the
-	'git-upload-archive' on the remote side.
+	A --remote-mal együtt használva a 'git-upload-archive' remote
+	oldali elérési útjának megadására szolgál.
 
 <tree-ish>::
-	The tree or commit to produce an archive for.
+	Az a fa vagy commit, amelyhez az archívum készül.
 
 <path>::
-	Without an optional path parameter, all files and subdirectories
-	of the current working directory are included in the archive.
-	If one or more paths are specified, only these are included.
+	Opcionális útvonalparaméter nélkül az aktuális munkakönyvtár
+	összes fájlja és alkönyvtára bekerül az archívumba. Ha egy vagy
+	több útvonal meg van adva, csak azok kerülnek bele.
 
 BACKEND EXTRA OPTIONS
 ---------------------
@@ -127,116 +130,120 @@ BACKEND EXTRA OPTIONS
 zip
 ~~~
 -<digit>::
-	Specify compression level.  Larger values allow the command
-	to spend more time to compress to smaller size.  Supported
-	values are from `-0` (store-only) to `-9` (best ratio).
-	Default is `-6` if not given.
+	A tömörítési szint megadása. A nagyobb értékek lehetővé teszik,
+	hogy a parancs több időt töltsön a kisebb méretre tömörítéssel.
+	A támogatott értékek `-0`-tól (csak tárolás) `-9`-ig (legjobb
+	arány) terjednek. Alapértelmezés `-6`, ha nincs megadva.
 
 tar
 ~~~
 -<number>::
-	Specify compression level. The value will be passed to the
-	compression command configured in `tar.<format>.command`. See
-	manual page of the configured command for the list of supported
-	levels and the default level if this option isn't specified.
+	A tömörítési szint megadása. Az érték átadásra kerül a
+	`tar.<format>.command` konfigurációban beállított tömörítő
+	parancsnak. A támogatott szintek listájáért és az alapértelmezett
+	szintért, ha ez az opció nincs megadva, lásd a konfigurált
+	parancs man page-ét.
 
 CONFIGURATION
 -------------
 
 tar.umask::
-	This variable can be used to restrict the permission bits of
-	tar archive entries.  The default is 0002, which turns off the
-	world write bit.  The special value "user" indicates that the
-	archiving user's umask will be used instead.  See umask(2) for
-	details.  If `--remote` is used then only the configuration of
-	the remote repository takes effect.
+	Ez a változó a tar archívumbejegyzések jogosultsági bitjeinek
+	korlátozására használható. Az alapértelmezés 0002, amely
+	kikapcsolja a mindenki-írás bitet. A speciális "user" érték azt
+	jelzi, hogy helyette az archiváló felhasználó umaskja lesz
+	használva. A részletekért lásd az umask(2) man page-et. Ha a
+	`--remote` van használva, akkor csak a remote repository
+	konfigurációja lép érvénybe.
 
 tar.<format>.command::
-	This variable specifies a shell command through which the tar
-	output generated by `git archive` should be piped. The command
-	is executed using the shell with the generated tar file on its
-	standard input, and should produce the final output on its
-	standard output. Any compression-level options will be passed
-	to the command (e.g., `-9`).
+	Ez a változó egy shell parancsot ad meg, amelyen keresztül a
+	`git archive` által generált tar kimenetet át kell vezetni. A
+	parancsot a shell hajtja végre úgy, hogy a generált tar fájl a
+	standard bemenetén van, és a végső kimenetet a standard
+	kimenetén kell előállítania. Bármilyen tömörítésiszint-opció
+	átadásra kerül a parancsnak (pl. `-9`).
 +
-The `tar.gz` and `tgz` formats are defined automatically and use the
-magic command `git archive gzip` by default, which invokes an internal
-implementation of gzip.
+A `tar.gz` és `tgz` formátumok automatikusan definiáltak, és
+alapértelmezetten a `git archive gzip` mágikus parancsot használják,
+amely a gzip egy belső implementációját hívja meg.
 
 tar.<format>.remote::
-	If true, enable the format for use by remote clients via
-	linkgit:git-upload-archive[1]. Defaults to false for
-	user-defined formats, but true for the `tar.gz` and `tgz`
-	formats.
+	Ha igaz, engedélyezi a formátum használatát remote kliensek
+	számára a linkgit:git-upload-archive[1] segítségével.
+	Alapértelmezésben hamis a felhasználó által definiált
+	formátumoknál, de igaz a `tar.gz` és `tgz` formátumoknál.
 
 [[ATTRIBUTES]]
 ATTRIBUTES
 ----------
 
 export-ignore::
-	Files and directories with the attribute export-ignore won't be
-	added to archive files.  See linkgit:gitattributes[5] for details.
+	Az export-ignore attribútummal rendelkező fájlok és könyvtárak
+	nem kerülnek be az archívumfájlokba. A részletekért lásd:
+	linkgit:gitattributes[5].
 
 export-subst::
-	If the attribute export-subst is set for a file then Git will
-	expand several placeholders when adding this file to an archive.
-	See linkgit:gitattributes[5] for details.
+	Ha egy fájlra be van állítva az export-subst attribútum, a Git
+	több helyőrzőt kifejt, amikor ezt a fájlt egy archívumhoz adja.
+	A részletekért lásd: linkgit:gitattributes[5].
 
-Note that attributes are by default taken from the `.gitattributes` files
-in the tree that is being archived.  If you want to tweak the way the
-output is generated after the fact (e.g. you committed without adding an
-appropriate export-ignore in its `.gitattributes`), adjust the checked out
-`.gitattributes` file as necessary and use `--worktree-attributes`
-option.  Alternatively you can keep necessary attributes that should apply
-while archiving any tree in your `$GIT_DIR/info/attributes` file.
+Vedd figyelembe, hogy az attribútumok alapértelmezetten az archiválandó
+fában lévő `.gitattributes` fájlokból származnak. Ha utólag szeretnéd
+finomhangolni a kimenet előállításának módját (pl. úgy commitoltál,
+hogy nem adtál hozzá megfelelő export-ignore-t a `.gitattributes`
+fájlhoz), szükség szerint módosítsd a checkoutolt `.gitattributes`
+fájlt, és használd a `--worktree-attributes` opciót. Alternatívaként a
+bármely fa archiválásakor alkalmazandó szükséges attribútumokat
+megtarthatod a `$GIT_DIR/info/attributes` fájlodban.
 
 EXAMPLES
 --------
 `git archive --format=tar --prefix=junk/ HEAD | (cd /var/tmp/ && tar xf -)`::
 
-	Create a tar archive that contains the contents of the
-	latest commit on the current branch, and extract it in the
-	`/var/tmp/junk` directory.
+	Létrehoz egy tar archívumot, amely az aktuális branch legutóbbi
+	commitjának tartalmát foglalja magába, és kicsomagolja a
+	`/var/tmp/junk` könyvtárba.
 
 `git archive --format=tar --prefix=git-1.4.0/ v1.4.0 | gzip >git-1.4.0.tar.gz`::
 
-	Create a compressed tarball for v1.4.0 release.
+	Létrehoz egy tömörített tarballt a v1.4.0 kiadáshoz.
 
 `git archive --format=tar.gz --prefix=git-1.4.0/ v1.4.0 >git-1.4.0.tar.gz`::
 
-	Same as above, but using the builtin tar.gz handling.
+	Ugyanaz, mint fent, de a beépített tar.gz kezelést használva.
 
 `git archive --prefix=git-1.4.0/ -o git-1.4.0.tar.gz v1.4.0`::
 
-	Same as above, but the format is inferred from the output file.
+	Ugyanaz, mint fent, de a formátum a kimeneti fájlból következik ki.
 
 `git archive --format=tar --prefix=git-1.4.0/ v1.4.0^{tree} | gzip >git-1.4.0.tar.gz`::
 
-	Create a compressed tarball for v1.4.0 release, but without a
-	global extended pax header.
+	Létrehoz egy tömörített tarballt a v1.4.0 kiadáshoz, de globális
+	kiterjesztett pax fejléc nélkül.
 
 `git archive --format=zip --prefix=git-docs/ HEAD:Documentation/ > git-1.4.0-docs.zip`::
 
-	Put everything in the current head's Documentation/ directory
-	into 'git-1.4.0-docs.zip', with the prefix 'git-docs/'.
+	Az aktuális head Documentation/ könyvtárában lévő mindent
+	beletesz a 'git-1.4.0-docs.zip'-be, 'git-docs/' előtaggal.
 
 `git archive -o latest.zip HEAD`::
 
-	Create a Zip archive that contains the contents of the latest
-	commit on the current branch. Note that the output format is
-	inferred by the extension of the output file.
+	Létrehoz egy Zip archívumot, amely az aktuális branch legutóbbi
+	commitjának tartalmát foglalja magába. Vedd figyelembe, hogy a
+	kimeneti formátum a kimeneti fájl kiterjesztéséből következik ki.
 
 `git archive -o latest.tar --prefix=build/ --add-file=configure --prefix= HEAD`::
 
-	Creates a tar archive that contains the contents of the latest
-	commit on the current branch with no prefix and the untracked
-	file 'configure' with the prefix 'build/'.
+	Létrehoz egy tar archívumot, amely az aktuális branch legutóbbi
+	commitjának tartalmát foglalja magába előtag nélkül, valamint a
+	nem követett 'configure' fájlt 'build/' előtaggal.
 
 `git config tar.tar.xz.command "xz -c"`::
 
-	Configure a "tar.xz" format for making LZMA-compressed tarfiles.
-	You can use it specifying `--format=tar.xz`, or by creating an
-	output file like `-o foo.tar.xz`.
+	Beállít egy "tar.xz" formátumot LZMA-tömörített tar fájlok
+	készítéséhez. A `--format=tar.xz` megadásával, vagy egy olyan
+	kimeneti fájl létrehozásával használhatod, mint `-o foo.tar.xz`.
 
 
 SEE ALSO
@@ -245,4 +252,4 @@ linkgit:gitattributes[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

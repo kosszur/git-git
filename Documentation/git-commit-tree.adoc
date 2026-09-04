@@ -3,7 +3,7 @@ git-commit-tree(1)
 
 NAME
 ----
-git-commit-tree - Create a new commit object
+git-commit-tree - Új commit objektum létrehozása
 
 
 SYNOPSIS
@@ -16,74 +16,78 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-This is usually not what an end user wants to run directly.  See
-linkgit:git-commit[1] instead.
+Ezt általában nem közvetlenül futtatva szeretné használni egy
+végfelhasználó. Használd inkább a linkgit:git-commit[1] parancsot.
 
-Creates a new commit object based on the provided tree object and
-emits the new commit object id on stdout. The log message is read
-from the standard input, unless `-m` or `-F` options are given.
+Létrehoz egy új commit objektumot a megadott fa objektum alapján, és
+kiírja az új commit objektum azonosítóját a stdout-ra. A napló-üzenet
+a standard bemenetről olvasódik be, hacsak nincs megadva a `-m` vagy a
+`-F` opció.
 
-The `-m` and `-F` options can be given any number of times, in any
-order. The commit log message will be composed in the order in which
-the options are given.
+A `-m` és a `-F` opció tetszőleges számban, tetszőleges sorrendben
+megadható. A commit napló-üzenete az opciók megadási sorrendjében
+épül fel.
 
-A commit object may have any number of parents. With exactly one
-parent, it is an ordinary commit. Having more than one parent makes
-the commit a merge between several lines of history. Initial (root)
-commits have no parents.
+Egy commit objektumnak tetszőleges számú szülője lehet. Pontosan egy
+szülővel közönséges commitról van szó. Egynél több szülő a commitot
+több történelmi vonal közötti merge-gé teszi. A kezdeti (gyökér)
+commitoknak nincs szülőjük.
 
-While a tree represents a particular directory state of a working
-directory, a commit represents that state in "time", and explains how
-to get there.
+Míg egy fa a munkakönyvtár egy adott könyvtárállapotát reprezentálja,
+egy commit ezt az állapotot „időben" reprezentálja, és elmagyarázza,
+hogyan lehet oda eljutni.
 
-Normally a commit would identify a new "HEAD" state, and while Git
-doesn't care where you save the note about that state, in practice we
-tend to just write the result to the file that is pointed at by
-`.git/HEAD`, so that we can always see what the last committed
-state was.
+Egy commit rendszerint egy új „HEAD" állapotot azonosít, és bár a
+Gitet nem érdekli, hova mented az erről az állapotról szóló feljegyzést,
+a gyakorlatban hajlamosak vagyunk egyszerűen a `.git/HEAD` által
+mutatott fájlba írni az eredményt, hogy mindig lássuk, mi volt az
+utolsó commitolt állapot.
 
 OPTIONS
 -------
 <tree>::
-	An existing tree object.
+	Egy létező fa objektum.
 
 -p <parent>::
-	Each `-p` indicates the id of a parent commit object.
+	Minden `-p` egy szülő commit objektum azonosítóját jelzi.
 
 -m <message>::
-	A paragraph in the commit log message. This can be given more than
-	once and each <message> becomes its own paragraph.
+	Egy bekezdés a commit napló-üzenetében. Ez többször is megadható,
+	és minden egyes <message> saját bekezdéssé válik.
 
 -F <file>::
-	Read the commit log message from the given file. Use `-` to read
-	from the standard input. This can be given more than once and the
-	content of each file becomes its own paragraph.
+	A commit napló-üzenetének beolvasása a megadott fájlból. A `-`
+	használatával a standard bemenetről olvashatsz. Ez többször is
+	megadható, és minden fájl tartalma saját bekezdéssé válik.
 
 -S[<keyid>]::
 --gpg-sign[=<keyid>]::
 --no-gpg-sign::
-	GPG-sign commits. The `keyid` argument is optional and
-	defaults to the committer identity; if specified, it must be
-	stuck to the option without a space. `--no-gpg-sign` is useful to
-	countermand a `--gpg-sign` option given earlier on the command line.
+	A commitok GPG-aláírása. A `keyid` argumentum opcionális, és
+	alapértelmezetten a committer identitása; ha meg van adva,
+	szóköz nélkül kell az opcióhoz tapadnia. A `--no-gpg-sign` egy
+	korábban a parancssorban megadott `--gpg-sign` opció felülbírálására
+	hasznos.
 
-Commit Information
+[[_commit_information]]
+Commit-információk
 ------------------
 
-A commit encapsulates:
+Egy commit a következőket foglalja magába:
 
-- all parent object ids
-- author name, email and date
-- committer name and email and the commit time.
+- az összes szülő objektum azonosítója
+- a szerző neve, e-mail-címe és dátuma
+- a committer neve, e-mail-címe és a commit ideje.
 
-A commit comment is read from stdin. If a changelog
-entry is not provided via "<" redirection, 'git commit-tree' will just wait
-for one to be entered and terminated with ^D.
+A commit-megjegyzés a stdin-ről olvasódik be. Ha egy changelog-bejegyzés
+nincs megadva "<" átirányítással, a 'git commit-tree' egyszerűen várni
+fog, amíg beírják és ^D-vel lezárják.
 
 include::date-formats.adoc[]
 
-Discussion
-----------
+[[_discussion]]
+Tárgyalás
+---------
 
 include::i18n.adoc[]
 
@@ -98,4 +102,4 @@ linkgit:git-commit[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
