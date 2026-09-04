@@ -10,8 +10,8 @@ A verziókövetést a felhasználó kezeli kézzel. Lásd a `translate-git-docs`
 
 ## Hogyan használd
 
-- **Minden fordítási munkamenet elején olvasd el ezt a fájlt, a `progress-git-git-docs.md`-t, és a
-  `glossary-progit2.md` „VÉGLEGESÍTVE" terminológiai tábláit**, mielőtt bármit fordítanál.
+- **Minden fordítási munkamenet elején olvasd el ezt a fájlt (a „0. blokk" a kötelező terminológiai
+  alapvonal) és a `progress-git-git-docs.md`-t**, mielőtt bármit fordítanál.
 - Ha egy visszatérő kifejezésre nincs itt egyértelmű döntés, és a szövegkörnyezet sem dönti el →
   **állj meg és kérdezd meg a felhasználót**. A cél a konzisztencia, nem a gyors haladás rossz döntéssel.
 - Minden lefordított blokk után: ha új, visszatérő döntés született, vedd fel egy új, számozott
@@ -20,13 +20,12 @@ A verziókövetést a felhasználó kezeli kézzel. Lásd a `translate-git-docs`
 
 ---
 
-## 0. blokk — a `progit2` fordításból ÖRÖKÖLT terminológiai alapvonal (kötelező)
+## 0. blokk — kötelező terminológiai alapvonal
 
-A felhasználó döntése (2026-09-04): a Git core dokumentáció fordítása a **`glossary-progit2.md`
-véglegesített döntéseit veszi át kötelező kiindulási alapként**. Az alábbi tábla ezek kivonata; a teljes
-kontextus és a toldalékolási minták a `glossary-progit2.md` 1–15. blokkjaiban vannak. Ha egy tétel itt
-és ott ütközik, a `glossary-progit2.md` az irányadó; ha a git-docs kontextusa mást kíván, **új blokkban
-rögzítsd az eltérést**, ne csendben térj el.
+A felhasználó döntése (2026-09-04): az alábbi tábla a Git core dokumentáció fordításának **kötelező
+kiindulási alapvonala** (eredetileg a testvérprojekt, a Pro Git könyv fordításának véglegesített
+döntéseiből átvéve, itt önállóan, teljes egészében rögzítve). Ha a git-docs kontextusa eltérést kíván
+egy itteni tételtől, **új blokkban rögzítsd az eltérést**, ne csendben térj el.
 
 ### Angolul maradó Git-fogalmak (prózában is, `+mono+` / backtick nélkül is)
 
@@ -126,7 +125,7 @@ rögzítsd az eltérést**, ne csendben térj el.
 
 *(Ide kerülnek az új, számozott blokkok az egyes fordítási batchek után — dátummal. Minden blokk:
 terminológiai döntések tábla + „Címsor-anchorok" alszakasz + „Man-page címként angolul hagyott kétes
-címsorok" + „Megőrzött markup" jegyzet, a `glossary-progit2.md` mintájára.)*
+címsorok" + „Megőrzött markup" jegyzet — l. az alábbi 1. blokktól kezdve a kialakult formátumot.)*
 
 ## 1. blokk — `technical/` (mind a 35 fájl) — 2026-09-04
 
