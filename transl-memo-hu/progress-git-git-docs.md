@@ -87,7 +87,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-fast-import.adoc | [ ] |  |  |
 | git-fetch-pack.adoc | [x] |  | 2026-09-04 |
 | git-fetch.adoc | [x] |  | 2026-09-04 |
-| git-filter-branch.adoc | [ ] |  |  |
+| git-filter-branch.adoc | [x] |  | 2026-09-04 |
 | git-fmt-merge-msg.adoc | [ ] |  |  |
 | git-for-each-ref.adoc | [ ] |  |  |
 | git-for-each-repo.adoc | [ ] |  |  |

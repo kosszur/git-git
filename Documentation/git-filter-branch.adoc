@@ -3,7 +3,7 @@ git-filter-branch(1)
 
 NAME
 ----
-git-filter-branch - Rewrite branches
+git-filter-branch - Branchek újraírása
 
 SYNOPSIS
 --------
@@ -18,294 +18,306 @@ SYNOPSIS
 
 WARNING
 -------
-'git filter-branch' has a plethora of pitfalls that can produce non-obvious
-manglings of the intended history rewrite (and can leave you with little
-time to investigate such problems since it has such abysmal performance).
-These safety and performance issues cannot be backward compatibly fixed and
-as such, its use is not recommended.  Please use an alternative history
-filtering tool such as https://github.com/newren/git-filter-repo/[git
-filter-repo].  If you still need to use 'git filter-branch', please
-carefully read <<SAFETY>> (and <<PERFORMANCE>>) to learn about the land
-mines of filter-branch, and then vigilantly avoid as many of the hazards
-listed there as reasonably possible.
+A 'git filter-branch' rengeteg buktatót rejt, amelyek nem nyilvánvaló módon
+torzíthatják el a szándékolt előzmény-újraírást (és mivel a teljesítménye
+kifejezetten gyenge, kevés időd marad az ilyen problémák kivizsgálására).
+Ezek a biztonsági és teljesítménybeli problémák nem javíthatók visszafelé
+kompatibilis módon, ezért a használata nem ajánlott. Kérjük, használj
+alternatív előzmény-szűrő eszközt, például a
+https://github.com/newren/git-filter-repo/[git filter-repo]-t. Ha mégis
+szükséged van a 'git filter-branch' használatára, kérjük, olvasd el
+figyelmesen a <<SAFETY>> (és a <<PERFORMANCE>>) szakaszt, hogy megismerd a
+filter-branch buktatóit, majd éberen kerüld el az ott felsorolt veszélyeket,
+amennyire ésszerűen lehetséges.
 
 DESCRIPTION
 -----------
-Lets you rewrite Git revision history by rewriting the branches mentioned
-in the <rev-list-options>, applying custom filters on each revision.
-Those filters can modify each tree (e.g. removing a file or running
-a perl rewrite on all files) or information about each commit.
-Otherwise, all information (including original commit times or merge
-information) will be preserved.
+Lehetővé teszi, hogy átírd a Git revíziós előzményeket a `<rev-list-options>`-ban
+megadott branchek átírásával, egyéni szűrőket alkalmazva minden egyes revízióra.
+Ezek a szűrők módosíthatják az egyes fákat (pl. egy fájl eltávolításával vagy
+egy perl-átírás minden fájlon való futtatásával), vagy az egyes commitokra
+vonatkozó információkat. Egyébként minden információ (beleértve az eredeti
+commit-időpontokat vagy a merge-információt) megmarad.
 
-The command will only rewrite the _positive_ refs mentioned in the
-command line (e.g. if you pass 'a..b', only 'b' will be rewritten).
-If you specify no filters, the commits will be recommitted without any
-changes, which would normally have no effect.  Nevertheless, this may be
-useful in the future for compensating for some Git bugs or such,
-therefore such a usage is permitted.
+A parancs csak a parancssorban megadott _pozitív_ referenciákat írja át
+(pl. ha az `a..b`-t adod meg, csak a `b` íródik át). Ha nem adsz meg
+szűrőt, a commitok mindenféle változtatás nélkül lesznek újra commitolva,
+aminek normál esetben nincs hatása. Ennek ellenére ez a jövőben hasznos
+lehet néhány Git-hiba vagy hasonló kompenzálására, ezért ez a használat
+megengedett.
 
-*NOTE*: This command honors `.git/info/grafts` file and refs in
-the `refs/replace/` namespace.
-If you have any grafts or replacement refs defined, running this command
-will make them permanent.
+*NOTE*: Ez a parancs figyelembe veszi a `.git/info/grafts` fájlt és a
+`refs/replace/` névtérben lévő referenciákat.
+Ha vannak grafts-jaid vagy helyettesítő referenciáid, e parancs futtatása
+végleges állapotúvá teszi őket.
 
-*WARNING*! The rewritten history will have different object names for all
-the objects and will not converge with the original branch.  You will not
-be able to easily push and distribute the rewritten branch on top of the
-original branch.  Please do not use this command if you do not know the
-full implications, and avoid using it anyway, if a simple single commit
-would suffice to fix your problem.  (See the "RECOVERING FROM UPSTREAM
-REBASE" section in linkgit:git-rebase[1] for further information about
-rewriting published history.)
+*WARNING*! Az átírt előzmény minden objektumhoz más objektumnevet fog kapni,
+és nem fog konvergálni az eredeti branch-csel. Nem fogod tudni egyszerűen
+push-olni és terjeszteni az átírt branchet az eredeti branch tetején.
+Kérjük, ne használd ezt a parancsot, ha nem ismered a teljes hatásait,
+és amúgy is kerüld a használatát, ha egy egyszerű, önálló commit is elég
+lenne a probléma megoldásához. (A megjelentetett előzmény átírásáról
+további információért lásd a linkgit:git-rebase[1] "RECOVERING FROM
+UPSTREAM REBASE" szakaszát.)
 
-Always verify that the rewritten version is correct: The original refs,
-if different from the rewritten ones, will be stored in the namespace
-'refs/original/'.
+Mindig ellenőrizd, hogy az átírt verzió helyes-e: az eredeti referenciák,
+ha eltérnek az átírtaktól, a 'refs/original/' névtérben lesznek tárolva.
 
-Note that since this operation is very I/O expensive, it might
-be a good idea to redirect the temporary directory off-disk with the
-`-d` option, e.g. on tmpfs.  Reportedly the speedup is very noticeable.
+Vedd figyelembe, hogy mivel ez a művelet nagyon I/O-igényes, jó ötlet
+lehet a `-d` opcióval a lemezen kívülre irányítani az ideiglenes
+könyvtárat, pl. tmpfs-re. A visszajelzések szerint a gyorsulás nagyon
+szembetűnő.
 
 
-Filters
-~~~~~~~
+Szűrők
+~~~~~~
 
-The filters are applied in the order as listed below.  The <command>
-argument is always evaluated in the shell context using the 'eval' command
-(with the notable exception of the commit filter, for technical reasons).
-Prior to that, the `$GIT_COMMIT` environment variable will be set to contain
-the id of the commit being rewritten.  Also, GIT_AUTHOR_NAME,
-GIT_AUTHOR_EMAIL, GIT_AUTHOR_DATE, GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL,
-and GIT_COMMITTER_DATE are taken from the current commit and exported to
-the environment, in order to affect the author and committer identities of
-the replacement commit created by linkgit:git-commit-tree[1] after the
-filters have run.
+A szűrők az alább felsorolt sorrendben kerülnek alkalmazásra. A `<command>`
+argumentum mindig a shell kontextusában, az 'eval' paranccsal kerül
+kiértékelésre (a commit-szűrő figyelemre méltó kivételével, technikai okokból).
+Ezt megelőzően a `$GIT_COMMIT` környezeti változó az átírás alatt álló commit
+azonosítójára lesz állítva. Emellett a GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
+GIT_AUTHOR_DATE, GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL és GIT_COMMITTER_DATE
+az aktuális commitból kerül átvételre, és exportálásra kerül a környezetbe,
+hogy befolyásolja a szerző és a committer azonosítóját a szűrők lefutása után
+a linkgit:git-commit-tree[1] által létrehozott helyettesítő commit esetében.
 
-If any evaluation of <command> returns a non-zero exit status, the whole
-operation will be aborted.
+Ha a `<command>` bármelyik kiértékelése nem nulla kilépési státuszt ad
+vissza, a teljes művelet megszakad.
 
-A 'map' function is available that takes an "original sha1 id" argument
-and outputs a "rewritten sha1 id" if the commit has been already
-rewritten, and "original sha1 id" otherwise; the 'map' function can
-return several ids on separate lines if your commit filter emitted
-multiple commits.
+Elérhető egy 'map' függvény, amely egy „eredeti sha1 azonosító" argumentumot
+vár, és egy „átírt sha1 azonosítót" ad vissza, ha a commit már át lett írva,
+egyébként pedig az „eredeti sha1 azonosítót"; a 'map' függvény több
+azonosítót is visszaadhat, külön sorokban, ha a commit-szűrőd több commitot
+is kibocsátott.
 
 
 OPTIONS
 -------
 
 --setup <command>::
-	This is not a real filter executed for each commit but a one
-	time setup just before the loop. Therefore no commit-specific
-	variables are defined yet.  Functions or variables defined here
-	can be used or modified in the following filter steps except
-	the commit filter, for technical reasons.
+	Ez nem egy valódi, minden commitra lefuttatott szűrő, hanem egy
+	egyszeri beállítás közvetlenül a ciklus előtt. Ezért még nincsenek
+	definiálva commit-specifikus változók. Az itt definiált függvények
+	vagy változók a következő szűrő-lépésekben felhasználhatók vagy
+	módosíthatók, kivéve a commit-szűrőt, technikai okokból.
 
 --subdirectory-filter <directory>::
-	Only look at the history which touches the given subdirectory.
-	The result will contain that directory (and only that) as its
-	project root. Implies <<Remap_to_ancestor>>.
+	Csak azt az előzményt vizsgálja, amely érinti a megadott
+	alkönyvtárat. Az eredmény ezt a könyvtárat (és csak ezt) fogja
+	tartalmazni projektgyökérként. Maga után vonja a <<Remap_to_ancestor>>-t.
 
 --env-filter <command>::
-	This filter may be used if you only need to modify the environment
-	in which the commit will be performed.  Specifically, you might
-	want to rewrite the author/committer name/email/time environment
-	variables (see linkgit:git-commit-tree[1] for details).
+	Ez a szűrő akkor használható, ha csak azt a környezetet kell
+	módosítanod, amelyben a commit végrehajtásra kerül. Konkrétan a
+	szerző/committer név/e-mail/időpont környezeti változóit
+	szeretnéd átírni (a részletekért lásd a linkgit:git-commit-tree[1]-et).
 
 --tree-filter <command>::
-	This is the filter for rewriting the tree and its contents.
-	The argument is evaluated in shell with the working
-	directory set to the root of the checked out tree.  The new tree
-	is then used as-is (new files are auto-added, disappeared files
-	are auto-removed - neither .gitignore files nor any other ignore
-	rules *HAVE ANY EFFECT*!).
+	Ez a fa és a tartalmának átírására szolgáló szűrő. Az argumentum
+	kiértékelése a shellben történik, a munkakönyvtárral a checkoutolt
+	fa gyökerére állítva. Az új fa ezután úgy kerül felhasználásra,
+	ahogy van (az új fájlok automatikusan hozzáadásra, az eltűnt
+	fájlok automatikusan eltávolításra kerülnek - sem a .gitignore
+	fájloknak, sem semmilyen más figyelmen kívül hagyási szabálynak
+	*NINCS SEMMILYEN HATÁSA*!).
 
 --index-filter <command>::
-	This is the filter for rewriting the index.  It is similar to the
-	tree filter but does not check out the tree, which makes it much
-	faster.  Frequently used with `git rm --cached
-	--ignore-unmatch ...`, see EXAMPLES below.  For hairy
-	cases, see linkgit:git-update-index[1].
+	Ez az index átírására szolgáló szűrő. Hasonló a fa-szűrőhöz, de
+	nem checkoutolja ki a fát, ami sokkal gyorsabbá teszi. Gyakran
+	használják a `git rm --cached --ignore-unmatch ...` paranccsal
+	együtt, lásd az EXAMPLES szakaszt lentebb. A bonyolultabb esetekhez
+	lásd a linkgit:git-update-index[1]-et.
 
 --parent-filter <command>::
-	This is the filter for rewriting the commit's parent list.
-	It will receive the parent string on stdin and shall output
-	the new parent string on stdout.  The parent string is in
-	the format described in linkgit:git-commit-tree[1]: empty for
-	the initial commit, "-p parent" for a normal commit and
-	"-p parent1 -p parent2 -p parent3 ..." for a merge commit.
+	Ez a commit szülőlistájának átírására szolgáló szűrő. A szülő-
+	stringet a standard bemeneten kapja meg, és az új szülő-stringet
+	kell a standard kimenetre kiírnia. A szülő-string a
+	linkgit:git-commit-tree[1]-ben leírt formátumban van: üres a
+	kezdő commit esetén, "-p parent" egy normál commitnál, és
+	"-p parent1 -p parent2 -p parent3 ..." egy merge-commitnál.
 
 --msg-filter <command>::
-	This is the filter for rewriting the commit messages.
-	The argument is evaluated in the shell with the original
-	commit message on standard input; its standard output is
-	used as the new commit message.
+	Ez a commit-üzenetek átírására szolgáló szűrő. Az argumentum
+	kiértékelése a shellben történik, az eredeti commit-üzenettel a
+	standard bemeneten; a standard kimenete lesz az új commit-üzenet.
 
 --commit-filter <command>::
-	This is the filter for performing the commit.
-	If this filter is specified, it will be called instead of the
-	'git commit-tree' command, with arguments of the form
-	"<TREE_ID> [(-p <PARENT_COMMIT_ID>)...]" and the log message on
-	stdin.  The commit id is expected on stdout.
+	Ez a commit végrehajtására szolgáló szűrő.
+	Ha ez a szűrő meg van adva, akkor a 'git commit-tree' parancs
+	helyett ezt hívja meg a rendszer, "<TREE_ID> [(-p
+	<PARENT_COMMIT_ID>)...]" alakú argumentumokkal, a naplóüzenettel
+	a standard bemeneten. A standard kimeneten a commit-azonosítót várja.
 +
-As a special extension, the commit filter may emit multiple
-commit ids; in that case, the rewritten children of the original commit will
-have all of them as parents.
+Speciális bővítésként a commit-szűrő több commit-azonosítót is
+kibocsáthat; ebben az esetben az eredeti commit újraírt gyermekeinek
+mindegyikük szülőjük lesz.
 +
-You can use the 'map' convenience function in this filter, and other
-convenience functions, too.  For example, calling 'skip_commit "$@"'
-will leave out the current commit (but not its changes! If you want
-that, use 'git rebase' instead).
+Ebben a szűrőben használhatod a 'map' kényelmi függvényt, és más
+kényelmi függvényeket is. Például a 'skip_commit "$@"' meghívása
+kihagyja az aktuális commitot (de a változtatásait nem! Ha azt
+szeretnéd, használd inkább a 'git rebase'-t).
 +
-You can also use the `git_commit_non_empty_tree "$@"` instead of
-`git commit-tree "$@"` if you don't wish to keep commits with a single parent
-and that makes no change to the tree.
+Használhatod a `git_commit_non_empty_tree "$@"` függvényt is a
+`git commit-tree "$@"` helyett, ha nem akarod megtartani azokat az
+egyetlen szülővel rendelkező commitokat, amelyek nem változtatnak a fán.
 
 --tag-name-filter <command>::
-	This is the filter for rewriting tag names. When passed,
-	it will be called for every tag ref that points to a rewritten
-	object (or to a tag object which points to a rewritten object).
-	The original tag name is passed via standard input, and the new
-	tag name is expected on standard output.
+	Ez a tagnevek átírására szolgáló szűrő. Ha meg van adva,
+	minden olyan tag-referenciára meghívásra kerül, amely egy
+	újraírt objektumra mutat (vagy egy olyan tag-objektumra, amely
+	egy újraírt objektumra mutat). Az eredeti tagnév a standard
+	bemeneten érkezik, az új tagnevet a standard kimeneten várja.
 +
-The original tags are not deleted, but can be overwritten;
-use "--tag-name-filter cat" to simply update the tags.  In this
-case, be very careful and make sure you have the old tags
-backed up in case the conversion has run afoul.
+Az eredeti tagek nem törlődnek, de felülírhatók; használd a
+"--tag-name-filter cat" beállítást, ha egyszerűen csak frissíteni
+akarod a tageket. Ebben az esetben légy nagyon óvatos, és győződj
+meg róla, hogy a régi tagekről van biztonsági mentésed, arra az
+esetre, ha az átalakítás félresikerülne.
 +
-Nearly proper rewriting of tag objects is supported. If the tag has
-a message attached, a new tag object will be created with the same message,
-author, and timestamp. If the tag has a signature attached, the
-signature will be stripped. It is by definition impossible to preserve
-signatures. The reason this is "nearly" proper, is because ideally if
-the tag did not change (points to the same object, has the same name, etc.)
-it should retain any signature. That is not the case, signatures will always
-be removed, buyer beware. There is also no support for changing the
-author or timestamp (or the tag message for that matter). Tags which point
-to other tags will be rewritten to point to the underlying commit.
+A tag-objektumok szinte megfelelő újraírása támogatott. Ha a taghez
+üzenet tartozik, egy új tag-objektum jön létre ugyanazzal az
+üzenettel, szerzővel és időbélyeggel. Ha a taghez aláírás tartozik,
+az aláírás eltávolításra kerül. Az aláírások megőrzése definíció
+szerint lehetetlen. Az ok, amiért ez csak "szinte" megfelelő, az,
+hogy ideális esetben, ha a tag nem változott (ugyanarra az objektumra
+mutat, ugyanaz a neve stb.), meg kellene tartania az esetleges
+aláírását. Ez nincs így, az aláírások mindig eltávolításra kerülnek,
+vevő vigyázz. Az sem támogatott, hogy megváltoztasd a szerzőt vagy az
+időbélyeget (sem pedig a tag üzenetét, ami azt illeti). Az olyan
+tagek, amelyek más tagekre mutatnak, úgy lesznek újraírva, hogy a
+mögöttes commitra mutassanak.
 
 --prune-empty::
-	Some filters will generate empty commits that leave the tree untouched.
-	This option instructs git-filter-branch to remove such commits if they
-	have exactly one or zero non-pruned parents; merge commits will
-	therefore remain intact.  This option cannot be used together with
-	`--commit-filter`, though the same effect can be achieved by using the
-	provided `git_commit_non_empty_tree` function in a commit filter.
+	Egyes szűrők üres, a fát érintetlenül hagyó commitokat hoznak
+	létre. Ez a kapcsoló utasítja a git-filter-branch-et, hogy
+	távolítsa el az ilyen commitokat, ha pontosan egy vagy nulla
+	nem-eltávolított szülőjük van; a merge-commitok tehát épen
+	maradnak. Ez a kapcsoló nem használható a `--commit-filter`-rel
+	együtt, bár ugyanez a hatás elérhető a `git_commit_non_empty_tree`
+	függvény commit-szűrőben való használatával.
 
 --original <namespace>::
-	Use this option to set the namespace where the original commits
-	will be stored. The default value is 'refs/original'.
+	Ezzel a kapcsolóval állítható be az a névtér, ahol az eredeti
+	commitok tárolásra kerülnek. Az alapértelmezett érték a
+	'refs/original'.
 
 -d <directory>::
-	Use this option to set the path to the temporary directory used for
-	rewriting.  When applying a tree filter, the command needs to
-	temporarily check out the tree to some directory, which may consume
-	considerable space in case of large projects.  By default it
-	does this in the `.git-rewrite/` directory but you can override
-	that choice by this parameter.
+	Ezzel a kapcsolóval állítható be az újraíráshoz használt
+	ideiglenes könyvtár útvonala. Fa-szűrő alkalmazásakor a
+	parancsnak ideiglenesen ki kell checkoutolnia a fát egy
+	könyvtárba, ami nagy projektek esetén jelentős helyet
+	foglalhat. Alapértelmezés szerint ezt a `.git-rewrite/`
+	könyvtárban teszi, de ezzel a paraméterrel felülbírálható ez
+	a választás.
 
 -f::
 --force::
-	'git filter-branch' refuses to start with an existing temporary
-	directory or when there are already refs starting with
-	'refs/original/', unless forced.
+	A 'git filter-branch' megtagadja az indulást, ha már létezik
+	az ideiglenes könyvtár, vagy ha már vannak 'refs/original/'-lal
+	kezdődő referenciák, kivéve ha kényszerítjük.
 
 --state-branch <branch>::
-	This option will cause the mapping from old to new objects to
-	be loaded from named branch upon startup and saved as a new
-	commit to that branch upon exit, enabling incremental of large
-	trees. If '<branch>' does not exist it will be created.
+	Ez a kapcsoló azt eredményezi, hogy a régi és az új objektumok
+	közötti leképezés a megnevezett branchről töltődik be induláskor,
+	és egy új commitként kerül mentésre erre a branchre kilépéskor,
+	lehetővé téve nagy fák inkrementális feldolgozását. Ha a
+	'<branch>' nem létezik, létre lesz hozva.
 
 <rev-list options>...::
-	Arguments for 'git rev-list'.  All positive refs included by
-	these options are rewritten.  You may also specify options
-	such as `--all`, but you must use `--` to separate them from
-	the 'git filter-branch' options. Implies <<Remap_to_ancestor>>.
+	Argumentumok a 'git rev-list' számára. Az ezekkel a kapcsolókkal
+	megadott összes pozitív referencia újraírásra kerül. Megadhatsz
+	olyan kapcsolókat is, mint a `--all`, de a `--`-t kell használnod,
+	hogy elválaszd őket a 'git filter-branch' kapcsolóitól. Maga után
+	vonja a <<Remap_to_ancestor>>-t.
 
 
 [[Remap_to_ancestor]]
-Remap to ancestor
-~~~~~~~~~~~~~~~~~
+Áthelyezés ősre
+~~~~~~~~~~~~~~~
 
-By using linkgit:git-rev-list[1] arguments, e.g., path limiters, you can limit the
-set of revisions which get rewritten. However, positive refs on the command
-line are distinguished: we don't let them be excluded by such limiters. For
-this purpose, they are instead rewritten to point at the nearest ancestor that
-was not excluded.
+A linkgit:git-rev-list[1] argumentumainak használatával, pl. útvonal-korlátozókkal,
+korlátozható az újraírásra kerülő revíziók halmaza. A parancssorban megadott
+pozitív referenciák azonban kitüntetettek: nem engedjük, hogy az ilyen
+korlátozók kizárják őket. Ebből a célból helyettük a legközelebbi, ki nem
+zárt ősre lesznek átírva.
 
 
 EXIT STATUS
 -----------
 
-On success, the exit status is `0`.  If the filter can't find any commits to
-rewrite, the exit status is `2`.  On any other error, the exit status may be
-any other non-zero value.
+Siker esetén a kilépési státusz `0`. Ha a szűrő nem talál egyetlen
+átírandó commitot sem, a kilépési státusz `2`. Bármely más hiba esetén a
+kilépési státusz bármilyen más, nullától eltérő érték lehet.
 
 
 EXAMPLES
 --------
 
-Suppose you want to remove a file (containing confidential information
-or copyright violation) from all commits:
+Tegyük fel, hogy el akarsz távolítani egy fájlt (amely bizalmas információt
+vagy szerzői jogi jogsértést tartalmaz) az összes commitból:
 
 -------------------------------------------------------
 git filter-branch --tree-filter 'rm filename' HEAD
 -------------------------------------------------------
 
-However, if the file is absent from the tree of some commit,
-a simple `rm filename` will fail for that tree and commit.
-Thus you may instead want to use `rm -f filename` as the script.
+Ha azonban a fájl hiányzik valamelyik commit fájából, akkor egy
+egyszerű `rm filename` meg fog hiúsulni az adott fánál és commitnál.
+Ezért inkább a `rm -f filename` szkriptet érdemes használni.
 
-Using `--index-filter` with 'git rm' yields a significantly faster
-version.  Like with using `rm filename`, `git rm --cached filename`
-will fail if the file is absent from the tree of a commit.  If you
-want to "completely forget" a file, it does not matter when it entered
-history, so we also add `--ignore-unmatch`:
+A `--index-filter` 'git rm'-mel való használata jelentősen gyorsabb
+változatot eredményez. Ahogy a `rm filename` használatakor, a
+`git rm --cached filename` is meghiúsul, ha a fájl hiányzik egy
+commit fájából. Ha egy fájlt "teljesen el akarsz felejtetni", akkor
+nem számít, mikor került bele az előzményekbe, ezért adjuk hozzá a
+`--ignore-unmatch` kapcsolót is:
 
 --------------------------------------------------------------------------
 git filter-branch --index-filter 'git rm --cached --ignore-unmatch filename' HEAD
 --------------------------------------------------------------------------
 
-Now, you will get the rewritten history saved in HEAD.
+Ezután megkapod az újraírt előzményeket a HEAD-be mentve.
 
-To rewrite the repository to look as if `foodir/` had been its project
-root, and discard all other history:
+A repository úgy való újraírásához, mintha a `foodir/` lett volna a
+projektgyökere, az összes többi előzmény eldobásával:
 
 -------------------------------------------------------
 git filter-branch --subdirectory-filter foodir -- --all
 -------------------------------------------------------
 
-Thus you can, e.g., turn a library subdirectory into a repository of
-its own.  Note the `--` that separates 'filter-branch' options from
-revision options, and the `--all` to rewrite all branches and tags.
+Így pl. egy könyvtár-alkönyvtárból önálló repository-t csinálhatsz.
+Figyeld meg a `--`-t, amely elválasztja a 'filter-branch' kapcsolóit
+a revíziós kapcsolóktól, és a `--all`-t, amely az összes branch és
+tag újraírását végzi.
 
-To set a commit (which typically is at the tip of another
-history) to be the parent of the current initial commit, in
-order to paste the other history behind the current history:
+Ahhoz, hogy egy commitot (amely jellemzően egy másik előzménysor
+csúcsán van) az aktuális kezdő commit szülőjévé tegyél, azért hogy a
+másik előzményt az aktuális előzmény mögé illeszd:
 
 -------------------------------------------------------------------
 git filter-branch --parent-filter 'sed "s/^\$/-p <graft-id>/"' HEAD
 -------------------------------------------------------------------
 
-(if the parent string is empty - which happens when we are dealing with
-the initial commit - add graftcommit as a parent).  Note that this assumes
-history with a single root (that is, no merge without common ancestors
-happened).  If this is not the case, use:
+(ha a szülő-string üres - ami akkor fordul elő, amikor a kezdő
+commitról van szó - akkor add hozzá a graftcommitot szülőként).
+Figyeld meg, hogy ez egyetlen gyökérrel rendelkező előzményt
+feltételez (azaz nem történt közös ős nélküli merge). Ha ez nem
+így van, használd a következőt:
 
 --------------------------------------------------------------------------
 git filter-branch --parent-filter \
 	'test $GIT_COMMIT = <commit-id> && echo "-p <graft-id>" || cat' HEAD
 --------------------------------------------------------------------------
 
-or even simpler:
+vagy még egyszerűbben:
 
 -----------------------------------------------
 git replace --graft $commit-id $graft-id
 git filter-branch $graft-id..HEAD
 -----------------------------------------------
 
-To remove commits authored by "Darl McBribe" from the history:
+A "Darl McBribe" által szerzett commitok eltávolításához az
+előzményekből:
 
 ------------------------------------------------------------------------------
 git filter-branch --commit-filter '
@@ -317,7 +329,7 @@ git filter-branch --commit-filter '
 	fi' HEAD
 ------------------------------------------------------------------------------
 
-The function 'skip_commit' is defined as follows:
+A 'skip_commit' függvény a következőképpen van definiálva:
 
 --------------------------
 skip_commit()
@@ -332,20 +344,20 @@ skip_commit()
 }
 --------------------------
 
-The shift magic first throws away the tree id and then the -p
-parameters.  Note that this handles merges properly! In case Darl
-committed a merge between P1 and P2, it will be propagated properly
-and all children of the merge will become merge commits with P1,P2
-as their parents instead of the merge commit.
+A shift-varázslat először eldobja a fa-azonosítót, majd a -p
+paramétereket. Figyeld meg, hogy ez helyesen kezeli a merge-eket! Ha
+Darl egy P1 és P2 közötti merge-et commitolt, az helyesen lesz
+propagálva, és a merge összes gyermeke a merge-commit helyett P1-et
+és P2-t fogja szülőként kapni.
 
-*NOTE* the changes introduced by the commits, and which are not reverted
-by subsequent commits, will still be in the rewritten branch. If you want
-to throw out _changes_ together with the commits, you should use the
-interactive mode of 'git rebase'.
+*MEGJEGYZÉS*: a commitok által bevezetett, és a későbbi commitok által
+vissza nem vont változtatások továbbra is benne maradnak az újraírt
+branchben. Ha a _változtatásokat_ is ki akarod dobni a commitokkal
+együtt, akkor a 'git rebase' interaktív módját kell használnod.
 
-You can rewrite the commit log messages using `--msg-filter`.  For
-example, 'git svn-id' strings in a repository created by 'git svn' can
-be removed this way:
+A commit napló-üzeneteit a `--msg-filter` használatával írhatod át.
+Például egy 'git svn' által létrehozott repository-ban a 'git svn-id'
+sztringek ilyen módon távolíthatók el:
 
 -------------------------------------------------------
 git filter-branch --msg-filter '
@@ -353,8 +365,8 @@ git filter-branch --msg-filter '
 '
 -------------------------------------------------------
 
-If you need to add 'Acked-by' lines to, say, the last 10 commits (none
-of which is a merge), use this command:
+Ha 'Acked-by' sorokat kell hozzáadnod, mondjuk, az utolsó 10 commithoz
+(amelyek közül egyik sem merge), használd ezt a parancsot:
 
 --------------------------------------------------------
 git filter-branch --msg-filter '
@@ -363,10 +375,10 @@ git filter-branch --msg-filter '
 ' HEAD~10..HEAD
 --------------------------------------------------------
 
-The `--env-filter` option can be used to modify committer and/or author
-identity.  For example, if you found out that your commits have the wrong
-identity due to a misconfigured user.email, you can make a correction,
-before publishing the project, like this:
+A `--env-filter` kapcsolóval módosítható a committer és/vagy a szerző
+identitása. Ha például kiderül, hogy a commitjaid egy hibásan
+beállított user.email miatt rossz identitással rendelkeznek, akkor a
+projekt közzététele előtt így javíthatod ki:
 
 --------------------------------------------------------
 git filter-branch --env-filter '
@@ -381,12 +393,12 @@ git filter-branch --env-filter '
 ' -- --all
 --------------------------------------------------------
 
-To restrict rewriting to only part of the history, specify a revision
-range in addition to the new branch name.  The new branch name will
-point to the top-most revision that a 'git rev-list' of this range
-will print.
+Ahhoz, hogy az újraírást csak az előzmények egy részére korlátozd, az új
+branch neve mellett adj meg egy revíziós tartományt is. Az új branch
+neve arra a legfelső revízióra fog mutatni, amelyet e tartomány
+'git rev-list'-je kiír.
 
-Consider this history:
+Vegyük ezt az előzményt:
 
 ------------------
      D--E--F--G--H
@@ -394,20 +406,22 @@ Consider this history:
 A--B-----C
 ------------------
 
-To rewrite only commits D,E,F,G,H, but leave A, B and C alone, use:
+Ahhoz, hogy csak a D, E, F, G, H commitokat írd újra, de az A-t, B-t
+és C-t érintetlenül hagyd, használd:
 
 --------------------------------
 git filter-branch ... C..H
 --------------------------------
 
-To rewrite commits E,F,G,H, use one of these:
+Ahhoz, hogy az E, F, G, H commitokat írd újra, használd ezek egyikét:
 
 ----------------------------------------
 git filter-branch ... C..H --not D
 git filter-branch ... D..H --not C
 ----------------------------------------
 
-To move the whole tree into a subdirectory, or remove it from there:
+Ahhoz, hogy az egész fát egy alkönyvtárba helyezd, vagy onnan
+eltávolítsd:
 
 ---------------------------------------------------------------
 git filter-branch --index-filter \
@@ -422,282 +436,322 @@ git filter-branch --index-filter \
 CHECKLIST FOR SHRINKING A REPOSITORY
 ------------------------------------
 
-git-filter-branch can be used to get rid of a subset of files,
-usually with some combination of `--index-filter` and
-`--subdirectory-filter`.  People expect the resulting repository to
-be smaller than the original, but you need a few more steps to
-actually make it smaller, because Git tries hard not to lose your
-objects until you tell it to.  First make sure that:
+A git-filter-branch használható arra, hogy megszabadulj a fájlok egy
+részhalmazától, jellemzően a `--index-filter` és a
+`--subdirectory-filter` valamilyen kombinációjával. Az emberek azt
+várják, hogy az eredményül kapott repository kisebb legyen az
+eredetinél, de néhány további lépésre van szükség ahhoz, hogy
+ténylegesen kisebb is legyen, mert a Git igyekszik nem elveszíteni
+az objektumaidat, amíg nem mondod neki, hogy tegye. Először győződj
+meg róla, hogy:
 
-* You really removed all variants of a filename, if a blob was moved
-  over its lifetime.  `git log --name-only --follow --all -- filename`
-  can help you find renames.
+* Valóban eltávolítottad egy fájlnév minden változatát, ha egy blob
+  áthelyezésre került az élettartama során. A
+  `git log --name-only --follow --all -- filename` segíthet
+  megtalálni az átnevezéseket.
 
-* You really filtered all refs: use `--tag-name-filter cat -- --all`
-  when calling git-filter-branch.
+* Valóban minden referenciát szűrtél: használd a
+  `--tag-name-filter cat -- --all` kapcsolót a git-filter-branch
+  meghívásakor.
 
-Then there are two ways to get a smaller repository.  A safer way is
-to clone, that keeps your original intact.
+Ezután két módon kaphatsz kisebb repository-t. A biztonságosabb mód
+a klónozás, amely érintetlenül hagyja az eredetit.
 
-* Clone it with `git clone file:///path/to/repo`.  The clone
-  will not have the removed objects.  See linkgit:git-clone[1].  (Note
-  that cloning with a plain path just hardlinks everything!)
+* Klónozd a `git clone file:///path/to/repo` paranccsal. A klón nem
+  fogja tartalmazni az eltávolított objektumokat. Lásd:
+  linkgit:git-clone[1]. (Figyeld meg, hogy az egyszerű útvonallal
+  történő klónozás egyszerűen csak hardlinkeli az összes fájlt!)
 
-If you really don't want to clone it, for whatever reasons, check the
-following points instead (in this order).  This is a very destructive
-approach, so *make a backup* or go back to cloning it.  You have been
-warned.
+Ha bármilyen okból valóban nem akarod klónozni, ehelyett nézd át a
+következő pontokat (ebben a sorrendben). Ez egy nagyon destruktív
+megközelítés, ezért *készíts biztonsági mentést*, vagy térj vissza a
+klónozáshoz. Figyelmeztetve lettél.
 
-* Remove the original refs backed up by git-filter-branch: say `git
-  for-each-ref --format="%(refname)" refs/original/ | xargs -n 1 git
+* Távolítsd el a git-filter-branch által biztonsági mentésként
+  megőrzött eredeti referenciákat: mondjuk `git for-each-ref
+  --format="%(refname)" refs/original/ | xargs -n 1 git
   update-ref -d`.
 
-* Expire all reflogs with `git reflog expire --expire=now --all`.
+* Járasd le az összes reflogot a `git reflog expire --expire=now --all`
+  paranccsal.
 
-* Garbage collect all unreferenced objects with `git gc --prune=now`
-  (or if your git-gc is not new enough to support arguments to
-  `--prune`, use `git repack -ad; git prune` instead).
+* Szemétgyűjtsd az összes nem hivatkozott objektumot a
+  `git gc --prune=now` paranccsal (vagy ha a git-gc-d nem elég új
+  ahhoz, hogy támogassa a `--prune` argumentumait, használd inkább a
+  `git repack -ad; git prune` parancsot).
 
 [[PERFORMANCE]]
 PERFORMANCE
 -----------
 
-The performance of git-filter-branch is glacially slow; its design makes it
-impossible for a backward-compatible implementation to ever be fast:
+A git-filter-branch teljesítménye jéglassú; a tervezése miatt egy
+visszafelé kompatibilis implementáció soha nem lehet gyors:
 
-* In editing files, git-filter-branch by design checks out each and
-  every commit as it existed in the original repo.  If your repo has
-  `10^5` files and `10^5` commits, but each commit only modifies five
-  files, then git-filter-branch will make you do `10^10` modifications,
-  despite only having (at most) `5*10^5` unique blobs.
+* A fájlok szerkesztésekor a git-filter-branch a tervezéséből adódóan
+  minden egyes commitot checkoutol úgy, ahogyan az az eredeti
+  repository-ban létezett. Ha a repository-dban `10^5` fájl és `10^5`
+  commit van, de minden commit csak öt fájlt módosít, akkor a
+  git-filter-branch `10^10` módosítást fog rád kényszeríteni, jóllehet
+  (legfeljebb) csak `5*10^5` egyedi blob van.
 
-* If you try and cheat and try to make git-filter-branch only work on
-  files modified in a commit, then two things happen
+* Ha megpróbálod becsapni a rendszert, és megpróbálod elérni, hogy a
+  git-filter-branch csak a commitban módosított fájlokon dolgozzon,
+  akkor két dolog történik
 
-  ** you run into problems with deletions whenever the user is simply
-     trying to rename files (because attempting to delete files that
-     don't exist looks like a no-op; it takes some chicanery to remap
-     deletes across file renames when the renames happen via arbitrary
-     user-provided shell)
+  ** problémákba ütközöl a törléseknél, valahányszor a felhasználó
+     egyszerűen csak fájlokat próbál átnevezni (mert a nem létező
+     fájlok törlésének megkísérlése no-op-nak tűnik; némi trükközésre
+     van szükség ahhoz, hogy a törléseket átnevezéseken keresztül
+     leképezzük, amikor az átnevezések tetszőleges, felhasználó által
+     megadott shell-en keresztül történnek)
 
-  ** even if you succeed at the map-deletes-for-renames chicanery, you
-     still technically violate backward compatibility because users
-     are allowed to filter files in ways that depend upon topology of
-     commits instead of filtering solely based on file contents or
-     names (though this has not been observed in the wild).
+  ** még ha sikerül is a törlések-átnevezéseken-át-leképezése
+     trükközés, akkor is technikailag megsérted a visszafelé
+     kompatibilitást, mert a felhasználóknak megengedett, hogy a
+     fájlokat a commitok topológiájától függő módon szűrjék, ahelyett
+     hogy kizárólag a fájltartalom vagy a fájlnevek alapján szűrnének
+     (bár ezt még sosem figyelték meg a gyakorlatban).
 
-* Even if you don't need to edit files but only want to e.g. rename or
-  remove some and thus can avoid checking out each file (i.e. you can
-  use --index-filter), you still are passing shell snippets for your
-  filters.  This means that for every commit, you have to have a
-  prepared git repo where those filters can be run.  That's a
-  significant setup.
+* Még ha nem is kell fájlokat szerkesztened, csupán például
+  átnevezni vagy eltávolítani akarsz néhányat, és így elkerülheted
+  minden fájl checkoutolását (azaz használhatod a --index-filtert),
+  akkor is shell-kódrészleteket adsz át a szűrőidnek. Ez azt jelenti,
+  hogy minden egyes commithoz elő kell készítened egy git
+  repository-t, amelyben ezek a szűrők lefuttathatók. Ez jelentős
+  előkészítést igényel.
 
-* Further, several additional files are created or updated per commit
-  by git-filter-branch.  Some of these are for supporting the
-  convenience functions provided by git-filter-branch (such as map()),
-  while others are for keeping track of internal state (but could have
-  also been accessed by user filters; one of git-filter-branch's
-  regression tests does so).  This essentially amounts to using the
-  filesystem as an IPC mechanism between git-filter-branch and the
-  user-provided filters.  Disks tend to be a slow IPC mechanism, and
-  writing these files also effectively represents a forced
-  synchronization point between separate processes that we hit with
-  every commit.
+* Továbbá a git-filter-branch commitonként több további fájlt hoz
+  létre vagy frissít. Ezek egy része a git-filter-branch által
+  biztosított kényelmi függvényeket (például a map()-et) támogatja,
+  míg mások a belső állapot nyomon követésére szolgálnak (de a
+  felhasználói szűrők is elérhették volna őket; a git-filter-branch
+  egyik regressziós tesztje meg is teszi ezt). Ez lényegében azt
+  jelenti, hogy a fájlrendszert használjuk IPC-mechanizmusként a
+  git-filter-branch és a felhasználó által megadott szűrők között. A
+  lemezek hajlamosak lassú IPC-mechanizmusnak lenni, és ezeknek a
+  fájloknak az írása gyakorlatilag egy kényszerített szinkronizációs
+  pontot is jelent a különálló folyamatok között, amelyet minden
+  egyes commitnál elérünk.
 
-* The user-provided shell commands will likely involve a pipeline of
-  commands, resulting in the creation of many processes per commit.
-  Creating and running another process takes a widely varying amount
-  of time between operating systems, but on any platform it is very
-  slow relative to invoking a function.
+* A felhasználó által megadott shell-parancsok valószínűleg parancsok
+  csővezetékét (pipeline) fogják tartalmazni, ami sok folyamat
+  létrehozását eredményezi commitonként. Egy újabb folyamat
+  létrehozása és futtatása operációs rendszerenként igen eltérő
+  ideig tart, de bármelyik platformon nagyon lassú egy függvény
+  meghívásához képest.
 
-* git-filter-branch itself is written in shell, which is kind of slow.
-  This is the one performance issue that could be backward-compatibly
-  fixed, but compared to the above problems that are intrinsic to the
-  design of git-filter-branch, the language of the tool itself is a
-  relatively minor issue.
+* Maga a git-filter-branch shellben van megírva, ami eléggé lassú.
+  Ez az egyetlen teljesítményprobléma, amely visszafelé kompatibilis
+  módon javítható lenne, de a fenti, a git-filter-branch tervezésében
+  eredendően jelen lévő problémákhoz képest maga az eszköz nyelve
+  viszonylag kisebb probléma.
 
-  ** Side note: Unfortunately, people tend to fixate on the
-     written-in-shell aspect and periodically ask if git-filter-branch
-     could be rewritten in another language to fix the performance
-     issues.  Not only does that ignore the bigger intrinsic problems
-     with the design, it'd help less than you'd expect: if
-     git-filter-branch itself were not shell, then the convenience
-     functions (map(), skip_commit(), etc) and the `--setup` argument
-     could no longer be executed once at the beginning of the program
-     but would instead need to be prepended to every user filter (and
-     thus re-executed with every commit).
+  ** Mellékes megjegyzés: sajnos az emberek hajlamosak a
+     shellben-írtság aspektusára fixálódni, és rendszeresen
+     megkérdezik, hogy a git-filter-branch átírható lenne-e egy másik
+     nyelvre a teljesítményproblémák megoldásához. Ez nemcsak hogy
+     figyelmen kívül hagyja a tervezésben rejlő nagyobb, eredendő
+     problémákat, de kevésbé segítene, mint gondolnád: ha maga a
+     git-filter-branch nem shellben lenne, akkor a kényelmi
+     függvényeket (map(), skip_commit() stb.) és a `--setup`
+     argumentumot már nem lehetne egyszer, a program elején
+     végrehajtani, hanem minden felhasználói szűrő elé be kellene
+     őket illeszteni (és így minden commitnál újra kellene futtatni
+     őket).
 
-The https://github.com/newren/git-filter-repo/[git filter-repo] tool is
-an alternative to git-filter-branch which does not suffer from these
-performance problems or the safety problems (mentioned below). For those
-with existing tooling which relies upon git-filter-branch, 'git
-filter-repo' also provides
-https://github.com/newren/git-filter-repo/blob/master/contrib/filter-repo-demos/filter-lamely[filter-lamely],
-a drop-in git-filter-branch replacement (with a few caveats).  While
-filter-lamely suffers from all the same safety issues as
-git-filter-branch, it at least ameliorates the performance issues a
-little.
+A https://github.com/newren/git-filter-repo/[git filter-repo] eszköz a
+git-filter-branch alternatívája, amely nem szenved ezektől a
+teljesítményproblémáktól, sem az (alább említett) biztonsági
+problémáktól. Azok számára, akiknek a meglévő eszközkészlete a
+git-filter-branch-re épül, a 'git filter-repo' egy
+https://github.com/newren/git-filter-repo/blob/master/contrib/filter-repo-demos/filter-lamely[filter-lamely]
+nevű eszközt is biztosít, amely a git-filter-branch drop-in
+helyettesítője (néhány fenntartással). Bár a filter-lamely
+ugyanazoktól a biztonsági problémáktól szenved, mint a
+git-filter-branch, legalább némileg enyhíti a teljesítményproblémákat.
 
 [[SAFETY]]
 SAFETY
 ------
 
-git-filter-branch is riddled with gotchas resulting in various ways to
-easily corrupt repos or end up with a mess worse than what you started
-with:
+A git-filter-branch tele van buktatókkal, amelyek sokféleképpen
+könnyen tönkretehetik a repository-kat, vagy annál is nagyobb
+katyvaszt eredményezhetnek, mint amivel kezdted:
 
-* Someone can have a set of "working and tested filters" which they
-  document or provide to a coworker, who then runs them on a different
-  OS where the same commands are not working/tested (some examples in
-  the git-filter-branch manpage are also affected by this).
-  BSD vs. GNU userland differences can really bite.  If lucky, error
-  messages are spewed.  But just as likely, the commands either don't
-  do the filtering requested, or silently corrupt by making some
-  unwanted change.  The unwanted change may only affect a few commits,
-  so it's not necessarily obvious either.  (The fact that problems
-  won't necessarily be obvious means they are likely to go unnoticed
-  until the rewritten history is in use for quite a while, at which
-  point it's really hard to justify another flag-day for another
-  rewrite.)
+* Valaki rendelkezhet egy "működő és tesztelt szűrők" halmazával,
+  amelyet dokumentál vagy átad egy munkatársnak, aki azután egy másik
+  operációs rendszeren futtatja őket, ahol ugyanazok a parancsok nem
+  működnek/nincsenek tesztelve (a git-filter-branch manpage néhány
+  példáját is érinti ez a probléma). A BSD és a GNU userland közötti
+  különbségek igazán kellemetlenek tudnak lenni. Szerencsés esetben
+  hibaüzenetek özöne jelenik meg. De ugyanolyan valószínű, hogy a
+  parancsok vagy nem végzik el a kért szűrést, vagy csendben
+  megsértik az állományt valamilyen nem kívánt változtatással. A nem
+  kívánt változtatás csak néhány commitot érinthet, így ez sem
+  feltétlenül nyilvánvaló. (Az a tény, hogy a problémák nem
+  feltétlenül nyilvánvalóak, azt jelenti, hogy valószínűleg
+  észrevétlenek maradnak, amíg az újraírt előzményt már jó ideje
+  használják, és ekkorra már nagyon nehéz igazolni egy újabb
+  "zászlós napot" egy újabb újraíráshoz.)
 
-* Filenames with spaces are often mishandled by shell snippets since
-  they cause problems for shell pipelines.  Not everyone is familiar
-  with find -print0, xargs -0, git-ls-files -z, etc.  Even people who
-  are familiar with these may assume such flags are not relevant
-  because someone else renamed any such files in their repo back
-  before the person doing the filtering joined the project.  And
-  often, even those familiar with handling arguments with spaces may
-  not do so just because they aren't in the mindset of thinking about
-  everything that could possibly go wrong.
+* A szóközöket tartalmazó fájlneveket a shell-kódrészletek gyakran
+  helytelenül kezelik, mivel problémákat okoznak a shell-csővezetékek
+  számára. Nem mindenki ismeri a find -print0, xargs -0,
+  git-ls-files -z stb. eszközöket. Még azok is, akik ismerik ezeket,
+  feltételezhetik, hogy az ilyen kapcsolók nem relevánsak, mert
+  valaki más már átnevezte az ilyen fájlokat a repository-jukban,
+  még mielőtt a szűrést végző személy csatlakozott a projekthez. És
+  gyakran még azok is, akik ismerik a szóközös argumentumok
+  kezelését, egyszerűen azért nem teszik ezt meg, mert nincsenek
+  abban a gondolkodásmódban, hogy mindenre gondoljanak, ami
+  elromolhat.
 
-* Non-ascii filenames can be silently removed despite being in a
-  desired directory.  Keeping only wanted paths is often done using
-  pipelines like `git ls-files | grep -v ^WANTED_DIR/ | xargs git rm`.
-  ls-files will only quote filenames if needed, so folks may not
-  notice that one of the files didn't match the regex (at least not
-  until it's much too late).  Yes, someone who knows about
-  core.quotePath can avoid this (unless they have other special
-  characters like \t, \n, or "), and people who use ls-files -z with
-  something other than grep can avoid this, but that doesn't mean they
-  will.
+* A nem ASCII fájlnevek csendben eltávolíthatók, még ha a kívánt
+  könyvtárban is vannak. A kívánt útvonalak megtartása gyakran olyan
+  csővezetékekkel történik, mint a
+  `git ls-files | grep -v ^WANTED_DIR/ | xargs git rm`. Az ls-files
+  csak akkor teszi idézőjelbe a fájlneveket, ha szükséges, ezért
+  előfordulhat, hogy az emberek nem veszik észre, hogy az egyik fájl
+  nem illeszkedett a reguláris kifejezésre (legalábbis nem addig,
+  amíg már nagyon késő nem lesz). Igen, aki tud a core.quotePath-ról,
+  az elkerülheti ezt (kivéve, ha vannak más speciális karakterei,
+  mint a \t, \n vagy "), és akik az ls-files -z-t grep helyett
+  valami mással használják, azok is elkerülhetik ezt, de ez nem
+  jelenti azt, hogy meg is fogják tenni.
 
-* Similarly, when moving files around, one can find that filenames
-  with non-ascii or special characters end up in a different
-  directory, one that includes a double quote character.  (This is
-  technically the same issue as above with quoting, but perhaps an
-  interesting different way that it can and has manifested as a
-  problem.)
+* Hasonlóképpen, fájlok áthelyezésekor előfordulhat, hogy a nem
+  ASCII vagy speciális karaktereket tartalmazó fájlnevek egy másik
+  könyvtárban kötnek ki, olyanban, amelynek a neve idézőjel karaktert
+  tartalmaz. (Ez technikailag ugyanaz a probléma, mint a fenti
+  idézőjelezési probléma, de talán egy érdekes, más módja annak,
+  ahogyan megnyilvánulhat és meg is nyilvánult problémaként.)
 
-* It's far too easy to accidentally mix up old and new history.  It's
-  still possible with any tool, but git-filter-branch almost
-  invites it.  If lucky, the only downside is users getting frustrated
-  that they don't know how to shrink their repo and remove the old
-  stuff.  If unlucky, they merge old and new history and end up with
-  multiple "copies" of each commit, some of which have unwanted or
-  sensitive files and others which don't.  This comes about in
-  multiple different ways:
+* Túlságosan könnyű véletlenül összekeverni a régi és az új
+  előzményt. Ez bármelyik eszközzel lehetséges, de a
+  git-filter-branch szinte hívogatja ezt. Szerencsés esetben az
+  egyetlen hátrány az, hogy a felhasználók frusztráltak lesznek,
+  mert nem tudják, hogyan zsugorítsák a repository-jukat és
+  távolítsák el a régi cuccokat. Szerencsétlen esetben összemergelik
+  a régi és az új előzményt, és minden commitnak több "másolatával"
+  végzik, amelyek közül némelyik nem kívánt vagy bizalmas fájlokat
+  tartalmaz, mások pedig nem. Ez többféle módon is bekövetkezhet:
 
-  ** the default to only doing a partial history rewrite ('--all' is not
-     the default and few examples show it)
+  ** az alapértelmezés, hogy csak részleges előzmény-újraírás
+     történik (a '--all' nem az alapértelmezés, és kevés példa
+     mutatja be)
 
-  ** the fact that there's no automatic post-run cleanup
+  ** az a tény, hogy nincs automatikus, futás utáni takarítás
 
-  ** the fact that --tag-name-filter (when used to rename tags) doesn't
-     remove the old tags but just adds new ones with the new name
+  ** az a tény, hogy a --tag-name-filter (amikor a tagek átnevezésére
+     használják) nem távolítja el a régi tageket, csak újakat ad
+     hozzá az új névvel
 
-  ** the fact that little educational information is provided to inform
-     users of the ramifications of a rewrite and how to avoid mixing old
-     and new history.  For example, this man page discusses how users
-     need to understand that they need to rebase their changes for all
-     their branches on top of new history (or delete and reclone), but
-     that's only one of multiple concerns to consider.  See the
-     "DISCUSSION" section of the git filter-repo manual page for more
-     details.
+  ** az a tény, hogy kevés oktató jellegű információ áll
+     rendelkezésre, amely tájékoztatná a felhasználókat egy
+     újraírás következményeiről, és arról, hogyan kerüljék el a régi
+     és az új előzmény összekeverését. Ez a man page például tárgyalja,
+     hogy a felhasználóknak meg kell érteniük, hogy az összes
+     branchükön rebase-elniük kell a változtatásaikat az új előzmény
+     tetejére (vagy törölniük és újraklónozniuk kell), de ez csak
+     egy a mérlegelendő szempontok közül. További részletekért lásd a
+     git filter-repo kézikönyv-oldal "DISCUSSION" szakaszát.
 
-* Annotated tags can be accidentally converted to lightweight tags,
-  due to either of two issues:
+* Az annotált tagek véletlenül könnyűsúlyú tagekké alakulhatnak át,
+  két probléma bármelyike miatt:
 
-  ** Someone can do a history rewrite, realize they messed up, restore
-     from the backups in refs/original/, and then redo their
-     git-filter-branch command.  (The backup in refs/original/ is not a
-     real backup; it dereferences tags first.)
+  ** Valaki elvégezhet egy előzmény-újraírást, ráébredhet, hogy
+     elrontotta, visszaállíthatja a refs/original/-ban lévő
+     biztonsági mentésekből, majd megismételheti a git-filter-branch
+     parancsát. (A refs/original/-beli biztonsági mentés nem valódi
+     biztonsági mentés; először dereferálja a tageket.)
 
-  ** Running git-filter-branch with either --tags or --all in your
-     <rev-list-options>.  In order to retain annotated tags as
-     annotated, you must use --tag-name-filter (and must not have
-     restored from refs/original/ in a previously botched rewrite).
+  ** A git-filter-branch futtatása --tags vagy --all kapcsolóval a
+     <rev-list-options>-ban. Ahhoz, hogy az annotált tagek annotáltak
+     maradjanak, a --tag-name-filtert kell használnod (és nem
+     szabad, hogy előzőleg visszaállítottál volna a
+     refs/original/-ból egy korábban elrontott újraírásnál).
 
-* Any commit messages that specify an encoding will become corrupted
-  by the rewrite; git-filter-branch ignores the encoding, takes the
-  original bytes, and feeds it to commit-tree without telling it the
-  proper encoding.  (This happens whether or not --msg-filter is
-  used.)
+* Bármely commit-üzenet, amely kódolást ad meg, sérülni fog az
+  újraírás során; a git-filter-branch figyelmen kívül hagyja a
+  kódolást, veszi az eredeti bájtokat, és a megfelelő kódolás
+  közlése nélkül adja át a commit-tree-nek. (Ez akkor is
+  bekövetkezik, ha a --msg-filter használatban van, és akkor is, ha
+  nincs.)
 
-* Commit messages (even if they are all UTF-8) by default become
-  corrupted due to not being updated -- any references to other commit
-  hashes in commit messages will now refer to no-longer-extant
-  commits.
+* A commit-üzenetek (még ha mind UTF-8 kódolásúak is) alapértelmezés
+  szerint sérülnek, mivel nem frissülnek -- a commit-üzenetekben lévő,
+  más commit-hashekre mutató hivatkozások mostantól már nem létező
+  commitokra fognak hivatkozni.
 
-* There are no facilities for helping users find what unwanted crud
-  they should delete, which means they are much more likely to have
-  incomplete or partial cleanups that sometimes result in confusion
-  and people wasting time trying to understand.  (For example, folks
-  tend to just look for big files to delete instead of big directories
-  or extensions, and once they do so, then sometime later folks using
-  the new repository who are going through history will notice a build
-  artifact directory that has some files but not others, or a cache of
-  dependencies (node_modules or similar) which couldn't have ever been
-  functional since it's missing some files.)
+* Nincsenek olyan eszközök, amelyek segítenék a felhasználókat abban,
+  hogy megtalálják, milyen nem kívánt szemetet kellene törölniük, ami
+  azt jelenti, hogy sokkal valószínűbb, hogy hiányos vagy részleges
+  takarítást végeznek, ami néha zavarhoz és időpocsékoláshoz vezet,
+  miközben megpróbálják megérteni a helyzetet. (Például az emberek
+  hajlamosak csak nagy fájlokat keresni törlésre nagy könyvtárak vagy
+  kiterjesztések helyett, és miután ezt megtették, valamikor később
+  az új repository-t használó, az előzményeket átnézegető emberek
+  észreveszik, hogy egy build-artifact könyvtárban vannak fájlok, de
+  nem az összes, vagy egy függőség-gyorsítótár (node_modules vagy
+  hasonló), amely soha nem is működhetett volna, mert hiányoznak
+  belőle bizonyos fájlok.)
 
-* If --prune-empty isn't specified, then the filtering process can
-  create hoards of confusing empty commits
+* Ha a --prune-empty nincs megadva, akkor a szűrési folyamat rakásnyi
+  zavaró üres commitot hozhat létre
 
-* If --prune-empty is specified, then intentionally placed empty
-  commits from before the filtering operation are also pruned instead
-  of just pruning commits that became empty due to filtering rules.
+* Ha a --prune-empty meg van adva, akkor a szűrési művelet előtt
+  szándékosan elhelyezett üres commitok is eltávolításra kerülnek,
+  ahelyett hogy csak a szűrési szabályok miatt üressé vált commitok
+  kerülnének eltávolításra.
 
-* If --prune-empty is specified, sometimes empty commits are missed
-  and left around anyway (a somewhat rare bug, but it happens...)
+* Ha a --prune-empty meg van adva, néha üres commitok kimaradnak, és
+  mégis ott maradnak (viszonylag ritka hiba, de előfordul...)
 
-* A minor issue, but users who have a goal to update all names and
-  emails in a repository may be led to --env-filter which will only
-  update authors and committers, missing taggers.
+* Egy apróbb probléma, de azok a felhasználók, akiknek az a céljuk,
+  hogy egy repository-ban minden nevet és e-mail-címet frissítsenek,
+  a --env-filterhez folyamodhatnak, amely csak a szerzőket és a
+  committereket frissíti, a taggereket kihagyva.
 
-* If the user provides a --tag-name-filter that maps multiple tags to
-  the same name, no warning or error is provided; git-filter-branch
-  simply overwrites each tag in some undocumented pre-defined order
-  resulting in only one tag at the end.  (A git-filter-branch
-  regression test requires this surprising behavior.)
+* Ha a felhasználó egy olyan --tag-name-filtert ad meg, amely több
+  taget ugyanarra a névre képez le, nem jelenik meg figyelmeztetés
+  vagy hiba; a git-filter-branch egyszerűen felülírja az egyes
+  tageket valamilyen nem dokumentált, előre meghatározott sorrendben,
+  aminek eredményeként a végén csak egy tag marad. (A
+  git-filter-branch egyik regressziós tesztje megköveteli ezt a
+  meglepő viselkedést.)
 
-Also, the poor performance of git-filter-branch often leads to safety
-issues:
+Emellett a git-filter-branch gyenge teljesítménye gyakran biztonsági
+problémákhoz vezet:
 
-* Coming up with the correct shell snippet to do the filtering you
-  want is sometimes difficult unless you're just doing a trivial
-  modification such as deleting a couple files.  Unfortunately, people
-  often learn if the snippet is right or wrong by trying it out, but
-  the rightness or wrongness can vary depending on special
-  circumstances (spaces in filenames, non-ascii filenames, funny
-  author names or emails, invalid timezones, presence of grafts or
-  replace objects, etc.), meaning they may have to wait a long time,
-  hit an error, then restart.  The performance of git-filter-branch is
-  so bad that this cycle is painful, reducing the time available to
-  carefully re-check (to say nothing about what it does to the
-  patience of the person doing the rewrite even if they do technically
-  have more time available).  This problem is extra compounded because
-  errors from broken filters may not be shown for a long time and/or
-  get lost in a sea of output.  Even worse, broken filters often just
-  result in silent incorrect rewrites.
+* A kívánt szűrést elvégző, helyes shell-kódrészlet megtalálása néha
+  nehéz, hacsak nem csupán triviális módosítást végzel, például
+  néhány fájl törlését. Sajnos az emberek gyakran csak úgy tudják
+  meg, hogy a kódrészlet helyes-e vagy sem, hogy kipróbálják, de a
+  helyesség vagy helytelenség speciális körülményektől (szóközök a
+  fájlnevekben, nem ASCII fájlnevek, furcsa szerzőnevek vagy
+  e-mail-címek, érvénytelen időzónák, graftok vagy replace-objektumok
+  jelenléte stb.) függően változhat, ami azt jelenti, hogy hosszú
+  ideig kell várniuk, hibába ütközniük, majd újrakezdeniük. A
+  git-filter-branch teljesítménye annyira gyenge, hogy ez a ciklus
+  fájdalmas, csökkentve a gondos újraellenőrzésre fordítható időt
+  (arról nem is beszélve, hogy mit tesz az újraírást végző személy
+  türelmével, még ha technikailag több ideje is van rá). Ezt a
+  problémát tovább súlyosbítja, hogy a törött szűrőkből származó
+  hibák sokáig nem jelennek meg, és/vagy elvesznek a kimenet
+  tengerében. Ami még rosszabb, a törött szűrők gyakran egyszerűen
+  csendes, helytelen újraírásokat eredményeznek.
 
-* To top it all off, even when users finally find working commands,
-  they naturally want to share them.  But they may be unaware that
-  their repo didn't have some special cases that someone else's does.
-  So, when someone else with a different repository runs the same
-  commands, they get hit by the problems above.  Or, the user just
-  runs commands that really were vetted for special cases, but they
-  run it on a different OS where it doesn't work, as noted above.
+* Mindezek tetejébe, még amikor a felhasználók végre megtalálják a
+  működő parancsokat, természetesen meg akarják osztani őket. De
+  előfordulhat, hogy nincsenek tisztában azzal, hogy a saját
+  repository-jukban nem voltak jelen olyan speciális esetek, amelyek
+  valaki másnak a repository-jában igen. Így amikor valaki más, egy
+  eltérő repository-val futtatja ugyanazokat a parancsokat, beleütközik
+  a fenti problémákba. Vagy a felhasználó éppen olyan parancsokat
+  futtat, amelyeket ténylegesen ellenőriztek speciális esetekre, de
+  egy másik operációs rendszeren futtatja őket, ahol - a fentebb
+  leírtak szerint - nem működnek.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

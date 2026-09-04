@@ -910,3 +910,100 @@ friss `Read`-del ellenőrizte (teljes fájl magyar, szintaxis ép), és csak a p
   határolók párban vannak, nincs `ifdef::`/`endif::`, a `[[CRTB]]` az egyetlen `[[...]]` anchor a
   `git-fetch.adoc`-ban, `<<CRTB,...>>` az egyetlen `<<...>>` xref, mindkettő változatlan.
 
+## 13. blokk — `git-filter-branch.adoc` — 2026-09-04
+
+**Kontextus:** ez már a **negyedik nekifutás** ennél a fájlnál — a korábbi 3 munkamenet mindegyike
+rendszerszintű `400 Output blocked by content filtering policy` API-hibával szakadt meg, még bármilyen
+`Edit` végrehajtása előtt, a 143. sornál (a `--msg-filter` leírásának végénél). A felhasználó stratégia-
+váltást kért: kis (60–110 soros), célzott `Read`-eket, azonnal 1-2 `Edit`-tel lefordítva, hogy megszakadás
+esetén kevesebb munka vesszen el. Ezúttal a 145. sortól a fájl végéig (eredetileg 703, a fordítás után
+757 sor — a hosszabb magyar mondatok miatt nőtt a sorszám, a bekezdés-/lista-/blokkhatárok 1:1 megtartva)
+**sikerült egyetlen megszakítás nélkül végigérni**. A fájl **teljes egészében KÉSZ**.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| commit-tree parancs (`--commit-filter` leírásában) | „a commit végrehajtására szolgáló szűrő" | a `git commit-tree` parancsnév maga változatlan |
+| "nearly proper" (tag-objektum újraírás minősítése) | **„szinte megfelelő"**, idézőjelben tartva, ahogy a forrás | |
+| buyer beware (idiomatikus figyelmeztetés) | **„vevő vigyázz"** | szó szerinti, kicsit szokatlan fordítás, megtartva a forrás tömör-idiomatikus stílusát |
+| Remap to ancestor (kétsoros, nem man-page alcím, explicit `[[Remap_to_ancestor]]` anchorral) | **„Áthelyezés ősre"** | az anchor már eleve explicit volt a forrásban, csak a címszöveg fordult; a `<<Remap_to_ancestor>>` xref (2 hely: OPTIONS végén és a `<rev-list options>` leírásában) változatlan (az anchor id nem a címszövegből generálódik) |
+| checklist for shrinking a repository / performance / safety (3 db csupa nagybetűs, kétsoros, man-page-stílusú felső szintű alcím) | **mind bájtazonosan angolul maradt** | l. lent, külön szakaszban indokolva |
+| flag-day (átvitt értelemben, „nehéz, egyszeri váltási pont") | **„zászlós nap"**, idézőjelben | a forrás is idézőjelbe teszi; szó szerinti fordítás, mert nincs bevett magyar szakkifejezés rá |
+| gotcha(s) | **„buktató(k)"** | már a WARNING szakaszban (korábbi session) is így szerepelt, konzisztensen folytatva |
+| IPC mechanism | **„IPC-mechanizmus"** (marad angol rövidítés) | |
+| drop-in replacement | **„drop-in helyettesítő(je)"** | a `drop-in` angolul marad, jelzőként |
+| shell snippet | **„shell-kódrészlet"** | |
+| chicanery (trükkös munkamenet-leírás, safety szakasz) | **„trükközés"** | |
+
+### Címsor-anchorok
+
+- A fájl elején (korábbi session) grep-ellenőrzés szerint a teljes fájlban 3 `[[...]]` anchor és 2
+  `<<...>>` xref van: `[[Remap_to_ancestor]]` (2× hivatkozva `<<Remap_to_ancestor>>`-vel, l. fent),
+  `[[PERFORMANCE]]` és `[[SAFETY]]` (mindkettő a WARNING szakaszból hivatkozva `<<SAFETY>>` / `<<PERFORMANCE>>`
+  alakban, látható szöveg nélkül — ezt már egy **korábbi** session állította be, ebben a blokkban
+  változatlanul hagyva). Mindhárom anchor és mindkét xref **érintetlen**; nem kellett új defenzív anchort
+  hozzáadni, mert ebben a blokkban lefordított egyetlen más alcím sincs se explicit anchorral, se
+  `<<...>>` hivatkozással a fában (grep-pel a blokk elején ellenőrizve).
+
+### Man-page címként/man-page-stílusúként ANGOLUL hagyott címsorok
+
+- **`CHECKLIST FOR SHRINKING A REPOSITORY`**, **`PERFORMANCE`**, **`SAFETY`** — csupa nagybetűs, kétsoros,
+  man-page-stílusú felső szintű alcímek (ugyanolyan `----`-aláhúzással, mint a valódi man-page szekciók),
+  de **nincsenek** a skill kanonikus man-page-szekció listáján. A `PERFORMANCE` és a `SAFETY` explicit
+  `[[...]]` anchorral rendelkezik, tehát technikailag biztonságos lenne lefordítani őket (az anchor id
+  nem a címszövegből generálódik) — **de** a WARNING szakasz (egy korábbi session által már lefordítva)
+  a `<<SAFETY>>`/`<<PERFORMANCE>>` xrefeket látható szöveg nélkül, a bare anchor-id-t megjelenítve
+  használja, ami azt jelzi, hogy a korábbi fordítói döntés ezeket angolul kívánta tartani (ha lefordítjuk
+  a címet, a bare `<<SAFETY>>` xref angol szót jelenítene meg egy magyar cím fölött/mellett, ami
+  inkonzisztens lenne). Ez a döntés emellett illeszkedik a projekt korábbi, ismétlődő precedensébe
+  (`MERGES`, `BACKEND EXTRA OPTIONS`, `SERVICES`, `COMMANDS`, `DEPRECATED MODES`, `SCOPES`,
+  `DETACHED HEAD`, `ARGUMENT DISAMBIGUATION`, `COMMIT INFORMATION`, `HOOKS`,
+  `ENVIRONMENT AND CONFIGURATION VARIABLES`, `CONFIGURED REMOTE-TRACKING BRANCHES`, `PRUNING`, `OUTPUT`)
+  — a kanonikus listán kívüli, csupa nagybetűs, man-page-stílusú alcímeket egységesen angolul hagyni.
+  Ez már a **tizennegyedik** ilyen visszatérő eset — a 11. és 12. blokk óta ismételten javasolt,
+  egyszeri, végleges felhasználói döntés (fordítsuk-e egységesen ezt a kategóriát) **továbbra is
+  fennáll, erősen ajánlott**, hogy a jövőben ne kelljen blokkonként újra „eldöntendő"-ként rögzíteni.
+- NAME/SYNOPSIS/WARNING/DESCRIPTION/OPTIONS/EXIT STATUS/EXAMPLES/GIT — a skill kanonikus listáján
+  vannak (a `WARNING` a `NOTES`/`CAVEATS` rokon kategóriájaként, korábbi session döntése alapján, ebben
+  a blokkban nem érintett), angolul maradtak.
+
+### Megőrzött markup / megjegyzések
+
+- Az EXAMPLES és a CHECKLIST FOR SHRINKING A REPOSITORY szakasz minden `----...----` (5–75 kötőjel
+  közötti hosszúságú) körülhatárolt kód-/parancspélda-blokkja bájtazonos, beleértve a bennük lévő
+  shell-szkript-részleteket, `sed`/`git ls-files`/`git update-index` csővezetékeket és a
+  `D--E--F--G--H` / `A--B-----C` ASCII-art commit-gráfot is; csak a köréjük ékelt magyarázó
+  prózamondatok fordultak.
+- A `--` (dupla kötőjel, argumentum-elválasztó) minden előfordulása prózában is `` ` `` (backtick)
+  között, változatlanul maradt.
+- A `git filter-repo`/`filter-lamely` külső eszközök URL-jei (`https://github.com/newren/...`)
+  változatlanok, csak a `[...]` látható link-szöveg fordult (pl. „git filter-repo").
+- A GIT szakasz „A linkgit:git[1] csomag része" alakra fordítva (a 4. blokk szerinti egységesített
+  forma, konzisztensen a `linkgit:git-clone[1]` egyéb belső hivatkozással).
+- Szintaxis-ellenőrzés a blokk végén: minden `----`/`--------...` határoló-pár számolva és páros,
+  nincs `ifdef::`/`endif::` a fájlban, a 3 `[[...]]` anchor és 2 `<<...>>` xref (l. fent) az egyetlen
+  ilyen elem a fájlban, egyik sem sérült.
+
+**Progress-tábla frissítve:** `git-filter-branch.adoc` sora `[ ]` → `[x]`, utolsó-ellenőrzés
+2026-09-04, forrás-SHA üresen hagyva (nincs megadott upstream commit).
+
+## VÉGLEGES DÖNTÉS — kanonikus listán kívüli, csupa nagybetűs, man-page-stílusú alcímek — 2026-09-04
+
+A felhasználó véglegesen eldöntötte a projekt során 17× visszatérően felmerült kérdést: a skill
+kanonikus man-page-szekció-listáján (NAME, SYNOPSIS, DESCRIPTION, OPTIONS, …) **kívüli**, de csupa
+nagybetűs, kétsoros aláhúzású, man-page-stílusú alcímek (pl. `SCOPES`, `COMMANDS`, `DEPRECATED MODES`,
+`DETACHED HEAD`, `ARGUMENT DISAMBIGUATION`, `COMMIT INFORMATION`, `HOOKS`,
+`ENVIRONMENT AND CONFIGURATION VARIABLES`, `CONFIGURED REMOTE-TRACKING BRANCHES`, `PRUNING`, `OUTPUT`,
+`CHECKLIST FOR SHRINKING A REPOSITORY`, `PERFORMANCE`, `SAFETY`, `OPERATING MODES`, `CACHED MODE`,
+`NON-CACHED MODE`, `MERGES`, `BACKEND EXTRA OPTIONS`, `SERVICES` stb.) **maradnak angolul, bájtazonosan,
+az eddigi gyakorlat szerint** — ez most már **nem** „eldöntendő", hanem **végleges szabály**, nem kell
+a jövőben blokkonként újra felvetni. Ez a döntés **csak előre hatályos** (a már elkészült ~50 fájl
+eleve így készült, konzisztens marad) — nincs szükség visszamenőleges javításra.
+
+**A szabály ettől kezdve automatikusan alkalmazandó**, kérdés/megerősítés nélkül: ha egy fordítandó
+fájlban ilyen alcím (kanonikus listán kívüli, csupa nagybetűs, kétsoros man-page-aláhúzású) fordul elő,
+egyszerűen hagyd angolul (az esetleges `[[...]]` anchort és `<<...>>` xrefet a szokásos szabály szerint
+kezelve), és a blokk lezárásakor elég egy rövid, egysoros megjegyzés a glossary-ban (fájl + a megtalált
+címek felsorolása), **nem kell** többé „eldöntendő"-ként vagy hosszas indoklással dokumentálni.
+
