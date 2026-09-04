@@ -3,7 +3,7 @@ git-fetch(1)
 
 NAME
 ----
-git-fetch - Download objects and refs from another repository
+git-fetch - Objektumok és refek letöltése egy másik repository-ból
 
 
 SYNOPSIS
@@ -17,30 +17,34 @@ git fetch --all [<options>]
 
 DESCRIPTION
 -----------
-Fetch branches and/or tags (collectively, "refs") from one or more
-other repositories, along with the objects necessary to complete their
-histories.  Remote-tracking branches are updated (see the description
-of _<refspec>_ below for ways to control this behavior).
+Branch-ek és/vagy tagek (összefoglaló néven: "refek") letöltése egy
+vagy több másik repository-ból, az előzményeik teljessé tételéhez
+szükséges objektumokkal együtt. A remote-tracking branchek frissülnek
+(lásd a viselkedés vezérlésének lehetőségeiért a _<refspec>_ alábbi
+leírását).
 
-By default, any tag that points into the histories being fetched is
-also fetched; the effect is to fetch tags that
-point at branches that you are interested in.  This default behavior
-can be changed by using the `--tags` or `--no-tags` options or by
-configuring `remote.<name>.tagOpt`.  By using a refspec that fetches tags
-explicitly, you can fetch tags that do not point into branches you
-are interested in as well.
+Alapértelmezés szerint minden olyan tag is letöltésre kerül, amely a
+letöltött előzmények valamelyikébe mutat; ennek az a hatása, hogy azok
+a tagek is letöltődnek, amelyek olyan branchekre mutatnak, amelyek
+érdeklődésre tartanak számot. Ez az alapértelmezett viselkedés
+megváltoztatható a `--tags` vagy a `--no-tags` opciók használatával,
+vagy a `remote.<name>.tagOpt` beállításával. Egy tageket explicit
+módon letöltő refspec használatával olyan tageket is le lehet tölteni,
+amelyek nem az érdeklődésre számot tartó branchekre mutatnak.
 
-`git fetch` can fetch from either a single named repository or URL,
-or from several repositories at once if _<group>_ is given and
-there is a `remotes.<group>` entry in the configuration file.
-(See linkgit:git-config[1]).
+A `git fetch` letölthet akár egyetlen, néven vagy URL-lel megadott
+repository-ból, akár egyszerre több repository-ból is, ha _<group>_
+van megadva, és van egy `remotes.<group>` bejegyzés a konfigurációs
+fájlban. (Lásd: linkgit:git-config[1]).
 
-When no remote is specified, by default the `origin` remote will be used,
-unless there's an upstream branch configured for the current branch.
+Ha nincs remote megadva, alapértelmezés szerint az `origin` remote
+kerül felhasználásra, kivéve, ha az aktuális branchhez van beállítva
+egy upstream branch.
 
-The names of refs that are fetched, together with the object names
-they point at, are written to `.git/FETCH_HEAD`.  This information
-may be used by scripts or other git commands, such as linkgit:git-pull[1].
+A letöltött refek nevei, a hozzájuk tartozó objektumnevekkel együtt,
+bekerülnek a `.git/FETCH_HEAD` fájlba. Ezt az információt szkriptek
+vagy más git parancsok, például a linkgit:git-pull[1], is
+felhasználhatják.
 
 OPTIONS
 -------
@@ -49,8 +53,8 @@ include::fetch-options.adoc[]
 include::pull-fetch-param.adoc[]
 
 `--stdin`::
-	Read refspecs, one per line, from stdin in addition to those provided
-	as arguments. The "tag _<name>_" format is not supported.
+	Refspecek beolvasása a stdin-ről, soronként egy, az argumentumként
+	megadottak mellett. A "tag _<name>_" formátum nem támogatott.
 
 include::urls-remotes.adoc[]
 
@@ -58,66 +62,63 @@ include::urls-remotes.adoc[]
 CONFIGURED REMOTE-TRACKING BRANCHES
 -----------------------------------
 
-You often interact with the same remote repository by
-regularly and repeatedly fetching from it.  In order to keep track
-of the progress of such a remote repository, `git fetch` allows you
-to configure `remote.<repository>.fetch` configuration variables.
+Gyakran ugyanazzal a remote repository-val úgy állunk kapcsolatban, hogy
+rendszeresen és ismételten fetchelünk belőle. Az ilyen remote repository
+állapotának nyomon követése érdekében a `git fetch` lehetővé teszi a
+`remote.<repository>.fetch` konfigurációs változók beállítását.
 
-Typically such a variable may look like this:
+Egy ilyen változó jellemzően így néz ki:
 
 ------------------------------------------------
 [remote "origin"]
 	fetch = +refs/heads/*:refs/remotes/origin/*
 ------------------------------------------------
 
-This configuration is used in two ways:
+Ez a konfiguráció kétféleképpen használatos:
 
-* When `git fetch` is run without specifying what branches
-  and/or tags to fetch on the command line, e.g. `git fetch origin`
-  or `git fetch`, `remote.<repository>.fetch` values are used as
-  the refspecs--they specify which refs to fetch and which local refs
-  to update.  The example above will fetch
-  all branches that exist in the `origin` (i.e. any ref that matches
-  the left-hand side of the value, `refs/heads/*`) and update the
-  corresponding remote-tracking branches in the `refs/remotes/origin/*`
-  hierarchy.
+* Ha a `git fetch` úgy fut, hogy a parancssorban nincs megadva,
+  mely branchekre és/vagy tagekre vonatkozzon a fetch (pl. `git fetch origin`
+  vagy `git fetch`), a `remote.<repository>.fetch` értékek refspecként
+  szolgálnak — ezek határozzák meg, mely refeket kell letölteni, és mely
+  helyi refeket kell frissíteni. A fenti példa letölti az összes,
+  az `origin`-ban létező branchet (azaz minden olyan refet, amely illeszkedik
+  az érték bal oldalára, `refs/heads/*`), és frissíti a megfelelő
+  remote-tracking brancheket a `refs/remotes/origin/*` hierarchiában.
 
-* When `git fetch` is run with explicit branches and/or tags
-  to fetch on the command line, e.g. `git fetch origin master`, the
-  _<refspec>s_ given on the command line determine what are to be
-  fetched (e.g. `master` in the example,
-  which is a short-hand for `master:`, which in turn means
-  "fetch the `master` branch but I do not explicitly say what
-  remote-tracking branch to update with it from the command line"),
-  and the example command will
-  fetch _only_ the `master` branch.  The `remote.<repository>.fetch`
-  values determine which
-  remote-tracking branch, if any, is updated.  When used in this
-  way, the `remote.<repository>.fetch` values do not have any
-  effect in deciding _what_ gets fetched (i.e. the values are not
-  used as refspecs when the command-line lists refspecs); they are
-  only used to decide _where_ the refs that are fetched are stored
-  by acting as a mapping.
+* Ha a `git fetch` explicit módon megadott branchekkel és/vagy tagekkel
+  fut a parancssorban (pl. `git fetch origin master`), akkor a parancssorban
+  megadott _<refspec>ek_ határozzák meg, mi kerül letöltésre (a példában
+  ez a `master`, ami a `master:` rövidítése, ami viszont azt jelenti,
+  hogy „töltsd le a `master` branchet, de nem mondom meg explicit módon,
+  melyik remote-tracking branchet kell vele frissíteni a parancssorból"),
+  és a példaparancs _csak_ a `master` branchet fogja letölteni. A
+  `remote.<repository>.fetch` értékek határozzák meg, hogy melyik
+  remote-tracking branch (ha van ilyen) frissül. Ilyen módon használva
+  a `remote.<repository>.fetch` értékeknek nincs hatásuk arra, hogy _mi_
+  kerül letöltésre (azaz nem refspecként használatosak, ha a parancssor
+  refspeceket sorol fel); csak arra használatosak, hogy leképezésként
+  eldöntsék, _hova_ kerülnek tárolásra a letöltött refek.
 
-The latter use of the `remote.<repository>.fetch` values can be
-overridden by giving the `--refmap=<refspec>` parameter(s) on the
-command line.
+A `remote.<repository>.fetch` értékek utóbbi felhasználása felülírható
+a `--refmap=<refspec>` paraméter(ek) parancssori megadásával.
 
 PRUNING
 -------
 
-Git has a default disposition of keeping data unless it's explicitly
-thrown away; this extends to holding onto local references to branches
-on remotes that have themselves deleted those branches.
+A Git alapértelmezett viselkedése az, hogy megtartja az adatokat, hacsak
+explicit módon el nem dobják; ez kiterjed azokra a helyi referenciákra is,
+amelyek olyan remote-okon lévő branchekre mutatnak, amelyeket a remote-ok
+maguk már töröltek.
 
-If left to accumulate, these stale references might make performance
-worse on big and busy repos that have a lot of branch churn, and
-e.g. make the output of commands like `git branch -a --contains
-<commit>` needlessly verbose, as well as impacting anything else
-that'll work with the complete set of known references.
+Ha hagyjuk felhalmozódni, ezek az elavult referenciák ronthatják a
+teljesítményt a nagy és sokat használt repository-kon, ahol sok a
+branch-mozgás, és pl. szükségtelenül bőbeszédűvé tehetik az olyan
+parancsok kimenetét, mint a `git branch -a --contains <commit>`, valamint
+hatással lehetnek mindenre, ami az ismert referenciák teljes halmazával
+dolgozik.
 
-These remote-tracking references can be deleted as a one-off with
-either of:
+Ezek a remote-tracking referenciák egyszeri alkalommal törölhetők a
+következők bármelyikével:
 
 ------------------------------------------------
 # While fetching
@@ -127,41 +128,42 @@ $ git fetch --prune <name>
 $ git remote prune <name>
 ------------------------------------------------
 
-To prune references as part of your normal workflow without needing to
-remember to run that, set `fetch.prune` globally, or
-`remote.<name>.prune` per-remote in the config. See
-linkgit:git-config[1].
+Ahhoz, hogy a referenciák pruningja a normál munkafolyamat része legyen
+anélkül, hogy ezt mindig külön futtatni kellene, állítsd be globálisan a
+`fetch.prune`-t, vagy remote-onként a `remote.<name>.prune`-t a
+konfigurációban. Lásd: linkgit:git-config[1].
 
-Here's where things get tricky and more specific. The pruning feature
-doesn't actually care about branches, instead it'll prune local <-->
-remote-references as a function of the refspec of the remote (see
-`<refspec>` and <<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>> above).
+Itt kezdenek a dolgok trükkösebbé és specifikusabbá válni. A pruning
+funkciónak valójában semmi köze a branchekhez, ehelyett a helyi <-->
+remote-referenciákat a remote refspecjének függvényében pruningolja
+(lásd fent a `<refspec>`-et és a <<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>>
+szakaszt).
 
-Therefore if the refspec for the remote includes
-e.g. `refs/tags/*:refs/tags/*`, or you manually run e.g. `git fetch
---prune <name> "refs/tags/*:refs/tags/*"` it won't be stale remote
-tracking branches that are deleted, but any local tag that doesn't
-exist on the remote.
+Ezért ha a remote refspecje tartalmazza pl. a `refs/tags/*:refs/tags/*`
+mintát, vagy manuálisan futtatod pl. a `git fetch --prune <name>
+"refs/tags/*:refs/tags/*"` parancsot, nem az elavult remote-tracking
+branchek törlődnek, hanem minden olyan helyi tag, amely nem létezik a
+remote-on.
 
-This might not be what you expect, i.e. you want to prune remote
-_<name>_, but also explicitly fetch tags from it, so when you fetch
-from it you delete all your local tags, most of which may not have
-come from the _<name>_ remote in the first place.
+Ez esetleg nem az, amit vársz — azaz szeretnéd pruningolni a _<name>_
+remote-ot, de emellett explicit módon tageket is fetchelni akarsz róla,
+így amikor fetchelsz róla, törlődik az összes helyi tag, amelyek közül a
+legtöbb eredetileg talán nem is a _<name>_ remote-ról származott.
 
-So be careful when using this with a refspec like
-`refs/tags/*:refs/tags/*`, or any other refspec which might map
-references from multiple remotes to the same local namespace.
+Ezért légy óvatos, ha ilyen refspeccel dolgozol, mint a
+`refs/tags/*:refs/tags/*`, vagy bármilyen más refspeccel, amely több
+remote referenciáit ugyanabba a helyi névtérbe képezheti le.
 
-Since keeping up-to-date with both branches and tags on the remote is
-a common use-case the `--prune-tags` option can be supplied along with
-`--prune` to prune local tags that don't exist on the remote, and
-force-update those tags that differ. Tag pruning can also be enabled
-with `fetch.pruneTags` or `remote.<name>.pruneTags` in the config. See
-linkgit:git-config[1].
+Mivel a remote-on lévő branchek és tagek egyaránt naprakészen tartása
+gyakori használati eset, a `--prune-tags` opció a `--prune`-nal együtt
+megadva pruningolja a remote-on nem létező helyi tageket, és
+force-update-eli azokat a tageket, amelyek eltérnek. A tag-pruning a
+`fetch.pruneTags` vagy a `remote.<name>.pruneTags` konfigurációval is
+bekapcsolható. Lásd: linkgit:git-config[1].
 
-The `--prune-tags` option is equivalent to having
-`refs/tags/*:refs/tags/*` declared in the refspecs of the remote. This
-can lead to some seemingly strange interactions:
+A `--prune-tags` opció azzal egyenértékű, mintha a `refs/tags/*:refs/tags/*`
+lenne deklarálva a remote refspecjei között. Ez néhány, első ránézésre
+furcsa interakcióhoz vezethet:
 
 ------------------------------------------------
 # These both fetch tags
@@ -169,19 +171,19 @@ $ git fetch --no-tags origin 'refs/tags/*:refs/tags/*'
 $ git fetch --no-tags --prune-tags origin
 ------------------------------------------------
 
-The reason it doesn't error out when provided without `--prune` or its
-config versions is for flexibility of the configured versions, and to
-maintain a 1=1 mapping between what the command line flags do, and
-what the configuration versions do.
+Az, hogy nem dob hibát, ha a `--prune` vagy annak konfigurációs
+megfelelője nélkül van megadva, a konfigurált verziók rugalmassága, és
+annak érdekében van így, hogy 1:1 megfeleltetés maradjon a parancssori
+kapcsolók és a konfigurációs verziók viselkedése között.
 
-It's reasonable to e.g. configure `fetch.pruneTags=true` in
-`~/.gitconfig` to have tags pruned whenever `git fetch --prune` is
-run, without making every invocation of `git fetch` without `--prune`
-an error.
+Ésszerű pl. a `fetch.pruneTags=true`-t beállítani a `~/.gitconfig`-ban,
+hogy a tagek mindig pruningolódjanak, amikor a `git fetch --prune` fut,
+anélkül, hogy a `git fetch` minden, `--prune` nélküli meghívása hibát
+okozna.
 
-Pruning tags with `--prune-tags` also works when fetching a URL
-instead of a named remote. These will all prune tags not found on
-origin:
+A tagek `--prune-tags`-szal való pruningja akkor is működik, ha nevesített
+remote helyett egy URL-ről fetchelünk. Az alábbiak mindegyike pruningolja
+az origin-on nem található tageket:
 
 ------------------------------------------------
 $ git fetch origin --prune --prune-tags
@@ -193,104 +195,105 @@ $ git fetch <url-of-origin> --prune 'refs/tags/*:refs/tags/*'
 OUTPUT
 ------
 
-The output of "git fetch" depends on the transport method used; this
-section describes the output when fetching over the Git protocol
-(either locally or via ssh) and Smart HTTP protocol.
+A „git fetch" kimenete a használt transzportmódszertől függ; ez a
+szakasz a Git protokollon (akár helyben, akár ssh-n keresztül) és a
+Smart HTTP protokollon keresztüli fetch kimenetét írja le.
 
-The status of the fetch is output in tabular form, with each line
-representing the status of a single ref. Each line is of the form:
+A fetch állapota táblázatos formában jelenik meg a kimeneten, minden sor
+egyetlen ref állapotát mutatja. Minden sor a következő alakú:
 
 -------------------------------
  <flag> <summary> <from> -> <to> [<reason>]
 -------------------------------
 
-When using `--porcelain`, the output format is intended to be
-machine-parseable. In contrast to the human-readable output formats it
-thus prints to standard output instead of standard error. Each line is
-of the form:
+A `--porcelain` használatakor a kimeneti formátum gépileg feldolgozhatónak
+van szánva. Az emberi olvasásra szánt kimeneti formátumokkal ellentétben
+ezért a szabványos kimenetre ír a szabványos hibakimenet helyett. Minden
+sor a következő alakú:
 
 -------------------------------
 <flag> <old-object-id> <new-object-id> <local-reference>
 -------------------------------
 
-The status of up-to-date refs is shown only if the `--verbose` option is
-used.
+A naprakész refek állapota csak akkor jelenik meg, ha a `--verbose`
+opció használatban van.
 
-In compact output mode, specified with configuration variable
-fetch.output, if either entire _<from>_ or _<to>_ is found in the
-other string, it will be substituted with `*` in the other string. For
-example, `master -> origin/master` becomes `master -> origin/*`.
+Kompakt kimeneti módban, amelyet a fetch.output konfigurációs változó
+állít be, ha a teljes _<from>_ vagy _<to>_ megtalálható a másik
+stringben, azt a másik stringben `*`-gal helyettesíti. Például a
+`master -> origin/master` `master -> origin/*` lesz.
 
 flag::
-	A single character indicating the status of the ref:
-(space);; for a successfully fetched fast-forward;
-`+`;; for a successful forced update;
-`-`;; for a successfully pruned ref;
-`t`;; for a successful tag update;
-`*`;; for a successfully fetched new ref;
-`!`;; for a ref that was rejected or failed to update; and
-`=`;; for a ref that was up to date and did not need fetching.
+	Egyetlen karakter, amely a ref állapotát jelzi:
+(szóköz);; sikeresen fetchelt fast-forward esetén;
+`+`;; sikeres force-update esetén;
+`-`;; sikeresen pruningolt ref esetén;
+`t`;; sikeres tag-frissítés esetén;
+`*`;; sikeresen fetchelt új ref esetén;
+`!`;; olyan ref esetén, amelyet elutasítottak, vagy amelynek a frissítése
+	nem sikerült; és
+`=`;; olyan ref esetén, amely naprakész volt, és nem kellett letölteni.
 
 summary::
-	For a successfully fetched ref, the summary shows the old and new
-	values of the ref in a form suitable for using as an argument to
-	`git log` (this is `<old>..<new>` in most cases, and
-	`<old>...<new>` for forced non-fast-forward updates).
+	Egy sikeresen fetchelt ref esetén az összefoglaló a ref régi és új
+	értékét mutatja olyan formában, amely a `git log` argumentumaként
+	is használható (ez a legtöbb esetben `<old>..<new>`, force-olt,
+	nem fast-forward frissítéseknél pedig `<old>...<new>`).
 
 from::
-	The name of the remote ref being fetched from, minus its
-	`refs/<type>/` prefix. In the case of deletion, the name of
-	the remote ref is "(none)".
+	Annak a remote refnek a neve, amelyről a fetch történik, a
+	`refs/<type>/` előtag nélkül. Törlés esetén a remote ref neve
+	„(none)".
 
 to::
-	The name of the local ref being updated, minus its
-	`refs/<type>/` prefix.
+	Annak a helyi refnek a neve, amely frissül, a `refs/<type>/`
+	előtag nélkül.
 
 reason::
-	A human-readable explanation. In the case of successfully fetched
-	refs, no explanation is needed. For a failed ref, the reason for
-	failure is described.
+	Emberi olvasásra szánt magyarázat. Sikeresen fetchelt refek esetén
+	nincs szükség magyarázatra. Sikertelen ref esetén a hiba oka van
+	leírva.
 
 EXAMPLES
 --------
 
-* Update the remote-tracking branches:
+* A remote-tracking branchek frissítése:
 +
 ------------------------------------------------
 $ git fetch origin
 ------------------------------------------------
 +
-The above command copies all branches from the remote `refs/heads/`
-namespace and stores them to the local `refs/remotes/origin/` namespace,
-unless the `remote.<repository>.fetch` option is used to specify a
-non-default refspec.
+A fenti parancs átmásolja az összes branchet a remote `refs/heads/`
+névteréből, és eltárolja őket a helyi `refs/remotes/origin/` névtérben,
+hacsak a `remote.<repository>.fetch` opció nem használatos egy nem
+alapértelmezett refspec megadására.
 
-* Using refspecs explicitly:
+* Refspecek explicit használata:
 +
 ------------------------------------------------
 $ git fetch origin +seen:seen maint:tmp
 ------------------------------------------------
 +
-This updates (or creates, as necessary) branches `seen` and `tmp` in
-the local repository by fetching from the branches (respectively)
-`seen` and `maint` from the remote repository.
+Ez frissíti (vagy szükség esetén létrehozza) a `seen` és a `tmp`
+branchet a helyi repository-ban, a remote repository `seen`, illetve
+`maint` branchéből fetchelve.
 +
-The `seen` branch will be updated even if it does not fast-forward,
-because it is prefixed with a plus sign; `tmp` will not be.
+A `seen` branch akkor is frissülni fog, ha nem fast-forward, mert egy
+plusz jel van előtte; a `tmp` viszont nem.
 
-* Peek at a remote's branch, without configuring the remote in your local
-  repository:
+* Bepillantás egy remote branchébe, anélkül hogy a remote-ot
+  beállítanánk a helyi repository-ban:
 +
 ------------------------------------------------
 $ git fetch git://git.kernel.org/pub/scm/git/git.git maint
 $ git log FETCH_HEAD
 ------------------------------------------------
 +
-The first command fetches the `maint` branch from the repository at
-`git://git.kernel.org/pub/scm/git/git.git` and the second command uses
-`FETCH_HEAD` to examine the branch with linkgit:git-log[1].  The fetched
-objects will eventually be removed by git's built-in housekeeping (see
-linkgit:git-gc[1]).
+Az első parancs letölti a `maint` branchet a
+`git://git.kernel.org/pub/scm/git/git.git` repository-ból, a második
+parancs pedig a `FETCH_HEAD`-et használja a branch megvizsgálásához a
+linkgit:git-log[1] segítségével. A letöltött objektumokat a git beépített
+karbantartása idővel eltávolítja (lásd: linkgit:git-gc[1]).
 
 include::transfer-data-leaks.adoc[]
 
@@ -303,10 +306,12 @@ include::config/fetch.adoc[]
 
 BUGS
 ----
-Using `--recurse-submodules` can only fetch new commits in submodules that are
-present locally e.g. in `$GIT_DIR/modules/`. If the upstream adds a new
-submodule, that submodule cannot be fetched until it is cloned e.g. by `git
-submodule update`. This is expected to be fixed in a future Git version.
+A `--recurse-submodules` használatával csak azokban a submodule-okban
+tölthetők le új commitok, amelyek helyben, pl. a `$GIT_DIR/modules/`
+alatt jelen vannak. Ha az upstream egy új submodule-t ad hozzá, az a
+submodule addig nem fetchelhető, amíg klónozásra nem kerül, pl. a `git
+submodule update` paranccsal. Ezt várhatóan egy jövőbeli Git-verzióban
+javítják.
 
 SEE ALSO
 --------
@@ -314,4 +319,4 @@ linkgit:git-pull[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

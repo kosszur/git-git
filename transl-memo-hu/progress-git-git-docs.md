@@ -85,8 +85,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-difftool.adoc | [ ] |  |  |
 | git-fast-export.adoc | [ ] |  |  |
 | git-fast-import.adoc | [ ] |  |  |
-| git-fetch-pack.adoc | [ ] |  |  |
-| git-fetch.adoc | [ ] |  |  |
+| git-fetch-pack.adoc | [x] |  | 2026-09-04 |
+| git-fetch.adoc | [x] |  | 2026-09-04 |
 | git-filter-branch.adoc | [ ] |  |  |
 | git-fmt-merge-msg.adoc | [ ] |  |  |
 | git-for-each-ref.adoc | [ ] |  |  |
@@ -521,3 +521,25 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   glossary „7./9." blokkja) — ezt minden esetben Read-del ellenőrizve javítottuk. Végleges lista:
   `glossary-git-git-docs.md` „2–11. blokk". A táblázat maradék ~130 fájlja (`git-diagnose.adoc`-tól) és
   a „Gyökér — egyéb .adoc" tábla (~83 fájl) még hátravan.
+- **2026-09-04 — 4 párhuzamos subagent, 3-3 fájlas blokkokban, `git-diagnose.adoc`-tól folytatva.**
+  11 fájl készült el teljesen: `git-diagnose`, `git-diff-files`, `git-diff-index`, `git-diff-pairs`,
+  `git-diff-tree`, `git-diff`, `git-difftool`, `git-fast-export`, `git-fetch-pack`, `git-fetch`,
+  `git-filter-branch`. A `content filtering policy` API-hiba (l. „4. blokk") ismét rendszeresen
+  megszakította a C (difftool/fast-export/fast-import) és D (fetch-pack/fetch/filter-branch) blokkot;
+  mindkettőt többször újraindítottuk pontos folytatási ponttal, a `git-filter-branch.adoc`-nál (4.
+  nekifutás) kis, célzott `Read`/`Edit` lépésekre váltva sikerült megszakítás nélkül végigérni.
+  Részletek: `glossary-git-git-docs.md` „12–14. blokk". **A `git-fast-import.adoc` fordítását a
+  felhasználó explicit felfüggesztette** — állapot lezáráskor `~32%` (545/1700 sor, az OPTIONS szakasz
+  és a `commit` parancs alszakasz eleje kész), l. progress-tábla. Két subagent is jelezte, hogy a
+  `glossary-progit2.md` fájl nem található ebben a workspace-ben — megerősítésre vár.
+  **Visszatérő, még nyitott kérdés (immár 17× előfordult):** a skill kanonikus man-page-listáján
+  kívüli, csupa nagybetűs, kétsoros man-page-stílusú alcímek (pl. `SCOPES`, `COMMANDS`,
+  `OPERATING MODES`, `PRUNING`, `SAFETY` stb.) egységes fordítási politikája — egyszeri felhasználói
+  döntés ajánlott.
+- **2026-09-04 — `git-fetch-pack.adoc` és `git-fetch.adoc` kész (folytatásos munkamenet, egy korábbi
+  `content filtering policy` API-hiba miatt megszakadt session után).** A `git-fetch-pack.adoc` a
+  munkamenet elején friss `Read`-del ellenőrizve már teljesen kész volt (egy korábbi session fejezte be),
+  csak a progress-tábla `[ ]` jelölése maradt elavult — most `[x]`-re javítva. A `git-fetch.adoc` NAME/
+  SYNOPSIS/DESCRIPTION/OPTIONS eleje már le volt fordítva; ebben a blokkban a `CONFIGURED
+  REMOTE-TRACKING BRANCHES` (`[[CRTB]]` anchorral), `PRUNING`, `OUTPUT`, `EXAMPLES`, `BUGS` szakaszok
+  prózája és a záró GIT-trailer készült el. Részletek: `glossary-git-git-docs.md` „12. blokk".

@@ -847,3 +847,67 @@ KÉSZ** (a batch, amit ez a munkamenet a felhasználó „fordítsd a Documentat
 állományokat" kérésére elkezdett — a táblázat többi, `git-diagnose.adoc`-tól kezdődő ~130 fájlja és a
 „Gyökér — egyéb .adoc" tábla még hátravan, ~83 fájl). Lásd a `progress-git-git-docs.md` batch-naplóját
 az összefoglalóért.
+
+## 12. blokk — `git-fetch-pack.adoc` (ellenőrzés), `git-fetch.adoc` (befejezés) — 2026-09-04
+
+**Kontextus:** folytatásos munkamenet egy korábbi, `content filtering policy` API-hibával megszakadt
+session után. A `git-fetch-pack.adoc`-ot a megszakadt session már teljesen befejezte — ez a munkamenet
+friss `Read`-del ellenőrizte (teljes fájl magyar, szintaxis ép), és csak a progress-tábla elavult
+`[ ]` jelölését javította `[x]`-re. A `git-fetch.adoc`-nál a NAME/SYNOPSIS/DESCRIPTION/OPTIONS eleje
+(az `include::urls-remotes.adoc[]` sorig) már kész volt; ez a blokk onnantól fejezte be a fájlt.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| stale (remote-tracking referenciákra) | **„elavult"** | `PRUNING` szakasz — a „stale reference" → „elavult referencia" |
+| branch churn | **„branch-mozgás"** | új, git-fetch-specifikus összetétel |
+| compact output mode | **„kompakt kimeneti mód"** | `OUTPUT` szakasz |
+| flag/summary/from/to/reason (OUTPUT táblázat `::` definíciós lista-címkéi) | **változatlanul angolul maradtak**, csak a leírás-törzsük fordult | ezek a `git fetch` tényleges, gépileg elemezhető oszlopfejlécei/mezőnevei, a `git-check-ref-format.adoc`-beli mezőnév-precedenst (3. blokk) követve |
+| peek at (branch-bepillantás) | **„bepillantás"** | EXAMPLES 3. pont címe |
+
+### Címsor-anchorok
+
+- `[[CRTB]]` — már eleve explicit anchorral rendelkezett a `CONFIGURED REMOTE-TRACKING BRANCHES` cím
+  felett; érintetlen. A rá mutató `<<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>>` hivatkozás
+  (`PRUNING` szakaszban) **nem** lett átírva — l. lent, a cím maga is angolul maradt, tehát a
+  hivatkozás látható szövege is konzisztensen angol maradt.
+- Nem volt szükség új defenzív anchorra: a fájlban nincs más, hivatkozott vagy explicit anchort igénylő
+  nem-man-page címsor.
+
+### Man-page címként/man-page-stílusúként ANGOLUL hagyott címsorok
+
+- **`CONFIGURED REMOTE-TRACKING BRANCHES`**, **`PRUNING`** — csupa nagybetűs, kétsoros,
+  man-page-stílusú alcímek, nincsenek a skill kanonikus listáján. A `CONFIGURED REMOTE-TRACKING
+  BRANCHES` explicit `[[CRTB]]` anchorral rendelkezik, tehát technikailag biztonságos lenne lefordítani
+  (az anchor id nem a címszövegből generálódik) — de a `MERGES`/`BACKEND EXTRA OPTIONS`/`SERVICES`/
+  `COMMANDS`/`DEPRECATED MODES`/`SCOPES`/`DETACHED HEAD`/`ARGUMENT DISAMBIGUATION`/`COMMIT INFORMATION`/
+  `HOOKS`/`ENVIRONMENT AND CONFIGURATION VARIABLES` precedenst (1., 2., 6., 8., 10., 11. blokk) követve,
+  a konzisztencia kedvéért **bájtazonosan angolul maradt** mindkettő. Ez már a **tizenegyedik**
+  ilyen visszatérő eset — az előző blokk (11.) által javasolt egyszeri, végleges felhasználói döntés
+  továbbra is **erősen ajánlott**, hogy ne kelljen blokkonként újra „eldöntendő"-ként rögzíteni.
+- `OUTPUT` — a 3. blokk (`git-check-mailmap.adoc`) precedense szerint a man-page-blanket-listán
+  kezelve, angolul maradt (nem „eldöntendő", már korábban lezárt kategória).
+- NAME/SYNOPSIS/DESCRIPTION/OPTIONS/EXAMPLES/CONFIGURATION/BUGS/SEE ALSO/GIT — a skill kanonikus
+  listáján vannak, angolul maradtak.
+
+### Megőrzött markup / megjegyzések
+
+- 9 pár `----...----` (különböző hosszúságú, 33/48 kötőjeles) körülhatárolt kód-/parancspélda-blokk,
+  ezen belül a `# While fetching` / `# Only prune, don't fetch` / `# These both fetch tags` angol
+  kommentsorok is **bájtazonosan** maradtak (a `git-config.adoc`-beli mintakonfiguráció-kommentek
+  precedensét (8. blokk) követve — kódblokkon belüli komment nem fordul).
+- `include::fetch-options.adoc[]`, `include::pull-fetch-param.adoc[]`, `include::urls-remotes.adoc[]`,
+  `include::transfer-data-leaks.adoc[]`, `include::includes/cmd-config-section-all.adoc[]`,
+  `include::config/fetch.adoc[]` sorok változatlanok (nem ebben a blokkban fordítandó fájlok).
+  `git-fetch-pack.adoc`-ban `<git-upload-pack>`/`<n>`/`<date>`/`<ref>`/`<repository>`/`<refs>` placeholder-
+  ek és minden kapcsoló (`--all`, `--stdin`, `-q`/`--quiet`, `-k`/`--keep`, `--thin`, `--include-tag`,
+  `--upload-pack=`, `--exec=`, `--depth=`, `--shallow-since=`, `--shallow-exclude=`, `--deepen-relative`,
+  `--refetch`, `--no-progress`, `--check-self-contained-and-connected`, `-v`) változatlan.
+- `git-fetch.adoc` GIT szakasza már a 4. blokk szerinti egységesített „A linkgit:git[1] csomag része"
+  alakban volt (a korábbi session által fordítva); `git-fetch-pack.adoc` GIT szakasza szintén ebben az
+  alakban, változatlan.
+- Mindkét fájl végig ellenőrizve: a `----`/`------------------------------------------------`
+  határolók párban vannak, nincs `ifdef::`/`endif::`, a `[[CRTB]]` az egyetlen `[[...]]` anchor a
+  `git-fetch.adoc`-ban, `<<CRTB,...>>` az egyetlen `<<...>>` xref, mindkettő változatlan.
+
