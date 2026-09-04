@@ -3,7 +3,7 @@ git-check-mailmap(1)
 
 NAME
 ----
-git-check-mailmap - Show canonical names and email addresses of contacts
+git-check-mailmap - A kontaktok kanonikus nevének és e-mail-címének megjelenítése
 
 
 SYNOPSIS
@@ -15,50 +15,54 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-For each ``Name $$<user@host>$$'', ``$$<user@host>$$'', or ``$$user@host$$''
-from the command-line or standard input (when using `--stdin`), look up the
-person's canonical name and email address (see "Mapping Authors" below). If
-found, print them; otherwise print the input as-is.
+A parancssorból vagy a standard bemenetről (ha a `--stdin` kapcsolót
+használjuk) érkező minden egyes ``Name $$<user@host>$$'', ``$$<user@host>$$''
+vagy ``$$user@host$$'' alakhoz kikeresi a személy kanonikus nevét és
+e-mail-címét (l. a lenti "Szerzők leképezése" szakaszt). Ha talál ilyet,
+kiírja; egyébként a bemenetet változatlanul írja ki.
 
 
 OPTIONS
 -------
 --stdin::
-	Read contacts, one per line, from the standard input after exhausting
-	contacts provided on the command-line.
+	A parancssorban megadott kontaktok kimerülése után soronként egy
+	kontaktot olvas be a standard bemenetről.
 
 --mailmap-file=<file>::
-	In addition to any configured mailmap files, read the specified
-	mailmap file. Entries in this file take precedence over entries in
-	either the default mailmap file or any configured mailmap file.
+	A beállított mailmap fájlokon felül a megadott mailmap fájlt is
+	beolvassa. Az ebben a fájlban lévő bejegyzések elsőbbséget élveznek
+	az alapértelmezett mailmap fájl vagy bármely beállított mailmap fájl
+	bejegyzéseivel szemben.
 
 --mailmap-blob=<blob>::
-	Like `--mailmap-file`, but consider the value as a reference to a
-	blob in the repository. If both `--mailmap-file` and
-	`--mailmap-blob` are specified, entries in `--mailmap-file` will
-	take precedence.
+	A `--mailmap-file`-hoz hasonló, de az értéket a repository-n belüli
+	egy blobra mutató referenciának tekinti. Ha egyszerre van megadva
+	`--mailmap-file` és `--mailmap-blob` is, a `--mailmap-file`
+	bejegyzései élveznek elsőbbséget.
 
 OUTPUT
 ------
 
-For each contact, a single line is output, terminated by a newline.  If the
-name is provided or known to the 'mailmap', ``Name $$<user@host>$$'' is
-printed; otherwise only ``$$<user@host>$$'' is printed.
+Minden kontakthoz egy, újsorral lezárt sor kerül kiírásra. Ha a név meg van
+adva vagy ismert a 'mailmap'-ben, a ``Name $$<user@host>$$'' alak kerül
+kiírásra; egyébként csak a ``$$<user@host>$$'' alak.
 
 
 CONFIGURATION
 -------------
 
-See `mailmap.file` and `mailmap.blob` in linkgit:git-config[1] for how
-to specify a custom `.mailmap` target file or object.
+Az egyéni `.mailmap` célfájl vagy -objektum megadásának módjáról l. a
+`mailmap.file` és `mailmap.blob` beállításokat a linkgit:git-config[1]
+parancsban.
 
 
-MAPPING AUTHORS
----------------
+[[_mapping_authors]]
+Szerzők leképezése
+------------------
 
-See linkgit:gitmailmap[5].
+L. linkgit:gitmailmap[5].
 
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

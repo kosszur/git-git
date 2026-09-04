@@ -3,7 +3,7 @@ git-backfill(1)
 
 NAME
 ----
-git-backfill - Download missing objects in a partial clone
+git-backfill - Hiányzó objektumok letöltése egy partial clone-ban
 
 
 SYNOPSIS
@@ -14,76 +14,85 @@ git backfill [--min-batch-size=<n>] [--[no-]sparse] [--[no-]include-edges] [<rev
 DESCRIPTION
 -----------
 
-Blobless partial clones are created using `git clone --filter=blob:none`
-and then configure the local repository such that the Git client avoids
-downloading blob objects unless they are required for a local operation.
-This initially means that the clone and later fetches download reachable
-commits and trees but no blobs. Later operations that change the `HEAD`
-pointer, such as `git checkout` or `git merge`, may need to download
-missing blobs in order to complete their operation.
+A blobless partial clone-okat a `git clone --filter=blob:none`
+paranccsal hozzuk létre, amely úgy állítja be a helyi repository-t,
+hogy a Git kliens elkerülje a blob-objektumok letöltését, hacsak nem
+szükségesek egy helyi művelethez. Ez kezdetben azt jelenti, hogy a
+klónozás és a későbbi fetchek az elérhető commitokat és tree-ket
+töltik le, blobokat nem. A későbbi, a `HEAD` mutatót megváltoztató
+műveleteknek, mint a `git checkout` vagy a `git merge`, szükségük
+lehet a hiányzó blobok letöltésére a művelet befejezéséhez.
 
-In the worst cases, commands that compute blob diffs, such as `git blame`,
-become very slow as they download the missing blobs in single-blob
-requests to satisfy the missing object as the Git command needs it. This
-leads to multiple download requests and no ability for the Git server to
-provide delta compression across those objects.
+A legrosszabb esetben a blob-diffeket számító parancsok, mint a
+`git blame`, nagyon lelassulnak, mivel a hiányzó blobokat
+egyenként, egy-egy blobra vonatkozó kérésben töltik le, ahogy a Git
+parancsnak éppen szüksége van a hiányzó objektumra. Ez több letöltési
+kéréshez vezet, és a Git szervernek nincs lehetősége delta-tömörítést
+biztosítani ezek között az objektumok között.
 
-The `git backfill` command provides a way for the user to request that
-Git downloads the missing blobs (with optional filters) such that the
-missing blobs representing historical versions of files can be downloaded
-in batches. The `backfill` command attempts to optimize the request by
-grouping blobs that appear at the same path, hopefully leading to good
-delta compression in the packfile sent by the server.
+A `git backfill` parancs lehetőséget ad a felhasználónak arra, hogy
+kérje a Gittől a hiányzó blobok letöltését (opcionális szűrőkkel)
+úgy, hogy a fájlok korábbi verzióit reprezentáló hiányzó blobok
+batchekben legyenek letölthetők. A `backfill` parancs megpróbálja
+optimalizálni a kérést azáltal, hogy az azonos útvonalon megjelenő
+blobokat csoportosítja, remélhetőleg jó delta-tömörítést eredményezve
+a szerver által küldött packfile-ban.
 
-In this way, `git backfill` provides a mechanism to break a large clone
-into smaller chunks. Starting with a blobless partial clone with `git
-clone --filter=blob:none` and then running `git backfill` in the local
-repository provides a way to download all reachable objects in several
-smaller network calls than downloading the entire repository at clone
-time.
+Ily módon a `git backfill` egy mechanizmust biztosít arra, hogy egy
+nagy klónozást kisebb darabokra bontsunk. Ha egy blobless partial
+clone-nal indulunk a `git clone --filter=blob:none` paranccsal, majd
+lefuttatjuk a `git backfill`-t a helyi repository-ban, az lehetővé
+teszi az összes elérhető objektum letöltését több, kisebb hálózati
+híváson keresztül, mint amennyi a teljes repository klónozáskor
+történő letöltéséhez kellene.
 
-By default, `git backfill` downloads all blobs reachable from the `HEAD`
-commit. This set can be restricted or expanded using various options below.
+Alapértelmezés szerint a `git backfill` a `HEAD` commitból elérhető
+összes blobot letölti. Ez a halmaz a lenti különféle opciókkal
+szűkíthető vagy bővíthető.
 
-THIS COMMAND IS EXPERIMENTAL. ITS BEHAVIOR MAY CHANGE IN THE FUTURE.
+EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE A JÖVŐBEN MEGVÁLTOZHAT.
 
 
 OPTIONS
 -------
 
 `--min-batch-size=<n>`::
-	Specify a minimum size for a batch of missing objects to request
-	from the server. This size may be exceeded by the last set of
-	blobs seen at a given path. The default minimum batch size is
-	50,000.
+	Megadja a szervertől kért, hiányzó objektumokból álló batch
+	minimális méretét. Ezt a méretet túllépheti az adott útvonalon
+	látott utolsó bloboknak a halmaza. Az alapértelmezett minimális
+	batch-méret 50 000.
 
 `--sparse`::
 `--no-sparse`::
-	Only download objects if they appear at a path that matches the
-	current sparse-checkout. If the sparse-checkout feature is enabled,
-	then `--sparse` is assumed and can be disabled with `--no-sparse`.
+	Csak akkor tölti le az objektumokat, ha olyan útvonalon
+	jelennek meg, amely illeszkedik a jelenlegi sparse-checkoutra.
+	Ha a sparse-checkout funkció engedélyezve van, akkor a
+	`--sparse` a feltételezett, és a `--no-sparse`-szal
+	kikapcsolható.
 
 `--include-edges`::
 `--no-include-edges`::
-	Include blobs from boundary commits in the backfill.  Useful in
-	preparation for commands like `git log -p A..B` or `git replay
-	--onto TARGET A..B`, where A..B normally excludes A but you need
-	the blobs from A as well.  `--include-edges` is the default.
+	A határ-commitok blobjait is belefoglalja a backfillbe. Hasznos
+	az olyan parancsok előkészítésekor, mint a `git log -p A..B`
+	vagy a `git replay --onto TARGET A..B`, ahol az A..B
+	rendszerint kizárja A-t, de szükség van A blobjaira is. A
+	`--include-edges` az alapértelmezett.
 
 `<revision-range>`::
-	Backfill only blobs reachable from commits in the specified
-	revision range.  When no _<revision-range>_ is specified, it
-	defaults to `HEAD` (i.e. the whole history leading to the
-	current commit).  For a complete list of ways to spell
-	_<revision-range>_, see the "Specifying Ranges" section of
-	linkgit:gitrevisions[7].
+	Csak a megadott revíziótartományban lévő commitokból elérhető
+	blobokat backfilleli. Ha nincs megadva _<revision-range>_, az
+	alapértelmezés `HEAD` (azaz a jelenlegi committhoz vezető teljes
+	history). A _<revision-range>_ megadási módjainak teljes
+	listájáért l. a linkgit:gitrevisions[7] "Specifying Ranges"
+	szakaszát.
 +
-You may also use commit-limiting options understood by
-linkgit:git-rev-list[1] such as `--first-parent`, `--since`, or pathspecs.
+A linkgit:git-rev-list[1] által ismert commit-korlátozó opciókat is
+használhatjuk, mint a `--first-parent`, `--since`, vagy pathspeceket.
 +
-Most `--filter=<spec>` options don't work with the purpose of
-`git backfill`, but the `sparse:<oid>` filter is integrated to provide a
-focused set of paths to download, distinct from the `--sparse` option.
+A legtöbb `--filter=<spec>` opció nem működik a `git backfill`
+céljával, de a `sparse:<oid>` szűrő integrálva van, hogy egy
+fókuszált útvonalhalmazt biztosítson a letöltéshez, elkülönítve a
+`--sparse` opciótól.
 
 SEE ALSO
 --------
@@ -92,4 +101,4 @@ linkgit:git-rev-list[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -42,7 +42,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-apply.adoc | [ ] |  |  |
 | git-archimport.adoc | [x] |  | 2026-09-04 |
 | git-archive.adoc | [x] |  | 2026-09-04 |
-| git-backfill.adoc | [ ] |  |  |
+| git-backfill.adoc | [x] |  | 2026-09-04 |
 | git-bisect-lk2009.adoc | [ ] |  |  |
 | git-bisect.adoc | [ ] |  |  |
 | git-blame.adoc | [ ] |  |  |
@@ -52,9 +52,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-cat-file.adoc | [ ] |  |  |
 | git-check-attr.adoc | [ ] |  |  |
 | git-check-ignore.adoc | [ ] |  |  |
-| git-check-mailmap.adoc | [ ] |  |  |
-| git-check-ref-format.adoc | [ ] |  |  |
-| git-checkout-index.adoc | [ ] |  |  |
+| git-check-mailmap.adoc | [x] |  | 2026-09-04 |
+| git-check-ref-format.adoc | [x] |  | 2026-09-04 |
+| git-checkout-index.adoc | [x] |  | 2026-09-04 |
 | git-checkout.adoc | [ ] |  |  |
 | git-cherry-pick.adoc | [ ] |  |  |
 | git-cherry.adoc | [ ] |  |  |
@@ -492,3 +492,4 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   félbeszakadtak), az orchestrátor fejezte be helyben. Részletek + terminológia + anchor-döntések +
   eldöntendő pontok: `glossary-git-git-docs.md` „1. blokk". Setext-aláhúzások utólag a fordított
   címhosszhoz igazítva 5 fájlban. `forrás-SHA` nincs kitöltve (import-alapvonal érvényes).
+

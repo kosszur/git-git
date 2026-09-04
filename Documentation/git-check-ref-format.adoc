@@ -3,7 +3,7 @@ git-check-ref-format(1)
 
 NAME
 ----
-git-check-ref-format - Ensures that a reference name is well formed
+git-check-ref-format - Ellenőrzi, hogy egy referencianév helyesen van-e formázva
 
 SYNOPSIS
 --------
@@ -15,121 +15,125 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Checks if a given 'refname' is acceptable, and exits with a non-zero
-status if it is not.
+Ellenőrzi, hogy egy adott 'refname' elfogadható-e, és ha nem, nullától
+eltérő státusszal lép ki.
 
-A reference is used in Git to specify branches and tags.  A
-branch head is stored in the `refs/heads` hierarchy, while
-a tag is stored in the `refs/tags` hierarchy of the ref namespace
-(typically in `$GIT_DIR/refs/heads` and `$GIT_DIR/refs/tags`
-directories or, as entries in file `$GIT_DIR/packed-refs`
-if refs are packed by `git gc`).
+A Git egy referenciát használ a branchek és tagek megadására. A
+branch-head a `refs/heads` hierarchiában, a tag pedig a ref-névtér
+`refs/tags` hierarchiájában van tárolva (jellemzően a
+`$GIT_DIR/refs/heads` és `$GIT_DIR/refs/tags` könyvtárakban, vagy –
+ha a refeket a `git gc` becsomagolta – a `$GIT_DIR/packed-refs`
+fájl bejegyzéseiként).
 
-Git imposes the following rules on how references are named:
+A Git a következő szabályokat írja elő a referenciák elnevezésére:
 
-. They can include slash `/` for hierarchical (directory)
-  grouping, but no slash-separated component can begin with a
-  dot `.` or end with the sequence `.lock`.
+. Tartalmazhatnak perjelet (`/`) hierarchikus (könyvtár szerinti)
+  csoportosításhoz, de egyetlen perjellel elválasztott komponens sem
+  kezdődhet ponttal (`.`), és nem végződhet a `.lock` szekvenciával.
 
-. They must contain at least one `/`. This enforces the presence of a
-  category like `heads/`, `tags/` etc. but the actual names are not
-  restricted.  If the `--allow-onelevel` option is used, this rule
-  is waived.
+. Legalább egy `/` jelet tartalmazniuk kell. Ez kikényszeríti egy
+  olyan kategória jelenlétét, mint a `heads/`, `tags/` stb., de a
+  tényleges nevek nincsenek korlátozva. Ha a `--allow-onelevel`
+  opciót használjuk, ez a szabály elengedésre kerül.
 
-. They cannot have two consecutive dots `..` anywhere.
+. Sehol sem tartalmazhatnak két egymást követő pontot (`..`).
 
-. They cannot have ASCII control characters (i.e. bytes whose
-  values are lower than \040, or \177 `DEL`), space, tilde `~`,
-  caret `^`, or colon `:` anywhere.
+. Sehol sem tartalmazhatnak ASCII vezérlőkaraktereket (azaz olyan
+  bájtokat, amelyek értéke kisebb, mint \040, vagy \177 `DEL`),
+  szóközt, tildét (`~`), kalapjelet (`^`) vagy kettőspontot (`:`).
 
-. They cannot have question-mark `?`, asterisk `*`, or open
-  bracket `[` anywhere.  See the `--refspec-pattern` option below for
-  an exception to this rule.
+. Sehol sem tartalmazhatnak kérdőjelet (`?`), csillagot (`*`) vagy
+  nyitó szögletes zárójelet (`[`). L. a lenti `--refspec-pattern`
+  opciót e szabály alóli kivételért.
 
-. They cannot begin or end with a slash `/` or contain multiple
-  consecutive slashes (see the `--normalize` option below for an
-  exception to this rule).
+. Nem kezdődhetnek és nem végződhetnek perjellel (`/`), és nem
+  tartalmazhatnak több egymást követő perjelet (l. a lenti
+  `--normalize` opciót e szabály alóli kivételért).
 
-. They cannot end with a dot `.`.
+. Nem végződhetnek ponttal (`.`).
 
-. They cannot contain a sequence `@{`.
+. Nem tartalmazhatják a `@{` szekvenciát.
 
-. They cannot be the single character `@`.
+. Nem lehetnek egyetlen `@` karakterből állók.
 
-. They cannot contain a `\`.
+. Nem tartalmazhatnak `\` karaktert.
 
-These rules make it easy for shell script based tools to parse
-reference names, pathname expansion by the shell when a reference name is used
-unquoted (by mistake), and also avoid ambiguities in certain
-reference name expressions (see linkgit:gitrevisions[7]):
+Ezek a szabályok megkönnyítik a shell szkript alapú eszközök számára a
+referencianevek értelmezését, a shell által – tévedésből idézőjelek
+nélkül használt referencianév esetén – végzett elérésiút-kiterjesztést,
+és emellett elkerülik a kétértelműséget bizonyos referencianév-
+kifejezésekben (l. linkgit:gitrevisions[7]):
 
-. A double-dot `..` is often used as in `ref1..ref2`, and in some
-  contexts this notation means `^ref1 ref2` (i.e. not in
-  `ref1` and in `ref2`).
+. A kettőspont-pont (`..`) gyakran használatos, mint például a
+  `ref1..ref2` alakban, és bizonyos kontextusokban ez a jelölés
+  `^ref1 ref2`-t jelent (azaz nincs benne `ref1`-ben és benne van
+  `ref2`-ben).
 
-. A tilde `~` and caret `^` are used to introduce the postfix
-  'nth parent' and 'peel onion' operation.
+. A tilde (`~`) és a kalapjel (`^`) a posztfix 'n-edik szülő' és
+  'hagymahámozó' művelet bevezetésére szolgál.
 
-. A colon `:` is used as in `srcref:dstref` to mean "use srcref\'s
-  value and store it in dstref" in fetch and push operations.
-  It may also be used to select a specific object such as with
-  'git cat-file': "git cat-file blob v1.3.3:refs.c".
+. A kettőspont (`:`) a `srcref:dstref` alakban azt jelenti, hogy
+  "használd a srcref értékét, és tárold el dstref-ben" fetch és push
+  műveletekben. Emellett egy adott objektum kiválasztására is
+  használható, mint például a 'git cat-file' esetén: "git cat-file
+  blob v1.3.3:refs.c".
 
-. at-open-brace `@{` is used as a notation to access a reflog entry.
+. A kukac-nyitókapocs (`@{`) egy reflog-bejegyzés eléréséhez használt
+  jelölés.
 
-With the `--branch` option, the command takes a name and checks if
-it can be used as a valid branch name (e.g. when creating a new
-branch). But be cautious when using the
-previous checkout syntax that may refer to a detached HEAD state.
-The rule `git check-ref-format --branch $name` implements
-may be stricter than what `git check-ref-format refs/heads/$name`
-says (e.g. a dash may appear at the beginning of a ref component,
-but it is explicitly forbidden at the beginning of a branch name).
-When run with the `--branch` option in a repository, the input is first
-expanded for the ``previous checkout syntax''
-`@{-n}`.  For example, `@{-1}` is a way to refer the last thing that
-was checked out using "git switch" or "git checkout" operation.
-This option should be
-used by porcelains to accept this syntax anywhere a branch name is
-expected, so they can act as if you typed the branch name. As an
-exception note that, the ``previous checkout operation'' might result
-in a commit object name when the N-th last thing checked out was not
-a branch.
+A `--branch` opcióval a parancs egy nevet vesz át, és ellenőrzi, hogy az
+használható-e érvényes branch-névként (pl. új branch létrehozásakor).
+Ugyanakkor legyünk óvatosak az „előző checkout" szintaxis használatakor,
+amely leválasztott HEAD állapotra is hivatkozhat.
+A `git check-ref-format --branch $name` által megvalósított szabály
+szigorúbb lehet annál, mint amit a `git check-ref-format
+refs/heads/$name` mond ki (pl. egy kötőjel megjelenhet egy
+ref-komponens elején, de egy branch-név elején kifejezetten tilos).
+Amikor a `--branch` opcióval egy repository-ban futtatjuk, a bemenet
+először az ``előző checkout szintaxis'' (`@{-n}`) szerint kerül
+kiterjesztésre. Például a `@{-1}` az utoljára "git switch" vagy
+"git checkout" művelettel kicheckoutolt dologra hivatkozás egy módja.
+Ezt az opciót a porcelain parancsoknak kell használniuk, hogy elfogadják
+ezt a szintaxist bárhol, ahol egy branch-nevet várnak, így úgy tudnak
+viselkedni, mintha a branch nevét gépeltük volna be. Kivételként
+megjegyzendő, hogy az ``előző checkout művelet'' commit-objektumnevet
+is eredményezhet, ha az N-edik utoljára kicheckoutolt dolog nem volt
+branch.
 
 OPTIONS
 -------
 --allow-onelevel::
 --no-allow-onelevel::
-	Controls whether one-level refnames are accepted (i.e.,
-	refnames that do not contain multiple `/`-separated
-	components).  The default is `--no-allow-onelevel`.
+	Vezérli, hogy az egyszintű refnevek elfogadhatók-e (azaz olyan
+	refnevek, amelyek nem tartalmaznak több `/`-lel elválasztott
+	komponenst). Az alapértelmezés a `--no-allow-onelevel`.
 
 --refspec-pattern::
-	Interpret <refname> as a reference name pattern for a refspec
-	(as used with remote repositories).  If this option is
-	enabled, <refname> is allowed to contain a single `*`
-	in the refspec (e.g., `foo/bar*/baz` or `foo/bar*baz/`
-	but not `foo/bar*/baz*`).
+	A <refname>-et egy refspechez tartozó referencianév-mintaként
+	értelmezi (ahogyan a remote repository-knál használatos). Ha ez
+	az opció engedélyezve van, a <refname> tartalmazhat egyetlen
+	`*` karaktert a refspecben (pl. `foo/bar*/baz` vagy
+	`foo/bar*baz/`, de nem `foo/bar*/baz*`).
 
 --normalize::
-	Normalize 'refname' by removing any leading slash (`/`)
-	characters and collapsing runs of adjacent slashes between
-	name components into a single slash.  If the normalized
-	refname is valid then print it to standard output and exit
-	with a status of 0, otherwise exit with a non-zero status.
-	(`--print` is a deprecated way to spell `--normalize`.)
+	Normalizálja a 'refname'-et a vezető perjel- (`/`) karakterek
+	eltávolításával, és a névkomponensek közötti egymást követő
+	perjeleket egyetlen perjellé vonja össze. Ha a normalizált
+	refname érvényes, kiírja a standard kimenetre, és 0-s
+	státusszal lép ki, egyébként nullától eltérő státusszal lép ki.
+	(A `--print` a `--normalize` elavult írásmódja.)
 
 
 EXAMPLES
 --------
 
-* Print the name of the previous thing checked out:
+* Az utoljára kicheckoutolt dolog nevének kiírása:
 +
 ------------
 $ git check-ref-format --branch @{-1}
 ------------
 
-* Determine the reference name to use for a new branch:
+* Egy új branchhez használandó referencianév meghatározása:
 +
 ------------
 $ ref=$(git check-ref-format --normalize "refs/heads/$newbranch")||
@@ -138,4 +142,4 @@ $ ref=$(git check-ref-format --normalize "refs/heads/$newbranch")||
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

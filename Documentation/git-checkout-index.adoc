@@ -3,7 +3,7 @@ git-checkout-index(1)
 
 NAME
 ----
-git-checkout-index - Copy files from the index to the working tree
+git-checkout-index - Fájlok másolása az indexből a working tree-be
 
 
 SYNOPSIS
@@ -18,166 +18,170 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Copies all listed files from the index to the working directory
-(not overwriting existing files).
+Az összes felsorolt fájlt átmásolja az indexből a munkakönyvtárba
+(a meglévő fájlok felülírása nélkül).
 
 OPTIONS
 -------
 -u::
 --index::
-	update stat information for the checked out entries in
-	the index file.
+	frissíti a stat-információt a kicheckoutolt bejegyzésekhez
+	az index fájlban.
 
 -q::
 --quiet::
-	be quiet if files exist or are not in the index
+	legyen csendes, ha fájlok léteznek vagy nincsenek benne az indexben
 
 -f::
 --force::
-	forces overwrite of existing files
+	kikényszeríti a meglévő fájlok felülírását
 
 -a::
 --all::
-	checks out all files in the index except for those with the
-	skip-worktree bit set (see `--ignore-skip-worktree-bits`).
-	Cannot be used together with explicit filenames.
+	kicheckoutolja az index összes fájlját, kivéve azokat,
+	amelyeknek be van állítva a skip-worktree bitje (l.
+	`--ignore-skip-worktree-bits`). Nem használható együtt explicit
+	fájlnevekkel.
 
 -n::
 --no-create::
-	Don't checkout new files, only refresh files already checked
-	out.
+	Ne checkoutoljon ki új fájlokat, csak a már kicheckoutolt
+	fájlokat frissítse.
 
 --prefix=<string>::
-	When creating files, prepend <string> (usually a directory
-	including a trailing /)
+	Fájlok létrehozásakor <string>-et fűz a névhez előtagként
+	(rendszerint egy, záró /-t is tartalmazó könyvtár)
 
 --stage=<number>|all::
-	Instead of checking out unmerged entries, copy out the
-	files from the named stage.  <number> must be between 1 and 3.
-	Note: --stage=all automatically implies --temp.
+	Az összefésületlen bejegyzések kicheckoutolása helyett a
+	megnevezett stage-ből másolja ki a fájlokat. A <number>-nek 1 és
+	3 között kell lennie. Megjegyzés: a --stage=all automatikusan
+	maga után vonja a --temp-et.
 
 --temp::
-	Instead of copying the files to the working directory,
-	write the content to temporary files.  The temporary name
-	associations will be written to stdout.
+	A fájlok munkakönyvtárba másolása helyett a tartalmat ideiglenes
+	fájlokba írja. Az ideiglenes név-hozzárendelések a stdoutra
+	kerülnek kiírásra.
 
 --ignore-skip-worktree-bits::
-	Check out all files, including those with the skip-worktree bit
-	set.
+	Az összes fájlt kicheckoutolja, azokat is, amelyeknek be van
+	állítva a skip-worktree bitje.
 
 --stdin::
-	Instead of taking a list of paths from the command line,
-	read the list of paths from the standard input.  Paths are
-	separated by LF (i.e. one path per line) by default.
+	Az útvonalak listáját a parancssor helyett a standard bemenetről
+	olvassa be. Az útvonalakat alapértelmezés szerint LF választja
+	el (azaz soronként egy útvonal).
 
 -z::
-	Only meaningful with `--stdin`; paths are separated with
-	NUL character instead of LF.
+	Csak a `--stdin`-nel együtt van értelme; az útvonalakat LF
+	helyett NUL karakter választja el.
 
 \--::
-	Do not interpret any more arguments as options.
+	A további argumentumokat ne értelmezze opcióként.
 
-The order of the flags used to matter, but not anymore.
+A kapcsolók sorrendje régen számított, de már nem.
 
-Just doing `git checkout-index` does nothing. You probably meant
-`git checkout-index -a`. And if you want to force it, you want
-`git checkout-index -f -a`.
+Ha egyszerűen csak kiadjuk a `git checkout-index` parancsot, az nem
+csinál semmit. Valószínűleg a `git checkout-index -a`-ra gondoltunk.
+És ha erőltetni akarjuk, a `git checkout-index -f -a` kell.
 
-Intuitiveness is not the goal here. Repeatability is. The reason for
-the "no arguments means no work" behavior is that from scripts you are
-supposed to be able to do:
+Itt nem az intuitivitás a cél, hanem az ismételhetőség. Az „argumentum
+nélkül nincs munka" viselkedés oka az, hogy szkriptekből képesnek
+kell lennünk a következőt megtenni:
 
 ----------------
 $ find . -name '*.h' -print0 | xargs -0 git checkout-index -f --
 ----------------
 
-which will force all existing `*.h` files to be replaced with their
-cached copies. If an empty command line implied "all", then this would
-force-refresh everything in the index, which was not the point.  But
-since 'git checkout-index' accepts --stdin it would be faster to use:
+amely kikényszeríti, hogy az összes meglévő `*.h` fájl lecserélődjön a
+gyorsítótárazott másolatára. Ha egy üres parancssor „mindent" jelentene,
+akkor ez az index mindenét kényszer-frissítené, ami nem ez volt a cél.
+De mivel a 'git checkout-index' elfogadja a --stdin-t, gyorsabb a
+következőt használni:
 
 ----------------
 $ find . -name '*.h' -print0 | git checkout-index -f -z --stdin
 ----------------
 
-The `--` is just a good idea when you know the rest will be filenames;
-it will prevent problems with a filename of, for example,  `-a`.
-Using `--` is probably a good policy in scripts.
+A `--` jó ötlet, ha tudjuk, hogy a többi argumentum fájlnév lesz; ez
+megelőzi a problémákat egy, például `-a` nevű fájllal. A `--` használata
+valószínűleg jó szabály szkriptekben.
 
 
-Using --temp or --stage=all
----------------------------
-When `--temp` is used (or implied by `--stage=all`)
-'git checkout-index' will create a temporary file for each index
-entry being checked out.  The index will not be updated with stat
-information.  These options can be useful if the caller needs all
-stages of all unmerged entries so that the unmerged files can be
-processed by an external merge tool.
+A --temp vagy a --stage=all használata
+---------------------------------------
+Amikor a `--temp`-et használjuk (vagy azt a `--stage=all` implikálja),
+a 'git checkout-index' egy ideiglenes fájlt hoz létre minden
+kicheckoutolt index-bejegyzéshez. Az index nem frissül stat-
+információval. Ezek az opciók akkor lehetnek hasznosak, ha a hívónak
+minden összefésületlen bejegyzés összes stage-ére szüksége van ahhoz,
+hogy az összefésületlen fájlokat egy külső merge-eszközzel tudja
+feldolgozni.
 
-A listing will be written to stdout providing the association of
-temporary file names to tracked path names.  The listing format
-has two variations:
+Egy listázás kerül kiírásra a stdoutra, amely megadja az ideiglenes
+fájlnevek és a követett útvonalnevek közti hozzárendelést. A listázás
+formátumának két változata van:
 
     . tempname TAB path RS
 +
-The first format is what gets used when `--stage` is omitted or
-is not `--stage=all`. The field tempname is the temporary file
-name holding the file content and path is the tracked path name in
-the index.  Only the requested entries are output.
+Az első formátum akkor kerül használatra, ha a `--stage` el van
+hagyva, vagy nem `--stage=all`. A tempname mező a fájltartalmat tartó
+ideiglenes fájlnév, a path pedig a követett útvonalnév az indexben.
+Csak a kért bejegyzések kerülnek kiírásra.
 
     . stage1temp SP stage2temp SP stage3tmp TAB path RS
 +
-The second format is what gets used when `--stage=all`.  The three
-stage temporary fields (stage1temp, stage2temp, stage3temp) list the
-name of the temporary file if there is a stage entry in the index
-or `.` if there is no stage entry.  Paths which only have a stage 0
-entry will always be omitted from the output.
+A második formátum akkor kerül használatra, ha `--stage=all`. A három
+stage ideiglenes mező (stage1temp, stage2temp, stage3temp) az
+ideiglenes fájl nevét sorolja fel, ha van stage-bejegyzés az indexben,
+vagy `.`-ot, ha nincs stage-bejegyzés. Az olyan útvonalak, amelyeknek
+csak 0-s stage-bejegyzésük van, mindig kimaradnak a kimenetből.
 
-In both formats RS (the record separator) is newline by default
-but will be the null byte if -z was passed on the command line.
-The temporary file names are always safe strings; they will never
-contain directory separators or whitespace characters.  The path
-field is always relative to the current directory and the temporary
-file names are always relative to the top level directory.
+Mindkét formátumban az RS (a rekordelválasztó) alapértelmezés szerint
+újsor, de null-bájt lesz, ha a -z opciót adtuk meg a parancssorban.
+Az ideiglenes fájlnevek mindig biztonságos sztringek; sosem
+tartalmaznak könyvtárelválasztókat vagy whitespace-karaktereket. A
+path mező mindig a jelenlegi könyvtárhoz relatív, az ideiglenes
+fájlnevek pedig mindig a legfelső szintű könyvtárhoz relatívak.
 
-If the object being copied out to a temporary file is a symbolic
-link the content of the link will be written to a normal file.  It is
-up to the end-user or the Porcelain to make use of this information.
+Ha az ideiglenes fájlba kimásolt objektum egy szimbolikus link, a link
+tartalma egy normál fájlba kerül kiírásra. A végfelhasználó vagy a
+Porcelain feladata, hogy hasznosítsa ezt az információt.
 
 
 EXAMPLES
 --------
-To update and refresh only the files already checked out::
+Csak a már kicheckoutolt fájlok frissítése és felújítása::
 +
 ----------------
 $ git checkout-index -n -f -a && git update-index --ignore-missing --refresh
 ----------------
 
-Using 'git checkout-index' to "export an entire tree"::
-	The prefix ability basically makes it trivial to use
-	'git checkout-index' as an "export as tree" function.
-	Just read the desired tree into the index, and do:
+A 'git checkout-index' használata „egy teljes fa exportálásához"::
+	Az előtag-képesség alapvetően triviálissá teszi, hogy a
+	'git checkout-index'-et „fa exportálása" funkcióként
+	használjuk. Egyszerűen olvassuk be a kívánt fát az indexbe,
+	majd:
 +
 ----------------
 $ git checkout-index --prefix=git-export-dir/ -a
 ----------------
 +
-`git checkout-index` will "export" the index into the specified
-directory.
+A `git checkout-index` „exportálja" az indexet a megadott
+könyvtárba.
 +
-The final "/" is important. The exported name is literally just
-prefixed with the specified string.  Contrast this with the
-following example.
+A záró „/" fontos. Az exportált név szó szerint csak a megadott
+sztringgel van előtagolva. Vessük ezt össze a következő példával.
 
-Export files with a prefix::
+Fájlok exportálása előtaggal::
 +
 ----------------
 $ git checkout-index --prefix=.merged- Makefile
 ----------------
 +
-This will check out the currently cached copy of `Makefile`
-into the file `.merged-Makefile`.
+Ez a `Makefile` jelenleg gyorsítótárazott másolatát checkoutolja ki
+a `.merged-Makefile` fájlba.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
