@@ -1,50 +1,49 @@
 From: Junio C Hamano <gitster@pobox.com>
 Date: Wed, 07 May 2014 13:15:39 -0700
 Subject: Beginner question on "Pull is mostly evil"
-Abstract: This how-to explains a method for keeping a
- project's history correct when using git pull.
+Abstract: Ez a how-to egy módszert ismertet arra, hogyan tartható helyesen
+ egy projekt előzménye a git pull használatakor.
 Content-type: text/asciidoc
 
-Keep authoritative canonical history correct with git pull
-==========================================================
+Tartsd helyesen a mérvadó kanonikus előzményt a git pull-lal
+============================================================
 
-Sometimes a new project integrator will end up with project history
-that appears to be "backwards" from what other project developers
-expect. This howto presents a suggested integration workflow for
-maintaining a central repository.
+Néha egy új projektintegrátor olyan projektelőzménnyel végzi, amely
+"visszafelé fordítottnak" tűnik ahhoz képest, amit a projekt többi fejlesztője
+elvár. Ez a howto egy javasolt integrációs munkafolyamatot mutat be egy
+központi repository karbantartásához.
 
-Suppose that the central repository has this history:
+Tegyük fel, hogy a központi repository előzménye ez:
 
 ------------
     ---o---o---A
 ------------
 
-which ends at commit `A` (time flows from left to right and each node
-in the graph is a commit, lines between them indicating parent-child
-relationship).
+amely az `A` commitnál végződik (az idő balról jobbra folyik, a gráf minden
+csomópontja egy commit, a köztük lévő vonalak a szülő-gyermek kapcsolatot
+jelzik).
 
-Then you clone it and work on your own commits, which leads you to
-have this history in *your* repository:
+Aztán klónozod, és a saját commitjaidon dolgozol, aminek eredményeként ez az
+előzmény lesz a *te* repository-dban:
 
 ------------
     ---o---o---A---B---C
 ------------
 
-Imagine your coworker did the same and built on top of `A` in *his*
-repository in the meantime, and then pushed it to the
-central repository:
+Képzeld el, hogy a munkatársad ugyanezt tette, és közben az `A` tetejére
+épített a *saját* repository-jában, majd push-olta a
+központi repository-ba:
 
 ------------
     ---o---o---A---X---Y---Z
 ------------
 
-Now, if you `git push` at this point, because your history that leads
-to `C` lacks `X`, `Y` and `Z`, it will fail.  You need to somehow make
-the tip of your history a descendant of `Z`.
+Namost, ha ezen a ponton `git push`-t adsz ki, mivel a `C`-hez vezető
+előzményedből hiányzik az `X`, az `Y` és a `Z`, ez sikertelen lesz.  Valahogy
+a `Z` leszármazottjává kell tenned az előzményed csúcsát.
 
-One suggested way to solve the problem is "fetch and then merge", aka
-`git pull`. When you fetch, your repository will have a history like
-this:
+A probléma megoldásának egyik javasolt módja a "fetch, majd merge", más néven
+`git pull`. Amikor fetch-elsz, a repository-d előzménye ilyen lesz:
 
 ------------
     ---o---o---A---B---C
@@ -52,8 +51,8 @@ this:
 		 X---Y---Z
 ------------
 
-Once you run merge after that, while still on *your* branch, i.e. `C`,
-you will create a merge `M` and make the history look like this:
+Ha ezután lefuttatod a merge-t, még mindig a *te* branchened, azaz a `C`-n
+állva, létrehozol egy `M` merge-t, és az előzményt ilyenné teszed:
 
 ------------
     ---o---o---A---B---C---M
@@ -61,25 +60,26 @@ you will create a merge `M` and make the history look like this:
 		 X---Y---Z
 ------------
 
-`M` is a descendant of `Z`, so you can push to update the central
-repository.  Such a merge `M` does not lose any commit in both
-histories, so in that sense it may not be wrong, but when people want
-to talk about "the authoritative canonical history that is shared
-among the project participants", i.e. "the trunk", they often view
-it as "commits you see by following the first-parent chain", and use
-this command to view it:
+Az `M` a `Z` leszármazottja, így push-olhatsz a központi repository
+frissítéséhez.  Egy ilyen `M` merge egyik előzményben sem veszít el commitot,
+így ebben az értelemben nem feltétlenül hibás, de amikor az emberek
+"a projekt résztvevői között megosztott, mérvadó kanonikus előzményről", azaz
+a "trunk"-ról akarnak beszélni, gyakran úgy tekintenek rá, mint "azokra a
+commitokra, amelyeket az first-parent láncot követve látsz", és ezzel a
+paranccsal nézik meg:
 
 ------------
     $ git log --first-parent
 ------------
 
-For all other people who observed the central repository after your
-coworker pushed `Z` but before you pushed `M`, the commit on the trunk
-used to be `o-o-A-X-Y-Z`.  But because you made `M` while you were on
-`C`, `M`'s first parent is `C`, so by pushing `M` to advance the
-central repository, you made `X-Y-Z` a side branch, not on the trunk.
+Mindenki más számára, aki azután figyelte a központi repository-t, hogy a
+munkatársad push-olta a `Z`-t, de mielőtt te push-oltad az `M`-et, a trunkon
+lévő commitok az `o-o-A-X-Y-Z` voltak.  De mivel az `M`-et akkor csináltad,
+amikor a `C`-n voltál, az `M` first parentje a `C`, így azzal, hogy az `M`-et
+push-olva előrevitted a központi repository-t, az `X-Y-Z`-t oldalági branchré
+tetted, nem a trunkra.
 
-You would rather want to have a history of this shape:
+Inkább egy ilyen alakú előzményt szeretnél:
 
 ------------
     ---o---o---A---X---Y---Z---M'
@@ -87,51 +87,50 @@ You would rather want to have a history of this shape:
 		 B-----------C
 ------------
 
-so that in the first-parent chain, it is clear that the project first
-did `X` and then `Y` and then `Z` and merged a change that consists of
-two commits `B` and `C` that achieves a single goal.  You may have
-worked on fixing the bug #12345 with these two patches, and the merge
-`M'` with swapped parents can say in its log message "Merge
-fix-bug-12345". Having a way to tell `git pull` to create a merge
-but record the parents in reverse order may be a way to do so.
+hogy az first-parent láncban világos legyen: a projekt először az `X`-et,
+aztán az `Y`-t, aztán a `Z`-t csinálta, majd merge-elt egy változtatást, amely
+két commitból, a `B`-ből és a `C`-ből áll, és egyetlen célt ér el.  Lehet,
+hogy a #12345 hiba javításán dolgoztál ezt a két patchet használva, és a
+felcserélt szülőkkel rendelkező `M'` merge azt írhatja a napló-üzenetében,
+hogy "Merge fix-bug-12345". Egy mód arra, hogy megmondd a `git pull`-nak, hogy
+hozzon létre egy merge-t, de fordított sorrendben rögzítse a szülőket, lehet
+erre a megoldás.
 
-Note that I said "achieves a single goal" above, because this is
-important.  "Swapping the merge order" only covers a special case
-where the project does not care too much about having unrelated
-things done on a single merge but cares a lot about first-parent
-chain.
+Vedd észre, hogy fent azt mondtam, "egyetlen célt ér el", mert ez fontos.
+A "merge-sorrend felcserélése" csak egy speciális esetet fed le, amikor a
+projektet nem nagyon érdekli, hogy egyetlen merge-en összefüggéstelen dolgok
+készüljenek, de nagyon fontos neki az first-parent lánc.
 
-There are multiple schools of thought about the "trunk" management.
+A "trunk" kezeléséről többféle iskola létezik.
 
- 1. Some projects want to keep a completely linear history without any
-    merges.  Obviously, swapping the merge order would not match their
-    taste.  You would need to flatten your history on top of the
-    updated upstream to result in a history of this shape instead:
+ 1. Egyes projektek teljesen lineáris előzményt akarnak tartani mindenféle
+    merge nélkül.  Nyilvánvalóan a merge-sorrend felcserélése nem felelne meg
+    az ízlésüknek.  Ehelyett laposítanod kellene az előzményedet a frissített
+    upstream tetejére, hogy ilyen alakú előzményt kapj:
 +
 ------------
     ---o---o---A---X---Y---Z---B---C
 ------------
 +
-with `git pull --rebase` or something.
+`git pull --rebase`-szel vagy valami hasonlóval.
 
- 2. Some projects tolerate merges in their history, but do not worry
-    too much about the first-parent order, and allow fast-forward
-    merges.  To them, swapping the merge order does not hurt, but
-    it is unnecessary.
+ 2. Egyes projektek tolerálják a merge-eket az előzményükben, de nem
+    aggódnak túlságosan a first-parent sorrend miatt, és megengedik a
+    fast-forward merge-eket.  Nekik a merge-sorrend felcserélése nem árt, de
+    szükségtelen.
 
- 3. Some projects want each commit on the "trunk" to do one single
-    thing.  The output of `git log --first-parent` in such a project
-    would show either a merge of a side branch that completes a single
-    theme, or a single commit that completes a single theme by itself.
-    If your two commits `B` and `C` (or they may even be two groups of
-    commits) were solving two independent issues, then the merge `M'`
-    we made in the earlier example by swapping the merge order is
-    still not up to the project standard.  It merges two unrelated
-    efforts `B` and `C` at the same time.
+ 3. Egyes projektek azt akarják, hogy a "trunk" minden egyes commitja egyetlen
+    dolgot csináljon.  A `git log --first-parent` kimenete egy ilyen
+    projektben vagy egy oldalági branch merge-ét mutatná, amely egyetlen témát
+    zár le, vagy egyetlen commitot, amely önmagában zár le egyetlen témát.
+    Ha a két commitod, a `B` és a `C` (vagy akár lehetnek két commitcsoport is)
+    két független issue-t oldott meg, akkor az `M'` merge, amelyet a korábbi
+    példában a merge-sorrend felcserélésével csináltunk, még mindig nem üti meg
+    a projekt mércéjét.  Egyszerre merge-el két összefüggéstelen
+    erőfeszítést, a `B`-t és a `C`-t.
 
-For projects in the last category (Git itself is one of them),
-individual developers would want to prepare a history more like
-this:
+Az utolsó kategóriába tartozó projekteknél (a Git maga is egy közülük) az
+egyéni fejlesztők inkább egy ilyesféle előzményt szeretnének előkészíteni:
 
 ------------
 		 C0--C1--C2     topic-c
@@ -141,8 +140,7 @@ this:
 		 B0--B1--B2     topic-b
 ------------
 
-That is, keeping separate topics on separate branches, perhaps like
-so:
+Vagyis külön topicokat külön brancheken tartva, esetleg így:
 
 ------------
     $ git clone $URL work && cd work
@@ -152,15 +150,15 @@ so:
     $ ... same for the theme of topic-c
 ------------
 
-And then
+És aztán
 
 ------------
     $ git checkout master
     $ git pull --ff-only
 ------------
 
-would grab `X`, `Y` and `Z` from the upstream and advance your master
-branch:
+megragadná az `X`-et, az `Y`-t és a `Z`-t az upstreamből, és előrevinné a
+master branchedet:
 
 ------------
 		 C0--C1--C2     topic-c
@@ -170,14 +168,14 @@ branch:
 		 B0--B1--B2     topic-b
 ------------
 
-And then you would merge these two branches separately:
+És aztán külön-külön merge-elnéd ezt a két branchet:
 
 ------------
     $ git merge topic-b
     $ git merge topic-c
 ------------
 
-to result in
+aminek eredménye:
 
 ------------
 		 C0--C1---------C2
@@ -187,14 +185,14 @@ to result in
 		 B0--B1-----B2
 ------------
 
-and push it back to the central repository.
+és push-olnád vissza a központi repository-ba.
 
-It is very much possible that while you are merging topic-b and
-topic-c, somebody again advanced the history in the central repository
-to put `W` on top of `Z`, and make your `git push` fail.
+Nagyon is lehetséges, hogy amíg a topic-b-t és a topic-c-t merge-eled, valaki
+megint előrevitte az előzményt a központi repository-ban, `W`-t téve a `Z`
+tetejére, és sikertelenné téve a `git push`-odat.
 
-In such a case, you would rewind to discard `M` and `N`, update the
-tip of your 'master' again and redo the two merges:
+Ilyen esetben visszatekernél, hogy eldobd az `M`-et és az `N`-et, újra
+frissítenéd a 'master'-ed csúcsát, és megismételnéd a két merge-t:
 
 ------------
     $ git reset --hard origin/master
@@ -203,7 +201,7 @@ tip of your 'master' again and redo the two merges:
     $ git merge topic-c
 ------------
 
-The procedure will result in a history that looks like this:
+Az eljárás eredménye egy ilyen előzmény lesz:
 
 ------------
 		 C0--C1--------------C2
@@ -213,4 +211,4 @@ The procedure will result in a history that looks like this:
 		 B0--B1---------B2
 ------------
 
-See also https://git-blame.blogspot.com/2013/09/fun-with-first-parent-history.html
+Lásd még https://git-blame.blogspot.com/2013/09/fun-with-first-parent-history.html

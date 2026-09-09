@@ -1484,3 +1484,90 @@ subagent nélkül.
   szekció-aláhúzások érintetlenek, `ifdef::`/`endif::` csak a `git-var.adoc`-ban (2+2, párban),
   a `gitprotocol-common.adoc` 2 új defenzív anchora az egyetlen `[[...]]` a batchben, a
   bekezdéshatárok megtartva.
+
+## 22. blokk — `howto/` mappa, a 10 legkisebb fájl — 2026-09-10
+
+**Módszer:** a felhasználó kérésére a `howto/` mappa 10 legkisebb (byte szerint), még `[ ]`
+jelölésű fájlja, orchestrátor fordította közvetlenül (subagent nélkül, a fájlok 2–7 KB-os mérete
+miatt). Fájlok: `use-git-daemon.adoc`, `using-merge-subtree.adoc`, `rebuild-from-update-hook.adoc`,
+`separating-topic-branches.adoc`, `new-command.adoc`, `recover-corrupted-blob-object.adoc`,
+`update-hook-example.adoc`, `rebase-from-internal-branch.adoc`, `keep-canonical-history-correct.adoc`,
+`revert-branch-rebase.adoc`.
+
+**Ezek NEM man page-ek.** E-mail-stílusú how-to cikkek (`Content-type: text/asciidoc` fejléccel).
+A főcím és **minden** alcím fordult (a „VÉGLEGES DÖNTÉS" csupa-nagybetűs man-page-alcím szabály itt
+nem releváns — a howto cikkeknek nincs `NAME`/`SYNOPSIS`/… szekciójuk, az alcímeik mind Title Case
+vagy mondat-alakúak). A kétsoros (setext) `=` / `-` aláhúzások a fordított cím pontos hosszához
+igazítva (Python `len()` alapú ellenőrzés; 2 db ±1 elütés menet közben javítva:
+`recover-corrupted-blob-object.adoc`, `keep-canonical-history-correct.adoc`).
+
+### E-mail-fejléc kezelése — precedens (első howto-batch)
+
+- A levéltovábbítási fejlécmezők (`From:`, `To:`, `Cc:`, `Date:`, `Subject:`, `Message-ID:`)
+  **bájtazonosan angolul maradnak** (a skill „e-mail-címek változatlanok" + a 9. blokk „e-mail-
+  idézetek bájtazonosak" szabályának kiterjesztése az egész fejlécre).
+- Az `Abstract:` docinfo-attribútum **törzse fordul** (ez a cikk absztraktja, ténylegesen renderelt
+  dokumentációszöveg), a folytatósorok egy-egy vezető szóközzel (folded header) — a törést
+  természetes szóhatárra tettük, nem szó belsejébe.
+- A `Content-type: text/asciidoc` sor változatlan.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| history | **„előzmény" / „előzmények"** | a `Documentation/` fában már domináns fordítás (`git-filter-branch.adoc` stb. — ellenőrizve grep-pel); a `git-fast-import.adoc`-beli szórványos „history-t" alak nem precedens. `project history` → „projektelőzmény", `ancestry graph` → „származási gráf" |
+| "trunk" (a fő fejlődési vonal, SVN-örökség) | **marad `"trunk"` angolul, idézőjelben** | `keep-canonical-history-correct.adoc` — a „törzs"/„trönk" alakok elkerülve; toldalék kötőjellel: `"trunk"-ról`, ill. ragozatlan `a trunkon`, `a trunkra` a folyó szövegben |
+| first-parent chain / order | **„first-parent lánc" / „first-parent sorrend"** | a `--first-parent` kapcsolóból; a „first-parent" elem angolul marad |
+| revert (ige) | **„revertel"**, `revertelj`, `revertelés` | `revert-branch-rebase.adoc` — a 0. blokk parancsnév-ige mintája (`rebase-el`, `stashel`); a `git revert` parancsnév és a `--no-commit`/`-n` kapcsolók angolul |
+| sanity check | **„helyesség-ellenőrzés"** | `revert-branch-rebase.adoc` — nincs jobb bevett magyar alak; „épelméjűség-ellenőrzés" kerülve |
+| throw-away / temporary branch | **„eldobható branch" / „ideiglenes branch"** | `revert-branch-rebase.adoc` |
+| forward port (changes) | **„előre portolja (a változtatásokat)"** | `rebase-from-internal-branch.adoc` — ad hoc, nincs bevett magyar terminus |
+| contributor / integrator | **marad „contributor"** angolul (a „maintainer" mintájára, 0. blokk); **„integrátor"** / „projektintegrátor" | `rebase-from-internal-branch.adoc`, `keep-canonical-history-correct.adoc` |
+| extension command / subcommand | **„bővítményparancs" / „alparancs"** | `new-command.adoc` |
+| remote helper | **marad „remote helper"** angolul; `remote helperek` | `new-command.adoc` — Git-fogalomnév, a `bare repository` mintájára |
+| surgical tools (a Git-eszközök „élén") | **„sebészeti eszközök"** | `new-command.adoc` — a forrás átvitt értelmű szóhasználatát követi |
+| p-code (intermediate form) | **„p-kód"** | `new-command.adoc` |
+| how-to / howto (a dokumentumtípus neve prózában) | **marad „how-to" / „howto"** angolul (ahogy a forrás írja, kötőjellel vagy anélkül) | minden fájl — pl. „Ez a how-to", „Ez a howto" |
+| cruft (általános „limlom" értelemben, nem a cruft pack) | **„limlom"** | `separating-topic-branches.adoc` — a `git-filter-branch.adoc`-tól független, itt generikus jelentés |
+| pretend-merge / pretend merge | **„színlelt merge"** | `separating-topic-branches.adoc` |
+| home directory | **„home könyvtár"** | `rebuild-from-update-hook.adoc` |
+| access control hook script | **„hozzáférés-vezérlő hook szkript"** | `update-hook-example.adoc` |
+| RCS keyword-szerű program-kimenet / lokalizálatlan üzenetek (`"no such repository"`, `broken link from tree ...`, `There are only 'skip'ped ...` stb.) | **bájtazonosan angolul** | a 5./6./9. blokk precedense (kódblokkon belül úgyis verbatim) |
+
+### Verbatim (bájtazonosan angolul) hagyott blokkok
+
+- `use-git-daemon.adoc`: a `$ git ls-remote …` / `fatal: The remote end hung up …` behúzott
+  literál sorok.
+- `using-merge-subtree.adoc`: a `----------------` kódblokk (`git remote add` … `git pull -s subtree`)
+  a `<1>`–`<5>` callout-jelölőkkel; a callout-**magyarázatok** viszont a blokk alatt fordultak.
+- `rebuild-from-update-hook.adoc`: a 4 szóközzel behúzott literál blokkok (`/pub/scm/…` útvonaltábla,
+  `git clone …`, a `cat >dododoc.sh <<\EOF …` és `cat >…/post-update <<\EOF …` heredoc-os
+  shell-szkriptek — a `<<\EOF` **nem** xref).
+- `separating-topic-branches.adoc`: 5 ASCII-art commit-gráf + 4 parancsblokk (a `;#` inline
+  kommentekkel).
+- `recover-corrupted-blob-object.adoc`: 3 db `-----` (59 kötőjel) körülhatárolt blokk — idézett
+  e-mail-részletek (`> …`) és `git-fsck` kimenet; a záró `\t\t\tLinus` aláírás.
+- `rebase-from-internal-branch.adoc`: a `--------------------------------------` blokk (idézett
+  levélváltás `>`/`>>` szintekkel); 6 ASCII-art gráf; 5 parancsblokk; a záró `-jc`.
+- `revert-branch-rebase.adoc`: 11 db `----…----` (48 kötőjel) blokk — mind `$ git …` terminál-átirat
+  valós, lokalizálatlan Git-kimenettel (`Updating from …`, `* Applying: …`, diffstat).
+- `keep-canonical-history-correct.adoc`: 16 db `------------` (12 kötőjel) blokk — ASCII-art gráfok
+  és `$ git …` parancsok; a numbered list `+` folytatásjelölői megtartva.
+- `update-hook-example.adoc`: a `----…----` (52 kötőjel) blokkban a teljes `#!/bin/bash` access-
+  control szkript (minden `#`-komment és `info/grant/deny` üzenetszöveg angolul); a 4 szóközzel
+  behúzott doc-idézet (18–28. sor, „Before each ref is updated…") és a config-formátum-példa
+  (`refs/heads/master junio` stb.).
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve az egész batchre).
+  A `rebuild-from-update-hook.adoc` `<<\EOF` előfordulásai heredoc-jelölők kódblokkon belül, nem
+  AsciiDoc xrefek — érintetlenül hagyva.
+- `keep-canonical-history-correct.adoc` és `use-git-daemon.adoc` végén a záró `See also <URL>` /
+  bare-URL sorok **inline prózaként** kezelve: a `See also` → „Lásd még" fordult (nem szekciócím,
+  a `bundle-uri.adoc` 1. blokkbeli `See Also` **cím** precedense ide nem vonatkozik), az URL
+  változatlan.
+
+### Man-page címként angolul hagyott címsorok
+
+- **Nincs egy sem** — egyik fájl sem man page.

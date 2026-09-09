@@ -1,12 +1,12 @@
 Date: Fri, 9 Nov 2007 08:28:38 -0800 (PST)
 From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: corrupt object on git-gc
-Abstract: Some tricks to reconstruct blob objects in order to fix
- a corrupted repository.
+Abstract: Néhány trükk blob-objektumok rekonstruálásához egy sérült
+ repository megjavítása érdekében.
 Content-type: text/asciidoc
 
-How to recover a corrupted blob object
-======================================
+Hogyan állíts helyre egy sérült blob-objektumot
+===============================================
 
 -----------------------------------------------------------
 On Fri, 9 Nov 2007, Yossi Leybovich wrote:
@@ -15,27 +15,26 @@ On Fri, 9 Nov 2007, Yossi Leybovich wrote:
 > Any one know how can I track this object and understand which file is it
 -----------------------------------------------------------
 
-So exactly *because* the SHA-1 hash is cryptographically secure, the hash
-itself doesn't actually tell you anything, in order to fix a corrupt
-object you basically have to find the "original source" for it.
+Pontosan *azért*, mert a SHA-1 hash kriptográfiailag biztonságos, maga a hash
+valójában semmit sem árul el; egy sérült objektum megjavításához alapvetően
+meg kell találnod hozzá az "eredeti forrást".
 
-The easiest way to do that is almost always to have backups, and find the
-same object somewhere else. Backups really are a good idea, and Git makes
-it pretty easy (if nothing else, just clone the repository somewhere else,
-and make sure that you do *not* use a hard-linked clone, and preferably
-not the same disk/machine).
+Ennek a legegyszerűbb módja szinte mindig az, ha van biztonsági mentésed, és
+ugyanazt az objektumot megtalálod máshol. A biztonsági mentés tényleg jó
+ötlet, és a Git elég egyszerűvé teszi (ha más nem, csak klónozd a repository-t
+máshová, és ügyelj rá, hogy *ne* hard-linkelt klónt használj, és lehetőleg ne
+ugyanazt a lemezt/gépet).
 
-But since you don't seem to have backups right now, the good news is that
-especially with a single blob being corrupt, these things *are* somewhat
-debuggable.
+De mivel úgy tűnik, most nincs biztonsági mentésed, a jó hír az, hogy
+különösen egyetlen sérült blob esetén ezek a dolgok *tényleg* valamennyire
+hibakereshetők.
 
-First off, move the corrupt object away, and *save* it. The most common
-cause of corruption so far has been memory corruption, but even so, there
-are people who would be interested in seeing the corruption - but it's
-basically impossible to judge the corruption until we can also see the
-original object, so right now the corrupt object is useless, but it's very
-interesting for the future, in the hope that you can re-create a
-non-corrupt version.
+Először is helyezd el máshová a sérült objektumot, és *mentsd el*. A sérülés
+eddigi leggyakoribb oka a memóriasérülés volt, de még így is vannak, akiket
+érdekelne a sérülés megtekintése - viszont a sérülést alapvetően lehetetlen
+megítélni, amíg az eredeti objektumot is nem látjuk, így most a sérült
+objektum haszontalan, de a jövő szempontjából nagyon érdekes, abban a
+reményben, hogy újra tudsz alkotni egy nem sérült verziót.
 
 -----------------------------------------------------------
 So:
@@ -43,10 +42,10 @@ So:
 > ib]$ mv .git/objects/4b/9458b3786228369c63936db65827de3cc06200 ../
 -----------------------------------------------------------
 
-This is the right thing to do, although it's usually best to save it under
-it's full SHA-1 name (you just dropped the "4b" from the result ;).
+Ez a helyes teendő, bár általában a legjobb a teljes SHA-1 nevén elmenteni
+(az eredményből épp most hagytad le a "4b"-t ;).
 
-Let's see what that tells us:
+Nézzük, mit árul ez el nekünk:
 
 -----------------------------------------------------------
 > ib]$ git-fsck --full
@@ -55,16 +54,16 @@ Let's see what that tells us:
 > missing blob 4b9458b3786228369c63936db65827de3cc06200
 -----------------------------------------------------------
 
-Ok, I removed the "dangling commit" messages, because they are just
-messages about the fact that you probably have rebased etc, so they're not
-at all interesting. But what remains is still very useful. In particular,
-we now know which tree points to it!
+Oké, eltávolítottam a "dangling commit" üzeneteket, mert azok csak arról
+szólnak, hogy valószínűleg rebase-eltél stb., így egyáltalán nem érdekesek.
+De ami marad, az még mindig nagyon hasznos. Konkrétan: most már tudjuk, melyik
+tree mutat rá!
 
-Now you can do
+Most a következőt teheted
 
 	git ls-tree 2d9263c6d23595e7cb2a21e5ebbb53655278dff8
 
-which will show something like
+amely valami ilyesmit fog mutatni
 
 	100644 blob 8d14531846b95bfa3564b58ccfb7913a034323b8    .gitignore
 	100644 blob ebf9bf84da0aab5ed944264a5db2a65fe3a3e883    .mailmap
@@ -75,33 +74,33 @@ which will show something like
 	100644 blob 1c7c229a092665b11cd46a25dbd40feeb31661d9    MAINTAINERS
 	...
 
-and you should now have a line that looks like
+és most kell lennie egy ilyen sornak
 
 	10064 blob 4b9458b3786228369c63936db65827de3cc06200	my-magic-file
 
-in the output. This already tells you a *lot* it tells you what file the
-corrupt blob came from!
+a kimenetben. Ez már *sokat* elárul: megmondja, melyik fájlból származott a
+sérült blob!
 
-Now, it doesn't tell you quite enough, though: it doesn't tell what
-*version* of the file didn't get correctly written! You might be really
-lucky, and it may be the version that you already have checked out in your
-working tree, in which case fixing this problem is really simple, just do
+Persze ez nem árul el egészen eleget: nem mondja meg, a fájl melyik
+*verziója* nem íródott ki helyesen! Lehet, hogy nagyon szerencsés vagy, és ez
+az a verzió, amely már ki van checkoutolva a working tree-dben, amely esetben
+ennek a problémának a megoldása tényleg egyszerű, csak futtasd
 
 	git hash-object -w my-magic-file
 
-again, and if it outputs the missing SHA-1 (4b945..) you're now all done!
+újra, és ha kiírja a hiányzó SHA-1-et (4b945..), akkor készen is vagy!
 
-But that's the really lucky case, so let's assume that it was some older
-version that was broken. How do you tell which version it was?
+De ez a nagyon szerencsés eset, úgyhogy tegyük fel, hogy valamelyik régebbi
+verzió sérült meg. Hogyan állapítod meg, melyik verzió volt az?
 
-The easiest way to do it is to do
+A legegyszerűbb módja, ha ezt futtatod
 
 	git log --raw --all --full-history -- subdirectory/my-magic-file
 
-and that will show you the whole log for that file (please realize that
-the tree you had may not be the top-level tree, so you need to figure out
-which subdirectory it was in on your own), and because you're asking for
-raw output, you'll now get something like
+és ez megmutatja az adott fájl teljes naplóját (vedd figyelembe, hogy a tree,
+amid volt, nem feltétlenül a legfelső szintű tree, így magadnak kell
+kitalálnod, melyik alkönyvtárban volt), és mivel raw kimenetet kérsz, most
+valami ilyesmit kapsz
 
 	commit abc
 	Author:
@@ -117,28 +116,27 @@ raw output, you'll now get something like
 	  ..
 	:100644 100644 oldsha... 4b9458b... M	somedirectory/my-magic-file
 
-and this actually tells you what the *previous* and *subsequent* versions
-of that file were! So now you can look at those ("oldsha" and "newsha"
-respectively), and hopefully you have done commits often, and can
-re-create the missing my-magic-file version by looking at those older and
-newer versions!
+és ez valójában megmondja, mi volt az adott fájl *előző* és *következő*
+verziója! Így most megnézheted ezeket ("oldsha", illetve "newsha"), és
+remélhetőleg gyakran commitoltál, és a régebbi és újabb verziók
+megnézésével újra tudod alkotni a hiányzó my-magic-file verziót!
 
-If you can do that, you can now recreate the missing object with
+Ha ezt meg tudod tenni, most újra tudod alkotni a hiányzó objektumot ezzel
 
 	git hash-object -w <recreated-file>
 
-and your repository is good again!
+és a repository-d újra rendben van!
 
-(Btw, you could have ignored the fsck, and started with doing a
+(Egyébként figyelmen kívül hagyhattad volna az fsck-t, és kezdhetted volna egy
 
 	git log --raw --all
 
-and just looked for the sha of the missing object (4b9458b..) in that
-whole thing. It's up to you - Git does *have* a lot of information, it is
-just missing one particular blob version.
+futtatásával, majd egyszerűen megkereshetted volna a hiányzó objektum
+sha-ját (4b9458b..) az egészben. Rajtad múlik - a Gitnek *van* rengeteg
+információja, csak egyetlen konkrét blob-verzió hiányzik.
 
-Trying to recreate trees and especially commits is *much* harder. So you
-were lucky that it's a blob. It's quite possible that you can recreate the
-thing.
+A tree-k és különösen a commitok újraalkotásának megkísérlése *sokkal*
+nehezebb. Szóval szerencséd volt, hogy ez egy blob. Egészen valószínű, hogy
+újra tudod alkotni a dolgot.
 
 			Linus

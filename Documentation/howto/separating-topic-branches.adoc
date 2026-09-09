@@ -1,33 +1,33 @@
 From: Junio C Hamano <gitster@pobox.com>
 Subject: Separating topic branches
-Abstract: In this article, JC describes how to separate topic branches.
+Abstract: Ebben a cikkben JC leírja, hogyan választhatók szét a topic branchek.
 Content-type: text/asciidoc
 
-How to separate topic branches
-==============================
+Hogyan válaszd szét a topic brancheket
+======================================
 
-This text was originally a footnote to a discussion about the
-behaviour of the git diff commands.
+Ez a szöveg eredetileg lábjegyzet volt egy vitához, amely a git diff parancsok
+viselkedéséről szólt.
 
-Often I find myself doing that [running diff against something other
-than HEAD] while rewriting messy development history.  For example, I
-start doing some work without knowing exactly where it leads, and end
-up with a history like this:
+Gyakran kapom magam azon, hogy ezt csinálom [a diffet nem a HEAD-hez
+futtatom], miközben kusza fejlesztési előzményeket írok át.  Például
+elkezdek dolgozni valamin anélkül, hogy pontosan tudnám, hová vezet, és a
+végén egy ilyen előzménnyel maradok:
 
             "master"
         o---o
              \                    "topic"
               o---o---o---o---o---o
 
-At this point, "topic" contains something I know I want, but it
-contains two concepts that turned out to be completely independent.
-And often, one topic component is larger than the other.  It may
-contain more than two topics.
+Ezen a ponton a "topic" tartalmaz valamit, amiről tudom, hogy kell, de két
+olyan koncepciót is tartalmaz, amelyek teljesen függetlennek bizonyultak.
+És gyakran az egyik topic-komponens nagyobb, mint a másik.  Kettőnél több
+topicot is tartalmazhat.
 
-In order to rewrite this mess to be more manageable, I would first do
-"diff master..topic", to extract the changes into a single patch, start
-picking pieces from it to get logically self-contained units, and
-start building on top of "master":
+Hogy ezt a zűrzavart kezelhetőbbre írjam át, először egy "diff master..topic"-ot
+csinálnék, hogy a változtatásokat egyetlen patchbe emeljem ki, aztán elkezdek
+darabokat kiszedni belőle, hogy logikailag önálló egységeket kapjak, és
+elkezdek építkezni a "master" tetejére:
 
         $ git diff master..topic >P.diff
         $ git checkout -b topicA master
@@ -40,17 +40,16 @@ start building on top of "master":
              \                    "topic"
               o---o---o---o---o---o
 
-Before doing each commit on "topicA" HEAD, I run "diff HEAD"
-before update-index the affected paths, or "diff --cached HEAD"
-after.  Also I would run "diff --cached master" to make sure
-that the changes are only the ones related to "topicA".  Usually
-I do this for smaller topics first.
+Mielőtt a "topicA" HEAD-en minden egyes commitot elvégeznék, lefuttatom a
+"diff HEAD"-et az érintett útvonalak update-index-elése előtt, vagy a
+"diff --cached HEAD"-et utána.  Lefuttatnám a "diff --cached master"-t is, hogy
+megbizonyosodjak róla, hogy a változtatások csak a "topicA"-hoz kapcsolódók.
+Általában előbb a kisebb topicokra csinálom ezt.
 
-After that, I'd do the remainder of the original "topic", but
-for that, I do not start from the patchfile I extracted by
-comparing "master" and "topic" I used initially.  Still on
-"topicA", I extract "diff topic", and use it to rebuild the
-other topic:
+Ezután megcsinálnám az eredeti "topic" maradékát, de ahhoz nem a kezdetben
+használt, a "master" és a "topic" összehasonlításával kiemelt patchfájlból
+indulok ki.  Még mindig a "topicA"-n állva kiemelem a "diff topic"-ot, és
+azzal építem újra a másik topicot:
 
         $ git diff -R topic >P.diff ;# --cached also would work fine
         $ git checkout -b topicB master
@@ -66,8 +65,8 @@ other topic:
              \                    "topic"
               o---o---o---o---o---o
 
-After I am done, I'd try a pretend-merge between "topicA" and
-"topicB" in order to make sure I have not missed anything:
+Miután végeztem, kipróbálnék egy színlelt merge-t a "topicA" és a "topicB"
+között, hogy megbizonyosodjak róla, hogy semmit sem hagytam ki:
 
         $ git pull . topicA ;# merge it into current "topicB"
         $ git diff topic
@@ -80,8 +79,8 @@ After I am done, I'd try a pretend-merge between "topicA" and
              \                    "topic"
               o---o---o---o---o---o
 
-The last diff better not to show anything other than cleanups
-for cruft.  Then I can finally clean things up:
+Az utolsó diff jobb, ha nem mutat mást, csak a limlom eltakarítását.  Aztán
+végre rendet rakhatok:
 
         $ git branch -D topic
         $ git reset --hard HEAD^ ;# nuke pretend merge

@@ -401,20 +401,20 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | fájl | kész | forrás-SHA | utolsó-ellenőrzés |
 |---|---|---|---|
 | howto/coordinate-embargoed-releases.adoc | [ ] |  |  |
-| howto/keep-canonical-history-correct.adoc | [ ] |  |  |
+| howto/keep-canonical-history-correct.adoc | [x] |  | 2026-09-10 |
 | howto/maintain-git.adoc | [ ] |  |  |
-| howto/new-command.adoc | [ ] |  |  |
-| howto/rebase-from-internal-branch.adoc | [ ] |  |  |
-| howto/rebuild-from-update-hook.adoc | [ ] |  |  |
-| howto/recover-corrupted-blob-object.adoc | [ ] |  |  |
+| howto/new-command.adoc | [x] |  | 2026-09-10 |
+| howto/rebase-from-internal-branch.adoc | [x] |  | 2026-09-10 |
+| howto/rebuild-from-update-hook.adoc | [x] |  | 2026-09-10 |
+| howto/recover-corrupted-blob-object.adoc | [x] |  | 2026-09-10 |
 | howto/recover-corrupted-object-harder.adoc | [ ] |  |  |
 | howto/revert-a-faulty-merge.adoc | [ ] |  |  |
-| howto/revert-branch-rebase.adoc | [ ] |  |  |
-| howto/separating-topic-branches.adoc | [ ] |  |  |
+| howto/revert-branch-rebase.adoc | [x] |  | 2026-09-10 |
+| howto/separating-topic-branches.adoc | [x] |  | 2026-09-10 |
 | howto/setup-git-server-over-http.adoc | [ ] |  |  |
-| howto/update-hook-example.adoc | [ ] |  |  |
-| howto/use-git-daemon.adoc | [ ] |  |  |
-| howto/using-merge-subtree.adoc | [ ] |  |  |
+| howto/update-hook-example.adoc | [x] |  | 2026-09-10 |
+| howto/use-git-daemon.adoc | [x] |  | 2026-09-10 |
+| howto/using-merge-subtree.adoc | [x] |  | 2026-09-10 |
 | howto/using-signed-tag-in-pull-request.adoc | [ ] |  |  |
 
 ### `technical/`
@@ -595,3 +595,19 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   A `gitprotocol-common.adoc` volt az egyetlen fájl `[[...]]` anchor-kezeléssel (2 defenzív anchor
   a nem man-page, Title Case alcímek fölé). Orchestrátor végezte közvetlenül. Részletek:
   `glossary-git-git-docs.md` „21. blokk".
+- **2026-09-10 — `howto/` mappa: a 10 legkisebb méretű, még lefordítatlan fájl kész** (a felhasználó
+  kérésére, sorméret/byte szerint növekvő sorrendben): `use-git-daemon.adoc`, `using-merge-subtree.adoc`,
+  `rebuild-from-update-hook.adoc`, `separating-topic-branches.adoc`, `new-command.adoc`,
+  `recover-corrupted-blob-object.adoc`, `update-hook-example.adoc`, `rebase-from-internal-branch.adoc`,
+  `keep-canonical-history-correct.adoc`, `revert-branch-rebase.adoc`. Ezek NEM man page-ek (e-mail-
+  stílusú how-to cikkek), ezért a főcím és minden alcím fordult, setext-aláhúzás a fordított
+  címhosszhoz igazítva (2 db ±1 elütés menet közben javítva). Az e-mail-fejléc (`From`/`To`/`Cc`/
+  `Date`/`Subject`/`Message-ID`) bájtazonosan angolul maradt, az `Abstract:` docinfo-attribútum
+  törzse fordult. A `-----`/`------------` körülhatárolt blokkok (parancspéldák, kimenetek,
+  ASCII-art commit-gráfok, `#!/bin/bash` szkriptek, idézett e-mail-részletek, IRC-/doc-idézetek)
+  és a szóközzel behúzott literál blokkok mind bájtazonosak. Egyik fájlban sincs `[[...]]`/`<<...>>`
+  (a `rebuild-from-update-hook.adoc`-beli `<<\EOF` heredoc-jelölés kódblokkban van, nem xref).
+  Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „22. blokk". A `howto/`
+  mappából még 6 fájl hátravan (`coordinate-embargoed-releases`, `maintain-git`,
+  `recover-corrupted-object-harder`, `revert-a-faulty-merge`, `setup-git-server-over-http`,
+  `using-signed-tag-in-pull-request`).

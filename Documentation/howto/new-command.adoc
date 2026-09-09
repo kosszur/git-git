@@ -1,106 +1,103 @@
 From: Eric S. Raymond <esr@thyrsus.com>
-Abstract: This is how-to documentation for people who want to add extension
- commands to Git.  It should be read alongside builtin.h.
+Abstract: Ez how-to dokumentáció azoknak, akik bővítményparancsokat szeretnének
+ hozzáadni a Githez.  A builtin.h mellett érdemes olvasni.
 Content-type: text/asciidoc
 
-How to integrate new subcommands
-================================
+Hogyan integrálj új alparancsokat
+=================================
 
-This is how-to documentation for people who want to add extension
-commands to Git.  It should be read alongside builtin.h.
+Ez how-to dokumentáció azoknak, akik bővítményparancsokat szeretnének
+hozzáadni a Githez.  A builtin.h mellett érdemes olvasni.
 
-Runtime environment
--------------------
+Futásidejű környezet
+--------------------
 
-Git subcommands are standalone executables that live in the Git exec
-path, normally /usr/lib/git-core.  The git executable itself is a
-thin wrapper that knows where the subcommands live, and runs them by
-passing command-line arguments to them.
+A Git alparancsai önálló futtatható programok, amelyek a Git exec elérési
+útján helyezkednek el, ez általában a /usr/lib/git-core.  Maga a git futtatható
+program egy vékony burkoló, amely tudja, hol vannak az alparancsok, és úgy
+futtatja őket, hogy átadja nekik a parancssori argumentumokat.
 
-(If "git foo" is not found in the Git exec path, the wrapper
-will look in the rest of your $PATH for it.  Thus, it's possible
-to write local Git extensions that don't live in system space.)
+(Ha a "git foo" nem található a Git exec elérési útján, a burkoló a $PATH
+többi részében keresi.  Így lehetséges olyan helyi Git-bővítményeket írni,
+amelyek nem rendszerszintű helyen laknak.)
 
-Implementation languages
-------------------------
-
-Most subcommands are written in C or shell.  A few are written in
-Perl.
-
-While we strongly encourage coding in portable C for portability,
-these specific scripting languages are also acceptable.  We won't
-accept more without a very strong technical case, as we don't want
-to broaden the Git suite's required dependencies.  Import utilities,
-surgical tools, remote helpers and other code at the edges of the
-Git suite are more lenient and we allow Python (and even Tcl/tk),
-but they should not be used for core functions.
-
-This may change in the future.  Especially Python is not allowed in
-core because we need better Python integration in the Git Windows
-installer before we can be confident people in that environment
-won't experience an unacceptably large loss of capability.
-
-C commands are normally written as single modules, named after the
-command, that link a collection of functions called libgit.  Thus,
-your command 'git-foo' would normally be implemented as a single
-"git-foo.c" (or "builtin/foo.c" if it is to be linked to the main
-binary); this organization makes it easy for people reading the code
-to find things.
-
-See the CodingGuidelines document for other guidance on what we consider
-good practice in C and shell, and builtin.h for the support
-functions available to built-in commands written in C.
-
-What every extension command needs
-----------------------------------
-
-You must have a man page, written in asciidoc (this is what Git help
-followed by your subcommand name will display).  Be aware that there is
-a local asciidoc configuration and macros which you should use.  It's
-often helpful to start by cloning an existing page and replacing the
-text content.
-
-You must have a test, written to report in TAP (Test Anything Protocol).
-Tests are executables (usually shell scripts) that live in the 't'
-subdirectory of the tree.  Each test name begins with 't' and a sequence
-number that controls where in the test sequence it will be executed;
-conventionally the rest of the name stem is that of the command
-being tested.
-
-Read the file t/README to learn more about the conventions to be used
-in writing tests, and the test support library.
-
-Integrating a command
+Megvalósítási nyelvek
 ---------------------
 
-Here are the things you need to do when you want to merge a new
-subcommand into the Git tree.
+A legtöbb alparancs C-ben vagy shellben íródott.  Néhányat Perlben
+írtak.
 
-1. Don't forget to sign off your patch!
+Bár a hordozhatóság kedvéért erősen javasoljuk a hordozható C-ben való
+kódolást, ezek a konkrét szkriptnyelvek is elfogadhatók.  Többet nem fogadunk
+el nagyon erős technikai indok nélkül, mivel nem akarjuk kiszélesíteni a Git
+csomag kötelező függőségeit.  Az importáló segédprogramok, sebészeti eszközök,
+remote helperek és a Git csomag peremén lévő egyéb kód esetében
+elnézőbbek vagyunk, és megengedjük a Pythont (sőt a Tcl/tk-t is), de ezeket
+nem szabad alapfunkciókhoz használni.
 
-2. Append your command name to one of the variables BUILTIN_OBJS,
-EXTRA_PROGRAMS, SCRIPT_SH, SCRIPT_PERL or SCRIPT_PYTHON.
+Ez a jövőben változhat.  Különösen a Python nem engedélyezett a magban, mert
+jobb Python-integrációra van szükségünk a Git Windows-telepítőjében, mielőtt
+biztosak lehetnénk benne, hogy az adott környezetben lévők nem szenvednek el
+elfogadhatatlanul nagy képességveszteséget.
 
-3. Drop its test in the t directory.
+A C-parancsok általában egyetlen modulként íródnak, a parancsról elnevezve,
+amelyek egy libgit nevű függvénygyűjteményt linkelnek.  Így a 'git-foo'
+parancsod általában egyetlen "git-foo.c"-ként valósulna meg (vagy
+"builtin/foo.c"-ként, ha a fő binárishoz kell linkelni); ez a szervezés
+megkönnyíti a kódot olvasók dolgát a dolgok megtalálásában.
 
-4. If your command is implemented in an interpreted language with a
-p-code intermediate form, make sure .gitignore in the main directory
-includes a pattern entry that ignores such files.  Python .pyc and
-.pyo files will already be covered.
+A CodingGuidelines dokumentumban további útmutatást találsz arról, mit
+tartunk jó gyakorlatnak C-ben és shellben, a builtin.h-ban pedig a C-ben írt
+beépített parancsok számára elérhető segédfüggvényeket.
 
-5. If your command has any dependency on a particular version of
-your language, document it in the INSTALL file.
+Mire van szüksége minden bővítményparancsnak
+--------------------------------------------
 
-6. There is a file command-list.txt in the distribution main directory
-that categorizes commands by type, so they can be listed in appropriate
-subsections in the documentation's summary command list.  Add an entry
-for yours.  To understand the categories, look at command-list.txt
-in the main directory.  If the new command is part of the typical Git
-workflow and you believe it common enough to be mentioned in 'git help',
-map this command to a common group in the column [common].
+Kell lennie egy man page-ednek, asciidocban megírva (ezt jeleníti meg a Git
+help az alparancsod nevével együtt).  Ne feledd, hogy van egy helyi asciidoc-
+konfiguráció és makrókészlet, amit használnod kell.  Gyakran hasznos egy
+meglévő oldal klónozásával kezdeni, és a szöveges tartalmat lecserélni.
 
-7. Give the maintainer one paragraph to include in the RelNotes file
-to describe the new feature; a good place to do so is in the cover
-letter [PATCH 0/n].
+Kell lennie egy tesztednek, amely TAP (Test Anything Protocol) formátumban
+jelent.  A tesztek futtatható programok (általában shell szkriptek), amelyek a
+fa 't' alkönyvtárában találhatók.  Minden teszt neve egy 't' betűvel és egy
+sorszámmal kezdődik, amely szabályozza, hol fut le a tesztsorozatban;
+hagyományosan a névtörzs többi része a tesztelt parancs neve.
 
-That's all there is to it.
+Olvasd el a t/README fájlt, hogy többet megtudj a tesztek írásakor
+követendő konvenciókról és a teszttámogató könyvtárról.
+
+Egy parancs integrálása
+-----------------------
+
+Íme a teendők, amikor egy új alparancsot szeretnél merge-elni a Git
+fájába.
+
+1. Ne felejtsd el sign-offolni a patchedet!
+
+2. Fűzd hozzá a parancsod nevét a BUILTIN_OBJS, EXTRA_PROGRAMS, SCRIPT_SH,
+SCRIPT_PERL vagy SCRIPT_PYTHON változók egyikéhez.
+
+3. Tedd be a tesztjét a t könyvtárba.
+
+4. Ha a parancsod egy p-kód köztes formával rendelkező értelmezett nyelven
+van megvalósítva, gondoskodj róla, hogy a fő könyvtárban lévő .gitignore
+tartalmazzon egy mintabejegyzést, amely az ilyen fájlokat kizárja.  A Python
+.pyc és .pyo fájljaira ez már ki van terjesztve.
+
+5. Ha a parancsod egy adott nyelvi verziótól függ, dokumentáld az INSTALL
+fájlban.
+
+6. A disztribúció fő könyvtárában van egy command-list.txt fájl, amely típus
+szerint kategorizálja a parancsokat, hogy a dokumentáció összefoglaló
+parancslistájában a megfelelő alszakaszokban felsorolhatók legyenek.  Adj hozzá
+egy bejegyzést a sajátodhoz.  A kategóriák megértéséhez nézd meg a fő
+könyvtárban lévő command-list.txt-t.  Ha az új parancs a tipikus Git
+munkafolyamat része, és úgy gondolod, hogy elég gyakori ahhoz, hogy a
+'git help' megemlítse, rendeld ezt a parancsot egy közös csoporthoz a
+[common] oszlopban.
+
+7. Adj a maintainernek egy bekezdést, amit beilleszthet a RelNotes fájlba az
+új funkció leírásához; erre jó hely a kísérőlevél [PATCH 0/n].
+
+Ennyi az egész.

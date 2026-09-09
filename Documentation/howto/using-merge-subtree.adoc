@@ -3,33 +3,33 @@ From: Sean <seanlkml@sympatico.ca>
 To: Miklos Vajna <vmiklos@frugalware.org>
 Cc: git@vger.kernel.org
 Subject: how to use git merge -s subtree?
-Abstract: In this article, Sean demonstrates how one can use the subtree merge
- strategy.
+Abstract: Ebben a cikkben Sean bemutatja, hogyan használható a subtree
+ merge-stratégia.
 Content-type: text/asciidoc
 Message-ID: <BAYC1-PASMTP12374B54BA370A1E1C6E78AE4E0@CEZ.ICE>
 
-How to use the subtree merge strategy
-=====================================
+Hogyan használd a subtree merge-stratégiát
+==========================================
 
-There are situations where you want to include content in your project
-from an independently developed project. You can just pull from the
-other project as long as there are no conflicting paths.
+Vannak helyzetek, amikor egy önállóan fejlesztett projektből szeretnél
+tartalmat beépíteni a saját projektedbe. Egyszerűen pull-olhatsz a másik
+projektből, amíg nincsenek ütköző útvonalak.
 
-The problematic case is when there are conflicting files. Potential
-candidates are Makefiles and other standard filenames. You could merge
-these files but probably you do not want to.  A better solution for this
-problem can be to merge the project as its own subdirectory. This is not
-supported by the 'recursive' merge strategy, so just pulling won't work.
+A problémás eset az, amikor vannak ütköző fájlok. Lehetséges jelöltek a
+Makefile-ok és más szokásos fájlnevek. Ezeket a fájlokat merge-elhetnéd, de
+valószínűleg nem akarod.  Erre a problémára jobb megoldás lehet a projektet a
+saját alkönyvtáraként merge-elni. Ezt a 'recursive' merge-stratégia nem
+támogatja, így a puszta pull-olás nem működik.
 
-What you want is the 'subtree' merge strategy, which helps you in such a
-situation.
+Amire szükséged van, az a 'subtree' merge-stratégia, amely segít az ilyen
+helyzetekben.
 
-In this example, let's say you have the repository at `/path/to/B` (but
-it can be a URL as well, if you want). You want to merge the 'master'
-branch of that repository to the `dir-B` subdirectory in your current
-branch.
+Ebben a példában tegyük fel, hogy a repository a `/path/to/B` alatt van (de
+igény szerint lehet URL is). Ennek a repository-nak a 'master' branchét
+szeretnéd a `dir-B` alkönyvtárba merge-elni az aktuális
+branchedben.
 
-Here is the command sequence you need:
+Íme a parancssorozat, amire szükséged van:
 
 ----------------
 $ git remote add -f Bproject /path/to/B <1>
@@ -39,37 +39,35 @@ $ git commit -m "Merge B project as our subdirectory" <4>
 
 $ git pull -s subtree Bproject master <5>
 ----------------
-<1> name the other project "Bproject", and fetch.
-<2> prepare for the later step to record the result as a merge.
-<3> read "master" branch of Bproject to the subdirectory "dir-B".
-<4> record the merge result.
-<5> maintain the result with subsequent merges using "subtree"
+<1> nevezd el a másik projektet "Bproject"-nek, és fetch-elj.
+<2> készülj fel arra, hogy egy későbbi lépés az eredményt merge-ként rögzítse.
+<3> olvasd be a Bproject "master" branchét a "dir-B" alkönyvtárba.
+<4> rögzítsd a merge eredményét.
+<5> tartsd karban az eredményt a további merge-ekkel a "subtree" használatával
 
-The first four commands are used for the initial merge, while the last
-one is to merge updates from 'B project'.
+Az első négy parancs a kezdeti merge-hez való, míg az utolsó a 'B project'
+frissítéseinek merge-eléséhez.
 
-Comparing 'subtree' merge with submodules
------------------------------------------
+A 'subtree' merge összehasonlítása a submodule-okkal
+----------------------------------------------------
 
-- The benefit of using subtree merge is that it requires less
-  administrative burden from the users of your repository. It works with
-  older (before Git v1.5.2) clients and you have the code right after
-  clone.
+- A subtree merge használatának előnye, hogy kevesebb adminisztratív terhet
+  ró a repository-d felhasználóira. Régebbi (Git v1.5.2 előtti) kliensekkel is
+  működik, és a kód rögtön a clone után a kezedben van.
 
-- However if you use submodules then you can choose not to transfer the
-  submodule objects. This may be a problem with the subtree merge.
+- Ha viszont submodule-okat használsz, akkor dönthetsz úgy, hogy nem viszed át
+  a submodule-objektumokat. Ez a subtree merge-nél problémát jelenthet.
 
-- Also, in case you make changes to the other project, it is easier to
-  submit changes if you just use submodules.
+- Továbbá, ha módosításokat végzel a másik projekten, egyszerűbb beküldeni a
+  változtatásokat, ha submodule-okat használsz.
 
-Additional tips
----------------
+További tippek
+--------------
 
-- If you made changes to the other project in your repository, they may
-  want to merge from your project. This is possible using subtree -- it
-  can shift up the paths in your tree and then they can merge only the
-  relevant parts of your tree.
+- Ha a másik projekten módosítottál a saját repository-dban, előfordulhat, hogy
+  a te projektedből akarnak merge-elni. Ez a subtree-vel lehetséges -- feljebb
+  tudja tolni az útvonalakat a fádban, és így ők csak a fád releváns részeit
+  merge-elhetik.
 
-- Please note that if the other project merges from you, then it will
-  connect its history to yours, which can be something they don't want
-  to.
+- Ne feledd, hogy ha a másik projekt tőled merge-el, akkor összekapcsolja a
+  saját előzményeit a tiéddel, amit lehet, hogy nem szeretnének.

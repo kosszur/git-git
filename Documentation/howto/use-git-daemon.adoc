@@ -1,54 +1,54 @@
 Content-type: text/asciidoc
 
-How to use git-daemon
-=====================
+Hogyan használd a git-daemont
+=============================
 
-Git can be run in inetd mode and in stand alone mode. But all you want is
-to let a coworker pull from you, and therefore need to set up a Git server
-real quick, right?
+A Git futtatható inetd módban és önálló (stand alone) módban is. De neked
+csak annyi kell, hogy egy munkatársad pull-olhasson tőled, ezért gyorsan fel
+kell állítanod egy Git-szervert, igaz?
 
-Note that git-daemon is not really chatty at the moment, especially when
-things do not go according to plan (e.g. a socket could not be bound).
+Ne feledd, hogy a git-daemon jelenleg nem túl bőbeszédű, különösen akkor,
+ha valami nem a terv szerint alakul (pl. egy socketet nem sikerült bekötni).
 
-Another word of warning: if you run
+Még egy figyelmeztetés: ha ezt futtatod
 
 	$ git ls-remote git://127.0.0.1/rule-the-world.git
 
-and you see a message like
+és egy ilyen üzenetet látsz
 
 	fatal: The remote end hung up unexpectedly
 
-it only means that _something_ went wrong. To find out _what_ went wrong,
-you have to ask the server. (Git refuses to be more precise for your
-security only. Take off your shoes now. You have any coins in your pockets?
-Sorry, not allowed -- who knows what you planned to do with them?)
+az csak annyit jelent, hogy _valami_ elromlott. Hogy megtudd, _mi_ romlott el,
+a szervert kell megkérdezned. (A Git kizárólag a te biztonságod érdekében
+tagadja meg a pontosabb tájékoztatást. Vedd le a cipődet. Van aprópénz a
+zsebedben? Sajnálom, az nem megengedett -- ki tudja, mit terveztél vele?)
 
-With these two caveats, let's see an example:
+E két figyelmeztetés után lássunk egy példát:
 
 	$ git daemon --reuseaddr --verbose --base-path=/home/gitte/git \
 	  --export-all -- /home/gitte/git/rule-the-world.git
 
-(Of course, unless your user name is `gitte` _and_ your repository is in
-~/rule-the-world.git, you have to adjust the paths. If your repository is
-not bare, be aware that you have to type the path to the .git directory!)
+(Persze hacsak nem `gitte` a felhasználóneved _és_ a repository-d nem a
+~/rule-the-world.git alatt van, ki kell igazítanod az útvonalakat. Ha a
+repository-d nem bare, ne feledd, hogy a .git könyvtár útvonalát kell begépelned!)
 
-This invocation tries to reuse the address if it is already taken
-(this can save you some debugging, because otherwise killing and restarting
-git-daemon could just silently fail to bind to a socket).
+Ez a hívás megpróbálja újrahasználni a címet, ha az már foglalt (ez
+megspórolhat némi hibakeresést, mert különben a git-daemon leállítása és
+újraindítása némán, hibajelzés nélkül is elbukhat egy socket bekötésekor).
 
-Also, it is (relatively) verbose when somebody actually connects to it.
-It also sets the base path, which means that all the projects which can be
-accessed using this daemon have to reside in or under that path.
+Emellett (viszonylag) bőbeszédű, amikor valaki ténylegesen csatlakozik hozzá.
+Beállítja továbbá az alap útvonalat, ami azt jelenti, hogy minden projektnek,
+amely ezen a daemonon keresztül elérhető, ezen az útvonalon vagy alatta kell lennie.
 
-The option `--export-all` just means that you _don't_ have to create a
-file named `git-daemon-export-ok` in each exported repository. (Otherwise,
-git-daemon would complain loudly, and refuse to cooperate.)
+A `--export-all` opció csak annyit jelent, hogy _nem_ kell létrehoznod egy
+`git-daemon-export-ok` nevű fájlt minden exportált repository-ban. (Különben a
+git-daemon hangosan panaszkodna, és megtagadná az együttműködést.)
 
-Last of all, the repository which should be exported is specified. It is
-a good practice to put the paths after a "--" separator.
+Végül meg van adva az exportálandó repository. Jó gyakorlat az útvonalakat egy
+"--" elválasztó után írni.
 
-Now, test your daemon with
+Most teszteld a daemonodat ezzel
 
 	$ git ls-remote git://127.0.0.1/rule-the-world.git
 
-If this does not work, find out why, and submit a patch to this document.
+Ha ez nem működik, derítsd ki, miért, és küldj be egy patchet ehhez a dokumentumhoz.
