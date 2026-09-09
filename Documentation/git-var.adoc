@@ -3,7 +3,7 @@ git-var(1)
 
 NAME
 ----
-git-var - Show a Git logical variable
+git-var - Egy Git logikai változó megjelenítése
 
 
 SYNOPSIS
@@ -13,16 +13,16 @@ git var (-l | <variable>)
 
 DESCRIPTION
 -----------
-Prints a Git logical variable. Exits with code 1 if the variable has
-no value.
+Kiír egy Git logikai változót. 1-es kóddal lép ki, ha a változónak
+nincs értéke.
 
 OPTIONS
 -------
 `-l`::
-	Display the logical variables. In addition, all the
-	variables of the Git configuration file .git/config are listed
-	as well. (However, the configuration variables listing functionality
-	is deprecated in favor of `git config list`.)
+	Megjeleníti a logikai változókat. Ezenkívül a .git/config Git
+	konfigurációs fájl összes változóját is listázza. (A
+	konfigurációs változók listázása azonban elavult, helyette a
+	`git config list` használandó.)
 
 EXAMPLES
 --------
@@ -33,64 +33,66 @@ EXAMPLES
 VARIABLES
 ---------
 `GIT_AUTHOR_IDENT`::
-    The author of a piece of code.
+    Egy kódrészlet szerzője.
 
 `GIT_COMMITTER_IDENT`::
-    The person who put a piece of code into Git.
+    A személy, aki egy kódrészletet a Gitbe helyezett.
 
 `GIT_EDITOR`::
-    Text editor for use by Git commands.  The value is meant to be
-    interpreted by the shell when it is used.  Examples: `~/bin/vi`,
+    Git-parancsok által használandó szövegszerkesztő.  Az értéket a
+    shell értelmezi, amikor használatba kerül.  Példák: `~/bin/vi`,
     `$SOME_ENVIRONMENT_VARIABLE`, `"C:\Program Files\Vim\gvim.exe"
-    --nofork`.  The order of preference is `$GIT_EDITOR`, then
-    `core.editor` configuration value, then `$VISUAL`, then
-    `$EDITOR`, and then the default chosen at compile
-    time, which is usually 'vi'.
+    --nofork`.  A preferencia sorrendje: `$GIT_EDITOR`, majd a
+    `core.editor` konfigurációs érték, majd `$VISUAL`, majd
+    `$EDITOR`, végül a fordításkor kiválasztott alapértelmezés,
+    ami általában a 'vi'.
 ifdef::git-default-editor[]
-    The build you are using chose '{git-default-editor}' as the default.
+    Az általad használt build a '{git-default-editor}'-t választotta alapértelmezésnek.
 endif::git-default-editor[]
 
 `GIT_SEQUENCE_EDITOR`::
-    Text editor used to edit the 'todo' file while running `git rebase
-    -i`. Like `GIT_EDITOR`, the value is meant to be interpreted by
-    the shell when it is used. The order of preference is
-    `$GIT_SEQUENCE_EDITOR`, then `sequence.editor` configuration value,
-    and then the value of `git var GIT_EDITOR`.
+    A 'todo' fájl szerkesztésére használt szövegszerkesztő a `git
+    rebase -i` futtatása közben. A `GIT_EDITOR`-hoz hasonlóan az
+    értéket a shell értelmezi, amikor használatba kerül. A
+    preferencia sorrendje: `$GIT_SEQUENCE_EDITOR`, majd a
+    `sequence.editor` konfigurációs érték, végül a `git var
+    GIT_EDITOR` értéke.
 
 `GIT_PAGER`::
-    Text viewer for use by Git commands (e.g., 'less').  The value
-    is meant to be interpreted by the shell.  The order of preference
-    is `$GIT_PAGER`, then the value of `core.pager` configuration, then
-    `$PAGER`, and then the default chosen at compile time (usually `less`).
+    Git-parancsok által használandó szövegmegjelenítő (pl. 'less').  Az
+    értéket a shell értelmezi.  A preferencia sorrendje: `$GIT_PAGER`,
+    majd a `core.pager` konfiguráció értéke, majd `$PAGER`, végül a
+    fordításkor kiválasztott alapértelmezés (általában `less`).
 ifdef::git-default-pager[]
-    The build you are using chose '{git-default-pager}' as the default.
+    Az általad használt build a '{git-default-pager}'-t választotta alapértelmezésnek.
 endif::git-default-pager[]
 
 `GIT_DEFAULT_BRANCH`::
-    The name of the first branch created in newly initialized repositories.
+    Az újonnan inicializált repository-kban létrehozott első branch neve.
 
 `GIT_SHELL_PATH`::
-    The path of the binary providing the POSIX shell for commands which use the shell.
+    A POSIX shellt biztosító bináris útvonala a shellt használó parancsok számára.
 
 `GIT_ATTR_SYSTEM`::
-    The path to the system linkgit:gitattributes[5] file, if one is enabled.
+    A rendszerszintű linkgit:gitattributes[5] fájl útvonala, ha van engedélyezve.
 
 `GIT_ATTR_GLOBAL`::
-    The path to the global (per-user) linkgit:gitattributes[5] file.
+    A globális (felhasználónkénti) linkgit:gitattributes[5] fájl útvonala.
 
 `GIT_CONFIG_SYSTEM`::
-    The path to the system configuration file, if one is enabled.
+    A rendszerszintű konfigurációs fájl útvonala, ha van engedélyezve.
 
 `GIT_CONFIG_GLOBAL`::
-    The path to the global (per-user) configuration files, if any.
+    A globális (felhasználónkénti) konfigurációs fájlok útvonala, ha vannak.
 
-Most path values contain only one value. However, some can contain multiple
-values, which are separated by newlines, and are listed in order from highest to
-lowest priority.  Callers should be prepared for any such path value to contain
-multiple items.
+A legtöbb útvonalérték csak egyetlen értéket tartalmaz. Néhány azonban
+több értéket is tartalmazhat, amelyeket sortörések választanak el, és a
+legmagasabbtól a legalacsonyabb prioritásig vannak felsorolva. A
+hívóknak fel kell készülniük arra, hogy bármelyik ilyen útvonalérték
+több elemet tartalmazhat.
 
-Note that paths are printed even if they do not exist, but not if they are
-disabled by other environment variables.
+Vedd figyelembe, hogy az útvonalak akkor is kiíródnak, ha nem léteznek,
+de nem, ha más környezeti változók letiltják őket.
 
 SEE ALSO
 --------
@@ -100,4 +102,4 @@ linkgit:git-config[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

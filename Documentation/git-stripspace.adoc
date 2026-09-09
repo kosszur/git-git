@@ -3,7 +3,7 @@ git-stripspace(1)
 
 NAME
 ----
-git-stripspace - Remove unnecessary whitespace
+git-stripspace - Szükségtelen whitespace eltávolítása
 
 
 SYNOPSIS
@@ -15,41 +15,41 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Read text, such as commit messages, notes, tags and branch
-descriptions, from the standard input and clean it in the manner
-used by Git.
+Szöveg — például commit-üzenetek, jegyzetek, tagek és branch-leírások —
+beolvasása a standard bemenetről, és megtisztítása a Git által használt
+módon.
 
-With no arguments, this will:
+Argumentumok nélkül a következőt teszi:
 
-- remove trailing whitespace from all lines
-- collapse multiple consecutive empty lines into one empty line
-- remove empty lines from the beginning and end of the input
-- add a missing '\n' to the last line if necessary.
+- eltávolítja a sorvégi whitespace-t minden sorból
+- több egymást követő üres sort egyetlen üres sorrá von össze
+- eltávolítja az üres sorokat a bemenet elejéről és végéről
+- szükség esetén hozzáad egy hiányzó '\n'-t az utolsó sorhoz.
 
-In the case where the input consists entirely of whitespace characters, no
-output will be produced.
+Ha a bemenet teljes egészében whitespace-karakterekből áll, nem keletkezik
+kimenet.
 
-*NOTE*: This is intended for cleaning metadata. Prefer the `--whitespace=fix`
-mode of linkgit:git-apply[1] for correcting whitespace of patches or files in
-the repository.
+*NOTE*: Ez metaadatok tisztítására szolgál. Patchek vagy a repository-ban lévő
+fájlok whitespace-ének javításához inkább a linkgit:git-apply[1]
+`--whitespace=fix` módját használd.
 
 OPTIONS
 -------
 -s::
 --strip-comments::
-	Skip and remove all lines starting with a comment character
-	(`core.commentChar`, default `#`).
+	Kihagyja és eltávolítja az összes, megjegyzés-karakterrel kezdődő sort
+	(`core.commentChar`, alapértelmezés `#`).
 
 -c::
 --comment-lines::
-	Prepend the comment character and a blank space to each line. Lines will automatically
-	be terminated with a newline. On empty lines, only the comment character
-	will be prepended.
+	Minden sor elé beszúrja a megjegyzés-karaktert és egy szóközt. A sorok
+	automatikusan sortöréssel záródnak. Üres sorok elé csak a
+	megjegyzés-karakter kerül.
 
 EXAMPLES
 --------
 
-Given the following noisy input with '$' indicating the end of a line:
+Az alábbi zajos bemenet esetén, ahol a '$' a sor végét jelöli:
 
 ---------
 |A brief introduction   $
@@ -65,7 +65,7 @@ Given the following noisy input with '$' indicating the end of a line:
 |  $
 ---------
 
-Use 'git stripspace' with no arguments to obtain:
+A 'git stripspace' argumentumok nélküli használatával a következőt kapod:
 
 ---------
 |A brief introduction$
@@ -79,7 +79,7 @@ Use 'git stripspace' with no arguments to obtain:
 |The end.$
 ---------
 
-Use 'git stripspace --strip-comments' to obtain:
+A 'git stripspace --strip-comments' használatával a következőt kapod:
 
 ---------
 |A brief introduction$
@@ -92,4 +92,4 @@ Use 'git stripspace --strip-comments' to obtain:
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

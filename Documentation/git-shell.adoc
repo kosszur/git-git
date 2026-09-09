@@ -3,7 +3,7 @@ git-shell(1)
 
 NAME
 ----
-git-shell - Restricted login shell for Git-only SSH access
+git-shell - Korlátozott bejelentkezési shell csak Gitre korlátozott SSH-hozzáféréshez
 
 
 SYNOPSIS
@@ -16,56 +16,57 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This is a login shell for SSH accounts to provide restricted Git access.
-It permits execution only of server-side Git commands implementing the
-pull/push functionality, plus custom commands present in a subdirectory
-named `git-shell-commands` in the user's home directory.
+Ez egy bejelentkezési shell SSH-fiókokhoz, amely korlátozott
+Git-hozzáférést biztosít. Csak a pull/push funkciót megvalósító
+szerveroldali Git-parancsok, valamint a felhasználó home könyvtárában
+lévő `git-shell-commands` nevű alkönyvtárban található egyéni parancsok
+végrehajtását engedélyezi.
 
 COMMANDS
 --------
 
-'git shell' accepts the following commands after the `-c` option:
+A 'git shell' a következő parancsokat fogadja el a `-c` opció után:
 
 'git receive-pack <argument>'::
 'git upload-pack <argument>'::
 'git upload-archive <argument>'::
-	Call the corresponding server-side command to support
-	the client's 'git push', 'git fetch', or 'git archive --remote'
-	request.
+	Meghívja a megfelelő szerveroldali parancsot a kliens
+	'git push', 'git fetch' vagy 'git archive --remote'
+	kérésének kiszolgálásához.
 'cvs server'::
-	Imitate a CVS server.  See linkgit:git-cvsserver[1].
+	CVS-szervert utánoz.  Lásd linkgit:git-cvsserver[1].
 
-If a `~/git-shell-commands` directory is present, 'git shell' will
-also handle other, custom commands by running
-"`git-shell-commands/<command> <arguments>`" from the user's home
-directory.
+Ha van `~/git-shell-commands` könyvtár, a 'git shell' egyéb, egyéni
+parancsokat is kezel úgy, hogy a
+"`git-shell-commands/<command> <arguments>`" parancsot futtatja a
+felhasználó home könyvtárából.
 
 INTERACTIVE USE
 ---------------
 
-By default, the commands above can be executed only with the `-c`
-option; the shell is not interactive.
+Alapértelmezés szerint a fenti parancsok csak a `-c` opcióval
+hajthatók végre; a shell nem interaktív.
 
-If a `~/git-shell-commands` directory is present, 'git shell'
-can also be run interactively (with no arguments).  If a `help`
-command is present in the `git-shell-commands` directory, it is
-run to provide the user with an overview of allowed actions.  Then a
-"git> " prompt is presented at which one can enter any of the
-commands from the `git-shell-commands` directory, or `exit` to close
-the connection.
+Ha van `~/git-shell-commands` könyvtár, a 'git shell' interaktívan
+is futtatható (argumentumok nélkül). Ha van `help` parancs a
+`git-shell-commands` könyvtárban, az lefut, hogy áttekintést adjon a
+felhasználónak az engedélyezett műveletekről. Ezután megjelenik egy
+"git> " prompt, amelynél beírható a `git-shell-commands` könyvtár
+bármelyik parancsa, vagy az `exit` a kapcsolat lezárásához.
 
-Generally this mode is used as an administrative interface to allow
-users to list repositories they have access to, create, delete, or
-rename repositories, or change repository descriptions and
-permissions.
+Ezt a módot általában adminisztratív felületként használják, amellyel
+a felhasználók listázhatják az elérhető repository-kat, létrehozhatnak,
+törölhetnek vagy átnevezhetnek repository-kat, illetve módosíthatják a
+repository-k leírását és jogosultságait.
 
-If a `no-interactive-login` command exists, then it is run and the
-interactive shell is aborted.
+Ha létezik `no-interactive-login` parancs, akkor az lefut, és az
+interaktív shell megszakad.
 
 EXAMPLES
 --------
 
-To disable interactive logins, displaying a greeting instead:
+Az interaktív bejelentkezések letiltásához, helyette üdvözlőüzenet
+megjelenítésével:
 
 ----------------
 $ chsh -s /usr/bin/git-shell
@@ -79,9 +80,10 @@ EOF
 $ chmod +x $HOME/git-shell-commands/no-interactive-login
 ----------------
 
-To enable git-cvsserver access (which should generally have the
-`no-interactive-login` example above as a prerequisite, as creating
-the git-shell-commands directory allows interactive logins):
+A git-cvsserver hozzáférés engedélyezéséhez (amelynek általában a
+fenti `no-interactive-login` példa az előfeltétele, mivel a
+git-shell-commands könyvtár létrehozása lehetővé teszi az interaktív
+bejelentkezéseket):
 
 ----------------
 $ cat >$HOME/git-shell-commands/cvs <<\EOF
@@ -103,4 +105,4 @@ contrib/git-shell-commands/README
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

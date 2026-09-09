@@ -3,7 +3,7 @@ gitprotocol-common(5)
 
 NAME
 ----
-gitprotocol-common - Things common to various protocols
+gitprotocol-common - Különféle protokollokban közös dolgok
 
 SYNOPSIS
 --------
@@ -13,20 +13,22 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This document defines things common to various over-the-wire
-protocols and file formats used in Git.
+Ez a dokumentum a Gitben használt különféle wire protokollokban és
+fájlformátumokban közös dolgokat határozza meg.
 
-ABNF Notation
--------------
+[[_abnf_notation]]
+ABNF-jelölés
+------------
 
-ABNF notation as described by RFC 5234 is used within the protocol documents,
-except the following replacement core rules are used:
+A protokoll-dokumentumokban az RFC 5234-ben leírt ABNF-jelölést
+használjuk, azzal a kivétellel, hogy a következő helyettesítő
+alapszabályok érvényesek:
 
 ----
   HEXDIG    =  DIGIT / "a" / "b" / "c" / "d" / "e" / "f"
 ----
 
-We also define the following common rules:
+A következő közös szabályokat is definiáljuk:
 
 ----
   NUL       =  %x00
@@ -37,62 +39,64 @@ We also define the following common rules:
   refname /=  "refs/" <see discussion below>
 ----
 
-A refname is a hierarchical octet string beginning with "refs/" and
-not violating the 'git-check-ref-format' command's validation rules.
-More specifically, they:
+A refname egy hierarchikus oktett-karakterlánc, amely "refs/"-fel
+kezdődik, és nem sérti meg a 'git-check-ref-format' parancs validálási
+szabályait. Pontosabban:
 
-. They can include slash `/` for hierarchical (directory)
-  grouping, but no slash-separated component can begin with a
-  dot `.`.
+. Tartalmazhatnak perjelet `/` a hierarchikus (könyvtár szerinti)
+  csoportosításhoz, de egyetlen perjellel elválasztott komponens sem
+  kezdődhet ponttal `.`.
 
-. They must contain at least one `/`. This enforces the presence of a
-  category like `heads/`, `tags/` etc. but the actual names are not
-  restricted.
+. Legalább egy `/`-t tartalmazniuk kell. Ez kikényszeríti egy
+  kategória, például `heads/`, `tags/` stb. jelenlétét, de a
+  tényleges nevek nincsenek korlátozva.
 
-. They cannot have two consecutive dots `..` anywhere.
+. Sehol nem lehet bennük két egymást követő pont `..`.
 
-. They cannot have ASCII control characters (i.e. bytes whose
-  values are lower than \040, or \177 `DEL`), space, tilde `~`,
-  caret `^`, colon `:`, question-mark `?`, asterisk `*`,
-  or open bracket `[` anywhere.
+. Sehol nem lehet bennük ASCII vezérlőkarakter (azaz olyan bájt,
+  amelynek értéke kisebb, mint \040, vagy \177 `DEL`), szóköz,
+  tilde `~`, kalap `^`, kettőspont `:`, kérdőjel `?`, csillag `*`,
+  vagy nyitó szögletes zárójel `[`.
 
-. They cannot end with a slash `/` or a dot `.`.
+. Nem végződhetnek perjellel `/` vagy ponttal `.`.
 
-. They cannot end with the sequence `.lock`.
+. Nem végződhetnek a `.lock` sorozattal.
 
-. They cannot contain a sequence `@{`.
+. Nem tartalmazhatják a `@{` sorozatot.
 
-. They cannot contain a `\\`.
+. Nem tartalmazhatnak `\\` karaktert.
 
 
-pkt-line Format
----------------
+[[_pkt_line_format]]
+pkt-line formátum
+-----------------
 
-Much (but not all) of the payload is described around pkt-lines.
+A hasznos adat nagy része (de nem az egésze) pkt-line-ok köré épül.
 
-A pkt-line is a variable length binary string.  The first four bytes
-of the line, the pkt-len, indicates the total length of the line,
-in hexadecimal.  The pkt-len includes the 4 bytes used to contain
-the length's hexadecimal representation.
+A pkt-line egy változó hosszúságú bináris karakterlánc.  A sor első
+négy bájtja, a pkt-len, a sor teljes hosszát adja meg hexadecimálisan.
+A pkt-len beleszámítja azt a 4 bájtot, amely a hossz hexadecimális
+ábrázolását tartalmazza.
 
-A pkt-line MAY contain binary data, so implementors MUST ensure
-pkt-line parsing/formatting routines are 8-bit clean.
+Egy pkt-line MAY bináris adatot tartalmazni, ezért a megvalósítóknak
+MUST gondoskodniuk arról, hogy a pkt-line elemző/formázó rutinjai
+8 bitesen tiszták legyenek.
 
-A non-binary line SHOULD BE terminated by an LF, which if present
-MUST be included in the total length. Receivers MUST treat pkt-lines
-with non-binary data the same whether or not they contain the trailing
-LF (stripping the LF if present, and not complaining when it is
-missing).
+Egy nem bináris sort SHOULD BE LF-fel lezárni, amelyet, ha jelen van,
+MUST beleszámítani a teljes hosszba. A fogadóknak a nem bináris
+adatot tartalmazó pkt-line-okat ugyanúgy MUST kezelniük attól
+függetlenül, hogy tartalmazzák-e a záró LF-et (levágva az LF-et, ha
+jelen van, és nem panaszkodva, ha hiányzik).
 
-The maximum length of a pkt-line's data component is 65516 bytes.
-Implementations MUST NOT send pkt-line whose length exceeds 65520
-(65516 bytes of payload + 4 bytes of length data).
+Egy pkt-line adatkomponensének maximális hossza 65516 bájt. A
+megvalósítások MUST NOT olyan pkt-line-t küldeni, amelynek hossza
+meghaladja a 65520-at (65516 bájt hasznos adat + 4 bájt hosszadat).
 
-Implementations SHOULD NOT send an empty pkt-line ("0004").
+A megvalósítások SHOULD NOT üres pkt-line-t ("0004") küldeni.
 
-A pkt-line with a length field of 0 ("0000"), called a flush-pkt,
-is a special case and MUST be handled differently than an empty
-pkt-line ("0004").
+A 0 hosszmezőjű pkt-line ("0000"), amelyet flush-pkt-nek nevezünk,
+speciális eset, és MUST másképp kezelni, mint egy üres pkt-line-t
+("0004").
 
 ----
   pkt-line     =  data-pkt / flush-pkt
@@ -104,7 +108,7 @@ pkt-line ("0004").
   flush-pkt    = "0000"
 ----
 
-Examples (as C-style strings):
+Példák (C stílusú karakterláncként):
 
 ----
   pkt-line          actual value
@@ -117,4 +121,4 @@ Examples (as C-style strings):
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

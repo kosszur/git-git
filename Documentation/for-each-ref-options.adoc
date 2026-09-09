@@ -1,85 +1,93 @@
 `<pattern>...`::
-	If one or more _<pattern>_ parameters are given, only refs are shown that
-	match against at least one pattern, either using `fnmatch`(3) or
-	literally, in the latter case matching completely or from the
-	beginning up to a slash.
+	Ha egy vagy több _<pattern>_ paraméter meg van adva, csak azok a
+	referenciák jelennek meg, amelyek legalább egy mintára
+	illeszkednek, vagy `fnmatch`(3) használatával, vagy szó szerint,
+	az utóbbi esetben teljesen vagy az elejétől egy perjelig
+	illeszkedve.
 
 `--stdin`::
-	The list of patterns is read from standard input instead of from
-	the argument list.
+	A minták listája a standard bemenetről kerül beolvasásra az
+	argumentumlista helyett.
 
 `--count=<count>`::
-	Stop after showing _<count>_ refs.
+	Leáll _<count>_ referencia megjelenítése után.
 
 `--sort=<key>`::
-	Sort on the field name _<key>_.  Prefix `-` to sort in
-	descending order of the value.  When unspecified,
-	`refname` is used.  You may use the `--sort=<key>` option
-	multiple times, in which case the last key becomes the primary
-	key.
+	A _<key>_ mezőnév szerint rendez.  Tegyél elé `-` jelet az érték
+	szerinti csökkenő sorrendhez.  Ha nincs megadva, a `refname`
+	lesz használva.  A `--sort=<key>` opció többször is használható,
+	ebben az esetben az utolsó kulcs lesz az elsődleges kulcs.
 
 `--format[=<format>]`::
-	A string that interpolates `%(fieldname)` from a ref being shown and
-	the object it points at. In addition, the string literal `%%`
-	renders as `%` and `%xx` - where `xx` are hex digits - renders as
-	the character with hex code `xx`. For example, `%00` interpolates to
-	`\0` (_NUL_), `%09` to `\t` (_TAB_), and `%0a` to `\n` (_LF_).
+	Olyan karakterlánc, amely a megjelenített referenciából és az
+	általa mutatott objektumból interpolálja a `%(fieldname)`-t. Ezen
+	túl a `%%` szó szerinti karakterlánc `%`-ként jelenik meg, a
+	`%xx` pedig — ahol az `xx` hexadecimális számjegyek — az `xx`
+	hexkódú karakterként. Például a `%00` `\0`-ra (_NUL_), a `%09`
+	`\t`-re (_TAB_), a `%0a` pedig `\n`-re (_LF_) interpolálódik.
 
-When unspecified, _<format>_ defaults to `%(objectname) SPC %(objecttype)
-TAB %(refname)`.
+Ha nincs megadva, a _<format>_ alapértelmezése `%(objectname) SPC
+%(objecttype) TAB %(refname)`.
 
 `--color[=<when>]`::
-	Respect any colors specified in the `--format` option. The
-	_<when>_ field must be one of `always`, `never`, or `auto` (if
-	_<when>_ is absent, behave as if `always` was given).
+	Figyelembe veszi a `--format` opcióban megadott színeket. A
+	_<when>_ mező értéke `always`, `never` vagy `auto` lehet (ha a
+	_<when>_ hiányzik, úgy viselkedik, mintha `always` lett volna
+	megadva).
 
 `--shell`::
 `--perl`::
 `--python`::
 `--tcl`::
-	If given, strings that substitute `%(fieldname)`
-	placeholders are quoted as string literals suitable for
-	the specified host language.  This is meant to produce
-	a scriptlet that can directly be "eval"ed.
+	Ha meg van adva, a `%(fieldname)` helyettesítőket kicserélő
+	karakterláncok a megadott gazdanyelvhez illő szó szerinti
+	karakterláncként lesznek idézőjelezve.  Ez arra szolgál, hogy
+	egy közvetlenül "eval"-lel futtatható szkriptrészletet
+	állítson elő.
 
 `--points-at=<object>`::
-	Only list refs which points at the given object.
+	Csak azokat a referenciákat listázza, amelyek a megadott
+	objektumra mutatnak.
 
 `--merged[=<object>]`::
-	Only list refs whose tips are reachable from the
-	specified commit (`HEAD` if not specified).
+	Csak azokat a referenciákat listázza, amelyek csúcsai elérhetők
+	a megadott commitból (`HEAD`, ha nincs megadva).
 
 `--no-merged[=<object>]`::
-	Only list refs whose tips are not reachable from _<object>_(`HEAD` if not
-	specified).
+	Csak azokat a referenciákat listázza, amelyek csúcsai nem
+	elérhetők a _<object>_-ből (`HEAD`, ha nincs megadva).
 
 `--contains[=<object>]`::
-	Only list refs which contain _<object>_(`HEAD` if not specified).
+	Csak azokat a referenciákat listázza, amelyek tartalmazzák a
+	_<object>_-et (`HEAD`, ha nincs megadva).
 
 `--no-contains[=<object>]`::
-	Only list refs which don't contain _<object>_ (`HEAD`
-	if not specified).
+	Csak azokat a referenciákat listázza, amelyek nem tartalmazzák
+	a _<object>_-et (`HEAD`, ha nincs megadva).
 
 `--ignore-case`::
-	Sorting and filtering refs are case insensitive.
+	A referenciák rendezése és szűrése nem kis-nagybetűérzékeny.
 
 `--omit-empty`::
-	Do not print a newline after formatted refs where the format expands
-	to the empty string.
+	Ne írjon sortörést a formázott referenciák után, ahol a formátum
+	üres karakterlánccá bővül.
 
 `--exclude=<excluded-pattern>`::
-	If one or more `--exclude` options are given, only refs which do not
-	match any _<excluded-pattern>_ parameters are shown. Matching is done
-	using the same rules as _<pattern>_ above.
+	Ha egy vagy több `--exclude` opció meg van adva, csak azok a
+	referenciák jelennek meg, amelyek egyetlen _<excluded-pattern>_
+	paraméterre sem illeszkednek. Az illesztés a fenti _<pattern>_-nel
+	azonos szabályok szerint történik.
 
 `--include-root-refs`::
-	List root refs (`HEAD` and pseudorefs) apart from regular refs.
+	A szokásos referenciák mellett a gyökér-referenciákat (`HEAD` és
+	pszeudoreferenciák) is listázza.
 
 `--start-after=<marker>`::
-    Allows paginating the output by skipping references up to and including the
-    specified marker. When paging, it should be noted that references may be
-    deleted, modified or added between invocations. Output will only yield those
-    references which follow the marker lexicographically. Output begins from the
-    first reference that would come after the marker alphabetically. Cannot be
-    used with `--sort=<key>` or `--stdin` options, or the _<pattern>_ argument(s)
-    to limit the refs.
+    Lehetővé teszi a kimenet lapozását azzal, hogy a megadott markerig
+    bezárólag kihagyja a referenciákat. Lapozáskor figyelembe kell venni,
+    hogy a referenciák a hívások között törölhetők, módosíthatók vagy
+    hozzáadhatók. A kimenet csak azokat a referenciákat adja vissza,
+    amelyek lexikografikusan a marker után következnek. A kimenet az első
+    olyan referenciától kezdődik, amely ábécésorrendben a marker után
+    jönne. Nem használható a `--sort=<key>` vagy `--stdin` opciókkal, sem
+    a referenciákat korlátozó _<pattern>_ argumentum(ok)kal.

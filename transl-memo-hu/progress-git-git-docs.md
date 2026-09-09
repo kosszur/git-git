@@ -106,7 +106,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-hook.adoc | [ ] |  |  |
 | git-http-backend.adoc | [ ] |  |  |
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
-| git-http-push.adoc | [ ] |  |  |
+| git-http-push.adoc | [x] |  | 2026-09-10 |
 | git-imap-send.adoc | [ ] |  |  |
 | git-index-pack.adoc | [ ] |  |  |
 | git-init-db.adoc | [x] |  | 2026-09-10 |
@@ -170,8 +170,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-send-pack.adoc | [ ] |  |  |
 | git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n.adoc | [x] |  | 2026-09-10 |
-| git-sh-setup.adoc | [ ] |  |  |
-| git-shell.adoc | [ ] |  |  |
+| git-sh-setup.adoc | [x] |  | 2026-09-10 |
+| git-shell.adoc | [x] |  | 2026-09-10 |
 | git-shortlog.adoc | [ ] |  |  |
 | git-show-branch.adoc | [ ] |  |  |
 | git-show-index.adoc | [x] |  | 2026-09-10 |
@@ -181,7 +181,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-stage.adoc | [x] |  | 2026-09-10 |
 | git-stash.adoc | [ ] |  |  |
 | git-status.adoc | [ ] |  |  |
-| git-stripspace.adoc | [ ] |  |  |
+| git-stripspace.adoc | [x] |  | 2026-09-10 |
 | git-submodule.adoc | [ ] |  |  |
 | git-svn.adoc | [ ] |  |  |
 | git-switch.adoc | [ ] |  |  |
@@ -194,9 +194,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-update-ref.adoc | [ ] |  |  |
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
 | git-upload-archive.adoc | [x] |  | 2026-09-10 |
-| git-upload-pack.adoc | [ ] |  |  |
+| git-upload-pack.adoc | [x] |  | 2026-09-10 |
 | git-url-parse.adoc | [x] |  | 2026-09-10 |
-| git-var.adoc | [ ] |  |  |
+| git-var.adoc | [x] |  | 2026-09-10 |
 | git-verify-commit.adoc | [x] |  | 2026-09-10 |
 | git-verify-pack.adoc | [x] |  | 2026-09-10 |
 | git-verify-tag.adoc | [x] |  | 2026-09-10 |
@@ -225,7 +225,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | diff-generate-patch.adoc | [ ] |  |  |
 | diff-options.adoc | [ ] |  |  |
 | fetch-options.adoc | [ ] |  |  |
-| for-each-ref-options.adoc | [ ] |  |  |
+| for-each-ref-options.adoc | [x] |  | 2026-09-10 |
 | format-patch-caveats.adoc | [x] |  | 2026-09-10 |
 | format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
 | fsck-msgids.adoc | [ ] |  |  |
@@ -252,10 +252,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitk.adoc | [ ] |  |  |
 | gitmailmap.adoc | [ ] |  |  |
 | gitmodules.adoc | [ ] |  |  |
-| gitnamespaces.adoc | [ ] |  |  |
+| gitnamespaces.adoc | [x] |  | 2026-09-10 |
 | gitpacking.adoc | [ ] |  |  |
 | gitprotocol-capabilities.adoc | [ ] |  |  |
-| gitprotocol-common.adoc | [ ] |  |  |
+| gitprotocol-common.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-http.adoc | [ ] |  |  |
 | gitprotocol-pack.adoc | [ ] |  |  |
 | gitprotocol-v2.adoc | [ ] |  |  |
@@ -269,7 +269,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitweb.conf.adoc | [ ] |  |  |
 | gitworkflows.adoc | [ ] |  |  |
 | glossary-content.adoc | [ ] |  |  |
-| i18n.adoc | [ ] |  |  |
+| i18n.adoc | [x] |  | 2026-09-10 |
 | line-range-format.adoc | [x] |  | 2026-09-10 |
 | line-range-options.adoc | [x] |  | 2026-09-10 |
 | merge-options.adoc | [ ] |  |  |
@@ -588,3 +588,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `git-merge-index.adoc`, `git-request-pull.adoc`, `git-prune.adoc`, `git-show.adoc`,
   `git-instaweb.adoc`. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md`
   „20. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel; ebben a blokkban már 2–3 KB-os, 60–120 soros fájlok): `git-stripspace.adoc`,
+  `gitnamespaces.adoc`, `i18n.adoc`, `git-sh-setup.adoc`, `git-shell.adoc`, `git-http-push.adoc`,
+  `git-upload-pack.adoc`, `for-each-ref-options.adoc`, `git-var.adoc`, `gitprotocol-common.adoc`.
+  A `gitprotocol-common.adoc` volt az egyetlen fájl `[[...]]` anchor-kezeléssel (2 defenzív anchor
+  a nem man-page, Title Case alcímek fölé). Orchestrátor végezte közvetlenül. Részletek:
+  `glossary-git-git-docs.md` „21. blokk".

@@ -3,7 +3,7 @@ git-http-push(1)
 
 NAME
 ----
-git-http-push - Push objects over HTTP/DAV to another repository
+git-http-push - Objektumok pusholása HTTP/DAV felett egy másik repository-ba
 
 
 SYNOPSIS
@@ -13,84 +13,89 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Sends missing objects to the remote repository, and updates the
-remote branch.
+Elküldi a hiányzó objektumokat a remote repository-ba, és frissíti a
+remote branchet.
 
-*NOTE*: This command is temporarily disabled if your libcurl
-is older than 7.16, as the combination has been reported
-not to work and sometimes corrupts the repository.
+*NOTE*: Ez a parancs átmenetileg le van tiltva, ha a libcurl-öd
+7.16-nál régebbi, mivel a jelentések szerint ez a kombináció nem
+működik, és időnként megsérti a repository-t.
 
 OPTIONS
 -------
 --all::
-	Do not assume that the remote repository is complete in its
-	current state, and verify all objects in the entire local
-	ref's history exist in the remote repository.
+	Ne feltételezze, hogy a remote repository a jelenlegi
+	állapotában teljes, és ellenőrizze, hogy a teljes helyi
+	referencia előzményének minden objektuma létezik-e a remote
+	repository-ban.
 
 --force::
-	Usually, the command refuses to update a remote ref that
-	is not an ancestor of the local ref used to overwrite it.
-	This flag disables the check.  What this means is that
-	the remote repository can lose commits; use it with
-	care.
+	A parancs általában nem hajlandó frissíteni egy olyan remote
+	referenciát, amely nem őse a felülírásra használt helyi
+	referenciának. Ez a kapcsoló letiltja az ellenőrzést. Ez azt
+	jelenti, hogy a remote repository commitokat veszíthet;
+	óvatosan használd.
 
 --dry-run::
-	Do everything except actually send the updates.
+	Mindent megtesz, kivéve a frissítések tényleges elküldését.
 
 --verbose::
-	Report the list of objects being walked locally and the
-	list of objects successfully sent to the remote repository.
+	Jelenti a helyben bejárt objektumok listáját és a remote
+	repository-ba sikeresen elküldött objektumok listáját.
 
 -d::
 -D::
-	Remove <ref> from remote repository.  The specified branch
-	cannot be the remote HEAD.  If -d is specified, the following
-	other conditions must also be met:
+	Eltávolítja a <ref> referenciát a remote repository-ból. A
+	megadott branch nem lehet a remote HEAD. Ha a -d meg van adva,
+	a következő további feltételeknek is teljesülniük kell:
 
-	- Remote HEAD must resolve to an object that exists locally
-	- Specified branch resolves to an object that exists locally
-	- Specified branch is an ancestor of the remote HEAD
+	- A remote HEAD-nek egy helyben létező objektumra kell
+	  feloldódnia
+	- A megadott branch egy helyben létező objektumra oldódik fel
+	- A megadott branch a remote HEAD őse
 
 <ref>...::
-	The remote refs to update.
+	A frissítendő remote referenciák.
 
 
 SPECIFYING THE REFS
 -------------------
 
-A '<ref>' specification can be either a single pattern, or a pair
-of such patterns separated by a colon ":" (this means that a ref name
-cannot have a colon in it).  A single pattern '<name>' is just a
-shorthand for '<name>:<name>'.
+A '<ref>' megadás lehet egyetlen minta, vagy két ilyen minta párja
+kettősponttal ":" elválasztva (ez azt jelenti, hogy egy
+referencianévben nem lehet kettőspont). Egyetlen '<name>' minta csak
+a '<name>:<name>' rövidítése.
 
-Each pattern pair '<src>:<dst>' consists of the source side (before
-the colon) and the destination side (after the colon).  The ref to be
-pushed is determined by finding a match that matches the source side,
-and where it is pushed is determined by using the destination side.
+Minden '<src>:<dst>' mintapár a forrásoldalból (a kettőspont előtt)
+és a céloldalból (a kettőspont után) áll. A pusholandó referenciát a
+forrásoldalra illeszkedő találat megkeresése határozza meg, azt pedig,
+hogy hova pusholódik, a céloldal használata dönti el.
 
- - It is an error if '<src>' does not match exactly one of the
-   local refs.
+ - Hiba, ha a '<src>' nem pontosan egy helyi referenciára
+   illeszkedik.
 
- - If '<dst>' does not match any remote ref, either
+ - Ha a '<dst>' egyetlen remote referenciára sem illeszkedik, akkor
+   vagy
 
-   * it has to start with "refs/"; <dst> is used as the
-     destination literally in this case.
+   * a "refs/"-fel kell kezdődnie; ebben az esetben a <dst> szó
+     szerint lesz a cél.
 
-   * <src> == <dst> and the ref that matched the <src> must not
-     exist in the set of remote refs; the ref matched <src>
-     locally is used as the name of the destination.
+   * <src> == <dst>, és a <src>-re illeszkedő referencia nem
+     létezhet a remote referenciák halmazában; a <src>-re helyben
+     illeszkedő referencia lesz a cél neve.
 
-Without `--force`, the <src> ref is stored at the remote only if
-<dst> does not exist, or <dst> is a proper subset (i.e. an
-ancestor) of <src>.  This check, known as "fast-forward check",
-is performed to avoid accidentally overwriting the
-remote ref and losing other peoples' commits from there.
+A `--force` nélkül a <src> referencia csak akkor kerül tárolásra a
+remote-on, ha a <dst> nem létezik, vagy a <dst> a <src> valódi
+részhalmaza (azaz őse). Ez az ellenőrzés, amelyet "fast-forward
+check" néven ismernek, azért történik, hogy elkerülje a remote
+referencia véletlen felülírását és mások commitjainak elvesztését
+onnan.
 
-With `--force`, the fast-forward check is disabled for all refs.
+A `--force` mellett a fast-forward ellenőrzés minden referenciára le
+van tiltva.
 
-Optionally, a <ref> parameter can be prefixed with a plus '+' sign
-to disable the fast-forward check only on that ref.
+Opcionálisan egy <ref> paraméter elé tehető egy plusz '+' jel, hogy a
+fast-forward ellenőrzést csak arra a referenciára tiltsa le.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

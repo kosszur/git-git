@@ -3,7 +3,7 @@ gitnamespaces(7)
 
 NAME
 ----
-gitnamespaces - Git namespaces
+gitnamespaces - Git névterek
 
 SYNOPSIS
 --------
@@ -15,47 +15,48 @@ GIT_NAMESPACE=<namespace> 'git receive-pack'
 DESCRIPTION
 -----------
 
-Git supports dividing the refs of a single repository into multiple
-namespaces, each of which has its own branches, tags, and HEAD.  Git can
-expose each namespace as an independent repository to pull from and push
-to, while sharing the object store, and exposing all the refs to
-operations such as linkgit:git-gc[1].
+A Git támogatja egyetlen repository referenciáinak több névtérre osztását,
+amelyek mindegyikének saját branchei, tagei és HEAD-je van. A Git minden
+névteret önálló repository-ként tud megjeleníteni, amelyből pullolni és
+amelybe pusholni lehet, miközben az objektumtár közös marad, és az összes
+referencia elérhető az olyan műveletek számára, mint a linkgit:git-gc[1].
 
-Storing multiple repositories as namespaces of a single repository
-avoids storing duplicate copies of the same objects, such as when
-storing multiple branches of the same source.  The alternates mechanism
-provides similar support for avoiding duplicates, but alternates do not
-prevent duplication between new objects added to the repositories
-without ongoing maintenance, while namespaces do.
+Ha több repository-t egyetlen repository névtereként tárolsz, azzal
+elkerülöd ugyanazon objektumok duplikált másolatainak tárolását, például
+amikor ugyanannak a forrásnak több branchét tárolod. Az alternates
+mechanizmus hasonló támogatást nyújt a duplikátumok elkerülésére, de az
+alternates nem akadályozza meg a duplikációt a repository-khoz hozzáadott
+új objektumok között folyamatos karbantartás nélkül, a névterek viszont
+igen.
 
-To specify a namespace, set the `GIT_NAMESPACE` environment variable to
-the namespace.  For each ref namespace, Git stores the corresponding
-refs in a directory under `refs/namespaces/`.  For example,
-`GIT_NAMESPACE=foo` will store refs under `refs/namespaces/foo/`.  You
-can also specify namespaces via the `--namespace` option to
-linkgit:git[1].
+Egy névtér megadásához állítsd a `GIT_NAMESPACE` környezeti változót a
+névtérre. Minden referencia-névtérhez a Git a megfelelő referenciákat egy
+`refs/namespaces/` alatti könyvtárban tárolja. Például a
+`GIT_NAMESPACE=foo` a `refs/namespaces/foo/` alatt tárolja a
+referenciákat. Névtereket a linkgit:git[1] `--namespace` opcióján
+keresztül is megadhatsz.
 
-Note that namespaces which include a `/` will expand to a hierarchy of
-namespaces; for example, `GIT_NAMESPACE=foo/bar` will store refs under
-`refs/namespaces/foo/refs/namespaces/bar/`.  This makes paths in
-`GIT_NAMESPACE` behave hierarchically, so that cloning with
-`GIT_NAMESPACE=foo/bar` produces the same result as cloning with
-`GIT_NAMESPACE=foo` and cloning from that repo with `GIT_NAMESPACE=bar`.  It
-also avoids ambiguity with strange namespace paths such as `foo/refs/heads/`,
-which could otherwise generate directory/file conflicts within the `refs`
-directory.
+Vedd figyelembe, hogy a `/` jelet tartalmazó névterek névterek
+hierarchiájává bomlanak ki; például a `GIT_NAMESPACE=foo/bar` a
+`refs/namespaces/foo/refs/namespaces/bar/` alatt tárolja a referenciákat. Ez
+hierarchikussá teszi a `GIT_NAMESPACE`-ben lévő útvonalakat, így a
+`GIT_NAMESPACE=foo/bar` melletti klónozás ugyanazt az eredményt adja, mint a
+`GIT_NAMESPACE=foo` melletti klónozás, majd az így kapott repóból való
+klónozás `GIT_NAMESPACE=bar` mellett. Ezenkívül elkerüli a kétértelműséget
+az olyan furcsa névtér-útvonalakkal, mint a `foo/refs/heads/`, amelyek
+egyébként könyvtár/fájl ütközéseket okozhatnának a `refs` könyvtáron belül.
 
-linkgit:git-upload-pack[1] and linkgit:git-receive-pack[1] rewrite the
-names of refs as specified by `GIT_NAMESPACE`.  git-upload-pack and
-git-receive-pack will ignore all references outside the specified
-namespace.
+A linkgit:git-upload-pack[1] és a linkgit:git-receive-pack[1] a
+`GIT_NAMESPACE` által megadott módon átírja a referenciák neveit. A
+git-upload-pack és a git-receive-pack figyelmen kívül hagy minden, a
+megadott névtéren kívüli referenciát.
 
-The smart HTTP server, linkgit:git-http-backend[1], will pass
-GIT_NAMESPACE through to the backend programs; see
-linkgit:git-http-backend[1] for sample configuration to expose
-repository namespaces as repositories.
+A smart HTTP-szerver, a linkgit:git-http-backend[1], továbbadja a
+GIT_NAMESPACE-t a backend programoknak; a linkgit:git-http-backend[1]
+tartalmaz mintakonfigurációt ahhoz, hogy a repository-névtereket
+repository-ként jelenítsd meg.
 
-For a simple local test, you can use linkgit:git-remote-ext[1]:
+Egy egyszerű helyi teszthez a linkgit:git-remote-ext[1] használható:
 
 ----------
 git clone ext::'git --namespace=foo %s /tmp/prefixed.git'
@@ -65,4 +66,4 @@ include::transfer-data-leaks.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

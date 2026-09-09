@@ -1386,3 +1386,101 @@ ebbe a blokkba, a `git-mv.adoc` a következőbe.
 - Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva.
 - Szintaxis-ellenőrzés: mind a 10 fájlban a kódblokk-határolók párban vannak, nincs `ifdef::`/
   `endif::`, nincs `[[...]]`/`<<...>>`, a bekezdéshatárok megtartva.
+
+## 21. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–20. blokkban (a két gyökér-tábla együttes, sorméret szerint növekvő
+listája, `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc` kihagyva). Ebben a
+blokkban már 2–3 KB-os, 60–120 soros fájlok. Fájlok: `git-stripspace.adoc`, `gitnamespaces.adoc`,
+`i18n.adoc`, `git-sh-setup.adoc`, `git-shell.adoc`, `git-http-push.adoc`, `git-upload-pack.adoc`,
+`for-each-ref-options.adoc`, `git-var.adoc`, `gitprotocol-common.adoc`. Az `i18n.adoc` és a
+`for-each-ref-options.adoc` option-fragmens (más man page-ekbe `include`-olódik), a többi önálló
+man page (`gitprotocol-common.adoc` szekció 5, formátum-spec). Orchestrátor fordította közvetlenül,
+subagent nélkül.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| character encoding agnostic | **„karakterkódolás-független"** | `i18n.adoc` |
+| normalization form C | **„C normalizálási forma"** | `i18n.adoc` — Unicode-terminus, körülírva |
+| commit log message | **„commit napló-üzenet"** | `i18n.adoc` — a 2./11./15. blokk precedensét folytatja (megkülönböztetve a „commit-üzenet"-től) |
+| Porcelain-ish scripts | **„porcelain-szerű szkriptek"** | `git-sh-setup.adoc` — a 18. blokk (`git-sh-i18n.adoc`) döntésének megismétlése |
+| scriptlet | **„szkriptrészlet"** | `git-sh-setup.adoc` |
+| to source (a shell script, `.` operátor) | **„behúzni"** / „behúzás" | `git-sh-setup.adoc` |
+| die (a `git-sh-setup` `die`/`usage` shell-függvénye, prózában igeként is) | **változatlanul „die"** angolul | `git-sh-setup.adoc` — a konkrét shell-függvény neve, nem fordítható; „egyébként die", „die a használati üzenettel" |
+| dumb (terminál, `git_editor` leírásában) | **változatlanul „dumb"** angolul | `git-sh-setup.adoc` — a „dumb"/„smart" terminológia ad hoc, idézőjel nélküli kezelése (a 17./19. blokk „dumb szerver"/„smart átvitel" mintájának rokona; itt terminálról van szó, nem protokollról) |
+| restricted login shell | **„korlátozott bejelentkezési shell"** | `git-shell.adoc` |
+| `"git> "` prompt, `help`/`exit`/`no-interactive-login` parancsnevek | **bájtazonosan angolul** | `git-shell.adoc` — a program tényleges, lokalizálatlan felülete |
+| fast-forward check | **„fast-forward ellenőrzés"** / idézőjelben `"fast-forward check"`, ahol a forrás is idézőjelezi | `git-http-push.adoc` — a 0. blokk `fast-forward` (marad angolul) tételéből |
+| wire protocol / over-the-wire protocol | **„wire protokoll"** (marad angolul) | `git-upload-pack.adoc`, `gitprotocol-common.adoc` |
+| handshaking (a wire protokollé) | **„kézfogás"** | `git-upload-pack.adoc` (`GIT_PROTOCOL` leírása) |
+| lazy fetch | **marad „lazy fetch"** angolul; ige: `lazy fetchet` (kötőjel nélkül, a záró szóhoz) | `git-upload-pack.adoc` |
+| partial repository / partial clone | **marad „partial repository" / „partial clone"** | `git-upload-pack.adoc` — a 3. blokk (`git-backfill.adoc`) „partial clone" döntésének folytatása |
+| alternate user (biztonsági kontextus) | **„másik felhasználó"** | `git-upload-pack.adoc` SECURITY |
+| refname (protokoll-nyelvtan kontextusban) | **változatlanul „refname"** angolul | `gitprotocol-common.adoc` — a nyelvtani produkció neve, nem fordul |
+| octet string | **„oktett-karakterlánc"** | `gitprotocol-common.adoc` |
+| payload (pkt-line) | **„hasznos adat"** | `gitprotocol-common.adoc` |
+| flush-pkt / data-pkt / pkt-len / pkt-line | **változatlanul angolul** (protokoll-token nevek) | `gitprotocol-common.adoc` |
+| RFC 2119 kulcsszavak (`MAY`, `MUST`, `SHOULD BE`, `SHOULD NOT`, `MUST NOT`) | **bájtazonosan angolul, csupa nagybetűvel maradnak** a magyar mondatban, közvetlenül utánuk magyar főnévi igenévvel (pl. „MUST gondoskodniuk", „MAY tartalmazni", „MUST NOT … küldeni") | `gitprotocol-common.adoc` — felhasználói döntés (2026-09-10): az RFC 2119 normatív kulcsszavakat angolul kell hagyni, nem fordítjuk. Ez általános szabály a jövőbeli `gitprotocol-*` / `gitformat-*` fájlokra is |
+
+### Címsor-anchorok
+
+- `gitprotocol-common.adoc`: két nem man-page, **Title Case** (NEM csupa nagybetűs) alcím —
+  `ABNF Notation` és `pkt-line Format`. Egyikre sincs `<<...>>` xref sehol a fában (a
+  `gitprotocol-pack.adoc:29` „pkt-line Format" a saját, különálló alcíme, csak `linkgit:`-prózával
+  hivatkozik a `gitprotocol-common`-ra) — grep-pel ellenőrizve. Mindkettő lefordítva („ABNF-jelölés"
+  / „pkt-line formátum"), fölé defenzív `[[_abnf_notation]]` ill. `[[_pkt_line_format]]` anchor
+  (autogen slug az eredeti angol címből), a setext `----` aláhúzás a fordított cím pontos hosszához
+  igazítva (12, ill. 17 karakter).
+- A másik 9 fájlban nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott címsorok (VÉGLEGES DÖNTÉS szerint, automatikusan)
+
+- `FUNCTIONS` (`git-sh-setup.adoc`), `COMMANDS` + `INTERACTIVE USE` (`git-shell.adoc`),
+  `SPECIFYING THE REFS` (`git-http-push.adoc`), `VARIABLES` (`git-var.adoc`) — mind kanonikus
+  listán kívüli, csupa nagybetűs, kétsoros man-page-stílusú alcím → a „VÉGLEGES DÖNTÉS" szabály
+  szerint automatikusan angolul maradtak.
+
+### Megőrzött markup / megjegyzések
+
+- `git-stripspace.adoc`: a `*NOTE*:` félkövér előtag (NEM a `NOTE:` admonition-makró) változatlan,
+  csak a mögötte lévő próza fordult. A 3 pár `---------` (9 kötőjel) példa-blokk és a bennük lévő
+  `|A brief introduction   $` stílusú, `$`-jelölt zajos mintaszöveg bájtazonos.
+- `gitnamespaces.adoc`: az `include::transfer-data-leaks.adoc[]` és a `----------` (10 kötőjel)
+  `git clone ext::...` példablokk bájtazonos.
+- `i18n.adoc`: a két `------------` (12 kötőjel) `[i18n]`-config-mintablokk és a `.` számozott
+  lista-jelölők + `+`-folytatások bájtazonosak; a `_not_` compat-mode emphasis megtartva (`_nem_`).
+- `git-sh-setup.adoc`: a `::` definíciós lista-címkék (`die`, `usage`, `set_reflog_action`,
+  `git_editor`, `require_clean_work_tree <action> [<hint>]` stb.) shell-függvénynevek, bájtazonosak;
+  csak a leírás-törzs fordult. A `----------------` (16 kötőjel) `require_clean_work_tree`
+  példablokk bájtazonos.
+- `git-shell.adoc`: a `::` címkék (`'git receive-pack <argument>'`, `'cvs server'` stb.)
+  parancsnevek, bájtazonosak. A két `----------------` (16 kötőjel) `$HOME/git-shell-commands/...`
+  shell-szkript példablokk — a `<<\EOF` heredoc-jelölésekkel — bájtazonos. A `SEE ALSO` tartalma
+  (`ssh(1),` / `linkgit:git-daemon[1],` / `contrib/git-shell-commands/README`) változatlan.
+- `git-var.adoc`: a `ifdef::git-default-editor[]`/`endif` és `ifdef::git-default-pager[]`/`endif`
+  párok teljes egészében változatlanok; a `::` címkék (`GIT_AUTHOR_IDENT`, `GIT_EDITOR` stb.)
+  env-változó-nevek, bájtazonosak. Az EXAMPLES tab-indentált `$ git var GIT_AUTHOR_IDENT` /
+  `Eric W. Biederman <...> 1121223278 -0600` literál blokk bájtazonos. A `{git-default-editor}` /
+  `{git-default-pager}` attribútum-referenciák változatlanok. 4 szóközös behúzás a `::` leírásokban
+  (nem tab) — pontosan megtartva.
+- `for-each-ref-options.adoc`: a `::` címkék backtickelt opciónevek (`` `--sort=<key>` `` stb.),
+  bájtazonosak; csak a leírás-törzs fordult. A `_<pattern>_` / `_<count>_` / `_<format>_` /
+  `_<when>_` / `_<object>_` / `_<excluded-pattern>_` placeholderek és a `%(fieldname)` / `%%` /
+  `%xx` / `SPC` / `TAB` / `LF` / `NUL` formátum-tokenek változatlanok. A `--start-after=<marker>`
+  leírása 4 szóközzel behúzott (nem tabbal, mint a többi) — pontosan megtartva.
+- `git-upload-pack.adoc`: a „Smart Clients" (`gitprotocol-http[5]`) és „HTTP Transport"
+  (`gitprotocol-v2[5]`) idézőjeles szakaszcím-hivatkozások **angolul maradtak** (a 7./14. blokk
+  „SPECIFYING RANGES"/„SPECIFYING REVISIONS" prózahivatkozás-precedensét követve — a cél
+  szakaszcímek még lefordítatlan fájlokban vannak). Az `include`-ok nincsenek (nem tartalmaz).
+  A `git clone --no-local --upload-pack='sudo -u nobody git-upload-pack' ...` tab-indentált
+  parancspélda bájtazonos. `SEE ALSO`: `linkgit:gitnamespaces[7]` változatlan.
+- `gitprotocol-common.adoc`: 4 pár `----` listing-blokk (ABNF-nyelvtan) bájtazonos, beleértve a
+  `refname /=  "refs/" <see discussion below>` sort is (a `<see discussion below>` a listing
+  blokkon belül, verbatim marad). A `.` számozott lista-jelölők megtartva.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`....`/`====` határolók és man-page
+  szekció-aláhúzások érintetlenek, `ifdef::`/`endif::` csak a `git-var.adoc`-ban (2+2, párban),
+  a `gitprotocol-common.adoc` 2 új defenzív anchora az egyetlen `[[...]]` a batchben, a
+  bekezdéshatárok megtartva.

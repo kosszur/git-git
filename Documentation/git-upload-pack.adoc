@@ -3,7 +3,7 @@ git-upload-pack(1)
 
 NAME
 ----
-git-upload-pack - Send objects packed back to git-fetch-pack
+git-upload-pack - Objektumok csomagolt visszaküldése a git-fetch-pack számára
 
 
 SYNOPSIS
@@ -14,76 +14,81 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Invoked by 'git fetch-pack', learns what
-objects the other side is missing, and sends them after packing.
+A 'git fetch-pack' hívja meg; megtudja, hogy a másik oldalról mely
+objektumok hiányoznak, és csomagolás után elküldi őket.
 
-This command is usually not invoked directly by the end user.
-The UI for the protocol is on the 'git fetch-pack' side, and the
-program pair is meant to be used to pull updates from a remote
-repository.  For push operations, see 'git send-pack'.
+Ezt a parancsot általában nem a végfelhasználó hívja meg közvetlenül.
+A protokoll felhasználói felülete a 'git fetch-pack' oldalán van, és a
+programpár arra szolgál, hogy frissítéseket pulloljon egy remote
+repository-ból. Push műveletekhez lásd a 'git send-pack'-et.
 
 OPTIONS
 -------
 
 --strict::
 --no-strict::
-	Do not try <directory>/.git/ if <directory> is not a Git directory.
+	Ne próbálja a <directory>/.git/ útvonalat, ha a <directory> nem
+	Git-könyvtár.
 
 --timeout=<n>::
-	Interrupt transfer after <n> seconds of inactivity.
+	Megszakítja az átvitelt <n> másodpercnyi tétlenség után.
 
 --stateless-rpc::
-	Perform only a single read-write cycle with stdin and stdout.
-	This fits with the HTTP POST request processing model where
-	a program may read the request, write a response, and must exit.
+	Csak egyetlen olvasás-írás ciklust hajt végre az stdin és az
+	stdout használatával. Ez illeszkedik a HTTP POST kérések
+	feldolgozási modelljéhez, ahol egy program beolvashatja a
+	kérést, választ írhat, majd ki kell lépnie.
 
 --http-backend-info-refs::
-	Used by linkgit:git-http-backend[1] to serve up
-	`$GIT_URL/info/refs?service=git-upload-pack` requests. See
-	"Smart Clients" in linkgit:gitprotocol-http[5] and "HTTP
-	Transport" in the linkgit:gitprotocol-v2[5]
-	documentation. Also understood by
-	linkgit:git-receive-pack[1].
+	A linkgit:git-http-backend[1] használja a
+	`$GIT_URL/info/refs?service=git-upload-pack` kérések
+	kiszolgálására. Lásd a "Smart Clients" szakaszt a
+	linkgit:gitprotocol-http[5]-ben és a "HTTP Transport" szakaszt a
+	linkgit:gitprotocol-v2[5] dokumentációban. A
+	linkgit:git-receive-pack[1] is értelmezi.
 
 <directory>::
-	The repository to sync from.
+	Az a repository, amelyből szinkronizálni kell.
 
 ENVIRONMENT
 -----------
 
 `GIT_PROTOCOL`::
-	Internal variable used for handshaking the wire protocol. Server
-	admins may need to configure some transports to allow this
-	variable to be passed. See the discussion in linkgit:git[1].
+	Belső változó, amely a wire protokoll kézfogásához használatos.
+	A szerveradminisztrátoroknak esetleg konfigurálniuk kell néhány
+	átvitelt, hogy ez a változó átadható legyen. Lásd a
+	linkgit:git[1] tárgyalását.
 
 `GIT_NO_LAZY_FETCH`::
-	When cloning or fetching from a partial repository (i.e., one
-	itself cloned with `--filter`), the server-side `upload-pack`
-	may need to fetch extra objects from its upstream in order to
-	complete the request. By default, `upload-pack` will refuse to
-	perform such a lazy fetch, because `git fetch` may run arbitrary
-	commands specified in configuration and hooks of the source
-	repository (and `upload-pack` tries to be safe to run even in
-	untrusted `.git` directories).
+	Amikor egy partial repository-ból (azaz olyanból, amelyet maga
+	is `--filter`-rel klónoztak) klónozol vagy fetchelsz, a
+	szerveroldali `upload-pack`-nek esetleg extra objektumokat kell
+	fetchelnie az upstreamjéből a kérés teljesítéséhez.
+	Alapértelmezés szerint az `upload-pack` nem hajt végre ilyen
+	lazy fetchet, mert a `git fetch` tetszőleges, a forrás
+	repository konfigurációjában és hookjaiban megadott parancsokat
+	futtathat (és az `upload-pack` igyekszik biztonságosan
+	futtatható lenni még nem megbízható `.git` könyvtárakban is).
 +
-This is implemented by having `upload-pack` internally set the
-`GIT_NO_LAZY_FETCH` variable to `1`. If you want to override it
-(because you are fetching from a partial clone, and you are sure
-you trust it), you can explicitly set `GIT_NO_LAZY_FETCH` to
-`0`.
+Ez úgy van megvalósítva, hogy az `upload-pack` belsőleg `1`-re
+állítja a `GIT_NO_LAZY_FETCH` változót. Ha felül szeretnéd bírálni
+(mert egy partial clone-ból fetchelsz, és biztos vagy benne, hogy
+megbízol benne), kifejezetten `0`-ra állíthatod a
+`GIT_NO_LAZY_FETCH`-et.
 
 SECURITY
 --------
 
-Most Git commands should not be run in an untrusted `.git` directory
-(see the section `SECURITY` in linkgit:git[1]). `upload-pack` tries to
-avoid any dangerous configuration options or hooks from the repository
-it's serving, making it safe to clone an untrusted directory and run
-commands on the resulting clone.
+A legtöbb Git-parancsot nem szabad nem megbízható `.git` könyvtárban
+futtatni (lásd a `SECURITY` szakaszt a linkgit:git[1]-ben). Az
+`upload-pack` igyekszik elkerülni minden veszélyes konfigurációs
+opciót vagy hookot az általa kiszolgált repository-ból, így
+biztonságos egy nem megbízható könyvtárat klónozni és parancsokat
+futtatni a kapott klónon.
 
-For an extra level of safety, you may be able to run `upload-pack` as an
-alternate user. The details will be platform dependent, but on many
-systems you can run:
+Extra biztonsági szint érdekében az `upload-pack`-et esetleg
+futtathatod egy másik felhasználóként. A részletek platformfüggők, de
+sok rendszeren futtathatod a következőt:
 
     git clone --no-local --upload-pack='sudo -u nobody git-upload-pack' ...
 
@@ -93,4 +98,4 @@ linkgit:gitnamespaces[7]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
