@@ -1,52 +1,59 @@
 --all::
 
-The command by default packs all tags and refs that are already
-packed, and leaves other refs
-alone.  This is because branches are expected to be actively
-developed and packing their tips does not help performance.
-This option causes all refs to be packed as well, with the exception
-of hidden refs, broken refs, and symbolic refs. Useful for a repository
-with many branches of historical interests.
+A parancs alapértelmezés szerint minden már csomagolt taget és
+referenciát csomagol, a többi referenciát békén hagyja. Ennek az az
+oka, hogy a branchekről elvárás, hogy aktívan fejlesszék őket, és a
+csúcsuk csomagolása nem javítja a teljesítményt. Ez az opció
+mindegyik referencia csomagolását is kiváltja, a rejtett referenciák,
+a törött referenciák és a szimbolikus referenciák kivételével.
+Hasznos egy olyan repository-hoz, amelynek sok, csak történeti
+érdekességű branche van.
 
 --no-prune::
 
-The command usually removes loose refs under `$GIT_DIR/refs`
-hierarchy after packing them.  This option tells it not to.
+A parancs csomagolásuk után rendszerint eltávolítja a laza
+referenciákat a `$GIT_DIR/refs` hierarchia alól. Ez az opció
+letiltja ezt.
 
 --auto::
 
-Pack refs as needed depending on the current state of the ref database. The
-behavior depends on the ref format used by the repository and may change in the
-future.
+A referenciaadatbázis aktuális állapotától függően, szükség szerint
+csomagolja a referenciákat. A viselkedés a repository által használt
+referencia-formátumtól függ, és a jövőben változhat.
 +
-	- "files": Loose references are packed into the `packed-refs` file
-	  based on the ratio of loose references to the size of the
-	  `packed-refs` file. The bigger the `packed-refs` file, the more loose
-	  references need to exist before we repack.
+	- "files": A laza referenciák a `packed-refs` fájlba csomagolódnak
+	  a laza referenciák és a `packed-refs` fájl méretének arányától
+	  függően. Minél nagyobb a `packed-refs` fájl, annál több laza
+	  referenciának kell léteznie ahhoz, hogy újracsomagoljunk.
 +
-	- "reftable": Tables are compacted such that they form a geometric
-	  sequence. For two tables N and N+1, where N+1 is newer, this
-	  maintains the property that N is at least twice as big as N+1. Only
-	  tables that violate this property are compacted.
+	- "reftable": A táblák úgy tömörülnek, hogy geometriai sorozatot
+	  alkossanak. Két táblára, N-re és N+1-re, ahol az N+1 az
+	  újabb, ez fenntartja azt a tulajdonságot, hogy N legalább
+	  kétszer akkora, mint N+1. Csak azok a táblák tömörülnek,
+	  amelyek megsértik ezt a tulajdonságot.
 
 --include <pattern>::
 
-Pack refs based on a `glob(7)` pattern. Repetitions of this option
-accumulate inclusion patterns. If a ref is both included in `--include` and
-`--exclude`, `--exclude` takes precedence. Using `--include` will preclude all
-tags from being included by default. Symbolic refs and broken refs will never
-be packed. When used with `--all`, it will be a noop. Use `--no-include` to clear
-and reset the list of patterns.
+Referenciák csomagolása egy `glob(7)` minta alapján. Ennek az
+opciónak az ismételt megadása felhalmozza a befoglaló mintákat. Ha
+egy referencia egyszerre szerepel a `--include`-ban és a
+`--exclude`-ban, a `--exclude` élvez elsőbbséget. A `--include`
+használata alapértelmezés szerint megakadályozza, hogy bármelyik tag
+bekerüljön. A szimbolikus és a törött referenciák soha nem lesznek
+csomagolva. A `--all`-lal együtt használva nincs hatása. Használd a
+`--no-include`-ot a mintalista törléséhez és visszaállításához.
 
 --exclude <pattern>::
 
-Do not pack refs matching the given `glob(7)` pattern. Repetitions of this option
-accumulate exclusion patterns. Use `--no-exclude` to clear and reset the list of
-patterns. If a ref is already packed, including it with `--exclude` will not
-unpack it.
+Nem csomagolja a megadott `glob(7)` mintának megfelelő referenciákat.
+Ennek az opciónak az ismételt megadása felhalmozza a kizáró
+mintákat. Használd a `--no-exclude`-ot a mintalista törléséhez és
+visszaállításához. Ha egy referencia már csomagolva van, a
+`--exclude`-ba való bevétele nem csomagolja ki azt.
 +
-When used with `--all`, pack only loose refs which do not match any of
-the provided `--exclude` patterns.
+A `--all`-lal együtt használva csak azokat a laza referenciákat
+csomagolja, amelyek nem felelnek meg egyik megadott `--exclude`
+mintának sem.
 +
-When used with `--include`, refs provided to `--include`, minus refs that are
-provided to `--exclude` will be packed.
+A `--include`-dal együtt használva a `--include`-nak megadott
+referenciák, a `--exclude`-nak megadottak nélkül, lesznek csomagolva.

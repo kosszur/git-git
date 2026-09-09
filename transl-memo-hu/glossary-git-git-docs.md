@@ -1235,3 +1235,53 @@ előtt észlelve és javítva: a cím visszaállítva `DATE FORMATS`-ra.
 - Szintaxis-ellenőrzés: mind a 10 fájlban az `ifdef::`/`ifndef::`/`endif::` számláló egyezik
   (`format-patch-caveats.adoc`: 2+2, `date-formats.adoc`: 1+1, a többi 0), nincs `[[...]]`,
   a bekezdéshatárok megtartva.
+
+## 18. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–17. blokkban. Fájlok: `git-sh-i18n.adoc`, `git-prune-packed.adoc`,
+`git-verify-pack.adoc`, `ToolsForGit.adoc`, `git-show-index.adoc`, `git-unpack-objects.adoc`,
+`pack-refs-options.adoc`, `git-mergetool--lib.adoc`, `git-whatchanged.adoc`, `git-mailsplit.adoc`.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| Porcelain-ish scripts | **„porcelain-szerű szkriptek"** | `git-sh-i18n.adoc`, `git-mergetool--lib.adoc` — a 0. blokk `plumbing / porcelain` (marad angolul) tételének melléknévi bővítése |
+| „files"/„reftable" (ref-formátum nevek) | **változatlanul angolul maradtak** | `pack-refs-options.adoc` — a 15. blokk (`ref-storage-format.adoc`) döntésének megismétlése/megerősítése |
+| guitool | **marad „guitool"** angolul | `git-mergetool--lib.adoc` |
+| deltified (objektum, `git-verify-pack.adoc`) | **„deltásítva"** | új, ad hoc melléknévi alak a „delta" szóból, konzisztens a `delta-sorrend`/`delta-lánchossz` mintával |
+| loose (objektum-formátum jelzőként) | **„laza"** | megerősítve a 0. blokk `loose / packed object` tételéből |
+| `git log --raw --no-merges` (deprecated parancs magyarázata) | fordul a körülötte lévő próza, a kódblokk bájtazonos | `git-whatchanged.adoc` |
+| Examples (`git-whatchanged.adoc`, vegyes kis-nagybetűs, NEM „EXAMPLES") | **„Példák"** (fordítva) | ez NEM a kanonikus, csupa nagybetűs `EXAMPLES` man-page cím, hanem egy vegyes kis-nagybetűs, kétsoros alcím — a „VÉGLEGES DÖNTÉS" szabály csak a csupa nagybetűs kategóriára vonatkozik, ez kívül esik rajta, ezért simán fordítható |
+
+### Címsor-anchorok
+
+- `ToolsForGit.adoc`: az egyetlen fájl ebben a blokkban `[[...]]` anchorokkal (`[[summary]]`,
+  `[[author]]`, `[[table_of_contents]]`, `[[vscode]]`, `[[emacs]]`) és `<<vscode>>`/`<<emacs>>`
+  xrefekkel (a `[[table_of_contents]]` szakasz listájában). Mind explicit anchorral rendelkeztek
+  már a forrásban is — érintetlenül hagyva, csak a címszövegek fordultak (kivéve a `vscode`/`emacs`
+  címeket, ahol a termékneveket, mint tulajdonneveket, nem fordítottuk).
+- A többi 9 fájlban nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- `FUNCTIONS` (`git-sh-i18n.adoc`, `git-mergetool--lib.adoc`), `OUTPUT FORMAT`
+  (`git-verify-pack.adoc`) — a „VÉGLEGES DÖNTÉS" szabály szerint automatikusan angolul maradtak,
+  nem kellett egyeztetni.
+- A többi fájlban csak kanonikus man-page címek (NAME, SYNOPSIS, DESCRIPTION, OPTIONS, WARNING,
+  SEE ALSO, GIT).
+
+### Megőrzött markup / megjegyzések
+
+- `ToolsForGit.adoc`: `:sectanchors:` dokumentum-attribútum, a `contrib/vscode/init.sh`,
+  `contrib/vscode/README.md`, `GIT_CHECKOUT/.dir-locals.el` fájlútvonalak, a `----`/`----`
+  Emacs-Lisp kódblokk és a záró, szó szerint URL-ként megadott 4. szintű alcím
+  (`==== https://www.kernel.org/...`) mind bájtazonosak.
+- `git-verify-pack.adoc`: az `OUTPUT FORMAT` szakasz két tab-indentált formátumsora
+  (`object-name type size size-in-packfile offset-in-packfile...`) bájtazonos.
+- `pack-refs-options.adoc`: a `"files"` / `"reftable"` idézőjeles formátumnevek és a
+  `glob(7)` hivatkozás változatlanok.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva.
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----` kódblokk-határolók (csak `git-whatchanged.adoc`-
+  ban van egy pár, a `git log --raw --no-merges` körül) párban vannak, nincs `ifdef::`/`endif::`,
+  a `ToolsForGit.adoc` 5 anchora és 2 xrefje érintetlen, a bekezdéshatárok megtartva.

@@ -3,7 +3,7 @@ git-mergetool{litdd}lib(1)
 
 NAME
 ----
-git-mergetool--lib - Common Git merge tool shell scriptlets
+git-mergetool--lib - Közös Git merge-eszköz shell szkriptrészletek
 
 SYNOPSIS
 --------
@@ -13,41 +13,43 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This is not a command the end user would want to run.  Ever.
-This documentation is meant for people who are studying the
-Porcelain-ish scripts and/or are writing new ones.
+Ez nem egy olyan parancs, amelyet a végfelhasználó futtatni akarna.
+Soha. Ez a dokumentáció azoknak szól, akik a porcelain-szerű
+szkripteket tanulmányozzák, és/vagy újakat írnak.
 
-The 'git-mergetool{litdd}lib' scriptlet is designed to be sourced (using
-`.`) by other shell scripts to set up functions for working
-with Git merge tools.
+A 'git-mergetool{litdd}lib' szkriptrészlet arra lett tervezve, hogy
+más shell szkriptek forrásként (a `.`-tal) beolvassák, hogy
+függvényeket állítsanak be a Git merge-eszközökkel való munkához.
 
-Before sourcing 'git-mergetool{litdd}lib', your script must set `TOOL_MODE`
-to define the operation mode for the functions listed below.
-'diff' and 'merge' are valid values.
+A 'git-mergetool{litdd}lib' forrásként való beolvasása előtt a
+szkriptednek be kell állítania a `TOOL_MODE`-ot, hogy meghatározza
+az alábbi függvények működési módját. A 'diff' és a 'merge' érvényes
+értékek.
 
 FUNCTIONS
 ---------
 get_merge_tool::
-	Returns a merge tool. The return code is 1 if we returned a guessed
-	merge tool, else 0. '$GIT_MERGETOOL_GUI' may be set to 'true' to
-	search for the appropriate guitool.
+	Visszaad egy merge-eszközt. A visszatérési kód 1, ha egy
+	kitalált merge-eszközt adtunk vissza, egyébként 0. A
+	'$GIT_MERGETOOL_GUI' 'true'-ra állítható, hogy a megfelelő
+	guitoolt keresse.
 
 get_merge_tool_cmd::
-	Returns the custom command for a merge tool.
+	Visszaadja egy merge-eszköz egyéni parancsát.
 
 get_merge_tool_path::
-	Returns the custom path for a merge tool.
+	Visszaadja egy merge-eszköz egyéni elérési útját.
 
 initialize_merge_tool::
-	Brings merge tool specific functions into scope so they can be used or
-	overridden.
+	Hatókörbe hozza a merge-eszköz-specifikus függvényeket, hogy
+	használhatók vagy felülírhatók legyenek.
 
 run_merge_tool::
-	Launches a merge tool given the tool name and a true/false
-	flag to indicate whether a merge base is present.
-	'$MERGED', '$LOCAL', '$REMOTE', and '$BASE' must be defined
-	for use by the merge tool.
+	Elindít egy merge-eszközt az eszköznév és egy true/false
+	jelző alapján, amely jelzi, hogy van-e jelen merge-alap.
+	A '$MERGED', a '$LOCAL', a '$REMOTE' és a '$BASE' definiálva
+	kell, hogy legyen a merge-eszköz számára.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

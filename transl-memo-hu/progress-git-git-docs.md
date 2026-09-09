@@ -119,7 +119,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-ls-remote.adoc | [ ] |  |  |
 | git-ls-tree.adoc | [ ] |  |  |
 | git-mailinfo.adoc | [ ] |  |  |
-| git-mailsplit.adoc | [ ] |  |  |
+| git-mailsplit.adoc | [x] |  | 2026-09-10 |
 | git-maintenance.adoc | [ ] |  |  |
 | git-merge-base.adoc | [ ] |  |  |
 | git-merge-file.adoc | [ ] |  |  |
@@ -127,7 +127,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-tree.adoc | [ ] |  |  |
 | git-merge.adoc | [ ] |  |  |
-| git-mergetool--lib.adoc | [ ] |  |  |
+| git-mergetool--lib.adoc | [x] |  | 2026-09-10 |
 | git-mergetool.adoc | [ ] |  |  |
 | git-mktag.adoc | [ ] |  |  |
 | git-mktree.adoc | [x] |  | 2026-09-10 |
@@ -140,7 +140,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-pack-redundant.adoc | [ ] |  |  |
 | git-pack-refs.adoc | [ ] |  |  |
 | git-patch-id.adoc | [ ] |  |  |
-| git-prune-packed.adoc | [ ] |  |  |
+| git-prune-packed.adoc | [x] |  | 2026-09-10 |
 | git-prune.adoc | [ ] |  |  |
 | git-pull.adoc | [ ] |  |  |
 | git-push.adoc | [ ] |  |  |
@@ -169,12 +169,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-send-email.adoc | [ ] |  |  |
 | git-send-pack.adoc | [ ] |  |  |
 | git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
-| git-sh-i18n.adoc | [ ] |  |  |
+| git-sh-i18n.adoc | [x] |  | 2026-09-10 |
 | git-sh-setup.adoc | [ ] |  |  |
 | git-shell.adoc | [ ] |  |  |
 | git-shortlog.adoc | [ ] |  |  |
 | git-show-branch.adoc | [ ] |  |  |
-| git-show-index.adoc | [ ] |  |  |
+| git-show-index.adoc | [x] |  | 2026-09-10 |
 | git-show-ref.adoc | [ ] |  |  |
 | git-show.adoc | [ ] |  |  |
 | git-sparse-checkout.adoc | [ ] |  |  |
@@ -189,7 +189,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-tag.adoc | [ ] |  |  |
 | git-tools.adoc | [x] |  | 2026-09-10 |
 | git-unpack-file.adoc | [x] |  | 2026-09-10 |
-| git-unpack-objects.adoc | [ ] |  |  |
+| git-unpack-objects.adoc | [x] |  | 2026-09-10 |
 | git-update-index.adoc | [ ] |  |  |
 | git-update-ref.adoc | [ ] |  |  |
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
@@ -198,11 +198,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-url-parse.adoc | [ ] |  |  |
 | git-var.adoc | [ ] |  |  |
 | git-verify-commit.adoc | [x] |  | 2026-09-10 |
-| git-verify-pack.adoc | [ ] |  |  |
+| git-verify-pack.adoc | [x] |  | 2026-09-10 |
 | git-verify-tag.adoc | [x] |  | 2026-09-10 |
 | git-version.adoc | [x] |  | 2026-09-10 |
 | git-web--browse.adoc | [ ] |  |  |
-| git-whatchanged.adoc | [ ] |  |  |
+| git-whatchanged.adoc | [x] |  | 2026-09-10 |
 | git-worktree.adoc | [ ] |  |  |
 | git-write-tree.adoc | [x] |  | 2026-09-10 |
 
@@ -215,7 +215,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | MyFirstContribution.adoc | [ ] |  |  |
 | MyFirstObjectWalk.adoc | [ ] |  |  |
 | ReviewingGuidelines.adoc | [ ] |  |  |
-| ToolsForGit.adoc | [ ] |  |  |
+| ToolsForGit.adoc | [x] |  | 2026-09-10 |
 | blame-options.adoc | [ ] |  |  |
 | config.adoc | [ ] |  |  |
 | date-formats.adoc | [x] |  | 2026-09-10 |
@@ -275,7 +275,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | merge-options.adoc | [ ] |  |  |
 | merge-strategies.adoc | [ ] |  |  |
 | object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
-| pack-refs-options.adoc | [ ] |  |  |
+| pack-refs-options.adoc | [x] |  | 2026-09-10 |
 | pretty-formats.adoc | [ ] |  |  |
 | pretty-options.adoc | [ ] |  |  |
 | pull-fetch-param.adoc | [ ] |  |  |
@@ -569,3 +569,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   „DÁTUMFORMÁTUMOK"-ra, majd a „VÉGLEGES DÖNTÉS" szabály szerint (kanonikus listán kívüli, csupa
   nagybetűs alcímek mindig angolul maradnak) visszaállítottam angolra. Orchestrátor végezte
   közvetlenül. Részletek: `glossary-git-git-docs.md` „17. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész**: `git-sh-i18n.adoc`,
+  `git-prune-packed.adoc`, `git-verify-pack.adoc`, `ToolsForGit.adoc`, `git-show-index.adoc`,
+  `git-unpack-objects.adoc`, `pack-refs-options.adoc`, `git-mergetool--lib.adoc`,
+  `git-whatchanged.adoc`, `git-mailsplit.adoc`. A `ToolsForGit.adoc` (egyetlen fájl ebben a
+  blokkban `[[...]]`/`<<...>>`-vel) explicit anchorokkal rendelkezett, mindegyik érintetlenül
+  hagyva. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „18. blokk".

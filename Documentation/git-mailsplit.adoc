@@ -3,7 +3,7 @@ git-mailsplit(1)
 
 NAME
 ----
-git-mailsplit - Simple UNIX mbox splitter program
+git-mailsplit - Egyszerű UNIX mbox-felbontó program
 
 SYNOPSIS
 --------
@@ -13,45 +13,44 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Splits a mbox file or a Maildir into a list of files: "0001" "0002" ..  in the
-specified directory so you can process them further from there.
+Egy mbox fájlt vagy egy Maildirt fájlok listájára bont: "0001" "0002"
+.. a megadott könyvtárban, hogy onnan tovább tudd feldolgozni őket.
 
-IMPORTANT: Maildir splitting relies upon filenames being sorted to output
-patches in the correct order.
+IMPORTANT: A Maildir-felbontás a fájlnevek rendezettségére támaszkodik,
+hogy a patcheket a helyes sorrendben adja ki.
 
 OPTIONS
 -------
 <mbox>::
-	Mbox file to split.  If not given, the mbox is read from
-	the standard input.
+	A felbontandó mbox fájl. Ha nincs megadva, az mbox a standard
+	bemenetről kerül beolvasásra.
 
 <Maildir>::
-	Root of the Maildir to split. This directory should contain the cur, tmp
-	and new subdirectories.
+	A felbontandó Maildir gyökere. Ennek a könyvtárnak tartalmaznia
+	kell a cur, tmp és new alkönyvtárakat.
 
 -o<directory>::
-	Directory in which to place the individual messages.
+	Az a könyvtár, amelybe az egyes üzeneteket helyezi.
 
 -b::
-	If any file doesn't begin with a From line, assume it is a
-	single mail message instead of signaling an error.
+	Ha egy fájl nem From sorral kezdődik, hiba jelzése helyett
+	feltételezi, hogy egyetlen levélüzenetről van szó.
 
 -d<prec>::
-	Instead of the default 4 digits with leading zeros,
-	different precision can be specified for the generated
-	filenames.
+	Az alapértelmezett, vezető nullákkal ellátott 4 számjegy helyett
+	eltérő pontosság adható meg a generált fájlnevekhez.
 
 -f<nn>::
-	Skip the first <nn> numbers, for example if -f3 is specified,
-	start the numbering with 0004.
+	Kihagyja az első <nn> számot, például ha az -f3 van megadva, a
+	számozás 0004-gyel kezdődik.
 
 --keep-cr::
-	Do not remove `\r` from lines ending with `\r\n`.
+	Nem távolítja el a `\r`-t a `\r\n`-nel végződő sorokból.
 
 --mboxrd::
-	Input is of the "mboxrd" format and "^>+From " line escaping is
-	reversed.
+	A bemenet "mboxrd" formátumú, és a "^>+From " sor-escapelés
+	fordítva van.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

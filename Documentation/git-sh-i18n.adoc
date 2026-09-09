@@ -3,7 +3,7 @@ git-sh-i18n(1)
 
 NAME
 ----
-git-sh-i18n - Git's i18n setup code for shell scripts
+git-sh-i18n - A Git i18n beállító kódja shell szkriptekhez
 
 SYNOPSIS
 --------
@@ -13,31 +13,31 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This is not a command the end user would want to run.  Ever.
-This documentation is meant for people who are studying the
-Porcelain-ish scripts and/or are writing new ones.
+Ez nem egy olyan parancs, amelyet a végfelhasználó futtatni akarna.
+Soha. Ez a dokumentáció azoknak szól, akik a porcelain-szerű
+szkripteket tanulmányozzák, és/vagy újakat írnak.
 
-The 'git sh-i18n scriptlet is designed to be sourced (using
-`.`) by Git's porcelain programs implemented in shell
-script. It provides wrappers for the GNU `gettext` and
-`eval_gettext` functions accessible through the `gettext.sh`
-script, and provides pass-through fallbacks on systems
-without GNU gettext.
+A 'git sh-i18n szkriptrészlet arra lett tervezve, hogy a Git
+shell szkriptben megvalósított porcelain programjai forrásként
+(a `.`-tal) beolvassák. Wrappereket biztosít a `gettext.sh`
+szkripten keresztül elérhető GNU `gettext` és `eval_gettext`
+függvényekhez, és átengedő tartalékmegoldásokat biztosít azokon a
+rendszereken, amelyeken nincs GNU gettext.
 
 FUNCTIONS
 ---------
 
 gettext::
-	Currently a dummy fall-through function implemented as a wrapper
-	around `printf(1)`. Will be replaced by a real gettext
-	implementation in a later version.
+	Jelenleg egy üres, átengedő függvény, amely a `printf(1)`
+	körüli wrapperként van megvalósítva. Egy későbbi verzióban
+	valódi gettext-megvalósítással lesz felváltva.
 
 eval_gettext::
-	Currently a dummy fall-through function implemented as a wrapper
-	around `printf(1)` with variables expanded by the
-	linkgit:git-sh-i18n{litdd}envsubst[1] helper. Will be replaced by a
-	real gettext implementation in a later version.
+	Jelenleg egy üres, átengedő függvény, amely a `printf(1)`
+	körüli wrapperként van megvalósítva, a linkgit:git-sh-i18n{litdd}envsubst[1]
+	segédprogram által kifejtett változókkal. Egy későbbi verzióban
+	valódi gettext-megvalósítással lesz felváltva.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
