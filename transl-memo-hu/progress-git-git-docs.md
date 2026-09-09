@@ -93,11 +93,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-for-each-repo.adoc | [ ] |  |  |
 | git-format-patch.adoc | [ ] |  |  |
 | git-format-rev.adoc | [ ] |  |  |
-| git-fsck-objects.adoc | [ ] |  |  |
+| git-fsck-objects.adoc | [x] |  | 2026-09-10 |
 | git-fsck.adoc | [ ] |  |  |
 | git-fsmonitor--daemon.adoc | [ ] |  |  |
 | git-gc.adoc | [ ] |  |  |
-| git-get-tar-commit-id.adoc | [ ] |  |  |
+| git-get-tar-commit-id.adoc | [x] |  | 2026-09-10 |
 | git-grep.adoc | [ ] |  |  |
 | git-gui.adoc | [ ] |  |  |
 | git-hash-object.adoc | [ ] |  |  |
@@ -109,7 +109,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-http-push.adoc | [ ] |  |  |
 | git-imap-send.adoc | [ ] |  |  |
 | git-index-pack.adoc | [ ] |  |  |
-| git-init-db.adoc | [ ] |  |  |
+| git-init-db.adoc | [x] |  | 2026-09-10 |
 | git-init.adoc | [ ] |  |  |
 | git-instaweb.adoc | [ ] |  |  |
 | git-interpret-trailers.adoc | [ ] |  |  |
@@ -124,7 +124,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge-base.adoc | [ ] |  |  |
 | git-merge-file.adoc | [ ] |  |  |
 | git-merge-index.adoc | [ ] |  |  |
-| git-merge-one-file.adoc | [ ] |  |  |
+| git-merge-one-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-tree.adoc | [ ] |  |  |
 | git-merge.adoc | [ ] |  |  |
 | git-mergetool--lib.adoc | [ ] |  |  |
@@ -178,7 +178,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-show-ref.adoc | [ ] |  |  |
 | git-show.adoc | [ ] |  |  |
 | git-sparse-checkout.adoc | [ ] |  |  |
-| git-stage.adoc | [ ] |  |  |
+| git-stage.adoc | [x] |  | 2026-09-10 |
 | git-stash.adoc | [ ] |  |  |
 | git-status.adoc | [ ] |  |  |
 | git-stripspace.adoc | [ ] |  |  |
@@ -188,7 +188,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-symbolic-ref.adoc | [ ] |  |  |
 | git-tag.adoc | [ ] |  |  |
 | git-tools.adoc | [x] |  | 2026-09-10 |
-| git-unpack-file.adoc | [ ] |  |  |
+| git-unpack-file.adoc | [x] |  | 2026-09-10 |
 | git-unpack-objects.adoc | [ ] |  |  |
 | git-update-index.adoc | [ ] |  |  |
 | git-update-ref.adoc | [ ] |  |  |
@@ -197,9 +197,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-upload-pack.adoc | [ ] |  |  |
 | git-url-parse.adoc | [ ] |  |  |
 | git-var.adoc | [ ] |  |  |
-| git-verify-commit.adoc | [ ] |  |  |
+| git-verify-commit.adoc | [x] |  | 2026-09-10 |
 | git-verify-pack.adoc | [ ] |  |  |
-| git-verify-tag.adoc | [ ] |  |  |
+| git-verify-tag.adoc | [x] |  | 2026-09-10 |
 | git-version.adoc | [ ] |  |  |
 | git-web--browse.adoc | [ ] |  |  |
 | git-whatchanged.adoc | [ ] |  |  |
@@ -271,7 +271,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | glossary-content.adoc | [ ] |  |  |
 | i18n.adoc | [ ] |  |  |
 | line-range-format.adoc | [ ] |  |  |
-| line-range-options.adoc | [ ] |  |  |
+| line-range-options.adoc | [x] |  | 2026-09-10 |
 | merge-options.adoc | [ ] |  |  |
 | merge-strategies.adoc | [ ] |  |  |
 | object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
@@ -287,7 +287,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | revisions.adoc | [ ] |  |  |
 | scalar.adoc | [ ] |  |  |
 | sequencer.adoc | [x] |  | 2026-09-10 |
-| signoff-option.adoc | [ ] |  |  |
+| signoff-option.adoc | [x] |  | 2026-09-10 |
 | trace2-target-values.adoc | [x] |  | 2026-09-10 |
 | transfer-data-leaks.adoc | [ ] |  |  |
 | urls-remotes.adoc | [ ] |  |  |
@@ -553,3 +553,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `trace2-target-values.adoc` (13), `sequencer.adoc` (17), `diff-algorithm-option.adoc` (21) — a
   sorszámok a fordítás utáni állapotot mutatják. Orchestrátor végezte közvetlenül (subagent nélkül,
   a fájlok triviális mérete miatt). Részletek: `glossary-git-git-docs.md` „15. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel: a két gyökér-tábla együttes, sorméret szerint növekvő listája, `gitglossary.adoc`/
+  `git.adoc`/`config.adoc`/`git-fast-import.adoc` kihagyva): `git-merge-one-file.adoc`,
+  `line-range-options.adoc`, `git-fsck-objects.adoc`, `signoff-option.adoc`, `git-init-db.adoc`,
+  `git-stage.adoc`, `git-unpack-file.adoc`, `git-get-tar-commit-id.adoc`, `git-verify-commit.adoc`,
+  `git-verify-tag.adoc`. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md`
+  „16. blokk".

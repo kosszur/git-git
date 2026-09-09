@@ -1128,3 +1128,51 @@ kivételével, ami önálló, nem man-page kis dokumentum.
 - Szintaxis-ellenőrzés: mind a 10 fájlban `ifdef::`/`ifndef::`/`endif::` számláló egyezik (csak
   `ref-storage-format.adoc`-ban van 2+2, a többi 0), nincs `[[...]]`/`<<...>>`, a bekezdéshatárok
   megtartva.
+
+## 16. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15. blokkban — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájának következő 10 tagja, `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`
+kihagyva. Orchestrátor fordította közvetlenül, subagent nélkül. Fájlok: `git-merge-one-file.adoc`,
+`line-range-options.adoc`, `git-fsck-objects.adoc`, `signoff-option.adoc`, `git-init-db.adoc`,
+`git-stage.adoc`, `git-unpack-file.adoc`, `git-get-tar-commit-id.adoc`, `git-verify-commit.adoc`,
+`git-verify-tag.adoc`. Négy fájl (`git-fsck-objects`, `git-init-db`, `git-stage`) klasszikus
+„szinonima" man page (l. lent), a `signoff-option.adoc` és a `line-range-options.adoc` option-
+fragmens, a többi rövid, önálló man page.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| „This is a synonym for X. Please refer to the documentation of that command." (szinonima-man page-ek törzsmondata) | **„Ez a X szinonimája. Kérjük, nézd meg annak a parancsnak a dokumentációját."** | `git-fsck-objects.adoc`, `git-init-db.adoc`, `git-stage.adoc` — egységes sablonmondat, a jövőbeli hasonló szinonima-fájloknál (pl. `git-whatchanged.adoc` is ilyen lehet) ugyanígy fordítandó |
+| blob id | **„blob azonosító"** | `git-unpack-file.adoc` |
+| commit/tag object (GPG-ellenőrzés kontextusában) | **„commit-objektum" / „tag-objektum"** | `git-verify-commit.adoc`, `git-verify-tag.adoc` |
+| gpg status output | **„gpg-státuszkimenet"** | mindkét `git-verify-*.adoc` fájlban azonos szöveg, konzisztensen fordítva |
+| Developer Certificate of Origin | **marad angolul, tulajdonnévként**, ragozva „…Originnal" | `signoff-option.adoc` — nincs bevett magyar fordítása, hivatalos dokumentum-név |
+| countermand (egy korábbi kapcsoló hatálytalanítása) | **„hatálytalanítható"** | `signoff-option.adoc`, a `--no-signoff` leírásában |
+| walk (revízió-bejárás, `line-range-options.adoc`) | **„bejárás"** | konzisztens a `technical/` blokkokban használt „bejárás" fordítással |
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve); nem kellett
+  anchor-kezelés.
+
+### Man-page címként angolul hagyott címsorok
+
+- Mind a 8 önálló man page-ben (a 2 option-fragmens kivételével) a szokásos NAME/SYNOPSIS/
+  DESCRIPTION/OPTIONS/GIT címek a kanonikus lista szerint angolul maradtak.
+
+### Megőrzött markup / megjegyzések
+
+- `signoff-option.adoc`: az `ifdef::git-commit[]` / `endif::git-commit[]` pár teljes egészében,
+  az attribútumnévvel együtt változatlan; csak a köztük lévő `-s`/`--signoff`/`--no-signoff`
+  definíciós lista-címkék maradtak angolul, a leírás-törzs fordult.
+  A `https://developercertificate.org` URL és a `commit.signoff` config-kulcs változatlanok.
+- `git-verify-tag.adoc`: a SYNOPSIS `--format=<format>` kapcsolót említ, de az OPTIONS szakaszban
+  nincs hozzá leírás (upstream-inkonzisztencia) — bájtazonosan hagyva, nem „javítva", a
+  `api-trace2.adoc`-beli hasonló eset precedensét (1. blokk) követve.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk
+  szerinti egységesített forma).
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`====` cím-aláhúzások és a man-page szekciócímek
+  érintetlenek, nincs `ifdef::`/`endif::` a `signoff-option.adoc` kivételével (ott párban van),
+  nincs `[[...]]`/`<<...>>`.

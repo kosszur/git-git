@@ -3,7 +3,7 @@ git-unpack-file(1)
 
 NAME
 ----
-git-unpack-file - Creates a temporary file with a blob's contents
+git-unpack-file - Létrehoz egy ideiglenes fájlt egy blob tartalmával
 
 
 
@@ -14,15 +14,15 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Creates a file holding the contents of the blob specified by sha1. It
-returns the name of the temporary file in the following format:
+Létrehoz egy fájlt, amely a sha1-gyel megadott blob tartalmát tárolja.
+Az ideiglenes fájl nevét a következő formátumban adja vissza:
 	.merge_file_XXXXX
 
 OPTIONS
 -------
 <blob>::
-	Must be a blob id
+	Blob azonosítónak kell lennie
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

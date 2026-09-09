@@ -1,21 +1,22 @@
 `-L<start>,<end>:<file>`::
 `-L:<funcname>:<file>`::
 
-	Trace the evolution of the line range given by `<start>,<end>`,
-	or by the function name regex _<funcname>_, within the _<file>_. You may
-	not give any pathspec limiters.  This is currently limited to
-	a walk starting from a single revision, i.e., you may only
-	give zero or one positive revision arguments, and
-	_<start>_ and _<end>_ (or _<funcname>_) must exist in the starting revision.
-	You can specify this option more than once. Implies `--patch`.
-	Patch output can be suppressed using `--no-patch`.
-	Non-patch diff formats `--raw`, `--name-only`, `--name-status`,
-	and `--summary` are supported.  Diff stat formats
-	(`--stat`, `--numstat`, `--shortstat`, `--dirstat`) are not
-	currently implemented.
+	Nyomon követi a `<start>,<end>` által megadott sortartomány, vagy
+	a _<funcname>_ függvénynév-regex által megadott tartomány
+	fejlődését a _<file>_-on belül. Nem adhatsz meg pathspec-
+	korlátozókat. Ez jelenleg egyetlen revízióból induló bejáráshoz
+	van korlátozva, azaz legfeljebb egy pozitív revízió-argumentumot
+	adhatsz meg, és a _<start>_-nak és _<end>_-nek (vagy
+	_<funcname>_-nak) léteznie kell a kiindulási revízióban.
+	Ez az opció többször is megadható. A `--patch`-et implikálja.
+	A patch-kimenet a `--no-patch`-csel elnyomható.
+	A nem patch-jellegű diff-formátumok (`--raw`, `--name-only`,
+	`--name-status`, `--summary`) támogatottak. A diff-statisztika
+	formátumok (`--stat`, `--numstat`, `--shortstat`, `--dirstat`)
+	jelenleg nincsenek megvalósítva.
 +
-Patch formatting options such as `--word-diff`, `--color-moved`,
-`--no-prefix`, and whitespace options (`-w`, `-b`) are supported,
-as are pickaxe options (`-S`, `-G`) and `--diff-filter`.
+A patch-formázási opciók, mint a `--word-diff`, `--color-moved`,
+`--no-prefix`, valamint a whitespace-opciók (`-w`, `-b`) támogatottak,
+csakúgy mint a pickaxe-opciók (`-S`, `-G`) és a `--diff-filter`.
 +
 include::line-range-format.adoc[]

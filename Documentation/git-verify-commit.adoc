@@ -3,7 +3,7 @@ git-verify-commit(1)
 
 NAME
 ----
-git-verify-commit - Check the GPG signature of commits
+git-verify-commit - Ellenőrzi a commitok GPG-aláírását
 
 SYNOPSIS
 --------
@@ -12,19 +12,19 @@ git verify-commit [-v | --verbose] [--raw] <commit>...
 
 DESCRIPTION
 -----------
-Validates the GPG signature created by `git commit -S`
-on the commit objects given on the command line.
+Érvényesíti a `git commit -S`-sel létrehozott GPG-aláírást a
+parancssorban megadott commit-objektumokon.
 
 OPTIONS
 -------
 `--raw`::
-	Print the raw gpg status output to standard error instead of the normal
-	human-readable output.
+	A nyers gpg-státuszkimenetet a standard hibakimenetre írja ki a
+	szokásos, emberi olvasásra szánt kimenet helyett.
 
 `-v`::
 `--verbose`::
-	Print the contents of the commit object before validating it.
+	Kiírja a commit-objektum tartalmát az érvényesítés előtt.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

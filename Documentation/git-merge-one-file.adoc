@@ -3,7 +3,7 @@ git-merge-one-file(1)
 
 NAME
 ----
-git-merge-one-file - The standard helper program to use with git-merge-index
+git-merge-one-file - A git-merge-index-szel használandó szabványos segédprogram
 
 
 SYNOPSIS
@@ -13,9 +13,10 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-This is the standard helper program to use with 'git merge-index'
-to resolve a merge after the trivial merge done with 'git read-tree -m'.
+Ez a 'git merge-index'-szel használandó szabványos segédprogram,
+amely a 'git read-tree -m'-mel elvégzett triviális merge utáni
+merge-et oldja fel.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

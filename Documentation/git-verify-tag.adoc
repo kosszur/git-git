@@ -3,7 +3,7 @@ git-verify-tag(1)
 
 NAME
 ----
-git-verify-tag - Check the GPG signature of tags
+git-verify-tag - Ellenőrzi a tagek GPG-aláírását
 
 SYNOPSIS
 --------
@@ -12,19 +12,19 @@ git verify-tag [-v | --verbose] [--format=<format>] [--raw] <tag>...
 
 DESCRIPTION
 -----------
-Validates the gpg signature created by `git tag` in the tag
-objects listed on the command line.
+Érvényesíti a `git tag`-gel létrehozott gpg-aláírást a parancssorban
+felsorolt tag-objektumokban.
 
 OPTIONS
 -------
 `--raw`::
-	Print the raw gpg status output to standard error instead of the normal
-	human-readable output.
+	A nyers gpg-státuszkimenetet a standard hibakimenetre írja ki a
+	szokásos, emberi olvasásra szánt kimenet helyett.
 
 `-v`::
 `--verbose`::
-	Print the contents of the tag object before validating it.
+	Kiírja a tag-objektum tartalmát az érvényesítés előtt.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
