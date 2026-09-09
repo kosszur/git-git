@@ -3,7 +3,7 @@ git-update-server-info(1)
 
 NAME
 ----
-git-update-server-info - Update auxiliary info file to help dumb servers
+git-update-server-info - Frissíti a kiegészítő info-fájlt, hogy segítse a "dumb" szervereket
 
 
 SYNOPSIS
@@ -13,24 +13,23 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-A dumb server that does not do on-the-fly pack generations must
-have some auxiliary information files in $GIT_DIR/info and
-$GIT_OBJECT_DIRECTORY/info directories to help clients discover
-what references and packs the server has.  This command
-generates such auxiliary files.
+Egy "dumb" szervernek, amely nem generál packeket menet közben,
+rendelkeznie kell néhány kiegészítő információs fájllal a
+$GIT_DIR/info és a $GIT_OBJECT_DIRECTORY/info könyvtárakban, hogy
+segítse a kliensek felfedezni, milyen referenciák és packek vannak a
+szerveren. Ez a parancs generálja az ilyen kiegészítő fájlokat.
 
 OPTIONS
 -------
 -f::
 --force::
-	Update the info files from scratch.
+	Az info-fájlokat a nulláról frissíti.
 
 OUTPUT
 ------
 
-Currently the command updates the following files.  Please see
-linkgit:gitrepository-layout[5] for a description of
-what they are for:
+Jelenleg a parancs a következő fájlokat frissíti. A rendeltetésük
+leírásáért lásd a linkgit:gitrepository-layout[5]-öt:
 
 * objects/info/packs
 
@@ -38,4 +37,4 @@ what they are for:
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

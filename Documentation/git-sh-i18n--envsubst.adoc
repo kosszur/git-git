@@ -3,7 +3,7 @@ git-sh-i18n{litdd}envsubst(1)
 
 NAME
 ----
-git-sh-i18n--envsubst - Git's own envsubst(1) for i18n fallbacks
+git-sh-i18n--envsubst - A Git saját envsubst(1) programja i18n tartalékmegoldásokhoz
 
 SYNOPSIS
 --------
@@ -18,19 +18,19 @@ eval_gettext () {
 DESCRIPTION
 -----------
 
-This is not a command the end user would want to run.  Ever.
-This documentation is meant for people who are studying the
-plumbing scripts and/or are writing new ones.
+Ez nem egy olyan parancs, amelyet a végfelhasználó futtatni akarna.
+Soha. Ez a dokumentáció azoknak szól, akik a plumbing szkripteket
+tanulmányozzák, és/vagy újakat írnak.
 
-'git sh-i18n{litdd}envsubst' is Git's stripped-down copy of the GNU
-`envsubst(1)` program that comes with the GNU gettext package. It's
-used internally by linkgit:git-sh-i18n[1] to interpolate the variables
-passed to the `eval_gettext` function.
+A 'git sh-i18n{litdd}envsubst' a Git leegyszerűsített másolata a GNU
+gettext csomaggal érkező GNU `envsubst(1)` programnak. Belsőleg a
+linkgit:git-sh-i18n[1] használja az `eval_gettext` függvénynek átadott
+változók behelyettesítésére.
 
-No promises are made about the interface, or that this
-program won't disappear without warning in the next version
-of Git. Don't use it.
+Nincs semmilyen ígéret az interfészre vonatkozóan, sem arra, hogy ez
+a program nem tűnik el figyelmeztetés nélkül a Git következő
+verziójában. Ne használd.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

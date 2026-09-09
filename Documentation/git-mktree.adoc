@@ -3,7 +3,7 @@ git-mktree(1)
 
 NAME
 ----
-git-mktree - Build a tree-object from ls-tree formatted text
+git-mktree - Fa-objektumot épít ls-tree formátumú szövegből
 
 
 SYNOPSIS
@@ -13,28 +13,30 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Reads standard input in non-recursive `ls-tree` output format, and creates
-a tree object.  The order of the tree entries is normalized by mktree so
-pre-sorting the input is not required.  The object name of the tree object
-built is written to the standard output.
+Beolvassa a standard bemenetet nem rekurzív `ls-tree` kimeneti
+formátumban, és létrehoz egy fa-objektumot. A fabejegyzések
+sorrendjét a mktree normalizálja, így a bemenet előzetes rendezése
+nem szükséges. A létrehozott fa-objektum objektumneve a standard
+kimenetre íródik ki.
 
 OPTIONS
 -------
 -z::
-	Read the NUL-terminated `ls-tree -z` output instead.
+	Ehelyett a NUL-lal lezárt `ls-tree -z` kimenetet olvassa be.
 
 --missing::
-	Allow missing objects.  The default behaviour (without this option)
-	is to verify that each tree entry's hash identifies an existing
-	object.  This option has no effect on the treatment of gitlink entries
-	(aka "submodules") which are always allowed to be missing.
+	Engedélyezi a hiányzó objektumokat. Az alapértelmezett
+	viselkedés (ezen opció nélkül) az, hogy ellenőrzi, hogy minden
+	fabejegyzés hash-e egy létező objektumot azonosít. Ez az opció
+	nincs hatással a gitlink-bejegyzések (más néven "submodule-ok")
+	kezelésére, amelyeknek mindig megengedett a hiánya.
 
 --batch::
-	Allow building of more than one tree object before exiting.  Each
-	tree is separated by a single blank line. The final newline is
-	optional.  Note - if the `-z` option is used, lines are terminated
-	with NUL.
+	Lehetővé teszi több fa-objektum felépítését kilépés előtt.
+	Minden fát egyetlen üres sor választ el. A záró újsor
+	opcionális. Megjegyzés: ha a `-z` opciót használod, a sorok
+	NUL-lal záródnak.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

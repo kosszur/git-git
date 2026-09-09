@@ -1176,3 +1176,62 @@ fragmens, a többi rövid, önálló man page.
 - Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`====` cím-aláhúzások és a man-page szekciócímek
   érintetlenek, nincs `ifdef::`/`endif::` a `signoff-option.adoc` kivételével (ott párban van),
   nincs `[[...]]`/`<<...>>`.
+
+## 17. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–16. blokkban. Fájlok: `transfer-data-leaks.adoc`,
+`line-range-format.adoc`, `format-patch-caveats.adoc`, `date-formats.adoc`,
+`git-sh-i18n--envsubst.adoc`, `git-version.adoc`, `gitrevisions.adoc`, `git-mktree.adoc`,
+`git-update-server-info.adoc`, `git-write-tree.adoc`. **Fontos:** a `gitrevisions.adoc` grep-pel
+ellenőrizve NEM tartalmazza a „peel onion" kifejezést (az a beágyazott `include::revisions.adoc[]`
+— egy külön, még lefordítatlan, nagyobb fájl — törzsében van), így a 3. blokkban rögzített
+„eldöntendő" jelölés erre a fájlra (a keretre) nem vonatkozott; a `revisions.adoc` fordításakor
+viszont kötelező lesz egyeztetni a `git-check-ref-format.adoc`-beli „hagymahámozó" fordítással.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| dumb server (`git-update-server-info.adoc`) | **„»dumb« szerver"**, idézőjelben, ad hoc | nincs még bevett magyar terminológia — **jövőbeli döntési függőség**: a `git-http-backend.adoc` / `gitprotocol-http.adoc` fordításakor a „dumb"/„smart" protokoll-terminológiát ezzel konzisztensen kell kezelni |
+| sync()s (ige, `git-write-tree.adoc`) | **„szinkronizálja (sync())"** | a zárójeles eredeti függvénynév megtartva a pontosság kedvéért |
+| DATE FORMATS (cím) | **változatlanul angolul maradt** (l. lent, hibajavítás) | `date-formats.adoc` |
+| „yesterday" / „last Friday at noon" (relatív dátum-példák) | **bájtazonosan angolul, idézőjelben maradtak** | `date-formats.adoc` — a Git dátum-értelmezője ténylegesen csak angol kifejezéseket ismer fel, lokalizálatlan program-bemeneti minta, a `git-clean.adoc`/`git-daemon.adoc` precedensét követi |
+| gitlink entries (aka "submodules") | **„gitlink-bejegyzések (más néven »submodule-ok«)"** | `git-mktree.adoc` |
+
+### Hibajavítás menet közben
+
+A `date-formats.adoc` `DATE FORMATS` kétsoros, csupa nagybetűs man-page-stílusú címét tévedésből
+először lefordítottam „DÁTUMFORMÁTUMOK"-ra — ez ellentmond a korábban (l. a „VÉGLEGES DÖNTÉS" szakasz
+a 14. blokk előtt) a felhasználóval lezárt szabálynak, miszerint minden kanonikus listán kívüli,
+csupa nagybetűs, man-page-stílusú alcím automatikusan angolul marad. A hiba még a blokk lezárása
+előtt észlelve és javítva: a cím visszaállítva `DATE FORMATS`-ra.
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve).
+- `format-patch-caveats.adoc`: tartalmaz egy `<<discussion,DISCUSSION>>` xref-et (ez egy másik,
+  include-oló fájlban — pl. `git-am.adoc`, ha lefordítva — lévő `[[discussion]]` anchorra mutat);
+  mivel a `DISCUSSION` kanonikus man-page cím, az azonosító és a látható link-szöveg is változatlanul
+  angolul maradt — nem kellett módosítani.
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- `date-formats.adoc`: `DATE FORMATS` — nem kanonikus, de a „VÉGLEGES DÖNTÉS" szabály szerint
+  automatikusan angolul marad (l. fenti hibajavítás).
+- `git-update-server-info.adoc`: `OUTPUT` — a 3. blokkban már lezárt kategória, angolul marad.
+- A többi fájlban csak kanonikus man-page címek (NAME, SYNOPSIS, DESCRIPTION, OPTIONS, GIT) vannak.
+
+### Megőrzött markup / megjegyzések
+
+- `format-patch-caveats.adoc`: két `ifdef::git-am[]`/`endif::git-am[]` pár (az egyik az
+  `ifndef::` változata) teljes egészében, az attribútumnévvel együtt változatlan.
+- `date-formats.adoc`: az `ifdef::git-commit[]`/`endif::git-commit[]` pár változatlan; a `NOTE:`
+  admonition-kulcsszó (valódi, csupa nagybetűs AsciiDoc-makró) változatlan, csak a mögötte lévő
+  próza fordult.
+- `gitrevisions.adoc`: az `include::revisions.adoc[]` sor változatlan (külön, még lefordítatlan fájl).
+- `git-mktree.adoc`, `git-write-tree.adoc`: a `NUL`, `sync()`, `ls-tree` stb. technikai kifejezések
+  és a `-z`/`--missing`/`--batch`/`--missing-ok`/`--prefix=` kapcsolók változatlanok.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva.
+- Szintaxis-ellenőrzés: mind a 10 fájlban az `ifdef::`/`ifndef::`/`endif::` számláló egyezik
+  (`format-patch-caveats.adoc`: 2+2, `date-formats.adoc`: 1+1, a többi 0), nincs `[[...]]`,
+  a bekezdéshatárok megtartva.

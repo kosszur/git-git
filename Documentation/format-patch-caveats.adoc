@@ -1,33 +1,34 @@
-The output from linkgit:git-format-patch[1] can lead to a different
-commit message when applied with linkgit:git-am[1]. The patch that is
-applied may also be different from the one that was generated, or patch
-application may fail outright.
+A linkgit:git-format-patch[1] kimenete eltérő commit-üzenetet
+eredményezhet, ha a linkgit:git-am[1]-mel alkalmazzák. Az alkalmazott
+patch is eltérhet a generálttól, vagy a patch alkalmazása teljesen
+sikertelen is lehet.
 ifdef::git-am[]
-See the <<discussion,DISCUSSION>> section above for the syntactic rules.
+A szintaktikai szabályokért lásd a fenti <<discussion,DISCUSSION>> szakaszt.
 endif::git-am[]
 
 ifndef::git-am[]
 include::format-patch-end-of-commit-message.adoc[]
 endif::git-am[]
 
-Note that this is especially problematic for unindented diffs that occur
-in the commit message; the diff in the commit message might get applied
-along with the patch section, or the patch application machinery might
-trip up because the patch target doesn't apply. This could for example
-be caused by a diff in a Markdown code block.
+Ne feledd, hogy ez különösen problémás a commit-üzenetben előforduló,
+behúzás nélküli diffek esetén; a commit-üzenetben lévő diff a patch-
+szakasszal együtt alkalmazásra kerülhet, vagy a patch-alkalmazó
+mechanizmus megbotolhat, mert a patch célja nem alkalmazható. Ezt
+például egy Markdown kódblokkban lévő diff okozhatja.
 
-The solution for this is to indent the diff or other text that could
-cause problems.
+Ennek megoldása, hogy behúzod a diffet vagy más olyan szöveget, amely
+problémákat okozhat.
 
-This loss of fidelity might be simple to notice if you are applying
-patches directly from a mailbox. However, changes originating from Git
-could be applied in bulk, in which case this would be much harder to
-notice. This could for example be a Linux distribution which uses patch
-files to apply changes on top of the commits from the upstream
-repositories. This goes to show that this behavior does not only impact
-email workflows.
+Ez a pontosságvesztés könnyen észrevehető lehet, ha közvetlenül egy
+postafiókból alkalmazol patcheket. Azonban a Gitből származó
+változtatások tömegesen is alkalmazhatók, amikor ezt sokkal nehezebb
+észrevenni. Ez például lehet egy Linux-disztribúció, amely patch-
+fájlokat használ a felsőbb szintű repository-k commitjaira épülő
+változtatások alkalmazásához. Ez rámutat, hogy ez a viselkedés nem
+csak az e-mail munkafolyamatokat érinti.
 
-Given these limitations, one might be tempted to use a general-purpose
-utility like `patch`(1) instead. However, `patch`(1) will not only look for
-unindented diffs (like linkgit:git-am[1]) but will try to apply indented
-diffs as well.
+Ezeket a korlátozásokat látva az embert kísértésbe eshet, hogy egy
+általános célú segédeszközt, mint a `patch`(1), használjon inkább.
+Azonban a `patch`(1) nemcsak a behúzás nélküli diffeket fogja
+keresni (mint a linkgit:git-am[1]), hanem a behúzott diffeket is
+megpróbálja alkalmazni.

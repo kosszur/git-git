@@ -3,7 +3,7 @@ git-write-tree(1)
 
 NAME
 ----
-git-write-tree - Create a tree object from the current index
+git-write-tree - Fa-objektumot hoz létre az aktuális indexből
 
 
 SYNOPSIS
@@ -13,30 +13,30 @@ git write-tree [--missing-ok] [--prefix=<prefix>/]
 
 DESCRIPTION
 -----------
-Creates a tree object using the current index. The name of the new
-tree object is printed to standard output.
+Egy fa-objektumot hoz létre az aktuális index felhasználásával. Az új
+fa-objektum neve a standard kimenetre íródik ki.
 
-The index must be in a fully merged state.
+Az indexnek teljesen merge-elt állapotban kell lennie.
 
-Conceptually, `git write-tree` sync()s the current index contents
-into a set of tree files.
-In order to have that match what is actually in your directory right
-now, you need to have done a `git update-index` phase before you did the
-`git write-tree`.
+Koncepcionálisan a `git write-tree` szinkronizálja (sync()) az
+aktuális index tartalmát egy fa-fájlkészletbe.
+Ahhoz, hogy ez megegyezzen azzal, ami éppen most a könyvtáradban van,
+egy `git update-index` fázist kell végrehajtanod, mielőtt a
+`git write-tree`-t futtatod.
 
 
 OPTIONS
 -------
 `--missing-ok`::
-	Normally `git write-tree` ensures that the objects referenced by the
-	directory exist in the object database.  This option disables this
-	check.
+	Normál esetben a `git write-tree` biztosítja, hogy a könyvtár
+	által hivatkozott objektumok léteznek az objektumadatbázisban.
+	Ez az opció kikapcsolja ezt az ellenőrzést.
 
 `--prefix=<prefix>/`::
-	Writes a tree object that represents a subdirectory
-	_<prefix>_.  This can be used to write the tree object
-	for a subproject that is in the named subdirectory.
+	Egy olyan fa-objektumot ír, amely a _<prefix>_ alkönyvtárat
+	reprezentálja. Ez felhasználható a fa-objektum kiírására egy
+	olyan alprojekthez, amely a megnevezett alkönyvtárban van.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

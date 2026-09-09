@@ -1,30 +1,34 @@
 SECURITY
 --------
-The fetch and push protocols are not designed to prevent one side from
-stealing data from the other repository that was not intended to be
-shared. If you have private data that you need to protect from a malicious
-peer, your best option is to store it in another repository. This applies
-to both clients and servers. In particular, namespaces on a server are not
-effective for read access control; you should only grant read access to a
-namespace to clients that you would trust with read access to the entire
-repository.
+A fetch és a push protokollok nincsenek úgy tervezve, hogy megakadályozzák,
+hogy az egyik fél olyan adatokat lopjon a másik repository-ból, amelyeket
+nem szántak megosztásra. Ha van olyan privát adatod, amelyet egy
+rosszindulatú partnertől kell megvédened, a legjobb megoldás, ha egy másik
+repository-ban tárolod. Ez mind a kliensekre, mind a szerverekre vonatkozik.
+Különösen a szerveren lévő névterek nem hatékonyak olvasási hozzáférés-
+szabályozásra; csak olyan klienseknek szabad olvasási hozzáférést adnod
+egy névtérhez, akikben megbíznál a teljes repository-hoz való olvasási
+hozzáféréssel is.
 
-The known attack vectors are as follows:
+Az ismert támadási vektorok a következők:
 
-. The victim sends "have" lines advertising the IDs of objects it has that
-  are not explicitly intended to be shared but can be used to optimize the
-  transfer if the peer also has them. The attacker chooses an object ID X
-  to steal and sends a ref to X, but isn't required to send the content of
-  X because the victim already has it. Now the victim believes that the
-  attacker has X, and it sends the content of X back to the attacker
-  later. (This attack is most straightforward for a client to perform on a
-  server, by creating a ref to X in the namespace the client has access
-  to and then fetching it. The most likely way for a server to perform it
-  on a client is to "merge" X into a public branch and hope that the user
-  does additional work on this branch and pushes it back to the server
-  without noticing the merge.)
+. Az áldozat "have" sorokat küld, amelyek olyan objektumok ID-jait
+  hirdetik, amelyeket nem szándékozik kifejezetten megosztani, de
+  felhasználhatók az átvitel optimalizálására, ha a partnernek is
+  megvannak. A támadó kiválaszt egy ellopandó X objektum ID-t, és
+  küld egy referenciát X-re, de nem kell elküldenie X tartalmát, mert
+  az áldozatnak már megvan. Az áldozat most azt hiszi, hogy a
+  támadónak megvan X-e, és később visszaküldi neki X tartalmát. (Ezt
+  a támadást a legegyszerűbb egy kliensnek végrehajtania egy
+  szerveren, úgy, hogy létrehoz egy referenciát X-re abban a
+  névtérben, amelyhez a kliensnek hozzáférése van, majd letölti azt.
+  A legvalószínűbb mód, ahogy egy szerver végrehajthatja ezt egy
+  kliensen, az, hogy "merge-eli" X-et egy nyilvános branchbe, és
+  reméli, hogy a felhasználó további munkát végez ezen a branchen,
+  és visszaküldi a szervernek anélkül, hogy észrevenné a merge-et.)
 
-. As in #1, the attacker chooses an object ID X to steal. The victim sends
-  an object Y that the attacker already has, and the attacker falsely
-  claims to have X and not Y, so the victim sends Y as a delta against X.
-  The delta reveals regions of X that are similar to Y to the attacker.
+. Az 1. ponthoz hasonlóan a támadó kiválaszt egy ellopandó X objektum
+  ID-t. Az áldozat elküld egy Y objektumot, amely a támadónak már
+  megvan, és a támadó hamisan azt állítja, hogy X-e megvan, Y-a
+  viszont nincs, így az áldozat Y-t X-hez képesti deltaként küldi el.
+  A delta felfedi a támadó számára X-nek az Y-hoz hasonló részeit.

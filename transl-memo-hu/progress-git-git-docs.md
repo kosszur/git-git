@@ -130,7 +130,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mergetool--lib.adoc | [ ] |  |  |
 | git-mergetool.adoc | [ ] |  |  |
 | git-mktag.adoc | [ ] |  |  |
-| git-mktree.adoc | [ ] |  |  |
+| git-mktree.adoc | [x] |  | 2026-09-10 |
 | git-multi-pack-index.adoc | [ ] |  |  |
 | git-mv.adoc | [ ] |  |  |
 | git-name-rev.adoc | [ ] |  |  |
@@ -168,7 +168,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-rm.adoc | [ ] |  |  |
 | git-send-email.adoc | [ ] |  |  |
 | git-send-pack.adoc | [ ] |  |  |
-| git-sh-i18n--envsubst.adoc | [ ] |  |  |
+| git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n.adoc | [ ] |  |  |
 | git-sh-setup.adoc | [ ] |  |  |
 | git-shell.adoc | [ ] |  |  |
@@ -192,7 +192,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-unpack-objects.adoc | [ ] |  |  |
 | git-update-index.adoc | [ ] |  |  |
 | git-update-ref.adoc | [ ] |  |  |
-| git-update-server-info.adoc | [ ] |  |  |
+| git-update-server-info.adoc | [x] |  | 2026-09-10 |
 | git-upload-archive.adoc | [ ] |  |  |
 | git-upload-pack.adoc | [ ] |  |  |
 | git-url-parse.adoc | [ ] |  |  |
@@ -200,11 +200,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-verify-commit.adoc | [x] |  | 2026-09-10 |
 | git-verify-pack.adoc | [ ] |  |  |
 | git-verify-tag.adoc | [x] |  | 2026-09-10 |
-| git-version.adoc | [ ] |  |  |
+| git-version.adoc | [x] |  | 2026-09-10 |
 | git-web--browse.adoc | [ ] |  |  |
 | git-whatchanged.adoc | [ ] |  |  |
 | git-worktree.adoc | [ ] |  |  |
-| git-write-tree.adoc | [ ] |  |  |
+| git-write-tree.adoc | [x] |  | 2026-09-10 |
 
 ### Gyökér — egyéb `.adoc` (guide-ok, option-fragmensek, includimport)
 
@@ -218,7 +218,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | ToolsForGit.adoc | [ ] |  |  |
 | blame-options.adoc | [ ] |  |  |
 | config.adoc | [ ] |  |  |
-| date-formats.adoc | [ ] |  |  |
+| date-formats.adoc | [x] |  | 2026-09-10 |
 | diff-algorithm-option.adoc | [x] |  | 2026-09-10 |
 | diff-context-options.adoc | [x] |  | 2026-09-10 |
 | diff-format.adoc | [ ] |  |  |
@@ -226,7 +226,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | diff-options.adoc | [ ] |  |  |
 | fetch-options.adoc | [ ] |  |  |
 | for-each-ref-options.adoc | [ ] |  |  |
-| format-patch-caveats.adoc | [ ] |  |  |
+| format-patch-caveats.adoc | [x] |  | 2026-09-10 |
 | format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
 | fsck-msgids.adoc | [ ] |  |  |
 | git.adoc | [ ] |  |  |
@@ -261,7 +261,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitprotocol-v2.adoc | [ ] |  |  |
 | gitremote-helpers.adoc | [ ] |  |  |
 | gitrepository-layout.adoc | [ ] |  |  |
-| gitrevisions.adoc | [ ] |  |  |
+| gitrevisions.adoc | [x] |  | 2026-09-10 |
 | gitsubmodules.adoc | [ ] |  |  |
 | gittutorial-2.adoc | [ ] |  |  |
 | gittutorial.adoc | [ ] |  |  |
@@ -270,7 +270,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitworkflows.adoc | [ ] |  |  |
 | glossary-content.adoc | [ ] |  |  |
 | i18n.adoc | [ ] |  |  |
-| line-range-format.adoc | [ ] |  |  |
+| line-range-format.adoc | [x] |  | 2026-09-10 |
 | line-range-options.adoc | [x] |  | 2026-09-10 |
 | merge-options.adoc | [ ] |  |  |
 | merge-strategies.adoc | [ ] |  |  |
@@ -289,7 +289,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | sequencer.adoc | [x] |  | 2026-09-10 |
 | signoff-option.adoc | [x] |  | 2026-09-10 |
 | trace2-target-values.adoc | [x] |  | 2026-09-10 |
-| transfer-data-leaks.adoc | [ ] |  |  |
+| transfer-data-leaks.adoc | [x] |  | 2026-09-10 |
 | urls-remotes.adoc | [ ] |  |  |
 | urls.adoc | [ ] |  |  |
 | user-manual.adoc | [ ] |  |  |
@@ -560,3 +560,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `git-stage.adoc`, `git-unpack-file.adoc`, `git-get-tar-commit-id.adoc`, `git-verify-commit.adoc`,
   `git-verify-tag.adoc`. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md`
   „16. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel): `transfer-data-leaks.adoc`, `line-range-format.adoc`, `format-patch-caveats.adoc`,
+  `date-formats.adoc`, `git-sh-i18n--envsubst.adoc`, `git-version.adoc`, `gitrevisions.adoc`
+  (csak a keret; a beágyazott `include::revisions.adoc[]` külön fájl, még lefordítatlan),
+  `git-mktree.adoc`, `git-update-server-info.adoc`, `git-write-tree.adoc`. Egy hiba történt és
+  javításra került menet közben: a `date-formats.adoc` `DATE FORMATS` címét tévedésből lefordítottam
+  „DÁTUMFORMÁTUMOK"-ra, majd a „VÉGLEGES DÖNTÉS" szabály szerint (kanonikus listán kívüli, csupa
+  nagybetűs alcímek mindig angolul maradnak) visszaállítottam angolra. Orchestrátor végezte
+  közvetlenül. Részletek: `glossary-git-git-docs.md` „17. blokk".

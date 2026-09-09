@@ -1,32 +1,32 @@
-_<start>_ and _<end>_ can take one of these forms:
+A _<start>_ és az _<end>_ az alábbi alakok egyikét veheti fel:
 
 - _<number>_
 +
-If _<start>_ or _<end>_ is a number, it specifies an
-absolute line number (lines count from 1).
+Ha a _<start>_ vagy az _<end>_ egy szám, egy abszolút sorszámot ad meg
+(a sorok számozása 1-től indul).
 +
 
 - `/<regex>/`
 +
-This form will use the first line matching the given
-POSIX _<regex>_. If _<start>_ is a regex, it will search from the end of
-the previous `-L` range, if any, otherwise from the start of file.
-If _<start>_ is `^/<regex>/`, it will search from the start of file.
-If _<end>_ is a regex, it will search starting at the line given by
-_<start>_.
+Ez az alak a megadott POSIX _<regex>_-nek megfelelő első sort
+használja. Ha a _<start>_ egy regex, a keresés az előző `-L`
+tartomány végétől indul, ha van ilyen, egyébként a fájl elejétől.
+Ha a _<start>_ `^/<regex>/`, a keresés a fájl elejétől indul.
+Ha az _<end>_ egy regex, a keresés a _<start>_ által megadott sortól
+indul.
 +
 
-- `+<offset>` or `-<offset>`
+- `+<offset>` vagy `-<offset>`
 +
-This is only valid for _<end>_ and will specify a number
-of lines before or after the line given by _<start>_.
+Ez csak az _<end>_-re érvényes, és a _<start>_ által megadott sor
+előtti vagy utáni sorok számát adja meg.
 
 +
-If `:<funcname>` is given in place of _<start>_ and _<end>_, it is a
-regular expression that denotes the range from the first funcname line
-that matches _<funcname>_, up to the next funcname line. `:<funcname>`
-searches from the end of the previous `-L` range, if any, otherwise
-from the start of file. `^:<funcname>` searches from the start of
-file. The function names are determined in the same way as `git diff`
-works out patch hunk headers (see 'Defining a custom hunk-header'
-in linkgit:gitattributes[5]).
+Ha a _<start>_ és az _<end>_ helyett `:<funcname>` van megadva, az egy
+reguláris kifejezés, amely az első, _<funcname>_-nek megfelelő
+funcname-sortól a következő funcname-sorig terjedő tartományt jelöli.
+A `:<funcname>` keresése az előző `-L` tartomány végétől indul, ha
+van ilyen, egyébként a fájl elejétől. A `^:<funcname>` keresése a
+fájl elejétől indul. A függvényneveket a Git ugyanúgy határozza meg,
+ahogy a `git diff` a patch-hunk fejléceket állapítja meg (lásd a
+'Defining a custom hunk-header' szakaszt a linkgit:gitattributes[5]-ben).
