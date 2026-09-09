@@ -3,7 +3,7 @@ git-last-modified(1)
 
 NAME
 ----
-git-last-modified - EXPERIMENTAL: Show when files were last modified
+git-last-modified - KÍSÉRLETI: Megjeleníti, mikor módosultak utoljára a fájlok
 
 
 SYNOPSIS
@@ -15,57 +15,61 @@ git last-modified [--recursive] [--show-trees] [--max-depth=<depth>] [-z]
 DESCRIPTION
 -----------
 
-Shows which commit last modified each of the relevant files and subdirectories.
-A commit renaming a path, or changing it's mode is also taken into account.
+Megjeleníti, hogy az egyes érintett fájlokat és alkönyvtárakat melyik
+commit módosította utoljára. Egy útvonalat átnevező, vagy annak
+módját megváltoztató commit is figyelembe van véve.
 
-THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.
+EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT.
 
 OPTIONS
 -------
 
 `-r`::
 `--recursive`::
-	Recursively traverse into all subtrees. By default, the command only
-	shows tree entries matching the `<pathspec>`. With this option, it
-	descends into subtrees and displays all entries within them.
-	Equivalent to `--max-depth=-1`.
+	Rekurzívan bejár minden alfát. Alapértelmezés szerint a parancs
+	csak a `<pathspec>`-nek megfelelő fabejegyzéseket mutatja. Ezzel
+	az opcióval leszáll az alfákba, és megjeleníti a bennük lévő
+	összes bejegyzést. Egyenértékű a `--max-depth=-1`-gyel.
 
 `-t`::
 `--show-trees`::
-	Show tree entries even when recursing into them.
+	Megjeleníti a fabejegyzéseket akkor is, ha belébejár.
 
 `--max-depth=<depth>`::
-	For each pathspec given on the command line, traverse at most `<depth>`
-	levels into subtrees. A negative value means no limit.
-	The default is 0, which shows all paths matching the pathspec
-	without descending into subtrees.
+	A parancssorban megadott minden pathspecnél legfeljebb `<depth>`
+	szintig száll le az alfákba. Egy negatív érték korlátlant
+	jelent. Az alapértelmezés 0, amely az összes, a pathspecnek
+	megfelelő útvonalat megjeleníti, anélkül, hogy leszállna az
+	alfákba.
 
 `-z`::
-	Terminate each line with a _NUL_ character rather than a newline.
+	Minden sort egy _NUL_ karakterrel zár le, újsor helyett.
 
 `<revision-range>`::
-	Only traverse commits in the specified revision range. When no
-	`<revision-range>` is specified, it defaults to `HEAD` (i.e. the whole
-	history leading to the current commit). For a complete list of ways to
-	spell `<revision-range>`, see the 'Specifying Ranges' section of
-	linkgit:gitrevisions[7].
+	Csak a megadott revíziótartományban lévő commitokat járja be.
+	Ha nincs `<revision-range>` megadva, alapértelmezés szerint
+	`HEAD` (azaz az aktuális commithoz vezető teljes előzmény). A
+	`<revision-range>` megadásának teljes listájáért lásd a
+	linkgit:gitrevisions[7] 'Specifying Ranges' szakaszát.
 
 `[--] <pathspec>...`::
-	Show the commit that last modified each path matching _<pathspec>_.
-	If no _<pathspec>_ is given, all files and subdirectories are included.
-	See linkgit:gitglossary[7] for details on pathspec syntax.
+	Megjeleníti azt a commitot, amely a _<pathspec>_-nek megfelelő
+	minden útvonalat utoljára módosított. Ha nincs _<pathspec>_
+	megadva, minden fájl és alkönyvtár bekerül. A pathspec-szintaxis
+	részleteiért lásd a linkgit:gitglossary[7]-et.
 
 OUTPUT
 ------
 
-The output is in the format:
+A kimenet formátuma:
 
 ------------
  <oid> TAB <path> LF
 ------------
 
-If a path contains any special characters, the path is C-style quoted. To
-avoid quoting, pass option `-z` to terminate each line with a NUL.
+Ha egy útvonal bármilyen speciális karaktert tartalmaz, az útvonal
+C-stílusban idézőjelbe kerül. Az idézőjelezés elkerüléséhez add meg a
+`-z` opciót, hogy minden sort NUL-lal zárjon le.
 
 ------------
  <oid> TAB <path> NUL
@@ -78,4 +82,4 @@ linkgit:git-log[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

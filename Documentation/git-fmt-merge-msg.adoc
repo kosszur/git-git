@@ -3,7 +3,7 @@ git-fmt-merge-msg(1)
 
 NAME
 ----
-git-fmt-merge-msg - Produce a merge commit message
+git-fmt-merge-msg - Létrehoz egy merge-commit-üzenetet
 
 
 SYNOPSIS
@@ -14,53 +14,53 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Takes the list of merged objects on stdin and produces a suitable
-commit message to be used for the merge commit, usually to be
-passed as the '<merge-message>' argument of 'git merge'.
+A merge-elt objektumok listáját veszi a stdin-ről, és egy megfelelő
+commit-üzenetet állít elő a merge-commithoz, amelyet rendszerint a
+'git merge' '<merge-message>' argumentumaként adnak át.
 
-This command is intended mostly for internal use by scripts
-automatically invoking 'git merge'.
+Ez a parancs elsősorban a 'git merge'-et automatikusan meghívó
+szkriptek belső használatára szolgál.
 
 OPTIONS
 -------
 
 --log[=<n>]::
-	In addition to branch names, populate the log message with
-	one-line descriptions from the actual commits that are being
-	merged.  At most <n> commits from each merge parent will be
-	used (20 if <n> is omitted).  This overrides the `merge.log`
-	configuration variable.
+	A branchnevek mellett a napló-üzenetet feltölti a merge-elt
+	commitok tényleges, egysoros leírásaival is. Merge-szülőnként
+	legfeljebb <n> commit lesz felhasználva (20, ha az <n> el van
+	hagyva). Ez felülbírálja a `merge.log` konfigurációs változót.
 
 --no-log::
-	Do not list one-line descriptions from the actual commits being
-	merged.
+	Nem sorolja fel a merge-elt commitok tényleges, egysoros
+	leírásait.
 
 --summary::
 --no-summary::
-	Synonyms to --log and --no-log; these are deprecated and will be
-	removed in the future.
+	A --log és a --no-log szinonimái; ezek elavultak, és a
+	jövőben eltávolításra kerülnek.
 
 -m <message>::
 --message <message>::
-	Use <message> instead of the branch names for the first line
-	of the log message.  For use with `--log`.
+	A branchnevek helyett a <message>-t használja a napló-üzenet
+	első soraként. A `--log`-gal együtt használandó.
 
 --into-name <branch>::
-	Prepare the merge message as if merging to the branch `<branch>`,
-	instead of the name of the real branch to which the merge is made.
+	Úgy készíti el a merge-üzenetet, mintha a `<branch>` branchbe
+	merge-elnénk, ahelyett a valódi branch neve helyett, amelybe a
+	merge történik.
 
 -F <file>::
 --file <file>::
-	Take the list of merged objects from <file> instead of
-	stdin.
+	A merge-elt objektumok listáját a <file>-ból veszi, nem a
+	stdin-ről.
 
 CONFIGURATION
 -------------
 include::config/fmt-merge-msg.adoc[]
 
 merge.summary::
-	Synonym to `merge.log`; this is deprecated and will be removed in
-	the future.
+	A `merge.log` szinonimája; ez elavult, és a jövőben
+	eltávolításra kerül.
 
 EXAMPLES
 --------
@@ -70,8 +70,8 @@ $ git fetch origin master
 $ git fmt-merge-msg --log <$GIT_DIR/FETCH_HEAD
 ---------
 
-Print a log message describing a merge of the "master" branch from
-the "origin" remote.
+Kiír egy napló-üzenetet, amely a "master" branch mergeét írja le az
+"origin" remote-ból.
 
 
 SEE ALSO
@@ -80,4 +80,4 @@ linkgit:git-merge[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

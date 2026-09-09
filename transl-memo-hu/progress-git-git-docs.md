@@ -88,7 +88,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-fetch-pack.adoc | [x] |  | 2026-09-04 |
 | git-fetch.adoc | [x] |  | 2026-09-04 |
 | git-filter-branch.adoc | [x] |  | 2026-09-04 |
-| git-fmt-merge-msg.adoc | [ ] |  |  |
+| git-fmt-merge-msg.adoc | [x] |  | 2026-09-10 |
 | git-for-each-ref.adoc | [ ] |  |  |
 | git-for-each-repo.adoc | [x] |  | 2026-09-10 |
 | git-format-patch.adoc | [ ] |  |  |
@@ -111,9 +111,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-index-pack.adoc | [ ] |  |  |
 | git-init-db.adoc | [x] |  | 2026-09-10 |
 | git-init.adoc | [ ] |  |  |
-| git-instaweb.adoc | [ ] |  |  |
+| git-instaweb.adoc | [x] |  | 2026-09-10 |
 | git-interpret-trailers.adoc | [ ] |  |  |
-| git-last-modified.adoc | [ ] |  |  |
+| git-last-modified.adoc | [x] |  | 2026-09-10 |
 | git-log.adoc | [ ] |  |  |
 | git-ls-files.adoc | [ ] |  |  |
 | git-ls-remote.adoc | [ ] |  |  |
@@ -123,7 +123,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-maintenance.adoc | [ ] |  |  |
 | git-merge-base.adoc | [ ] |  |  |
 | git-merge-file.adoc | [ ] |  |  |
-| git-merge-index.adoc | [ ] |  |  |
+| git-merge-index.adoc | [x] |  | 2026-09-10 |
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-tree.adoc | [ ] |  |  |
 | git-merge.adoc | [ ] |  |  |
@@ -132,7 +132,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mktag.adoc | [x] |  | 2026-09-10 |
 | git-mktree.adoc | [x] |  | 2026-09-10 |
 | git-multi-pack-index.adoc | [ ] |  |  |
-| git-mv.adoc | [ ] |  |  |
+| git-mv.adoc | [x] |  | 2026-09-10 |
 | git-name-rev.adoc | [ ] |  |  |
 | git-notes.adoc | [ ] |  |  |
 | git-p4.adoc | [ ] |  |  |
@@ -141,7 +141,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-pack-refs.adoc | [x] |  | 2026-09-10 |
 | git-patch-id.adoc | [ ] |  |  |
 | git-prune-packed.adoc | [x] |  | 2026-09-10 |
-| git-prune.adoc | [ ] |  |  |
+| git-prune.adoc | [x] |  | 2026-09-10 |
 | git-pull.adoc | [ ] |  |  |
 | git-push.adoc | [ ] |  |  |
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
@@ -158,7 +158,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-replace.adoc | [ ] |  |  |
 | git-replay.adoc | [ ] |  |  |
 | git-repo.adoc | [ ] |  |  |
-| git-request-pull.adoc | [ ] |  |  |
+| git-request-pull.adoc | [x] |  | 2026-09-10 |
 | git-rerere.adoc | [ ] |  |  |
 | git-reset.adoc | [ ] |  |  |
 | git-restore.adoc | [ ] |  |  |
@@ -176,7 +176,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-show-branch.adoc | [ ] |  |  |
 | git-show-index.adoc | [x] |  | 2026-09-10 |
 | git-show-ref.adoc | [ ] |  |  |
-| git-show.adoc | [ ] |  |  |
+| git-show.adoc | [x] |  | 2026-09-10 |
 | git-sparse-checkout.adoc | [ ] |  |  |
 | git-stage.adoc | [x] |  | 2026-09-10 |
 | git-stash.adoc | [ ] |  |  |
@@ -185,7 +185,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-submodule.adoc | [ ] |  |  |
 | git-svn.adoc | [ ] |  |  |
 | git-switch.adoc | [ ] |  |  |
-| git-symbolic-ref.adoc | [ ] |  |  |
+| git-symbolic-ref.adoc | [x] |  | 2026-09-10 |
 | git-tag.adoc | [ ] |  |  |
 | git-tools.adoc | [x] |  | 2026-09-10 |
 | git-unpack-file.adoc | [x] |  | 2026-09-10 |
@@ -195,7 +195,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
 | git-upload-archive.adoc | [x] |  | 2026-09-10 |
 | git-upload-pack.adoc | [ ] |  |  |
-| git-url-parse.adoc | [ ] |  |  |
+| git-url-parse.adoc | [x] |  | 2026-09-10 |
 | git-var.adoc | [ ] |  |  |
 | git-verify-commit.adoc | [x] |  | 2026-09-10 |
 | git-verify-pack.adoc | [x] |  | 2026-09-10 |
@@ -583,3 +583,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   terminológiai előfordulás (`git-remote-fd.adoc`, `git-upload-archive.adoc`) a 17. blokkban
   rögzített ad hoc, idézőjeles kezeléssel lett fordítva, konzisztensen. Orchestrátor végezte
   közvetlenül. Részletek: `glossary-git-git-docs.md` „19. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész**: `git-mv.adoc`,
+  `git-url-parse.adoc`, `git-last-modified.adoc`, `git-symbolic-ref.adoc`, `git-fmt-merge-msg.adoc`,
+  `git-merge-index.adoc`, `git-request-pull.adoc`, `git-prune.adoc`, `git-show.adoc`,
+  `git-instaweb.adoc`. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md`
+  „20. blokk".

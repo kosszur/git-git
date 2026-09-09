@@ -3,7 +3,7 @@ git-url-parse(1)
 
 NAME
 ----
-git-url-parse - Parse and extract git URL components
+git-url-parse - Feldolgozza és kinyeri a git URL-ek összetevőit
 
 SYNOPSIS
 --------
@@ -13,46 +13,50 @@ git url-parse [-c <component>] [--] <url>...
 DESCRIPTION
 -----------
 
-Git supports many ways to specify URLs, some of them non-standard.
-For example, git supports the scp style [user@]host:[path] format.
-This command eases interoperability with git URLs by enabling the
-parsing and extraction of the components of all git URLs.
+A Git sokféle módon támogatja az URL-ek megadását, ezek közül néhány
+nem szabványos. Például a git támogatja az scp-stílusú
+[user@]host:[path] formátumot. Ez a parancs megkönnyíti a
+git URL-ekkel való interoperabilitást azáltal, hogy lehetővé teszi
+minden git URL összetevőinek feldolgozását és kinyerését.
 
-Any syntactically valid URL is parsed, even if the scheme is not one
-git supports for fetching or pushing.
+Minden szintaktikailag érvényes URL feldolgozásra kerül, még akkor
+is, ha a séma nem olyan, amelyet a git a letöltéshez vagy a pusholáshoz
+támogat.
 
 OPTIONS
 -------
 
 `-c <component>`::
 `--component <component>`::
-	Extract the _<component>_ component from the given Git URLs.
-	_<component>_ can be one of:
+	Kinyeri a _<component>_ összetevőt a megadott Git URL-ekből.
+	A _<component>_ a következők egyike lehet:
 	`scheme`, `user`, `password`, `host`, `port`, `path`.
 
 OUTPUT
 ------
 
-When `--component` is given, the requested component of each URL
-is printed on its own line, in the order the URLs were given. If
-the URL has no such component (for example, a port in a URL that
-does not specify one), an empty line is printed in its place.
+Ha a `--component` meg van adva, minden URL kért összetevője saját
+sorában kerül kiírásra, abban a sorrendben, ahogy az URL-ek meg
+lettek adva. Ha az URL-nek nincs ilyen összetevője (például egy port
+egy olyan URL-ben, amely nem ad meg ilyet), a helyén egy üres sor
+kerül kiírásra.
 
-When `--component` is not given, no output is produced. The exit
-status is zero if every URL parses successfully and non-zero
-otherwise, allowing the command to be used purely as a validator.
+Ha a `--component` nincs megadva, nem keletkezik kimenet. A kilépési
+állapot nulla, ha minden URL sikeresen feldolgozásra kerül, egyébként
+nem nulla, ami lehetővé teszi, hogy a parancsot tisztán
+validátorként használd.
 
 EXAMPLES
 --------
 
-* Print the host name:
+* A hosztnév kiírása:
 +
 ------------
 $ git url-parse --component host https://example.com/user/repo
 example.com
 ------------
 
-* Print the path:
+* Az útvonal kiírása:
 +
 ------------
 $ git url-parse --component path https://example.com/user/repo
@@ -63,7 +67,7 @@ $ git url-parse --component path example.com:user/repo
 /user/repo
 ------------
 
-* Validate URLs without outputting anything:
+* URL-ek érvényesítése bármilyen kimenet nélkül:
 +
 ------------
 $ git url-parse https://example.com/user/repo example.com:~user/repo
@@ -77,4 +81,4 @@ linkgit:git-config[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

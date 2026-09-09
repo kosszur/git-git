@@ -1335,3 +1335,54 @@ ebbe a blokkba, a `git-mv.adoc` a következőbe.
 - Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`-------------` kódblokk-határolók párban
   vannak, a `rev-list-description.adoc` 6+6 `ifdef::`/`endif::` párja épen maradt, nincs
   `[[...]]`, a bekezdéshatárok megtartva.
+
+## 20. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–19. blokkban. Fájlok: `git-mv.adoc`, `git-url-parse.adoc`,
+`git-last-modified.adoc`, `git-symbolic-ref.adoc`, `git-fmt-merge-msg.adoc`, `git-merge-index.adoc`,
+`git-request-pull.adoc`, `git-prune.adoc`, `git-show.adoc`, `git-instaweb.adoc`.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| detached HEAD | **„leválasztott HEAD"** | `git-symbolic-ref.adoc` — a 0. blokk öröklött terminusának alkalmazása, korábbi (pl. `git-checkout.adoc`) fájlokban már bevezetve, itt nem kellett újra glosszázni |
+| EXPERIMENTAL: (NAME-mező előtag) | **„KÍSÉRLETI:"** | `git-last-modified.adoc` — új, ad hoc mintázat man-page NAME-mezőkben |
+| THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE. | **„EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT."** | `git-last-modified.adoc` — a `git-backfill.adoc` (3. blokk)/`git-for-each-repo.adoc` (19. blokk) pontos mintáját ismétli |
+| "Specifying Ranges" section (`git-last-modified.adoc`, idézőjeles prózahivatkozás) | **angolul maradt** | a 7. blokk (`git-blame.adoc`) „SPECIFYING RANGES" precedensét folytatja |
+| "SPECIFYING REVISIONS" section (`git-show.adoc`, idézőjeles prózahivatkozás) | **angolul maradt** | a `git-diff.adoc`-beli (14. blokk) azonos precedens megismétlése |
+| merge object order (idézőjeles, coined kifejezés) | **marad angolul, idézőjelben** | `git-merge-index.adoc` — a doksi maga is idézőjelbe teszi mind a Git, mind az RCS változatát, nincs bevett magyar megfelelője |
+| ALERT ALERT ALERT! | **„FIGYELEM, FIGYELEM, FIGYELEM!"** | `git-merge-index.adoc` — a csupa nagybetűs, felkiáltásos stílus megtartva |
+| lookup/binds (webszerver-kontextus, `git-instaweb.adoc`) | **„köt"** (bind) | `--local` opció leírásában |
+| Examples: / Példák: (nem hivatalos, kettőspontos bekezdés-cím, NEM `--------` aláhúzásos AsciiDoc heading) | **fordítva** | `git-merge-index.adoc` — sima próza, nem szekciócím, tehát nem esik semmilyen man-page-szabály alá |
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- `DIFF FORMATTING` (`git-show.adoc`) — a „VÉGLEGES DÖNTÉS" szabály szerint automatikusan angolul
+  maradt.
+- A többi fájlban csak kanonikus man-page címek (NAME, SYNOPSIS, DESCRIPTION, OPTIONS, SUBMODULES
+  [korábbi precedens, l. 10. blokk], BUGS, EXAMPLES, NOTES, DISCUSSION, CONFIGURATION, SEE ALSO,
+  GIT).
+
+### Megőrzött markup / megjegyzések
+
+- `git-merge-index.adoc`: mindhárom `----...----` kódblokk (a két EXAMPLES-terminálátirat és a
+  hibaüzenet-blokk) bájtazonos, beleértve a bennük lévő angol inline kommenteket is
+  (`# original`, `# merge1` stb.) — ezek a literál program-kimenet részei, nem próza.
+- `git-show.adoc`: az `:git-log: 1` és `:diff-merges-default:` dokumentum-attribútum-sorok, valamint
+  az `include::pretty-options.adoc[]`, `include::pretty-formats.adoc[]`, `include::diff-options.adoc[]`,
+  `include::diff-generate-patch.adoc[]`, `include::i18n.adoc[]` sorok változatlanok.
+  A `v1.0.0^{tree}`, `v1.0.0^{commit}` caret-jelölések és a `%s` pretty-format-token változatlanok.
+- `git-instaweb.adoc`: a `-----------------------------------------------------------------------`
+  (71 kötőjel) config-mintablokk (`[instaweb]` szekció) bájtazonos, csak a bevezető mondat fordult.
+  A `{litdd}` attribútum-referenciák (`git-web{litdd}browse`) változatlanok.
+- `git-prune.adoc`: a `NOTE:` admonition-kulcsszó (valódi makró) változatlan, csak a mögötte lévő
+  próza fordult, beleértve a `"NOTES"` szakaszcím-idézetet is (a cél szakaszcím maga is angolul
+  marad, kanonikus lista).
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva.
+- Szintaxis-ellenőrzés: mind a 10 fájlban a kódblokk-határolók párban vannak, nincs `ifdef::`/
+  `endif::`, nincs `[[...]]`/`<<...>>`, a bekezdéshatárok megtartva.

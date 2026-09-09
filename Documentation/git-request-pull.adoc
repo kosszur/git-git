@@ -3,7 +3,7 @@ git-request-pull(1)
 
 NAME
 ----
-git-request-pull - Generates a summary of pending changes
+git-request-pull - Egy összefoglalót generál a függőben lévő változtatásokról
 
 SYNOPSIS
 --------
@@ -13,69 +13,72 @@ git request-pull [-p] <start> <URL> [<end>]
 DESCRIPTION
 -----------
 
-Generate a request asking your upstream project to pull changes into
-their tree.  The request, printed to the standard output,
-begins with the branch description, summarizes
-the changes, and indicates from where they can be pulled.
+Generál egy kérést, amely arra kéri az upstream projektet, hogy
+húzza be (pull) a változtatásokat a fájukba. A kérés, amely a
+standard kimenetre íródik ki, a branch leírásával kezdődik,
+összefoglalja a változtatásokat, és jelzi, honnan lehet őket
+lehúzni.
 
-The upstream project is expected to have the commit named by
-_<start>_ and the output asks it to integrate the changes you made
-since that commit, up to the commit named by _<end>_, by visiting
-the repository named by _<URL>_.
+Az upstream projektről feltételezi, hogy megvan neki a _<start>_
+által megnevezett commit, és a kimenet arra kéri, hogy integrálja az
+azóta a commit óta végzett változtatásaidat, egészen a _<end>_ által
+megnevezett commitig, a _<URL>_ által megnevezett repository
+felkeresésével.
 
 
 OPTIONS
 -------
 `-p`::
-	Include patch text in the output.
+	Belefoglalja a patch-szöveget a kimenetbe.
 
 _<start>_::
-	Commit to start at.  This names a commit that is already in
-	the upstream history.
+	A kezdő commit. Ez egy olyan commitot nevez meg, amely már
+	benne van az upstream előzményekben.
 
 _<URL>_::
-	The repository URL to be pulled from.
+	A lehúzáshoz (pull) használandó repository URL.
 
 _<end>_::
-	Commit to end at (defaults to `HEAD`).  This names the commit
-	at the tip of the history you are asking to be pulled.
+	A záró commit (alapértelmezés: `HEAD`). Ez azt a commitot
+	nevezi meg, amely az előzmények csúcsán van, amelyet le
+	szeretnél húzatni.
 +
-When the repository named by _<URL>_ has the commit at a tip of a
-ref that is different from the ref you have locally, you can use the
-`<local>:<remote>` syntax, to have its local name, a colon `:`, and
-its remote name.
+Ha a _<URL>_ által megnevezett repository-ban a commit egy olyan
+referencia csúcsán van, amely eltér a nálad helyileg meglévő
+referenciától, használhatod a `<local>:<remote>` szintaxist, hogy
+megadd a helyi nevét, egy kettőspontot (`:`), és a remote nevét.
 
 
 EXAMPLES
 --------
 
-Imagine that you built your work on your `master` branch on top of
-the `v1.0` release, and want it to be integrated into the project.
-First you push that change to your public repository for others to
-see:
+Képzeld el, hogy a munkádat a `master` branchen, a `v1.0` kiadás
+tetején építetted, és szeretnéd, ha integrálva lenne a projektbe.
+Először pusholod ezt a változtatást a nyilvános repository-dba, hogy
+mások is lássák:
 
 ----
 git push https://git.ko.xz/project master
 ----
 
-Then, you run this command:
+Aztán lefuttatod ezt a parancsot:
 
 ----
 git request-pull v1.0 https://git.ko.xz/project master
 ----
 
-which will produce a request to the upstream, summarizing the
-changes between the `v1.0` release and your `master`, to pull it
-from your public repository.
+amely egy kérést állít elő az upstream felé, összefoglalva a `v1.0`
+kiadás és a `master`-ed közötti változtatásokat, hogy lehúzhassa
+azokat a nyilvános repository-dból.
 
-If you pushed your change to a branch whose name is different from
-the one you have locally, e.g.
+Ha a változtatásodat egy olyan branchre pusholtad, amelynek neve
+eltér a nálad helyileg meglévőtől, pl.
 
 ----
 git push https://git.ko.xz/project master:for-linus
 ----
 
-then you can ask that to be pulled with
+akkor ezt kérheted lehúzatni a következővel:
 
 ----
 git request-pull v1.0 https://git.ko.xz/project master:for-linus
@@ -84,4 +87,4 @@ git request-pull v1.0 https://git.ko.xz/project master:for-linus
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

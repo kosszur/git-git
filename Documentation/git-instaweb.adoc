@@ -3,7 +3,7 @@ git-instaweb(1)
 
 NAME
 ----
-git-instaweb - Instantly browse your working repository in gitweb
+git-instaweb - Azonnal böngészd a munka-repository-dat a gitwebben
 
 SYNOPSIS
 --------
@@ -14,62 +14,64 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-A simple script to set up `gitweb` and a web server for browsing the local
-repository.
+Egy egyszerű szkript a `gitweb` és egy webszerver beállítására a helyi
+repository böngészéséhez.
 
 OPTIONS
 -------
 
 -l::
 --local::
-	Only bind the web server to the local IP (127.0.0.1).
+	Csak a helyi IP-hez (127.0.0.1) köti a webszervert.
 
 -d::
 --httpd::
-	The HTTP daemon command-line that will be executed.
-	Command-line options may be specified here, and the
-	configuration file will be added at the end of the command-line.
-	Currently apache2, lighttpd, mongoose, plackup, python and
-	webrick are supported.
-	(Default: lighttpd)
+	A végrehajtandó HTTP daemon parancssora. Itt parancssori
+	opciók is megadhatók, a konfigurációs fájl pedig a
+	parancssor végéhez kerül hozzáadásra. Jelenleg az apache2, a
+	lighttpd, a mongoose, a plackup, a python és a webrick
+	támogatott.
+	(Alapértelmezés: lighttpd)
 
 -m::
 --module-path::
-	The module path (only needed if httpd is Apache).
-	(Default: /usr/lib/apache2/modules)
+	A modul-útvonal (csak akkor szükséges, ha a httpd Apache).
+	(Alapértelmezés: /usr/lib/apache2/modules)
 
 -p::
 --port::
-	The port number to bind the httpd to.  (Default: 1234)
+	A portszám, amelyhez a httpd-t kötni kell. (Alapértelmezés: 1234)
 
 -b::
 --browser::
-	The web browser that should be used to view the gitweb
-	page. This will be passed to the 'git web{litdd}browse' helper
-	script along with the URL of the gitweb instance. See
-	linkgit:git-web{litdd}browse[1] for more information about this. If
-	the script fails, the URL will be printed to stdout.
+	A gitweb-oldal megtekintéséhez használandó webböngésző. Ez
+	átadásra kerül a 'git web{litdd}browse' segédszkriptnek, a
+	gitweb-példány URL-jével együtt. Lásd a
+	linkgit:git-web{litdd}browse[1]-et további információért erről.
+	Ha a szkript sikertelen, az URL a stdout-ra kerül kiírásra.
 
 start::
 --start::
-	Start the httpd instance and exit.  Regenerate configuration files
-	as necessary for spawning a new instance.
+	Elindítja a httpd-példányt, és kilép. Szükség szerint
+	újragenerálja a konfigurációs fájlokat egy új példány
+	indításához.
 
 stop::
 --stop::
-	Stop the httpd instance and exit.  This does not generate
-	any of the configuration files for spawning a new instance,
-	nor does it close the browser.
+	Leállítja a httpd-példányt, és kilép. Ez nem generálja a
+	konfigurációs fájlokat egy új példány indításához, és nem is
+	zárja be a böngészőt.
 
 restart::
 --restart::
-	Restart the httpd instance and exit.  Regenerate configuration files
-	as necessary for spawning a new instance.
+	Újraindítja a httpd-példányt, és kilép. Szükség szerint
+	újragenerálja a konfigurációs fájlokat egy új példány
+	indításához.
 
 CONFIGURATION
 -------------
 
-You may specify configuration in your .git/config
+Megadhatsz konfigurációt a .git/config fájlodban
 
 -----------------------------------------------------------------------
 [instaweb]
@@ -81,9 +83,9 @@ You may specify configuration in your .git/config
 
 -----------------------------------------------------------------------
 
-If the configuration variable `instaweb.browser` is not set,
-`web.browser` will be used instead if it is defined. See
-linkgit:git-web{litdd}browse[1] for more information about this.
+Ha az `instaweb.browser` konfigurációs változó nincs beállítva,
+helyette a `web.browser` lesz használva, ha az definiálva van. Lásd
+a linkgit:git-web{litdd}browse[1]-et további információért erről.
 
 SEE ALSO
 --------
@@ -91,4 +93,4 @@ linkgit:gitweb[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

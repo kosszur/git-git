@@ -3,7 +3,7 @@ git-prune(1)
 
 NAME
 ----
-git-prune - Prune all unreachable objects from the object database
+git-prune - Minden el nem érhető objektumot eltávolít az objektumadatbázisból
 
 
 SYNOPSIS
@@ -14,54 +14,53 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-NOTE: In most cases, users should run 'git gc', which calls
-'git prune'. See the section "NOTES", below.
+NOTE: A legtöbb esetben a felhasználóknak a 'git gc'-t kellene
+futtatniuk, amely meghívja a 'git prune'-t. Lásd lent a "NOTES"
+szakaszt.
 
-This runs 'git fsck --unreachable' using all the refs
-available in `refs/`, optionally with an additional set of
-objects specified on the command line, and prunes all unpacked
-objects unreachable from any of these head objects from the object database.
-In addition, it
-prunes the unpacked objects that are also found in packs by
-running 'git prune-packed'.
-It also removes entries from .git/shallow that are not reachable by
-any ref.
+Ez lefuttatja a 'git fsck --unreachable'-t, a `refs/`-ben elérhető
+összes referenciát felhasználva, opcionálisan a parancssorban
+megadott objektumok egy további halmazával, és eltávolítja az
+objektumadatbázisból az összes csomagolatlan objektumot, amely egyik
+ilyen head-objektumból sem érhető el. Emellett a 'git prune-packed'
+futtatásával eltávolítja azokat a csomagolatlan objektumokat is,
+amelyek packekben is megtalálhatók. Emellett eltávolítja a
+.git/shallow-ból azokat a bejegyzéseket, amelyek egyetlen
+referenciából sem érhetők el.
 
-Note that unreachable, packed objects will remain.  If this is
-not desired, see linkgit:git-repack[1].
+Vedd figyelembe, hogy az el nem érhető, csomagolt objektumok
+megmaradnak. Ha ez nem kívánt, lásd a linkgit:git-repack[1]-et.
 
 OPTIONS
 -------
 
 -n::
 --dry-run::
-	Do not remove anything; just report what it would
-	remove.
+	Nem távolít el semmit; csak jelenti, mit távolítana el.
 
 -v::
 --verbose::
-	Report all removed objects.
+	Jelenti az összes eltávolított objektumot.
 
 --progress::
-	Show progress.
+	Megmutatja a folyamatot.
 
 --expire <time>::
-	Only expire loose objects older than <time>.
+	Csak a <time>-nál régebbi laza objektumokat járatja le.
 
 \--::
-	Do not interpret any more arguments as options.
+	A további argumentumokat már nem értelmezi opcióként.
 
 <head>...::
-	In addition to objects
-	reachable from any of our references, keep objects
-	reachable from listed <head>s.
+	A referenciáink bármelyikéből elérhető objektumok mellett a
+	felsorolt <head>ekből elérhető objektumokat is megtartja.
 
 EXAMPLES
 --------
 
-To prune objects not used by your repository or another that
-borrows from your repository via its
-`.git/objects/info/alternates`:
+Olyan objektumok eltávolítására, amelyeket a repository-d nem
+használ, vagy egy másik, amely a `.git/objects/info/alternates`-en
+keresztül kölcsönöz a repository-dból:
 
 ------------
 $ git prune $(cd ../another && git rev-parse --all)
@@ -70,12 +69,12 @@ $ git prune $(cd ../another && git rev-parse --all)
 NOTES
 -----
 
-In most cases, users will not need to call 'git prune' directly, but
-should instead call 'git gc', which handles pruning along with
-many other housekeeping tasks.
+A legtöbb esetben a felhasználóknak nem kell közvetlenül meghívniuk
+a 'git prune'-t, hanem ehelyett a 'git gc'-t kellene meghívniuk,
+amely a prune-olás mellett sok más karbantartási feladatot is kezel.
 
-For a description of which objects are considered for pruning, see
-'git fsck''s --unreachable option.
+Annak leírásáért, hogy mely objektumok jönnek szóba prune-olásra,
+lásd a 'git fsck' --unreachable opcióját.
 
 SEE ALSO
 --------
@@ -86,4 +85,4 @@ linkgit:git-reflog[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

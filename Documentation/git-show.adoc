@@ -3,7 +3,7 @@ git-show(1)
 
 NAME
 ----
-git-show - Show various types of objects
+git-show - Objektumok különböző típusait jeleníti meg
 
 
 SYNOPSIS
@@ -13,31 +13,34 @@ git show [<options>] [<object>...]
 
 DESCRIPTION
 -----------
-Shows one or more objects (blobs, trees, tags and commits).
+Megjelenít egy vagy több objektumot (blobokat, fákat, tageket és
+commitokat).
 
-For commits it shows the log message and textual diff. It also
-presents the merge commit in a special format as produced by
-`git diff-tree --cc`.
+Commitok esetén megjeleníti a napló-üzenetet és a szöveges diffet.
+A merge-commitot is megjeleníti egy speciális, a
+`git diff-tree --cc` által előállított formátumban.
 
-For tags, it shows the tag message and the referenced objects.
+Tagek esetén megjeleníti a tag-üzenetet és a hivatkozott
+objektumokat.
 
-For trees, it shows the names (equivalent to `git ls-tree`
-with `--name-only`).
+Fák esetén megjeleníti a neveket (egyenértékű a `--name-only`-val
+hívott `git ls-tree`-vel).
 
-For plain blobs, it shows the plain contents.
+Sima blobok esetén megjeleníti a sima tartalmat.
 
-Some options that `git log` command understands can be used to
-control how the changes the commit introduces are shown.
+Néhány, a `git log` parancs által ismert opció felhasználható a
+commit által bevezetett változtatások megjelenítésének
+vezérlésére.
 
-This manual page describes only the most frequently used options.
+Ez a man page csak a leggyakrabban használt opciókat írja le.
 
 
 OPTIONS
 -------
 `<object>...`::
-	The names of objects to show (defaults to `HEAD`).
-	For a more complete list of ways to spell object names, see
-	"SPECIFYING REVISIONS" section in linkgit:gitrevisions[7].
+	A megjelenítendő objektumok nevei (alapértelmezés: `HEAD`).
+	Az objektumnevek megadásának teljesebb listájáért lásd a
+	linkgit:gitrevisions[7] "SPECIFYING REVISIONS" szakaszát.
 
 include::pretty-options.adoc[]
 
@@ -47,8 +50,8 @@ include::pretty-formats.adoc[]
 
 DIFF FORMATTING
 ---------------
-The options below can be used to change the way `git show` generates
-diff output.
+Az alábbi opciók felhasználhatók annak megváltoztatására, ahogy a
+`git show` előállítja a diff-kimenetet.
 
 :git-log: 1
 :diff-merges-default: `dense-combined`
@@ -61,24 +64,22 @@ EXAMPLES
 --------
 
 `git show v1.0.0`::
-	Shows the tag `v1.0.0`, along with the object the tag
-	points at.
+	Megjeleníti a `v1.0.0` taget, valamint azt az objektumot,
+	amelyre a tag mutat.
 
 `git show v1.0.0^{tree}`::
-	Shows the tree pointed to by the tag `v1.0.0`.
+	Megjeleníti a `v1.0.0` tag által mutatott fát.
 
 `git show -s --format=%s v1.0.0^{commit}`::
-	Shows the subject of the commit pointed to by the
-	tag `v1.0.0`.
+	Megjeleníti a `v1.0.0` tag által mutatott commit tárgyát.
 
 `git show next~10:Documentation/README`::
-	Shows the contents of the file `Documentation/README` as
-	they were current in the 10th last commit of the branch
-	`next`.
+	Megjeleníti a `Documentation/README` fájl tartalmát, ahogy az
+	a `next` branch 10. utolsó commitjában aktuális volt.
 
 `git show master:Makefile master:t/Makefile`::
-	Concatenates the contents of said Makefiles in the head
-	of the branch `master`.
+	Összefűzi az említett Makefile-ok tartalmát a `master` branch
+	head-jében.
 
 DISCUSSION
 ----------
@@ -87,4 +88,4 @@ include::i18n.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

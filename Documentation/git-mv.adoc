@@ -3,7 +3,7 @@ git-mv(1)
 
 NAME
 ----
-git-mv - Move or rename a file, a directory, or a symlink
+git-mv - Áthelyez vagy átnevez egy fájlt, egy könyvtárat vagy egy symlinket
 
 
 SYNOPSIS
@@ -15,54 +15,57 @@ git mv [-v] [-f] [-n] [-k] <source>... <destination-directory>
 
 DESCRIPTION
 -----------
-Move or rename a file, directory, or symlink.
+Áthelyez vagy átnevez egy fájlt, könyvtárat vagy symlinket.
 
-In the first form, it renames _<source>_, which must exist and be either
-a file, symlink or directory, to _<destination>_.
-In the second form, _<destination-directory>_ has to be an existing
-directory; the given sources will be moved into this directory.
+Az első alakban átnevezi a _<source>_-t (amelynek léteznie kell, és
+fájlnak, symlinknek vagy könyvtárnak kell lennie) a _<destination>_-re.
+A második alakban a _<destination-directory>_-nak egy meglévő
+könyvtárnak kell lennie; a megadott forrásokat ebbe a könyvtárba
+helyezi át.
 
-The index is updated after successful completion, but the change must still be
-committed.
+Az index a sikeres befejezés után frissül, de a változtatást még
+commitolni kell.
 
 OPTIONS
 -------
 `-f`::
 `--force`::
-	Force renaming or moving of a file even if the <destination> exists.
+	Kikényszeríti egy fájl átnevezését vagy áthelyezését akkor is,
+	ha a <destination> már létezik.
 `-k`::
-	Skip move or rename actions which would lead to an error
-	condition. An error happens when a source is neither existing nor
-	controlled by Git, or when it would overwrite an existing
-	file unless `-f` is given.
+	Kihagyja azokat az áthelyezési vagy átnevezési műveleteket,
+	amelyek hibaállapothoz vezetnének. Hiba akkor történik, ha egy
+	forrás sem nem létezik, sem nincs Git által kezelve, vagy ha
+	felülírna egy meglévő fájlt, hacsak a `-f` nincs megadva.
 `-n`::
 `--dry-run`::
-	Do nothing; only show what would happen
+	Nem csinál semmit; csak megmutatja, mi történne
 
 `-v`::
 `--verbose`::
-	Report the names of files as they are moved.
+	Jelenti a fájlok neveit, ahogy áthelyezésre kerülnek.
 
 SUBMODULES
 ----------
-Moving a submodule using a gitfile (which means they were cloned
-with a Git version 1.7.8 or newer) will update the gitfile and
-core.worktree setting to make the submodule work in the new location.
-It also will attempt to update the `submodule.<name>.path` setting in
-the linkgit:gitmodules[5] file and stage that file (unless `-n` is used).
+Egy submodule gitfile-lal (ami azt jelenti, hogy Git 1.7.8-as vagy
+újabb verzióval lettek klónozva) történő áthelyezése frissíti a
+gitfile-t és a core.worktree beállítást, hogy a submodule működjön az
+új helyen. Emellett megpróbálja frissíteni a `submodule.<name>.path`
+beállítást a linkgit:gitmodules[5] fájlban, és stage-eli azt a fájlt
+(hacsak a `-n` nincs használva).
 
 BUGS
 ----
-Each time a superproject update moves a populated submodule (e.g. when
-switching between commits before and after the move) a stale submodule
-checkout will remain in the old location and an empty directory will
-appear in the new location. To populate the submodule again in the new
-location the user will have to run "git submodule update"
-afterwards. Removing the old directory is only safe when it uses a
-gitfile, as otherwise the history of the submodule will be deleted
-too. Both steps will be obsolete when recursive submodule update has
-been implemented.
+Minden alkalommal, amikor egy szuperprojekt-frissítés áthelyez egy
+feltöltött submodule-t (pl. az áthelyezés előtti és utáni commitok
+közötti váltáskor), egy elavult submodule-checkout marad a régi
+helyen, és egy üres könyvtár jelenik meg az új helyen. A submodule
+újbóli feltöltéséhez az új helyen a felhasználónak utána le kell
+futtatnia a "git submodule update"-et. A régi könyvtár eltávolítása
+csak akkor biztonságos, ha az egy gitfile-t használ, mert egyébként a
+submodule előzményei is törlődnek. Mindkét lépés elavulttá válik,
+amint megvalósításra kerül a rekurzív submodule-frissítés.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
