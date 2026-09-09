@@ -3,7 +3,7 @@ git-upload-archive(1)
 
 NAME
 ----
-git-upload-archive - Send archive back to git-archive
+git-upload-archive - Visszaküldi az archívumot a git-archive-nak
 
 
 SYNOPSIS
@@ -13,50 +13,54 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Invoked by 'git archive --remote' and sends a generated archive to the
-other end over the Git protocol.
+A 'git archive --remote' hívja meg, és egy generált archívumot küld
+a másik végnek a Git protokollon keresztül.
 
-This command is usually not invoked directly by the end user.  The UI
-for the protocol is on the 'git archive' side, and the program pair
-is meant to be used to get an archive from a remote repository.
+Ezt a parancsot rendszerint nem közvetlenül a végfelhasználó hívja
+meg. A protokoll felhasználói felülete a 'git archive' oldalán van,
+és a programpárt egy archívumnak egy távoli repository-ból való
+lekérésére szánták.
 
 SECURITY
 --------
 
-In order to protect the privacy of objects that have been removed from
-history but may not yet have been pruned, `git-upload-archive` avoids
-serving archives for commits and trees that are not reachable from the
-repository's refs.  However, because calculating object reachability is
-computationally expensive, `git-upload-archive` implements a stricter
-but easier-to-check set of rules:
+Az előzményekből eltávolított, de esetleg még nem prune-olt
+objektumok privátságának védelme érdekében a `git-upload-archive`
+elkerüli olyan commitok és fák archívumainak kiszolgálását, amelyek
+nem érhetők el a repository referenciáiból. Azonban, mivel az
+objektum-elérhetőség kiszámítása számításigényes, a
+`git-upload-archive` egy szigorúbb, de könnyebben ellenőrizhető
+szabálykészletet valósít meg:
 
-  1. Clients may request a commit or tree that is pointed to directly by
-     a ref. E.g., `git archive --remote=origin v1.0`.
+  1. A kliensek kérhetnek olyan commitot vagy fát, amelyre közvetlenül
+     mutat egy referencia. Pl. `git archive --remote=origin v1.0`.
 
-  2. Clients may request a sub-tree within a commit or tree using the
-     `ref:path` syntax. E.g., `git archive --remote=origin v1.0:Documentation`.
+  2. A kliensek kérhetnek egy alfát egy commiton vagy fán belül a
+     `ref:path` szintaxissal. Pl. `git archive --remote=origin v1.0:Documentation`.
 
-  3. Clients may _not_ use other sha1 expressions, even if the end
-     result is reachable. E.g., neither a relative commit like `master^`
-     nor a literal sha1 like `abcd1234` is allowed, even if the result
-     is reachable from the refs.
+  3. A kliensek _nem_ használhatnak más sha1-kifejezéseket, még akkor
+     sem, ha a végeredmény elérhető. Pl. sem egy relatív commit, mint
+     a `master^`, sem egy literál sha1, mint az `abcd1234`, nem
+     engedélyezett, még akkor sem, ha az eredmény elérhető a
+     referenciákból.
 
-Note that rule 3 disallows many cases that do not have any privacy
-implications. These rules are subject to change in future versions of
-git, and the server accessed by `git archive --remote` may or may not
-follow these exact rules.
+Vedd figyelembe, hogy a 3. szabály sok olyan esetet is kizár, amelynek
+nincs semmilyen privátsági vonzata. Ezek a szabályok a git jövőbeli
+verzióiban változhatnak, és a `git archive --remote`-mal elért szerver
+lehet, hogy követi ezeket a pontos szabályokat, lehet, hogy nem.
 
-If the config option `uploadArchive.allowUnreachable` is true, these
-rules are ignored, and clients may use arbitrary sha1 expressions.
-This is useful if you do not care about the privacy of unreachable
-objects, or if your object database is already publicly available for
-access via non-smart-http.
+Ha az `uploadArchive.allowUnreachable` konfigurációs opció true-ra
+van állítva, ezek a szabályok figyelmen kívül maradnak, és a
+kliensek tetszőleges sha1-kifejezéseket használhatnak. Ez akkor
+hasznos, ha nem érdekel az elérhetetlen objektumok privátsága, vagy
+ha az objektumadatbázisod már amúgy is nyilvánosan elérhető
+nem-smart-http-n keresztül.
 
 OPTIONS
 -------
 <repository>::
-	The repository to get a tar archive from.
+	Az a repository, amelyből egy tar-archívumot kell beszerezni.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

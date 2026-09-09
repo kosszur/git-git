@@ -3,7 +3,7 @@ git-hash-object(1)
 
 NAME
 ----
-git-hash-object - Compute object ID and optionally create an object from a file
+git-hash-object - Kiszámítja az objektumazonosítót, és opcionálisan létrehoz egy objektumot egy fájlból
 
 
 SYNOPSIS
@@ -15,51 +15,57 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Computes the object ID value for an object with specified type
-with the contents of the named file (which can be outside of the
-work tree), and optionally writes the resulting object into the
-object database.  Reports its object ID to its standard output.
-When <type> is not specified, it defaults to "blob".
+Kiszámítja az objektumazonosító értékét egy megadott típusú
+objektumhoz, a megnevezett fájl tartalmával (amely a munkakönyvtáron
+kívül is lehet), és opcionálisan kiírja az eredményül kapott
+objektumot az objektumadatbázisba. Az objektumazonosítóját a standard
+kimenetre jelenti. Ha a <type> nincs megadva, alapértelmezés szerint
+"blob".
 
 OPTIONS
 -------
 
 -t <type>::
-	Specify the type of object to be created (default: "blob"). Possible
-	values are `commit`, `tree`, `blob`, and `tag`.
+	Megadja a létrehozandó objektum típusát (alapértelmezés:
+	"blob"). A lehetséges értékek: `commit`, `tree`, `blob` és `tag`.
 
 -w::
-	Actually write the object into the object database.
+	Ténylegesen kiírja az objektumot az objektumadatbázisba.
 
 --stdin::
-	Read the object from standard input instead of from a file.
+	Az objektumot a standard bemenetről olvassa be, nem egy
+	fájlból.
 
 --stdin-paths::
-	Read file names from the standard input, one per line, instead
-	of from the command-line.
+	Fájlneveket olvas be a standard bemenetről, soronként egyet, a
+	parancssor helyett.
 
 --path::
-	Hash object as if it were located at the given path. The location of
-	the file does not directly influence the hash value, but the path is
-	used to determine which Git filters should be applied to the object
-	before it can be placed in the object database.  As a result of
-	applying filters, the actual blob put into the object database may
-	differ from the given file. This option is mainly useful for hashing
-	temporary files located outside of the working directory or files
-	read from stdin.
+	Az objektumot úgy hasheli, mintha a megadott útvonalon lenne.
+	A fájl helye nem befolyásolja közvetlenül a hash-értéket, de az
+	útvonalat annak meghatározására használja, mely Git-szűrőket
+	kell alkalmazni az objektumon, mielőtt az objektumadatbázisba
+	kerülne. A szűrők alkalmazásának eredményeként a ténylegesen
+	az objektumadatbázisba kerülő blob eltérhet a megadott fájltól.
+	Ez az opció főként a munkakönyvtáron kívül elhelyezkedő
+	ideiglenes fájlok vagy a stdin-ről olvasott fájlok hasheléséhez
+	hasznos.
 
 --no-filters::
-	Hash the contents as is, ignoring any input filter that would
-	have been chosen by the attributes mechanism, including the end-of-line
-	conversion. If the file is read from standard input then this
-	is always implied, unless the `--path` option is given.
+	A tartalmat úgy hasheli, ahogy van, figyelmen kívül hagyva
+	minden olyan bemeneti szűrőt, amelyet az attribútum-mechanizmus
+	választott volna ki, beleértve a sorvég-konverziót is. Ha a
+	fájl a standard bemenetről kerül beolvasásra, ez mindig
+	implikálva van, hacsak a `--path` opció nincs megadva.
 
 --literally::
-	Allow `--stdin` to hash any garbage into a loose object which might not
-	otherwise pass standard object parsing or git-fsck checks. Useful for
-	stress-testing Git itself or reproducing characteristics of corrupt or
-	bogus objects encountered in the wild.
+	Lehetővé teszi a `--stdin` számára, hogy bármilyen szemetet
+	hasheljen egy laza objektumba, amely egyébként nem menne át a
+	szabványos objektum-elemzésen vagy a git-fsck ellenőrzésein.
+	Hasznos magának a Gitnek a stressztesztelésére, vagy a
+	valóságban előforduló sérült vagy hamis objektumok
+	tulajdonságainak reprodukálására.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-for-each-repo(1)
 
 NAME
 ----
-git-for-each-repo - Run a Git command on a list of repositories
+git-for-each-repo - Egy Git-parancsot futtat repository-k egy listáján
 
 
 SYNOPSIS
@@ -14,55 +14,58 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Run a Git command on a list of repositories. The arguments after the
-known options or `--` indicator are used as the arguments for the Git
-subprocess.
+Egy Git-parancsot futtat repository-k egy listáján. Az ismert opciók
+vagy a `--` jelölő utáni argumentumok a Git-alfolyamat argumentumaiként
+használatosak.
 
-THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.
+EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT.
 
-For example, we could run maintenance on each of a list of repositories
-stored in a `maintenance.repo` config variable using
+Például futtathatunk karbantartást egy `maintenance.repo`
+konfigurációs változóban tárolt repository-lista mindegyikén a
+következővel:
 
 -------------
 git for-each-repo --config=maintenance.repo maintenance run
 -------------
 
-This will run `git -C <repo> maintenance run` for each value `<repo>`
-in the multi-valued config variable `maintenance.repo`.
+Ez a `git -C <repo> maintenance run`-t futtatja a `maintenance.repo`
+többértékű konfigurációs változó minden `<repo>` értékére.
 
 
 OPTIONS
 -------
 --config=<config>::
-	Use the given config variable as a multi-valued list storing
-	absolute path names. Iterate on that list of paths to run
-	the given arguments.
+	A megadott konfigurációs változót abszolút útvonalneveket
+	tároló, többértékű listaként használja. Végigmegy ezen az
+	útvonallistán a megadott argumentumok futtatásához.
 +
-These config values are loaded from system, global, and local Git config,
-as available. If `git for-each-repo` is run in a directory that is not a
-Git repository, then only the system and global config is used.
+Ezek a konfigurációs értékek a rendszer-, a globális és a helyi
+Git-konfigurációból töltődnek be, amennyiben elérhetők. Ha a
+`git for-each-repo` egy olyan könyvtárban fut, amely nem Git
+repository, akkor csak a rendszer- és a globális konfiguráció
+használatos.
 
 --keep-going::
-	Continue with the remaining repositories if the command failed
-	on a repository. The exit code will still indicate that the
-	overall operation was not successful.
+	Folytatja a fennmaradó repository-kkal, ha a parancs
+	sikertelen volt egy repository-n. A kilépési kód továbbra is
+	azt jelzi, hogy az egész művelet nem volt sikeres.
 +
-Note that the exact exit code of the failing command is not passed
-through as the exit code of the `for-each-repo` command: If the command
-failed in any of the specified repositories, the overall exit code will
-be 1.
+Vedd figyelembe, hogy a sikertelen parancs pontos kilépési kódja
+nem kerül továbbadásra a `for-each-repo` parancs kilépési kódjaként:
+ha a parancs a megadott repository-k bármelyikében sikertelen volt,
+az általános kilépési kód 1 lesz.
 
 SUBPROCESS BEHAVIOR
 -------------------
 
-If any `git -C <repo> <arguments>` subprocess returns a non-zero exit code,
-then the `git for-each-repo` process returns that exit code without running
-more subprocesses.
+Ha bármelyik `git -C <repo> <arguments>` alfolyamat nem nulla
+kilépési kóddal tér vissza, a `git for-each-repo` folyamat azzal a
+kilépési kóddal tér vissza, további alfolyamatok futtatása nélkül.
 
-Each `git -C <repo> <arguments>` subprocess inherits the standard file
-descriptors `stdin`, `stdout`, and `stderr`.
+Minden `git -C <repo> <arguments>` alfolyamat örökli a standard
+`stdin`, `stdout` és `stderr` fájlleírókat.
 
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

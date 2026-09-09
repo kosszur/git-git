@@ -3,7 +3,7 @@ git-pack-redundant(1)
 
 NAME
 ----
-git-pack-redundant - Find redundant pack files
+git-pack-redundant - Redundáns packfile-okat keres
 
 
 SYNOPSIS
@@ -13,28 +13,31 @@ SYNOPSIS
 
 WARNING
 -------
-`git pack-redundant` has been deprecated and is scheduled for removal in
-a future version of Git. Because it can only remove entire duplicate
-packs and not individual duplicate objects, it is generally not a useful
-tool for reducing repository size. You are better off using `git gc` to
-do so, which will put objects into a new pack, removing duplicates.
+A `git pack-redundant` elavulttá vált, és eltávolításra van ütemezve
+a Git egy jövőbeli verziójában. Mivel csak egész duplikált packeket
+tud eltávolítani, egyedi duplikált objektumokat nem, általában nem
+hasznos eszköz a repository méretének csökkentésére. Jobban jársz, ha
+ehelyett a `git gc`-t használod, amely az objektumokat egy új packba
+teszi, eltávolítva a duplikátumokat.
 
-Running `pack-redundant` without the `--i-still-use-this` flag will fail
-in this release. If you believe you have a use case for which
-`pack-redundant` is better suited and oppose this removal, please
-contact the Git mailing list at git@vger.kernel.org. More information
-about the list is available at https://git-scm.com/community.
+A `pack-redundant` futtatása a `--i-still-use-this` kapcsoló nélkül
+ebben a kiadásban sikertelen lesz. Ha úgy gondolod, van olyan
+felhasználási eseted, amelyre a `pack-redundant` jobban alkalmas, és
+ellenzed ezt az eltávolítást, kérjük, lépj kapcsolatba a Git
+levelezőlistával a git@vger.kernel.org címen. A listáról további
+információ a https://git-scm.com/community oldalon érhető el.
 
 DESCRIPTION
 -----------
-This program computes which packs in your repository
-are redundant. The output is suitable for piping to
-`xargs rm` if you are in the root of the repository.
+Ez a program kiszámítja, hogy a repository-dban mely packek
+redundánsak. A kimenet alkalmas arra, hogy `xargs rm`-be csöveztesd,
+ha a repository gyökerében vagy.
 
-'git pack-redundant' accepts a list of objects on standard input. Any objects
-given will be ignored when checking which packs are required. This makes the
-following command useful when wanting to remove packs which contain unreachable
-objects.
+A 'git pack-redundant' egy objektumlistát fogad el a standard
+bemeneten. A megadott objektumok figyelmen kívül maradnak annak
+ellenőrzésekor, hogy mely packekre van szükség. Ez hasznossá teszi a
+következő parancsot, ha el nem érhető objektumokat tartalmazó
+packeket szeretnél eltávolítani.
 
 git fsck --full --unreachable | cut -d ' ' -f3 | \
 git pack-redundant --all | xargs rm
@@ -44,14 +47,17 @@ OPTIONS
 
 
 --all::
-	Processes all packs. Any filenames on the command line are ignored.
+	Minden packet feldolgoz. A parancssorban megadott fájlnevek
+	figyelmen kívül maradnak.
 
 --alt-odb::
-	Don't require objects present in packs from alternate object
-	database (odb) directories to be present in local packs.
+	Nem követeli meg, hogy az alternatív objektumadatbázis (odb)
+	könyvtárakból származó packekben jelen lévő objektumok a
+	helyi packekben is jelen legyenek.
 
 --verbose::
-	Outputs some statistics to stderr. Has a small performance penalty.
+	Néhány statisztikát ír ki a stderr-re. Kis
+	teljesítménybüntetéssel jár.
 
 SEE ALSO
 --------
@@ -61,4 +67,4 @@ linkgit:git-prune-packed[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-mktag(1)
 
 NAME
 ----
-git-mktag - Creates a tag object with extra validation
+git-mktag - Extra validációval hoz létre egy tag-objektumot
 
 
 SYNOPSIS
@@ -14,26 +14,28 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Reads a tag's contents on standard input and creates a tag object. The
-output is the new tag's <object> identifier.
+Beolvassa egy tag tartalmát a standard bemeneten, és létrehoz egy
+tag-objektumot. A kimenet az új tag <object> azonosítója.
 
-This command is mostly equivalent to linkgit:git-hash-object[1]
-invoked with `-t tag -w --stdin`. I.e. both of these will create and
-write a tag found in `my-tag`:
+Ez a parancs nagyjából egyenértékű a `-t tag -w --stdin`-nel
+meghívott linkgit:git-hash-object[1]-gyel. Azaz mindkettő létrehozza
+és kiírja a `my-tag`-ban található taget:
 
     git mktag <my-tag
     git hash-object -t tag -w --stdin <my-tag
 
-The difference is that mktag will die before writing the tag if the
-tag doesn't pass a linkgit:git-fsck[1] check.
+A különbség az, hogy a mktag leáll, mielőtt kiírná a taget, ha az nem
+megy át egy linkgit:git-fsck[1] ellenőrzésen.
 
-The "fsck" check done by mktag is stricter than what linkgit:git-fsck[1]
-would run by default in that all `fsck.<msg-id>` messages are promoted
-from warnings to errors (so e.g. a missing "tagger" line is an error).
+A mktag által végzett "fsck" ellenőrzés szigorúbb, mint amit a
+linkgit:git-fsck[1] alapértelmezés szerint futtatna, mivel minden
+`fsck.<msg-id>` üzenet figyelmeztetésből hibává lesz előléptetve (így
+pl. egy hiányzó "tagger" sor hiba).
 
-Extra headers in the object are also an error under mktag, but ignored
-by linkgit:git-fsck[1]. This extra check can be turned off by setting
-the appropriate `fsck.<msg-id>` variable:
+Az objektumban lévő extra fejlécek is hibának számítanak a mktag
+alatt, de a linkgit:git-fsck[1] figyelmen kívül hagyja őket. Ez az
+extra ellenőrzés kikapcsolható a megfelelő `fsck.<msg-id>` változó
+beállításával:
 
     git -c fsck.extraHeaderEntry=ignore mktag <my-tag-with-headers
 
@@ -41,26 +43,27 @@ OPTIONS
 -------
 
 --strict::
-	By default mktag turns on the equivalent of
-	linkgit:git-fsck[1] `--strict` mode. Use `--no-strict` to
-	disable it.
+	A mktag alapértelmezés szerint bekapcsolja a
+	linkgit:git-fsck[1] `--strict` módjának megfelelőjét. Használd
+	a `--no-strict`-et a kikapcsolásához.
 
-Tag Format
-----------
-A tag signature file, to be fed to this command's standard input,
-has a very simple fixed format: four lines of
+Tag-formátum
+------------
+Egy tag-aláírásfájlnak, amelyet ennek a parancsnak a standard
+bemenetére adnak, egy nagyon egyszerű, rögzített formátuma van: négy
+sor a következőkből:
 
   object <hash>
   type <typename>
   tag <tagname>
   tagger <tagger>
 
-followed by some 'optional' free-form message (some tags created
-by older Git may not have a `tagger` line).  The message, when it
-exists, is separated by a blank line from the header.  The
-message part may contain a signature that Git itself doesn't
-care about, but that can be verified with gpg.
+amelyet egy 'opcionális' szabad formátumú üzenet követ (néhány
+régebbi Git által létrehozott tagnek nincs `tagger` sora). Az üzenet,
+ha létezik, egy üres sorral van elválasztva a fejléctől. Az
+üzenetrész tartalmazhat egy aláírást, amellyel maga a Git nem
+törődik, de amely gpg-vel ellenőrizhető.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

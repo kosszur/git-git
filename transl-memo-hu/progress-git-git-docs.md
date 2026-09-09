@@ -90,7 +90,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-filter-branch.adoc | [x] |  | 2026-09-04 |
 | git-fmt-merge-msg.adoc | [ ] |  |  |
 | git-for-each-ref.adoc | [ ] |  |  |
-| git-for-each-repo.adoc | [ ] |  |  |
+| git-for-each-repo.adoc | [x] |  | 2026-09-10 |
 | git-format-patch.adoc | [ ] |  |  |
 | git-format-rev.adoc | [ ] |  |  |
 | git-fsck-objects.adoc | [x] |  | 2026-09-10 |
@@ -100,12 +100,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-get-tar-commit-id.adoc | [x] |  | 2026-09-10 |
 | git-grep.adoc | [ ] |  |  |
 | git-gui.adoc | [ ] |  |  |
-| git-hash-object.adoc | [ ] |  |  |
+| git-hash-object.adoc | [x] |  | 2026-09-10 |
 | git-help.adoc | [ ] |  |  |
 | git-history.adoc | [ ] |  |  |
 | git-hook.adoc | [ ] |  |  |
 | git-http-backend.adoc | [ ] |  |  |
-| git-http-fetch.adoc | [ ] |  |  |
+| git-http-fetch.adoc | [x] |  | 2026-09-10 |
 | git-http-push.adoc | [ ] |  |  |
 | git-imap-send.adoc | [ ] |  |  |
 | git-index-pack.adoc | [ ] |  |  |
@@ -129,7 +129,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge.adoc | [ ] |  |  |
 | git-mergetool--lib.adoc | [x] |  | 2026-09-10 |
 | git-mergetool.adoc | [ ] |  |  |
-| git-mktag.adoc | [ ] |  |  |
+| git-mktag.adoc | [x] |  | 2026-09-10 |
 | git-mktree.adoc | [x] |  | 2026-09-10 |
 | git-multi-pack-index.adoc | [ ] |  |  |
 | git-mv.adoc | [ ] |  |  |
@@ -137,14 +137,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-notes.adoc | [ ] |  |  |
 | git-p4.adoc | [ ] |  |  |
 | git-pack-objects.adoc | [ ] |  |  |
-| git-pack-redundant.adoc | [ ] |  |  |
-| git-pack-refs.adoc | [ ] |  |  |
+| git-pack-redundant.adoc | [x] |  | 2026-09-10 |
+| git-pack-refs.adoc | [x] |  | 2026-09-10 |
 | git-patch-id.adoc | [ ] |  |  |
 | git-prune-packed.adoc | [x] |  | 2026-09-10 |
 | git-prune.adoc | [ ] |  |  |
 | git-pull.adoc | [ ] |  |  |
 | git-push.adoc | [ ] |  |  |
-| git-quiltimport.adoc | [ ] |  |  |
+| git-quiltimport.adoc | [x] |  | 2026-09-10 |
 | git-range-diff.adoc | [ ] |  |  |
 | git-read-tree.adoc | [ ] |  |  |
 | git-rebase.adoc | [ ] |  |  |
@@ -152,7 +152,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-reflog.adoc | [ ] |  |  |
 | git-refs.adoc | [ ] |  |  |
 | git-remote-ext.adoc | [ ] |  |  |
-| git-remote-fd.adoc | [ ] |  |  |
+| git-remote-fd.adoc | [x] |  | 2026-09-10 |
 | git-remote.adoc | [ ] |  |  |
 | git-repack.adoc | [ ] |  |  |
 | git-replace.adoc | [ ] |  |  |
@@ -193,7 +193,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-update-index.adoc | [ ] |  |  |
 | git-update-ref.adoc | [ ] |  |  |
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
-| git-upload-archive.adoc | [ ] |  |  |
+| git-upload-archive.adoc | [x] |  | 2026-09-10 |
 | git-upload-pack.adoc | [ ] |  |  |
 | git-url-parse.adoc | [ ] |  |  |
 | git-var.adoc | [ ] |  |  |
@@ -282,7 +282,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | ref-reachability-filters.adoc | [x] |  | 2026-09-10 |
 | ref-storage-format.adoc | [x] |  | 2026-09-10 |
 | rerere-options.adoc | [x] |  | 2026-09-10 |
-| rev-list-description.adoc | [ ] |  |  |
+| rev-list-description.adoc | [x] |  | 2026-09-10 |
 | rev-list-options.adoc | [ ] |  |  |
 | revisions.adoc | [ ] |  |  |
 | scalar.adoc | [ ] |  |  |
@@ -575,3 +575,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `git-whatchanged.adoc`, `git-mailsplit.adoc`. A `ToolsForGit.adoc` (egyetlen fájl ebben a
   blokkban `[[...]]`/`<<...>>`-vel) explicit anchorokkal rendelkezett, mindegyik érintetlenül
   hagyva. Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „18. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész**: `git-remote-fd.adoc`,
+  `git-pack-refs.adoc`, `rev-list-description.adoc`, `git-upload-archive.adoc`,
+  `git-pack-redundant.adoc`, `git-quiltimport.adoc`, `git-hash-object.adoc`, `git-mktag.adoc`,
+  `git-http-fetch.adoc`, `git-for-each-repo.adoc` (a 68 soros `git-mv.adoc`-cal szemben, amely
+  bájtban nagyobbnak bizonyult, ezért a következő blokkba került). Két „smart"/"dumb" protokoll-
+  terminológiai előfordulás (`git-remote-fd.adoc`, `git-upload-archive.adoc`) a 17. blokkban
+  rögzített ad hoc, idézőjeles kezeléssel lett fordítva, konzisztensen. Orchestrátor végezte
+  közvetlenül. Részletek: `glossary-git-git-docs.md` „19. blokk".

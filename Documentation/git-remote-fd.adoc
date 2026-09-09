@@ -3,52 +3,56 @@ git-remote-fd(1)
 
 NAME
 ----
-git-remote-fd - Reflect smart transport stream back to caller
+git-remote-fd - Visszairányítja a "smart" átviteli adatfolyamot a hívónak
 
 SYNOPSIS
 --------
-"fd::<infd>[,<outfd>][/<anything>]" (as URL)
+"fd::<infd>[,<outfd>][/<anything>]" (URL-ként)
 
 DESCRIPTION
 -----------
-This helper uses specified file descriptors to connect to a remote Git server.
-This is not meant for end users but for programs and scripts calling git
-fetch, push, or archive.
+Ez a segédprogram a megadott fájlleírókat használja egy távoli
+Git-szerverhez való kapcsolódáshoz. Nem a végfelhasználóknak szól,
+hanem a git fetch, push vagy archive parancsot hívó programoknak és
+szkripteknek.
 
-If only <infd> is given, it is assumed to be a bidirectional socket connected
-to a remote Git server (git-upload-pack, git-receive-pack, or
-git-upload-archive). If both <infd> and <outfd> are given, they are assumed
-to be pipes connected to a remote Git server (<infd> being the inbound pipe
-and <outfd> being the outbound pipe).
+Ha csak az <infd> van megadva, feltételezi, hogy egy távoli
+Git-szerverhez (git-upload-pack, git-receive-pack vagy
+git-upload-archive) kapcsolódó kétirányú socketről van szó. Ha mind
+az <infd>, mind az <outfd> meg van adva, feltételezi, hogy egy távoli
+Git-szerverhez kapcsolódó pipe-okról van szó (az <infd> a bejövő,
+az <outfd> a kimenő pipe).
 
-It is assumed that any handshaking procedures have already been completed
-(such as sending service request for git://) before this helper is started.
+Feltételezi, hogy minden kézfogási (handshake) eljárás már
+befejeződött (mint például a szolgáltatáskérés elküldése a
+git://-hoz), mielőtt ez a segédprogram elindul.
 
-<anything> can be any string. It is ignored. It is meant for providing
-information to the user in the URL in case that URL is displayed in some
-context.
+Az <anything> bármilyen string lehet. Figyelmen kívül marad. Arra
+szolgál, hogy információt adjon a felhasználónak az URL-ben, arra az
+esetre, ha az az URL valamilyen kontextusban megjelenik.
 
 ENVIRONMENT VARIABLES
 ---------------------
 GIT_TRANSLOOP_DEBUG::
-	If set, prints debugging information about various reads/writes.
+	Ha be van állítva, hibakeresési információkat ír ki a
+	különböző olvasásokról/írásokról.
 
 EXAMPLES
 --------
 `git fetch fd::17 master`::
-	Fetch master, using file descriptor #17 to communicate with
-	git-upload-pack.
+	Letölti a mastert, a #17-es fájlleírót használva a
+	git-upload-pack-kel való kommunikációhoz.
 
 `git fetch fd::17/foo master`::
-	Same as above.
+	Ugyanaz, mint fent.
 
-`git push fd::7,8 master (as URL)`::
-	Push master, using file descriptor #7 to read data from
-	git-receive-pack and file descriptor #8 to write data to
-	the same service.
+`git push fd::7,8 master (URL-ként)`::
+	Pusholja a mastert, a #7-es fájlleírót használva a
+	git-receive-packből való adatolvasáshoz, és a #8-as
+	fájlleírót az ugyanabba a szolgáltatásba való íráshoz.
 
 `git push fd::7,8/bar master`::
-	Same as above.
+	Ugyanaz, mint fent.
 
 SEE ALSO
 --------
@@ -56,4 +60,4 @@ linkgit:gitremote-helpers[7]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

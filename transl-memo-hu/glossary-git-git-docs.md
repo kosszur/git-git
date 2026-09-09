@@ -1285,3 +1285,53 @@ előtt észlelve és javítva: a cím visszaállítva `DATE FORMATS`-ra.
 - Szintaxis-ellenőrzés: mind a 10 fájlban a `----` kódblokk-határolók (csak `git-whatchanged.adoc`-
   ban van egy pár, a `git log --raw --no-merges` körül) párban vannak, nincs `ifdef::`/`endif::`,
   a `ToolsForGit.adoc` 5 anchora és 2 xrefje érintetlen, a bekezdéshatárok megtartva.
+
+## 19. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–18. blokkban. Fájlok: `git-remote-fd.adoc`, `git-pack-refs.adoc`,
+`rev-list-description.adoc`, `git-upload-archive.adoc`, `git-pack-redundant.adoc`,
+`git-quiltimport.adoc`, `git-hash-object.adoc`, `git-mktag.adoc`, `git-http-fetch.adoc`,
+`git-for-each-repo.adoc`. A `git-mv.adoc`-kal 68-68 soros holtverseny volt; byte-számmal döntve
+(`git-for-each-repo.adoc` 1941 byte < `git-mv.adoc` 2086 byte) a `git-for-each-repo.adoc` került
+ebbe a blokkba, a `git-mv.adoc` a következőbe.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| smart transport (stream) | **„»smart« átviteli adatfolyam"**, idézőjelben | `git-remote-fd.adoc` — a 17. blokk „dumb szerver" ad hoc, idézőjeles kezelésének párja; **jövőbeli döntési függőség marad** a `git-http-backend.adoc`/`gitprotocol-http.adoc` fordításakor |
+| non-smart-http | **„nem-smart-http"** | `git-upload-archive.adoc` — összetett szó, a „smart" elem idézőjel nélkül, mert már maga összetételi taggá vált |
+| redundant pack files | **„redundáns packfile-ok"** | `git-pack-redundant.adoc` |
+| Tag Format (cím, `git-mktag.adoc`) | **„Tag-formátum"** (fordítva) | Title Case, NEM csupa nagybetűs man-page-stílusú cím, tehát nem esik a „VÉGLEGES DÖNTÉS" szabály alá; nincs rá xref, biztonságosan fordítható |
+| THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE. | **„EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT."** | `git-for-each-repo.adoc` — a `git-backfill.adoc` (3. blokk) pontos mintáját követi, csupa nagybetűs formázás megtartva |
+| quilt (patch-eszköz neve) | **marad „quilt"** angolul | `git-quiltimport.adoc` — külső eszköz tulajdonneve |
+| series file (quilt-kontextusban) | **„series fájl"** | `git-quiltimport.adoc` |
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor (grep-pel ellenőrizve).
+- `rev-list-description.adoc`: nincs `[[...]]`/`<<...>>`, de 3 pár `ifdef::git-rev-list[]`/
+  `endif::git-rev-list[]` és `ifdef::git-log[]`/`endif::git-log[]` van benne (6+6) — mindegyik
+  változatlan, csak a köztük/körülöttük lévő próza fordult.
+
+### Man-page címként angolul hagyott/érintetlen címsorok
+
+- `SUBPROCESS BEHAVIOR` (`git-for-each-repo.adoc`) — a „VÉGLEGES DÖNTÉS" szabály szerint
+  automatikusan angolul maradt.
+- A többi fájlban csak kanonikus man-page címek (NAME, SYNOPSIS, DESCRIPTION, WARNING, OPTIONS,
+  SECURITY, SEE ALSO, GIT).
+
+### Megőrzött markup / megjegyzések
+
+- `git-pack-refs.adoc` BUGS szakasza: a `".git/refs/heads/<branch> file exists"` és
+  `"branch <branch> exists"` idézett mintamondatok bájtazonosan angolul maradtak — szó szerint
+  idézett, régi (hipotetikus) angol dokumentáció-szöveg, a `git-clean.adoc`/`git-daemon.adoc`
+  precedensét követve.
+- `git-remote-fd.adoc`: az `(as URL)` / `(URL-ként)` jelölés az EXAMPLES egyik címsorában fordítva,
+  a másikban (SYNOPSIS-szerű sor) is konzisztensen.
+- `git-hash-object.adoc`, `git-mktag.adoc`: a `commit`/`tree`/`blob`/`tag` objektumtípus-nevek és a
+  `git mktag <my-tag` stb. tab-indentált parancspéldák bájtazonosak.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva.
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`-------------` kódblokk-határolók párban
+  vannak, a `rev-list-description.adoc` 6+6 `ifdef::`/`endif::` párja épen maradt, nincs
+  `[[...]]`, a bekezdéshatárok megtartva.

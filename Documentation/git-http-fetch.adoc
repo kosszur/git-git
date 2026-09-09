@@ -3,7 +3,7 @@ git-http-fetch(1)
 
 NAME
 ----
-git-http-fetch - Download from a remote Git repository via HTTP
+git-http-fetch - Letöltés egy távoli Git repository-ból HTTP-n keresztül
 
 
 SYNOPSIS
@@ -13,55 +13,57 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Downloads a remote Git repository via HTTP.
+Letölt egy távoli Git repository-t HTTP-n keresztül.
 
-This command always gets all objects. Historically, there were three options
-`-a`, `-c` and `-t` for choosing which objects to download. They are now
-silently ignored.
+Ez a parancs mindig minden objektumot lekér. Korábban három opció
+(`-a`, `-c` és `-t`) volt a letöltendő objektumok kiválasztására.
+Ezeket most csendben figyelmen kívül hagyja.
 
 OPTIONS
 -------
 commit-id::
-        Either the hash or the filename under [URL]/refs/ to
-        pull.
+        Vagy a hash, vagy a fájlnév a [URL]/refs/ alatt, amelyet
+        le kell húzni (pull).
 
 -a::
 -c::
 -t::
-	These options are ignored for historical reasons.
+	Ezek az opciók történeti okokból figyelmen kívül maradnak.
 
 -v::
-	Report what is downloaded.
+	Jelenti, hogy mi kerül letöltésre.
 
 -w <filename>::
-	Writes the commit-id into the specified filename under $GIT_DIR/refs/<filename> on
-        the local end after the transfer is complete.
+	A commit-id-t a megadott fájlnévbe írja a $GIT_DIR/refs/<filename>
+        alá a helyi oldalon, az átvitel befejezése után.
 
 --stdin::
-	Instead of a commit id on the command line (which is not expected in this
-	case), 'git http-fetch' expects lines on stdin in the format
+	Egy parancssorban megadott commit id helyett (amely ebben az
+	esetben nem elvárt), a 'git http-fetch' a stdin-en vár sorokat
+	a következő formátumban:
 
 		<commit-id>['\t'<filename-as-in--w>]
 
 --packfile=<hash>::
-	For internal use only. Instead of a commit id on the command
-	line (which is not expected in
-	this case), 'git http-fetch' fetches the packfile directly at the given
-	URL and uses index-pack to generate corresponding .idx and .keep files.
-	The hash is used to determine the name of the temporary file. It need
-	not be the pack hash, but it must uniquely identify the pack contents
-	for resumption. The output of index-pack is printed to stdout. Requires
-	one or more --index-pack-arg options.
+	Csak belső használatra. Egy parancssorban megadott commit id
+	helyett (amely ebben az esetben nem elvárt), a 'git http-fetch'
+	közvetlenül a megadott URL-en tölti le a packfile-t, és az
+	index-pack-et használja a megfelelő .idx és .keep fájlok
+	generálásához. A hash a temp fájl nevének meghatározására
+	szolgál. Nem kell, hogy a pack hash-e legyen, de egyedileg
+	kell azonosítania a pack tartalmát a folytatáshoz. Az
+	index-pack kimenete a stdout-ra íródik ki. Egy vagy több
+	--index-pack-arg opciót igényel.
 
 --index-pack-arg=<arg>::
-	For internal use only. The first instance specifies the command run on
-	the contents of the downloaded pack. Subsequent instances specify its
-	arguments.
+	Csak belső használatra. Az első előfordulás megadja a letöltött
+	pack tartalmán futtatott parancsot. A további előfordulások
+	az argumentumait adják meg.
 
 --recover::
-	Verify that everything reachable from target is fetched.  Used after
-	an earlier fetch is interrupted.
+	Ellenőrzi, hogy minden, ami a céltól elérhető, le lett-e
+	töltve. Egy korábbi, megszakadt fetch után használatos.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
