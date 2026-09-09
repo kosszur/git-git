@@ -1,10 +1,11 @@
-Git Tools
-=========
+Git eszközök
+============
 
-When Git was young, people looking for third-party Git-related tools came
-to the Git project itself to find them, thus a list of such tools was
-maintained here. These days, however, search engines fill that role much
-more efficiently, so this manually-maintained list has been retired.
+Amikor a Git még fiatal volt, a harmadik féltől származó Git-kapcsolódó
+eszközöket keresők magához a Git projekthez fordultak, hogy megtalálják
+őket, ezért itt tartottunk fenn egy ilyen eszközlistát. Manapság azonban
+a keresőmotorok sokkal hatékonyabban töltik be ezt a szerepet, ezért ez
+a kézzel karbantartott lista visszavonásra került.
 
-See also the `contrib/` area, and the Git wiki:
+Lásd még a `contrib/` területet, valamint a Git wikit:
 https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools

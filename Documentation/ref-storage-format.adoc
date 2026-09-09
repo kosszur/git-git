@@ -1,8 +1,8 @@
-`files`;; for loose files with packed-refs.
+`files`;; laza fájlok packed-refs-szel.
 ifndef::with-breaking-changes[]
-	This is the default.
+	Ez az alapértelmezett.
 endif::with-breaking-changes[]
-`reftable`;; for the reftable format.
+`reftable`;; a reftable formátumhoz.
 ifdef::with-breaking-changes[]
-	This is the default.
+	Ez az alapértelmezett.
 endif::with-breaking-changes[]

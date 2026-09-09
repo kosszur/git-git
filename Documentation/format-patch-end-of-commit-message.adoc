@@ -1,8 +1,8 @@
-Any line that is of the form:
+Minden olyan sor, amely:
 
-* three-dashes and end-of-line, or
-* a line that begins with `diff -`, or
-* a line that begins with `Index: `
+* három kötőjelből és sorvégből áll, vagy
+* `diff -`-sal kezdődik, vagy
+* `Index: `-vel kezdődik,
 
-is taken as the beginning of a patch, and the commit log message
-is terminated before the first occurrence of such a line.
+egy patch kezdetének számít, és a commit napló-üzenete az ilyen
+sor első előfordulása előtt véget ér.

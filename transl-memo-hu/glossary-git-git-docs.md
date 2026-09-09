@@ -1078,3 +1078,53 @@ haladt). A felhasználó **explicit felfüggesztette** ennek a fájlnak a fordí
 elején), a progress-táblában `~32%`-ként jelölve. **Folytatáskor:** kis, célzott `Read`/`Edit`
 lépésekben érdemes haladni (l. a 13. blokk stratégiaváltása), mert ez a fájl is rendszeresen kiváltja
 a content-filtering-hibát.
+
+## 15. blokk — a 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** a felhasználó kérésére a két gyökér-tábla (`git-*.adoc` man page-ek + „egyéb .adoc")
+együttesen legkisebb sorméretű, még `[ ]` jelölésű tagjai — a skill szerint a végére/`config/` utánra
+halasztott `gitglossary.adoc`/`git.adoc`/`config.adoc`, valamint a felfüggesztett `git-fast-import.adoc`
+kizárva. Orchestrátor fordította közvetlenül, subagent nélkül (a fájlok 7–21 soros mérete miatt nem
+volt indokolt). Fájlok: `ref-reachability-filters.adoc`, `format-patch-end-of-commit-message.adoc`,
+`ref-storage-format.adoc`, `object-format-disclaimer.adoc`, `rerere-options.adoc`, `git-tools.adoc`,
+`diff-context-options.adoc`, `trace2-target-values.adoc`, `sequencer.adoc`, `diff-algorithm-option.adoc`
+— mind option-fragmens/include-cél fájl (más man page-ekbe `include::`-olódnak), `git-tools.adoc`
+kivételével, ami önálló, nem man-page kis dokumentum.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| commit log message (`format-patch-end-of-commit-message.adoc`) | **„a commit napló-üzenete"** | a 2. blokk (`git-commit-tree.adoc`) „napló-üzenet"/„commit napló-üzenete" precedensét folytatja |
+| „Note:" (kisbetűs, NEM a `NOTE:` admonition-kulcsszó) | **„Megjegyzés:"** | `object-format-disclaimer.adoc` — a forrás szándékosan kisbetűs `Note:`-ot használ, ez sima próza, nem AsciiDoc admonition-makró, ezért fordul |
+| `files`/`reftable` (ref-storage formátumnevek, `;;` beágyazott def-lista címke) | **változatlanul angolul maradtak**, csak a leírás-törzs fordult | `ref-storage-format.adoc` — a `config.kulcs::` címke-szabály analógiájára kezelve |
+| `default`/`myers`/`minimal`/`patience`/`histogram` (diff-algoritmus nevek) | **változatlanul angolul maradtak** | `diff-algorithm-option.adoc` — opcióérték-nevek, mint a config-kulcsok |
+| "patience diff" (algoritmusnév, idézőjelben) | **angolul maradt, idézőjelben** | nincs bevett magyar megfelelője, a `thin pack`/`promisor remote` mintáját követi (Git-specifikus technikai terminus) |
+| "support low-occurrence common elements" (idézett leírás) | **fordítva**: „támogassa az alacsony előfordulású közös elemeket" | nem tulajdonnév, sima idézett leírás, fordul |
+| rerere mechanizmus | **„rerere mechanizmus"** (marad angolul, mint alrendszer-név) | `rerere-options.adoc`, konzisztens a `technical/rerere.adoc`-ban (1. blokk) rögzített kezeléssel |
+| Git Tools (cím) | **„Git eszközök"** | `git-tools.adoc` — nem man-page, egyszintű `=` cím, „Git" tulajdonnév marad, „eszközök" fordul |
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve); a `git-tools.adoc`
+  önálló, egyszintű `=` címére sincs hivatkozás sehol a fában — nem kellett anchort hozzáadni.
+
+### Man-page címként angolul hagyott címsorok
+
+- Nincs egy sem — egyik fájl sem man page (mind option-fragmens vagy egy kis önálló dokumentum
+  `git-tools.adoc` esetén, man-page szekciócímek nélkül).
+
+### Megőrzött markup / megjegyzések
+
+- `ref-storage-format.adoc`: az `ifndef::with-breaking-changes[]` / `ifdef::with-breaking-changes[]` +
+  `endif::with-breaking-changes[]` párok teljes egészében, az attribútumnévvel együtt változatlanok;
+  csak a köztük lévő „This is the default." próza fordult.
+- `diff-algorithm-option.adoc`: a `--`/`--` nyitott blokk (algoritmus-felsorolás) és a beágyazott `;;`
+  másodszintű def-lista-címkék (`default`, `myers`, `minimal`, `patience`, `histogram`) érintetlenek.
+- `trace2-target-values.adoc`: a `--`/`--` nyitott blokk érintetlen, csak a felsorolás-elemek prózája
+  fordult; a `STDERR`, `af_unix:`, `stream`/`dgram` literálok változatlanok.
+- Mindegyik fájlban a `linkgit:git-rerere[1]`, `linkgit:git-add[1]` makrók változatlanok
+  (`rerere-options.adoc`).
+- Szintaxis-ellenőrzés: mind a 10 fájlban `ifdef::`/`ifndef::`/`endif::` számláló egyezik (csak
+  `ref-storage-format.adoc`-ban van 2+2, a többi 0), nincs `[[...]]`/`<<...>>`, a bekezdéshatárok
+  megtartva.

@@ -84,7 +84,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-diff.adoc | [x] |  | 2026-09-04 |
 | git-difftool.adoc | [x] |  | 2026-09-04 |
 | git-fast-export.adoc | [x] |  | 2026-09-04 |
-| git-fast-import.adoc | [ ] |  |  |
+| git-fast-import.adoc | ~32% |  |  |
 | git-fetch-pack.adoc | [x] |  | 2026-09-04 |
 | git-fetch.adoc | [x] |  | 2026-09-04 |
 | git-filter-branch.adoc | [x] |  | 2026-09-04 |
@@ -187,7 +187,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-switch.adoc | [ ] |  |  |
 | git-symbolic-ref.adoc | [ ] |  |  |
 | git-tag.adoc | [ ] |  |  |
-| git-tools.adoc | [ ] |  |  |
+| git-tools.adoc | [x] |  | 2026-09-10 |
 | git-unpack-file.adoc | [ ] |  |  |
 | git-unpack-objects.adoc | [ ] |  |  |
 | git-update-index.adoc | [ ] |  |  |
@@ -219,15 +219,15 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | blame-options.adoc | [ ] |  |  |
 | config.adoc | [ ] |  |  |
 | date-formats.adoc | [ ] |  |  |
-| diff-algorithm-option.adoc | [ ] |  |  |
-| diff-context-options.adoc | [ ] |  |  |
+| diff-algorithm-option.adoc | [x] |  | 2026-09-10 |
+| diff-context-options.adoc | [x] |  | 2026-09-10 |
 | diff-format.adoc | [ ] |  |  |
 | diff-generate-patch.adoc | [ ] |  |  |
 | diff-options.adoc | [ ] |  |  |
 | fetch-options.adoc | [ ] |  |  |
 | for-each-ref-options.adoc | [ ] |  |  |
 | format-patch-caveats.adoc | [ ] |  |  |
-| format-patch-end-of-commit-message.adoc | [ ] |  |  |
+| format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
 | fsck-msgids.adoc | [ ] |  |  |
 | git.adoc | [ ] |  |  |
 | gitattributes.adoc | [ ] |  |  |
@@ -274,21 +274,21 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | line-range-options.adoc | [ ] |  |  |
 | merge-options.adoc | [ ] |  |  |
 | merge-strategies.adoc | [ ] |  |  |
-| object-format-disclaimer.adoc | [ ] |  |  |
+| object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
 | pack-refs-options.adoc | [ ] |  |  |
 | pretty-formats.adoc | [ ] |  |  |
 | pretty-options.adoc | [ ] |  |  |
 | pull-fetch-param.adoc | [ ] |  |  |
-| ref-reachability-filters.adoc | [ ] |  |  |
-| ref-storage-format.adoc | [ ] |  |  |
-| rerere-options.adoc | [ ] |  |  |
+| ref-reachability-filters.adoc | [x] |  | 2026-09-10 |
+| ref-storage-format.adoc | [x] |  | 2026-09-10 |
+| rerere-options.adoc | [x] |  | 2026-09-10 |
 | rev-list-description.adoc | [ ] |  |  |
 | rev-list-options.adoc | [ ] |  |  |
 | revisions.adoc | [ ] |  |  |
 | scalar.adoc | [ ] |  |  |
-| sequencer.adoc | [ ] |  |  |
+| sequencer.adoc | [x] |  | 2026-09-10 |
 | signoff-option.adoc | [ ] |  |  |
-| trace2-target-values.adoc | [ ] |  |  |
+| trace2-target-values.adoc | [x] |  | 2026-09-10 |
 | transfer-data-leaks.adoc | [ ] |  |  |
 | urls-remotes.adoc | [ ] |  |  |
 | urls.adoc | [ ] |  |  |
@@ -543,3 +543,13 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   SYNOPSIS/DESCRIPTION/OPTIONS eleje már le volt fordítva; ebben a blokkban a `CONFIGURED
   REMOTE-TRACKING BRANCHES` (`[[CRTB]]` anchorral), `PRUNING`, `OUTPUT`, `EXAMPLES`, `BUGS` szakaszok
   prózája és a záró GIT-trailer készült el. Részletek: `glossary-git-git-docs.md` „12. blokk".
+- **2026-09-10 — 10 legkisebb méretű, még lefordítatlan „Gyökér" fájl kész** (a felhasználó kérésére a
+  két gyökér-tábla — `git-*.adoc` man page-ek + „egyéb .adoc" — együttesen legkisebb sorszámú, még `[ ]`
+  jelölésű tagjai, sorméret szerint növekvő sorrendben, `gitglossary.adoc`/`git.adoc`/`config.adoc`
+  kihagyva, mert azok a skill szerint a végére/`config/` utánra vannak halasztva, és a felfüggesztett
+  `git-fast-import.adoc` sem érintett): `ref-reachability-filters.adoc` (7 sor), `ref-storage-format.adoc`
+  (9), `format-patch-end-of-commit-message.adoc` (9), `object-format-disclaimer.adoc` (10),
+  `rerere-options.adoc` (10), `git-tools.adoc` (11), `diff-context-options.adoc` (13),
+  `trace2-target-values.adoc` (13), `sequencer.adoc` (17), `diff-algorithm-option.adoc` (21) — a
+  sorszámok a fordítás utáni állapotot mutatják. Orchestrátor végezte közvetlenül (subagent nélkül,
+  a fájlok triviális mérete miatt). Részletek: `glossary-git-git-docs.md` „15. blokk".

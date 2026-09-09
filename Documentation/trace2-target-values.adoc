@@ -1,12 +1,12 @@
 --
-* `0` or `false` - Disables the target.
-* `1` or `true` - Writes to `STDERR`.
-* `[2-9]` - Writes to the already opened file descriptor.
-* `<absolute-pathname>` - Writes to the file in append mode. If the target
-already exists and is a directory, the traces will be written to files (one
-per process) underneath the given directory.
-* `af_unix:[<socket-type>:]<absolute-pathname>` - Write to a
-Unix DomainSocket (on platforms that support them).  Socket
-type can be either `stream` or `dgram`; if omitted Git will
-try both.
+* `0` vagy `false` - Letiltja a célt.
+* `1` vagy `true` - A `STDERR`-re ír.
+* `[2-9]` - A már megnyitott fájlleíróba ír.
+* `<absolute-pathname>` - A fájlba ír hozzáfűzés módban. Ha a cél már
+létezik és egy könyvtár, a nyomkövetési adatok a megadott könyvtár
+alatti fájlokba kerülnek (folyamatonként egybe).
+* `af_unix:[<socket-type>:]<absolute-pathname>` - Egy Unix
+DomainSocketbe ír (olyan platformokon, amelyek támogatják ezt). A
+socket típusa lehet `stream` vagy `dgram`; ha nincs megadva, a Git
+mindkettőt megpróbálja.
 --

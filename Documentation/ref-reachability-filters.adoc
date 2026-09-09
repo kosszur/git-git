@@ -1,7 +1,9 @@
-When combining multiple `--contains` and `--no-contains` filters, only
-references that contain at least one of the `--contains` commits and
-contain none of the `--no-contains` commits are shown.
+Ha több `--contains` és `--no-contains` szűrőt kombinálsz, csak azok a
+referenciák jelennek meg, amelyek tartalmazzák legalább az egyik
+`--contains` commitot, és egyiket sem tartalmazzák a `--no-contains`
+commitok közül.
 
-When combining multiple `--merged` and `--no-merged` filters, only
-references that are reachable from at least one of the `--merged`
-commits and from none of the `--no-merged` commits are shown.
+Ha több `--merged` és `--no-merged` szűrőt kombinálsz, csak azok a
+referenciák jelennek meg, amelyek elérhetők legalább az egyik
+`--merged` commitból, és egyikből sem érhetők el a `--no-merged`
+commitok közül.

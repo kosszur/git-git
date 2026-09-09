@@ -1,12 +1,12 @@
 `-U<n>`::
 `--unified=<n>`::
-	Generate diffs with _<n>_ lines of context. The number of context
-	lines defaults to `diff.context` or 3 if the configuration variable
-	is unset. (`-U` without `<n>` is silently accepted as a synonym for
-	`-p` due to a historical accident).
+	Diffek generálása _<n>_ soros kontextussal. A kontextussorok száma
+	alapértelmezés szerint `diff.context`, vagy 3, ha a konfigurációs
+	változó nincs beállítva. (A `-U` `<n>` nélkül csendben elfogadásra
+	kerül a `-p` szinonimájaként, egy történelmi véletlen miatt).
 
 `--inter-hunk-context=<n>`::
-	Show the context between diff hunks, up to the specified _<number>_
-	of lines, thereby fusing hunks that are close to each other.
-	Defaults to `diff.interHunkContext` or 0 if the config option
-	is unset.
+	Megjeleníti a diff-hunkok közötti kontextust, a megadott _<number>_
+	sorig, ezáltal egybeolvasztva az egymáshoz közeli hunkokat.
+	Alapértelmezés szerint `diff.interHunkContext`, vagy 0, ha a
+	konfigurációs opció nincs beállítva.

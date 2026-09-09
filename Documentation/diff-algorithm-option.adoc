@@ -1,20 +1,20 @@
 `--diff-algorithm=(patience|minimal|histogram|myers)`::
-	Choose a diff algorithm. The variants are as follows:
+	Diff-algoritmus kiválasztása. A változatok a következők:
 +
 --
    `default`;;
    `myers`;;
-	The basic greedy diff algorithm. Currently, this is the default.
+	Az alap mohó diff-algoritmus. Jelenleg ez az alapértelmezett.
    `minimal`;;
-	Spend extra time to make sure the smallest possible diff is
-	produced.
+	Extra időt fordít arra, hogy biztosan a lehető legkisebb diff
+	készüljön el.
    `patience`;;
-	Use "patience diff" algorithm when generating patches.
+	A "patience diff" algoritmust használja a patch-ek generálásakor.
    `histogram`;;
-	This algorithm extends the patience algorithm to "support
-	low-occurrence common elements".
+	Ez az algoritmus kiterjeszti a patience algoritmust, hogy
+	"támogassa az alacsony előfordulású közös elemeket".
 --
 +
-For instance, if you configured the `diff.algorithm` variable to a
-non-default value and want to use the default one, then you
-have to use `--diff-algorithm=default` option.
+Ha például a `diff.algorithm` változót egy nem alapértelmezett
+értékre állítottad be, de az alapértelmezettet szeretnéd használni,
+akkor a `--diff-algorithm=default` opciót kell használnod.
