@@ -3,7 +3,7 @@ gitmailmap(5)
 
 NAME
 ----
-gitmailmap - Map author/committer names and/or E-Mail addresses
+gitmailmap - Szerző/committer nevek és/vagy e-mail-címek leképezése
 
 SYNOPSIS
 --------
@@ -13,44 +13,47 @@ $GIT_WORK_TREE/.mailmap
 DESCRIPTION
 -----------
 
-If the file `.mailmap` exists at the toplevel of the repository, or at
-the location pointed to by the `mailmap.file` or `mailmap.blob`
-configuration options (see linkgit:git-config[1]), it
-is used to map author and committer names and email addresses to
-canonical real names and email addresses.
+Ha a `.mailmap` fájl létezik a repository legfelső szintjén, vagy a
+`mailmap.file` vagy `mailmap.blob` konfigurációs opciók által
+megadott helyen (lásd linkgit:git-config[1]), akkor a Git ezt
+használja a szerző- és committer-nevek, valamint e-mail-címek
+kanonikus valódi nevekre és e-mail-címekre való leképezéséhez.
 
 
 SYNTAX
 ------
 
-The '#' character begins a comment to the end of line, blank lines
-are ignored.
+A '#' karakter a sor végéig tartó megjegyzést kezd, az üres sorok
+figyelmen kívül maradnak.
 
-In the simple form, each line in the file consists of the canonical
-real name of an author, whitespace, and an email address used in the
-commit (enclosed by '<' and '>') to map to the name. For example:
+Az egyszerű formában a fájl minden sora egy szerző kanonikus valódi
+nevéből, whitespace-ből és a commitban használt e-mail-címből (a '<'
+és '>' közé zárva) áll, amelyet a névre kell leképezni. Például:
 --
 	Proper Name <commit@email.xx>
 --
 
-The more complex forms are:
+A bonyolultabb formák:
 --
 	<proper@email.xx> <commit@email.xx>
 --
-which allows mailmap to replace only the email part of a commit, and:
+amely lehetővé teszi, hogy a mailmap csak egy commit e-mail-részét
+cserélje le, és:
 --
 	Proper Name <proper@email.xx> <commit@email.xx>
 --
-which allows mailmap to replace both the name and the email of a
-commit matching the specified commit email address, and:
+amely lehetővé teszi, hogy a mailmap a megadott commit-e-mail-címre
+illeszkedő commit nevét és e-mailjét is lecserélje, és:
 --
 	Proper Name <proper@email.xx> Commit Name <commit@email.xx>
 --
-which allows mailmap to replace both the name and the email of a
-commit matching both the specified commit name and email address.
+amely lehetővé teszi, hogy a mailmap a megadott commit-névre és
+e-mail-címre egyaránt illeszkedő commit nevét és e-mailjét is
+lecserélje.
 
-Both E-Mails and names are matched case-insensitively. For example
-this would also match the 'Commit Name <commit&#64;email.xx>' above:
+Az e-mailek és a nevek illesztése egyaránt kis-nagybetűtől függetlenül
+történik. Például ez is illeszkedne a fenti
+'Commit Name <commit&#64;email.xx>'-re:
 --
 	Proper Name <proper@email.xx> CoMmIt NaMe <CoMmIt@EmAiL.xX>
 --
@@ -58,15 +61,16 @@ this would also match the 'Commit Name <commit&#64;email.xx>' above:
 NOTES
 -----
 
-Git does not follow symbolic links when accessing a `.mailmap` file in
-the working tree. This keeps behavior consistent when the file is
-accessed from the index or a tree versus from the filesystem.
+A Git nem követi a szimbolikus linkeket, amikor a working tree-ben lévő
+`.mailmap` fájlhoz fér hozzá. Ez konzisztensen tartja a viselkedést
+akkor is, amikor a fájlhoz az indexből vagy egy tree-ből férnek hozzá,
+és akkor is, amikor a fájlrendszerből.
 
 EXAMPLES
 --------
 
-Your history contains commits by two authors, Jane
-and Joe, whose names appear in the repository under several forms:
+Az előzményed két szerző, Jane és Joe commitjait tartalmazza, akiknek
+a neve több alakban is megjelenik a repository-ban:
 
 ------------
 Joe Developer <joe@example.com>
@@ -76,9 +80,9 @@ Jane Doe <jane@laptop.(none)>
 Jane D. <jane@desktop.(none)>
 ------------
 
-Now suppose that Joe wants his middle name initial used, and Jane
-prefers her family name fully spelled out. A `.mailmap` file to
-correct the names would look like:
+Most tegyük fel, hogy Joe azt szeretné, hogy a középső neve kezdőbetűjét
+használják, Jane pedig a vezetéknevét teljesen kiírva szeretné. Egy
+`.mailmap` fájl, amely javítja a neveket, így nézne ki:
 
 ------------
 Joe R. Developer <joe@example.com>
@@ -86,11 +90,11 @@ Jane Doe <jane@example.com>
 Jane Doe <jane@desktop.(none)>
 ------------
 
-Note that there's no need to map the name for '<jane&#64;laptop.(none)>' to
-only correct the names. However, leaving the obviously broken
-'<jane&#64;laptop.(none)>' and '<jane&#64;desktop.(none)>' E-Mails as-is is
-usually not what you want. A `.mailmap` file which also corrects those
-is:
+Vedd figyelembe, hogy nincs szükség a '<jane&#64;laptop.(none)>' nevének
+leképezésére csak a nevek javításához. Azonban a nyilvánvalóan hibás
+'<jane&#64;laptop.(none)>' és '<jane&#64;desktop.(none)>' e-mailek
+változatlanul hagyása általában nem az, amit szeretnél. Egy `.mailmap`
+fájl, amely ezeket is javítja:
 
 ------------
 Joe R. Developer <joe@example.com>
@@ -98,17 +102,18 @@ Jane Doe <jane@example.com> <jane@laptop.(none)>
 Jane Doe <jane@example.com> <jane@desktop.(none)>
 ------------
 
-Finally, let's say that Joe and Jane shared an E-Mail address, but not
-a name, e.g. by having these two commits in the history generated by a
-bug reporting system. I.e. names appearing in history as:
+Végül tegyük fel, hogy Joe és Jane megosztott egy e-mail-címet, de a
+nevet nem, például úgy, hogy egy hibabejelentő rendszer által generált
+alábbi két commit szerepel az előzményben. Azaz a nevek így jelennek
+meg az előzményben:
 
 ------------
 Joe <bugs@example.com>
 Jane <bugs@example.com>
 ------------
 
-A full `.mailmap` file which also handles those cases (an addition of
-two lines to the above example) would be:
+Egy teljes `.mailmap` fájl, amely ezeket az eseteket is kezeli (két sor
+hozzáadása a fenti példához), így nézne ki:
 
 ------------
 Joe R. Developer <joe@example.com>
@@ -127,4 +132,4 @@ linkgit:git-check-mailmap[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

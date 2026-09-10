@@ -1,74 +1,86 @@
-Decision-Making Process in the Git Project
-==========================================
+Döntéshozatali folyamat a Git projektben
+========================================
 
-Introduction
-------------
-This document describes the current decision-making process in the Git
-project. It is a descriptive rather than prescriptive doc; that is, we want to
-describe how things work in practice rather than explicitly recommending any
-particular process or changes to the current process.
+[[_introduction]]
+Bevezetés
+---------
+Ez a dokumentum a Git projekt jelenlegi döntéshozatali folyamatát írja
+le. Ez inkább leíró, mint előíró dokumentum; azaz azt szeretnénk
+leírni, hogyan működnek a dolgok a gyakorlatban, nem pedig kifejezetten
+ajánlani valamely konkrét folyamatot vagy a jelenlegi folyamat
+módosításait.
 
-Here we document how the project makes decisions for discussions
-(with or without patches), in scale larger than an individual patch
-series (which is fully covered by the SubmittingPatches document).
-
-
-Larger Discussions (with patches)
----------------------------------
-As with discussions on an individual patch series, starting a larger-scale
-discussion often begins by sending a patch or series to the list. This might
-take the form of an initial design doc, with implementation following in later
-iterations of the series (for example,
-link:https://lore.kernel.org/git/0169ce6fb9ccafc089b74ae406db0d1a8ff8ac65.1688165272.git.steadmon@google.com/[adding unit tests] or
-link:https://lore.kernel.org/git/20200420235310.94493-1-emilyshaffer@google.com/[config-based hooks]),
-or it might include a full implementation from the beginning.
-In either case, discussion progresses the same way for an individual patch series,
-until consensus is reached or the topic is dropped.
+Itt azt dokumentáljuk, hogyan hoz döntéseket a projekt olyan
+megbeszélésekhez (patchekkel vagy azok nélkül), amelyek egy önálló
+patchsorozatnál nagyobb léptékűek (ez utóbbit teljes egészében lefedi a
+SubmittingPatches dokumentum).
 
 
-Larger Discussions (without patches)
-------------------------------------
-Occasionally, larger discussions might occur without an associated patch series.
-These may be very large-scale technical decisions that are beyond the scope of
-even a single large patch series, or they may be more open-ended,
-policy-oriented discussions (examples:
-link:https://lore.kernel.org/git/ZZ77NQkSuiRxRDwt@nand.local/[introducing Rust]
-or link:https://lore.kernel.org/git/YHofmWcIAidkvJiD@google.com/[improving submodule UX]).
-In either case, discussion progresses as described above for general patch series.
-
-For larger discussions without a patch series or other concrete implementation,
-it may be hard to judge when consensus has been reached, as there are not any
-official guidelines. If discussion stalls at this point, it may be helpful to
-restart discussion with an RFC patch series (such as a partial, unfinished
-implementation or proof of concept) that can be more easily debated.
-
-When consensus is reached that it is a good idea, the original
-proposer is expected to coordinate the effort to make it happen,
-with help from others who were involved in the discussion, as
-needed.
-
-For decisions that require code changes, it is often the case that the original
-proposer will follow up with a patch series, although it is also common for
-other interested parties to provide an implementation (or parts of the
-implementation, for very large changes).
-
-For non-technical decisions such as community norms or processes, it is up to
-the community as a whole to implement and sustain agreed-upon changes.
-The project leadership committee (PLC) may help the implementation of
-policy decisions.
+[[_larger_discussions_with_patches]]
+Nagyobb megbeszélések (patchekkel)
+----------------------------------
+Ahogy egy önálló patchsorozatról szóló megbeszéléseknél, egy nagyobb
+léptékű megbeszélés indítása gyakran egy patch vagy sorozat listára
+küldésével kezdődik. Ez öltheti egy kezdeti tervdokumentum formáját,
+amelyet a sorozat későbbi iterációiban követ a megvalósítás (például
+link:https://lore.kernel.org/git/0169ce6fb9ccafc089b74ae406db0d1a8ff8ac65.1688165272.git.steadmon@google.com/[unit tesztek hozzáadása] vagy
+link:https://lore.kernel.org/git/20200420235310.94493-1-emilyshaffer@google.com/[konfigurációalapú hookok]),
+vagy tartalmazhat teljes megvalósítást a kezdetektől.
+Mindkét esetben a megbeszélés ugyanúgy halad, mint egy önálló
+patchsorozatnál, amíg konszenzus nem születik, vagy a témát el nem
+ejtik.
 
 
-Other Discussion Venues
------------------------
-Occasionally decision proposals are presented off-list, e.g. at the semi-regular
-Contributors' Summit. While higher-bandwidth face-to-face discussion is often
-useful for quickly reaching consensus among attendees, generally we expect to
-summarize the discussion in notes that can later be presented on-list. For an
-example, see the thread
+[[_larger_discussions_without_patches]]
+Nagyobb megbeszélések (patchek nélkül)
+--------------------------------------
+Időnként nagyobb megbeszélések fordulhatnak elő hozzájuk tartozó
+patchsorozat nélkül. Ezek lehetnek nagyon nagy léptékű technikai
+döntések, amelyek még egyetlen nagy patchsorozat hatókörét is
+meghaladják, vagy lehetnek nyitottabb, irányelv-orientált megbeszélések
+(példák:
+link:https://lore.kernel.org/git/ZZ77NQkSuiRxRDwt@nand.local/[a Rust bevezetése]
+vagy link:https://lore.kernel.org/git/YHofmWcIAidkvJiD@google.com/[a submodule UX javítása]).
+Mindkét esetben a megbeszélés az általános patchsorozatoknál fent
+leírtak szerint halad.
+
+Patchsorozat vagy más konkrét megvalósítás nélküli nagyobb
+megbeszéléseknél nehéz lehet megítélni, mikor született konszenzus,
+mivel nincsenek hivatalos irányelvek. Ha a megbeszélés ezen a ponton
+elakad, hasznos lehet egy RFC patchsorozattal (például egy részleges,
+befejezetlen megvalósítással vagy proof of concepttel) újraindítani a
+megbeszélést, amely könnyebben megvitatható.
+
+Amikor konszenzus születik arról, hogy ez jó ötlet, az eredeti
+javaslattevőtől elvárt, hogy koordinálja a megvalósításához szükséges
+munkát, szükség szerint a megbeszélésben részt vett többiek
+segítségével.
+
+A kódmódosítást igénylő döntéseknél gyakran előfordul, hogy az eredeti
+javaslattevő egy patchsorozattal folytatja, bár az is gyakori, hogy más
+érdekelt felek biztosítják a megvalósítást (vagy a megvalósítás
+részeit, nagyon nagy változtatásoknál).
+
+A nem technikai döntéseknél, mint a közösségi normák vagy folyamatok, a
+közösség egészén múlik a megállapodott változtatások megvalósítása és
+fenntartása. A projekt vezetői bizottsága (PLC) segítheti az
+irányelvdöntések megvalósítását.
+
+
+[[_other_discussion_venues]]
+Egyéb megbeszélési helyszínek
+-----------------------------
+Időnként döntési javaslatokat a listán kívül mutatnak be, pl. a
+félrendszeres Contributors' Summiton. Bár a nagyobb sávszélességű,
+személyes megbeszélés gyakran hasznos a résztvevők közötti gyors
+konszenzus eléréséhez, általában elvárjuk, hogy a megbeszélést
+jegyzetekben foglaljuk össze, amelyek később a listán bemutathatók.
+Példaként lásd a
 link:https://lore.kernel.org/git/AC2EB721-2979-43FD-922D-C5076A57F24B@jramsay.com.au/[Notes
-from Git Contributor Summit, Los Angeles (April 5, 2020)] by James Ramsay.
+from Git Contributor Summit, Los Angeles (April 5, 2020)] szálat James
+Ramsaytől.
 
-We prefer that "official" discussion happens on the list so that the full
-community has opportunity to engage in discussion. This also means that the
-mailing list archives contain a more-or-less complete history of project
-discussions and decisions.
+Azt szeretjük, ha a "hivatalos" megbeszélés a listán zajlik, hogy a
+teljes közösségnek lehetősége legyen bekapcsolódni. Ez azt is jelenti,
+hogy a levelezőlista archívumai többé-kevésbé teljes előzményét
+tartalmazzák a projekt megbeszéléseinek és döntéseinek.

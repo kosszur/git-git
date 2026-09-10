@@ -3,7 +3,7 @@ git-gui(1)
 
 NAME
 ----
-git-gui - A portable graphical interface to Git
+git-gui - Hordozható grafikus felület a Githez
 
 SYNOPSIS
 --------
@@ -12,110 +12,110 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-A Tcl/Tk based graphical user interface to Git.  'git gui' focuses
-on allowing users to make changes to their repository by making
-new commits, amending existing ones, creating branches, performing
-local merges, and fetching/pushing to remote repositories.
+Tcl/Tk alapú grafikus felhasználói felület a Githez.  A 'git gui' arra
+összpontosít, hogy a felhasználók módosíthassák a repository-jukat új
+commitok készítésével, meglévők amendelésével, branchek létrehozásával,
+helyi merge-ek végrehajtásával, valamint remote repository-kba való
+fetcheléssel/pusholással.
 
-Unlike 'gitk', 'git gui' focuses on commit generation
-and single file annotation and does not show project history.
-It does however supply menu actions to start a 'gitk' session from
-within 'git gui'.
+A 'gitk'-val ellentétben a 'git gui' a commitok létrehozására és
+egyetlen fájl annotálására összpontosít, és nem mutatja a projekt
+előzményeit. Menüműveleteket viszont biztosít ahhoz, hogy a 'git gui'-n
+belülről 'gitk' munkamenetet indíthass.
 
-'git gui' is known to work on all popular UNIX systems, Mac OS X,
-and Windows (under both Cygwin and MSYS).  To the extent possible
-OS specific user interface guidelines are followed, making 'git gui'
-a fairly native interface for users.
+A 'git gui'-ról ismert, hogy minden népszerű UNIX rendszeren, Mac OS
+X-en és Windowson (Cygwin és MSYS alatt egyaránt) működik.  Amennyire
+lehetséges, követi az operációs rendszerre jellemző felhasználói
+felületi irányelveket, így a 'git gui' a felhasználók számára
+meglehetősen natív felület.
 
 COMMANDS
 --------
 blame::
-	Start a blame viewer on the specified file on the given
-	version (or working directory if not specified).
+	Blame-nézegetőt indít a megadott fájlon a megadott verzión (vagy a
+	munkakönyvtáron, ha nincs megadva).
 
 browser::
-	Start a tree browser showing all files in the specified
-	commit.  Files selected through the
-	browser are opened in the blame viewer.
+	Tree-böngészőt indít, amely a megadott commit összes fájlját
+	megmutatja.  A böngészőn keresztül kiválasztott fájlok a
+	blame-nézegetőben nyílnak meg.
 
 citool::
-	Start 'git gui' and arrange to make exactly one commit before
-	exiting and returning to the shell.  The interface is limited
-	to only commit actions, slightly reducing the application's
-	startup time and simplifying the menubar.
+	Elindítja a 'git gui'-t, és úgy állítja be, hogy pontosan egy
+	commitot készítsen, mielőtt kilép és visszatér a shellbe.  A felület
+	csak a commit-műveletekre korlátozódik, kissé csökkentve az alkalmazás
+	indítási idejét és egyszerűsítve a menüsort.
 
 version::
-	Display the currently running version of 'git gui'.
+	Megjeleníti a 'git gui' jelenleg futó verzióját.
 
 
-Examples
---------
+[[_examples]]
+Példák
+------
 `git gui blame Makefile`::
 
-	Show the contents of the file 'Makefile' in the current
-	working directory, and provide annotations for both the
-	original author of each line, and who moved the line to its
-	current location.  The uncommitted file is annotated, and
-	uncommitted changes (if any) are explicitly attributed to
-	'Not Yet Committed'.
+	Megmutatja a 'Makefile' fájl tartalmát az aktuális munkakönyvtárban,
+	és annotációt ad mind az egyes sorok eredeti szerzőjéről, mind arról,
+	ki helyezte a sort a jelenlegi helyére.  A nem commitolt fájl
+	annotálva van, és a nem commitolt módosítások (ha vannak) kifejezetten
+	a 'Not Yet Committed' bejegyzéshez rendelődnek.
 
 `git gui blame v0.99.8 Makefile`::
 
-	Show the contents of 'Makefile' in revision 'v0.99.8'
-	and provide annotations for each line.  Unlike the above
-	example the file is read from the object database and not
-	the working directory.
+	Megmutatja a 'Makefile' tartalmát a 'v0.99.8' revízióban, és
+	minden sorhoz annotációt ad.  A fenti példával ellentétben a fájl
+	az objektumadatbázisból olvasódik be, nem a munkakönyvtárból.
 
 `git gui blame --line=100 Makefile`::
 
-	Loads annotations as described above and automatically
-	scrolls the view to center on line '100'.
+	A fent leírtak szerint betölti az annotációkat, és automatikusan a
+	'100'-as sorra görgeti a nézetet.
 
 `git gui citool`::
 
-	Make one commit and return to the shell when it is complete.
-	This command returns a non-zero exit code if the window was
-	closed in any way other than by making a commit.
+	Készít egy commitot, és annak befejeztével visszatér a shellbe.
+	Ez a parancs nem nulla kilépési kódot ad vissza, ha az ablakot
+	nem commit készítésével zárták be.
 
 `git gui citool --amend`::
 
-	Automatically enter the 'Amend Last Commit' mode of
-	the interface.
+	Automatikusan belép a felület 'Amend Last Commit' módjába.
 
 `git gui citool --nocommit`::
 
-	Behave as normal citool, but instead of making a commit
-	simply terminate with a zero exit code. It still checks
-	that the index does not contain any unmerged entries, so
-	you can use it as a GUI version of linkgit:git-mergetool[1]
+	Úgy viselkedik, mint a normál citool, de commit készítése helyett
+	egyszerűen nulla kilépési kóddal áll le. Továbbra is ellenőrzi, hogy
+	az index nem tartalmaz-e nem merge-elt bejegyzéseket, így a
+	linkgit:git-mergetool[1] GUI-verziójaként használható
 
 `git citool`::
 
-	Same as `git gui citool` (above).
+	Ugyanaz, mint a `git gui citool` (fent).
 
 `git gui browser maint`::
 
-	Show a browser for the tree of the 'maint' branch.  Files
-	selected in the browser can be viewed with the internal
-	blame viewer.
+	Böngészőt jelenít meg a 'maint' branch tree-jéhez.  A böngészőben
+	kiválasztott fájlok a beépített blame-nézegetővel tekinthetők meg.
 
 SEE ALSO
 --------
 linkgit:gitk[1]::
-	The Git repository browser.  Shows branches, commit history
-	and file differences.  gitk is the utility started by
-	'git gui''s Repository Visualize actions.
+	A Git repository-böngésző.  Brancheket, commit-előzményeket és
+	fájlkülönbségeket mutat.  A gitk az a segédprogram, amelyet a
+	'git gui' Repository Visualize műveletei indítanak el.
 
-Other
+[[_other]]
+Egyéb
 -----
-'git gui' is actually maintained as an independent project, but stable
-versions are distributed as part of the Git suite for the convenience
-of end users.
+A 'git gui'-t valójában önálló projektként karbantartják, de a stabil
+verziókat a végfelhasználók kényelme érdekében a Git csomag részeként
+terjesztik.
 
-The official repository of the 'git gui' project can be found at:
+A 'git gui' projekt hivatalos repository-ja itt található:
 
   https://github.com/j6t/git-gui
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

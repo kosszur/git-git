@@ -1,76 +1,76 @@
 GIT URLS[[URLS]]
 ----------------
 
-In general, URLs contain information about the transport protocol, the
-address of the remote server, and the path to the repository.
-Depending on the transport protocol, some of this information may be
-absent.
+Az URL-ek általában tartalmazzák az átviteli protokollra, a remote
+szerver címére és a repository elérési útjára vonatkozó információkat.
+Az átviteli protokolltól függően ezen információk egy része hiányozhat.
 
-Git supports ssh, git, http, and https protocols (in addition, ftp
-and ftps can be used for fetching, but this is inefficient and
-deprecated; do not use them).
+A Git támogatja az ssh, git, http és https protokollokat (ezenkívül az
+ftp és az ftps használható fetchelésre, de ez nem hatékony és elavult;
+ne használd őket).
 
-The native transport (i.e. `git://` URL) does no authentication and
-should be used with caution on unsecured networks.
+A natív átvitel (azaz a `git://` URL) nem végez hitelesítést, és
+óvatosan kell használni nem biztonságos hálózatokon.
 
-The following syntaxes may be used with them:
+A következő szintaxisok használhatók velük:
 
 - `ssh://[<user>@]<host>[:<port>]/<path-to-git-repo>`
 - `git://<host>[:<port>]/<path-to-git-repo>`
 - `http[s]://<host>[:<port>]/<path-to-git-repo>`
 - `ftp[s]://<host>[:<port>]/<path-to-git-repo>`
 
-An alternative scp-like syntax may also be used with the ssh protocol:
+Az ssh protokollal egy alternatív, scp-szerű szintaxis is használható:
 
 - `[<user>@]<host>:/<path-to-git-repo>`
 
-This syntax is only recognized if there are no slashes before the
-first colon. This helps differentiate a local path that contains a
-colon. For example the local path `foo:bar` could be specified as an
-absolute path or `./foo:bar` to avoid being misinterpreted as an ssh
-url.
+Ezt a szintaxist csak akkor ismeri fel, ha nincs perjel az első
+kettőspont előtt. Ez segít megkülönböztetni egy kettőspontot tartalmazó
+helyi útvonalat. Például a `foo:bar` helyi útvonal megadható abszolút
+útvonalként, vagy `./foo:bar` alakban, hogy ne értelmezze tévesen ssh
+url-ként.
 
-The ssh and git protocols additionally support `~<username>` expansion:
+Az ssh és a git protokoll ezenkívül támogatja a `~<username>`
+kibontását:
 
 - `ssh://[<user>@]<host>[:<port>]/~<user>/<path-to-git-repo>`
 - `git://<host>[:<port>]/~<user>/<path-to-git-repo>`
 - `[<user>@]<host>:~<user>/<path-to-git-repo>`
 
-For local repositories, also supported by Git natively, the following
-syntaxes may be used:
+Helyi repository-khoz, amelyeket a Git szintén natívan támogat, a
+következő szintaxisok használhatók:
 
 - `/path/to/repo.git/`
 - `file:///path/to/repo.git/`
 
 ifndef::git-clone[]
-These two syntaxes are mostly equivalent, except when cloning, when
-the former implies `--local` option. See linkgit:git-clone[1] for
-details.
+Ez a két szintaxis többnyire egyenértékű, kivéve klónozáskor, amikor az
+előbbi maga után vonja a `--local` opciót. A részletekért lásd a
+linkgit:git-clone[1]-et.
 endif::git-clone[]
 
 ifdef::git-clone[]
-These two syntaxes are mostly equivalent, except the former implies
-`--local` option.
+Ez a két szintaxis többnyire egyenértékű, kivéve, hogy az előbbi maga
+után vonja a `--local` opciót.
 endif::git-clone[]
 
-`git clone`, `git fetch` and `git pull`, but not `git push`, will also
-accept a suitable bundle file. See linkgit:git-bundle[1].
+A `git clone`, a `git fetch` és a `git pull` — de a `git push` nem —
+egy megfelelő bundle fájlt is elfogad. Lásd linkgit:git-bundle[1].
 
-When Git doesn't know how to handle a certain transport protocol, it
-attempts to use the `remote-<transport>` remote helper, if one
-exists. To explicitly request a remote helper, the following syntax
-may be used:
+Amikor a Git nem tudja, hogyan kezeljen egy adott átviteli protokollt,
+megpróbálja a `remote-<transport>` remote helpert használni, ha van
+ilyen. Egy remote helper kifejezett kéréséhez a következő szintaxis
+használható:
 
 - `<transport>::<address>`
 
-where _<address>_ may be a path, a server and path, or an arbitrary
-URL-like string recognized by the specific remote helper being
-invoked. See linkgit:gitremote-helpers[7] for details.
+ahol az _<address>_ lehet egy útvonal, egy szerver és útvonal, vagy egy
+tetszőleges URL-szerű karakterlánc, amelyet a meghívott konkrét remote
+helper felismer. A részletekért lásd a linkgit:gitremote-helpers[7]-et.
 
-If there are a large number of similarly-named remote repositories and
-you want to use a different format for them (such that the URLs you
-use will be rewritten into URLs that work), you can create a
-configuration section of the form:
+Ha sok hasonló nevű remote repository van, és más formátumot szeretnél
+használni hozzájuk (úgy, hogy az általad használt URL-ek működő
+URL-ekre íródjanak át), létrehozhatsz egy ilyen alakú konfigurációs
+szakaszt:
 
 [verse]
 --
@@ -78,7 +78,7 @@ configuration section of the form:
 		insteadOf = _<other-url-base>_
 --
 
-For example, with this:
+Például ezzel:
 
 ------------
 	[url "git://git.host.xz/"]
@@ -86,11 +86,12 @@ For example, with this:
 		insteadOf = work:
 ------------
 
-a URL like "work:repo.git" or like "host.xz:/path/to/repo.git" will be
-rewritten in any context that takes a URL to be "git://git.host.xz/repo.git".
+egy olyan URL, mint a "work:repo.git" vagy a
+"host.xz:/path/to/repo.git", minden URL-t elfogadó kontextusban
+"git://git.host.xz/repo.git" alakra íródik át.
 
-If you want to rewrite URLs for push only, you can create a
-configuration section of the form:
+Ha csak a pushhoz szeretnél URL-eket átírni, létrehozhatsz egy ilyen
+alakú konfigurációs szakaszt:
 
 [verse]
 --
@@ -98,13 +99,13 @@ configuration section of the form:
 		pushInsteadOf = _<other-url-base>_
 --
 
-For example, with this:
+Például ezzel:
 
 ------------
 	[url "ssh://example.org/"]
 		pushInsteadOf = git://example.org/
 ------------
 
-a URL like "git://example.org/path/to/repo.git" will be rewritten to
-"ssh://example.org/path/to/repo.git" for pushes, but pulls will still
-use the original URL.
+egy olyan URL, mint a "git://example.org/path/to/repo.git",
+pusholáskor "ssh://example.org/path/to/repo.git" alakra íródik át, de a
+pullok továbbra is az eredeti URL-t használják.

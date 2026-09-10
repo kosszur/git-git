@@ -1571,3 +1571,106 @@ igazítva (Python `len()` alapú ellenőrzés; 2 db ±1 elütés menet közben j
 ### Man-page címként angolul hagyott címsorok
 
 - **Nincs egy sem** — egyik fájl sem man page.
+
+## 23. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–21. blokkban (a két gyökér-tábla együttes, sorméret/byte szerint
+növekvő listája, `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc` kihagyva).
+Orchestrátor fordította közvetlenül. **Megjegyzés a számozásról:** a „22. blokk" számot egy
+párhuzamos `howto/`-munkamenet foglalta le (l. a progress batch-naplóban), ezért ez a batch a
+„23. blokk". Fájlok: `git-rev-list.adoc`, `gitformat-bundle.adoc`, `git-name-rev.adoc`,
+`git-gui.adoc`, `urls.adoc`, `gitmailmap.adoc`, `git-web--browse.adoc`, `git-patch-id.adoc`,
+`DecisionMaking.adoc`, `git-mailinfo.adoc`. A `DecisionMaking.adoc` NEM man page, az `urls.adoc`
+és az `i18n.adoc`-hoz hasonló include-cél fragmens; a többi man page (`gitformat-bundle.adoc`,
+`gitmailmap.adoc` szekció 5).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| commit ancestry graph | **„commit-ősgráf"** | `git-rev-list.adoc` |
+| build artifacts | **„build-műtermékek"** | `git-rev-list.adoc` |
+| ABNF notation | **„ABNF-jelölés"** | `gitformat-bundle.adoc` — konzisztens a 21. blokk (`gitprotocol-common.adoc`) döntésével |
+| "Capabilities" / "Prerequisites" / "References" / "Pack" (a bundle-formátum ABNF-nyelvtan elem-nevei, idézőjelben) | **változatlanul angolul, idézőjelben**, első előforduláskor magyar glosszával: `"Capabilities" (képességek)`, `"Prerequisites" (előfeltételek)`, `"References" (referenciák)` | `gitformat-bundle.adoc` — a `config.kulcs::` címke-szabály / a `technical/` blokkok „coined term" mintája; a nagybetűs `CAPABILITIES` / `SEMANTICS` / `FORMAT` szekciócímek a VÉGLEGES DÖNTÉS szerint amúgy is angolul maradnak |
+| RFC 2119 kulcsszavak (`MUST`, `MAY`, `CAN`, `NOT` — csupa nagybetűvel a forrásban) | **bájtazonosan angolul maradnak**, magyar főnévi igenévvel utánuk (pl. „MUST már rendelkeznie", „MAY ide bármilyen karakterláncot tenni", „CAN belőle »git fetch«-elni") | `gitformat-bundle.adoc` — a 21. blokk (`gitprotocol-common.adoc`) felhasználói döntésének alkalmazása; a kisbetűs `must`/`may` a prózában továbbra is fordul („kell") |
+| "patch ID" | **változatlanul angolul, idézőjelben** (`"patch ID"`), a `patch ID` alak backtick nélkül is angolul | `git-patch-id.adoc` |
+| "stable" / "unstable" (hash/összeg minősítése, idézőjelben) | **„stabil" / „instabil"** (fordítva, idézőjel megtartva) | `git-patch-id.adoc` — nem tulajdonnév, sima jelző |
+| scissors line (`--scissors`) | **„ollóvonal"** | `git-mailinfo.adoc` |
+| email cruft | **„e-mail-szemét"** | `git-mailinfo.adoc` |
+| MIME transfer encoding | **marad „MIME transfer encoding"** angolul | `git-mailinfo.adoc` — szabvány-terminus |
+| transliterating | **„transzliterálás"** | `git-mailinfo.adoc` |
+| symbolic names suitable for human digestion | **„ember számára emészthető szimbolikus nevek"** | `git-name-rev.adoc` |
+| project leadership committee (PLC) | **„a projekt vezetői bizottsága (PLC)"** — a rövidítés angolul marad | `DecisionMaking.adoc` |
+| proof of concept | **marad „proof of concept"** angolul; ragozva „proof of concepttel" | `DecisionMaking.adoc` |
+| Contributors' Summit | **marad angolul, tulajdonnévként** | `DecisionMaking.adoc` |
+| tree browser / blame viewer (`git-gui`) | **„tree-böngésző" / „blame-nézegető"** | `git-gui.adoc` |
+| dumb/smart — nincs ebben a batchben | — | — |
+
+### Címsor-anchorok
+
+- **`urls.adoc`** — a `GIT URLS[[URLS]]` cím (explicit inline `[[URLS]]` anchorral, csupa nagybetűs,
+  kétsoros) a **VÉGLEGES DÖNTÉS** szerint **angolul maradt**; a `[[URLS]]` anchor és a rá mutató
+  `<<URLS,...>>` xrefek (`git-pull.adoc`, `git-push.adoc`, `pull-fetch-param.adoc` — mind még
+  lefordítatlan, `GIT URLS` látható szöveggel; `git-clone.adoc` — már lefordítva, `GIT URL-ek`
+  látható szöveggel) érintetlenek. **Jövőbeli konzisztencia:** amikor `git-pull.adoc` /
+  `git-push.adoc` / `pull-fetch-param.adoc` sorra kerül, a `<<URLS,GIT URLS>>` látható szövegét
+  `<<URLS,GIT URL-ek>>`-re kell átírni a `git-clone.adoc` precedense szerint. A cím maga angolul
+  marad — a link-szöveg ettől függetlenül lehet magyar (az anchor id a döntő).
+- **`DecisionMaking.adoc`** (NEM man page): mind a 4 Title Case alcím fordult, fölé defenzív
+  `[[_introduction]]`, `[[_larger_discussions_with_patches]]`,
+  `[[_larger_discussions_without_patches]]`, `[[_other_discussion_venues]]` anchor (autogen slug az
+  eredeti angol címből). A level-0 doc-cím nem kapott anchort. Nincs rájuk `<<...>>` xref a fában
+  (grep-pel ellenőrizve).
+- **`git-gui.adoc`**: `Examples` → „Példák" + `[[_examples]]`, `Other` → „Egyéb" + `[[_other]]`
+  (mindkettő Title Case, NEM csupa nagybetűs — a `git-whatchanged.adoc` (18. blokk) „Examples" →
+  „Példák" precedensét követi). A `COMMANDS` és `SEE ALSO` a szokásos módon (angolul, ill. kanonikus).
+- **`git-web--browse.adoc`**: két Title Case `~~~~` alcím fordult defenzív anchorral:
+  `[[_conf_var_from_c_option_and_web_browser]]` („A CONF.VAR (a -c opcióból) és a web.browser"),
+  `[[_note_about_git_config_global]]` („Megjegyzés a git-config --global-ról"). A
+  `browser.<tool>.path` és `browser.<tool>.cmd` `~~~~` alcímek **config-kulcs-literálok**, ezért
+  **változatlanul** maradtak (nincs fordítás, nincs új anchor). `CONFIGURATION VARIABLES` és
+  `NOTE ABOUT KONQUEROR` a VÉGLEGES DÖNTÉS szerint angolul.
+- **`gitformat-bundle.adoc`**: `Note on shallow clones and Git bundles` → „Megjegyzés a shallow
+  klónokról és a Git bundle-ökről" + `[[_note_on_shallow_clones_and_git_bundles]]` (Title Case
+  `~~~~` alcím). `FORMAT` / `SEMANTICS` / `CAPABILITIES` a VÉGLEGES DÖNTÉS szerint angolul.
+- A többi 5 fájlban (`git-rev-list.adoc`, `git-name-rev.adoc`, `gitmailmap.adoc`,
+  `git-patch-id.adoc`, `git-mailinfo.adoc`) nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve);
+  `gitmailmap.adoc` `SYNTAX` és minden fájl kanonikus man-page címei angolul maradtak.
+
+### Megőrzött markup / megjegyzések
+
+- Minden lefordított Title Case setext-cím `=`/`-`/`~` aláhúzása a fordított cím **pontos
+  karakterhosszához** igazítva (Python `len()` alapú utólagos ellenőrzés; 4 db ±1–2 elütés menet
+  közben javítva: `gitformat-bundle.adoc` (54→52), `git-web--browse.adoc` (44→43, 37→36),
+  `DecisionMaking.adoc` (37→38)).
+- `git-rev-list.adoc`: 9 pár `----------` (10 kötőjel) EXAMPLES-blokk bájtazonos, a bennük lévő
+  `# reachable objects` stb. angol kommentekkel; `:git-rev-list: 1` attribútum-sorok és 3
+  `include::` sor (`rev-list-description`, `rev-list-options`, `pretty-formats`) változatlan.
+- `gitformat-bundle.adoc`: 2 pár `----` ABNF-blokk (v2/v3 nyelvtan) bájtazonos.
+- `git-name-rev.adoc`: a `-----------` / `------------` `$ cat sample.txt` / `% git name-rev …`
+  terminál-átirat blokkok bájtazonosak (valós, lokalizálatlan kimenettel).
+- `urls.adoc`: 2 pár `[verse]` + `--`/`--` nyitott blokk (`[url "__<actual-url-base>__"]` /
+  `insteadOf` / `pushInsteadOf`) és 2 db `------------` config-mintablokk bájtazonos; a
+  `__<actual-url-base>__` (bold) és `_<other-url-base>_` / `_<address>_` (italic) placeholderek
+  változatlanok. Az `ifndef::git-clone[]` / `ifdef::git-clone[]` (2+2, párban) érintetlen.
+- `gitmailmap.adoc`: 5 pár `--`/`--` nyitott blokk (`Proper Name <…>` példák) és 5 pár
+  `------------` EXAMPLES-blokk bájtazonos; a `&#64;` HTML-entitások és a `'#'` / `'<'` / `'>'`
+  idézőjeles karakterhivatkozások változatlanok.
+- `git-web--browse.adoc`: 2 db `------------------------------------------------` (48 kötőjel)
+  config-mintablokk (`[web]` / `[browser "konq"]`) bájtazonos; a `{litdd}` attribútum-referenciák
+  (`git-web{litdd}browse`) és a `'Note about konqueror'` idézőjeles prózahivatkozás (a
+  `NOTE ABOUT KONQUEROR` angol szekciócímre) változatlanok.
+- `git-patch-id.adoc`: 1 pár `--`/`--` nyitott blokk (`--stable` felsorolás) és 1 pár `----`
+  `#!/bin/sh` példaszkript-blokk bájtazonos.
+- `git-mailinfo.adoc`: 2 pár `--`/`--` nyitott blokk (`-k` és `--quoted-cr` felsorolások); a
+  `*\t` (csillag + tab) lista-jelölők megtartva; 2 `include::` sor
+  (`includes/cmd-config-section-all`, `config/mailinfo`) változatlan.
+- `DecisionMaking.adoc`: a `link:https://lore.kernel.org/…[látható szöveg]` makrók URL-je
+  változatlan, a látható szöveg fordult, **kivéve** a „Notes from Git Contributor Summit, Los
+  Angeles (April 5, 2020)" thread-címet, amely **angolul maradt** (konkrét archivált levél tárgya
+  — a 9. blokk bibliográfiai-cím precedensét követi).
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`--`/`====`/`~~~~` határolók és aláhúzások
+  párban/pontos hosszal, `ifdef::`/`endif::` csak az `urls.adoc`-ban (2+2, párban), a
+  bekezdéshatárok megtartva.
+

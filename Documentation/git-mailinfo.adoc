@@ -3,7 +3,7 @@ git-mailinfo(1)
 
 NAME
 ----
-git-mailinfo - Extracts patch and authorship from a single e-mail message
+git-mailinfo - Patch és szerzőség kinyerése egyetlen e-mail-üzenetből
 
 
 SYNOPSIS
@@ -16,104 +16,114 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Reads a single e-mail message from the standard input, and
-writes the commit log message in <msg> file, and the patches in
-<patch> file.  The author name, e-mail and e-mail subject are
-written out to the standard output to be used by 'git am'
-to create a commit.  It is usually not necessary to use this
-command directly.  See linkgit:git-am[1] instead.
+Beolvas egyetlen e-mail-üzenetet a standard bemenetről, és a commit
+napló-üzenetét a <msg> fájlba, a patcheket pedig a <patch> fájlba
+írja.  A szerző neve, az e-mail és az e-mail tárgya a standard
+kimenetre íródik, hogy a 'git am' felhasználja őket egy commit
+létrehozásához.  Általában nem szükséges ezt a parancsot közvetlenül
+használni.  Helyette lásd a linkgit:git-am[1]-et.
 
 
 OPTIONS
 -------
 -k::
-	Usually the program removes email cruft from the Subject:
-	header line to extract the title line for the commit log
-	message.  This option prevents this munging, and is most
-	useful when used to read back 'git format-patch -k' output.
+	A program általában eltávolítja az e-mail-szemetet a Subject:
+	fejlécsorból, hogy kinyerje a commit napló-üzenetének címsorát.
+	Ez az opció megakadályozza ezt az átalakítást, és leginkább akkor
+	hasznos, ha a 'git format-patch -k' kimenetének visszaolvasására
+	használják.
 +
-Specifically, the following are removed until none of them remain:
+Konkrétan a következők kerülnek eltávolításra, amíg egy sem marad:
 +
 --
-*	Leading and trailing whitespace.
+*	Kezdő és záró whitespace.
 
-*	Leading `Re:`, `re:`, and `:`.
+*	Kezdő `Re:`, `re:` és `:`.
 
-*	Leading bracketed strings (between `[` and `]`, usually
-	`[PATCH]`).
+*	Kezdő szögletes zárójeles karakterláncok (a `[` és `]` között,
+	általában `[PATCH]`).
 --
 +
-Finally, runs of whitespace are normalized to a single ASCII space
-character.
+Végül a whitespace-sorozatok egyetlen ASCII szóköz karakterré
+normalizálódnak.
 
 -b::
-	When -k is not in effect, all leading strings bracketed with '['
-	and ']' pairs are stripped.  This option limits the stripping to
-	only the pairs whose bracketed string contains the word "PATCH".
+	Ha a -k nincs érvényben, minden kezdő, '[' és ']' párokkal
+	zárójelezett karakterlánc eltávolításra kerül.  Ez az opció az
+	eltávolítást csak azokra a párokra korlátozza, amelyek zárójelezett
+	karakterlánca tartalmazza a "PATCH" szót.
 
 -u::
-	The commit log message, author name and author email are
-	taken from the e-mail, and after minimally decoding MIME
-	transfer encoding, re-coded in the charset specified by
-	`i18n.commitEncoding` (defaulting to UTF-8) by transliterating
-	them.  This used to be optional but now it is the default.
+	A commit napló-üzenete, a szerző neve és a szerző e-mailje az
+	e-mailből származik, és a MIME transfer encoding minimális
+	dekódolása után az `i18n.commitEncoding` által megadott
+	karakterkészletbe (alapértelmezés szerint UTF-8) kódolódnak át
+	transzliterálással.  Ez korábban opcionális volt, most viszont ez
+	az alapértelmezés.
 +
-Note that the patch is always used as-is without charset
-conversion, even with this flag.
+Vedd figyelembe, hogy a patch mindig változatlanul,
+karakterkészlet-konverzió nélkül kerül felhasználásra, még ezzel a
+kapcsolóval is.
 
 --encoding=<encoding>::
-	Similar to -u.  But when re-coding, the charset specified here is
-	used instead of the one specified by `i18n.commitEncoding` or UTF-8.
+	Hasonló a -u-hoz.  De átkódoláskor az itt megadott
+	karakterkészletet használja az `i18n.commitEncoding` vagy az UTF-8
+	által megadott helyett.
 
 -n::
-	Disable all charset re-coding of the metadata.
+	Letiltja a metaadatok minden karakterkészlet-átkódolását.
 
 -m::
 --message-id::
-	Copy the Message-ID header at the end of the commit message.  This
-	is useful in order to associate commits with mailing list discussions.
+	A Message-ID fejléc másolása a commit-üzenet végére.  Ez hasznos
+	ahhoz, hogy a commitokat levelezőlistás megbeszélésekhez lehessen
+	társítani.
 
 --scissors::
-	Remove everything in body before a scissors line (e.g. "-- >8 --").
-	The line represents scissors and perforation marks, and is used to
-	request the reader to cut the message at that line.  If that line
-	appears in the body of the message before the patch, everything
-	before it (including the scissors line itself) is ignored when
-	this option is used.
+	Eltávolít mindent a törzsben egy ollóvonal (pl. "-- >8 --") előtt.
+	A sor ollót és perforációs jeleket ábrázol, és arra szolgál, hogy
+	arra kérje az olvasót, vágja el az üzenetet annál a sornál.  Ha ez
+	a sor az üzenet törzsében a patch előtt jelenik meg, akkor ennek az
+	opciónak a használatakor minden, ami előtte van (magát az
+	ollóvonalat is beleértve), figyelmen kívül marad.
 +
-This is useful if you want to begin your message in a discussion thread
-with comments and suggestions on the message you are responding to, and to
-conclude it with a patch submission, separating the discussion and the
-beginning of the proposed commit log message with a scissors line.
+Ez akkor hasznos, ha egy megbeszélési szálban az üzenetedet azzal
+szeretnéd kezdeni, hogy megjegyzéseket és javaslatokat írsz arra az
+üzenetre, amelyre válaszolsz, és egy patch beküldésével szeretnéd
+lezárni, elválasztva a megbeszélést és a javasolt commit
+napló-üzenetének kezdetét egy ollóvonallal.
 +
-This can be enabled by default with the configuration option mailinfo.scissors.
+Ez alapértelmezés szerint bekapcsolható a mailinfo.scissors
+konfigurációs opcióval.
 
 --no-scissors::
-	Ignore scissors lines. Useful for overriding mailinfo.scissors settings.
+	Figyelmen kívül hagyja az ollóvonalakat. Hasznos a
+	mailinfo.scissors beállítások felülbírálásához.
 
 --quoted-cr=<action>::
-	Action when processes email messages sent with base64 or
-	quoted-printable encoding, and the decoded lines end with a CRLF
-	instead of a simple LF.
+	Az a művelet, amelyet akkor hajt végre, amikor base64 vagy
+	quoted-printable kódolással küldött e-mail-üzeneteket dolgoz fel, és
+	a dekódolt sorok egyszerű LF helyett CRLF-fel végződnek.
 +
-The valid actions are:
+Az érvényes műveletek:
 +
 --
-*	`nowarn`: Git will do nothing when such a CRLF is found.
-*	`warn`: Git will issue a warning for each message if such a CRLF is
-	found.
-*	`strip`: Git will convert those CRLF to LF.
+*	`nowarn`: a Git nem tesz semmit, amikor ilyen CRLF-et talál.
+*	`warn`: a Git minden üzenetnél figyelmeztetést ad, ha ilyen CRLF-et
+	talál.
+*	`strip`: a Git ezeket a CRLF-eket LF-re konvertálja.
 --
 +
-The default action could be set by configuration option `mailinfo.quotedCR`.
-If no such configuration option has been set, `warn` will be used.
+Az alapértelmezett műveletet a `mailinfo.quotedCR` konfigurációs
+opcióval lehet beállítani.  Ha nincs ilyen konfigurációs opció
+beállítva, a `warn` lesz használatban.
 
 <msg>::
-	The commit log message extracted from e-mail, usually
-	except the title line which comes from e-mail Subject.
+	Az e-mailből kinyert commit napló-üzenet, általában a címsor
+	kivételével, amely az e-mail tárgyából származik.
 
 <patch>::
-	The patch extracted from e-mail.
+	Az e-mailből kinyert patch.
 
 CONFIGURATION
 -------------
@@ -124,4 +134,4 @@ include::config/mailinfo.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

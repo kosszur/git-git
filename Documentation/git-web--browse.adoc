@@ -3,7 +3,7 @@ git-web{litdd}browse(1)
 
 NAME
 ----
-git-web--browse - Git helper script to launch a web browser
+git-web--browse - Git segédszkript webböngésző indításához
 
 SYNOPSIS
 --------
@@ -13,90 +13,92 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This script tries, as much as possible, to display the URLs and FILEs
-that are passed as arguments, as HTML pages in new tabs on an already
-opened web browser.
+Ez a szkript, amennyire csak lehetséges, megpróbálja megjeleníteni az
+argumentumként átadott URL-eket és FILE-okat HTML-oldalakként egy már
+megnyitott webböngésző új lapjain.
 
-The following browsers (or commands) are currently supported:
+Jelenleg a következő böngészők (vagy parancsok) támogatottak:
 
-* firefox (this is the default under X Window when not using KDE)
+* firefox (ez az alapértelmezett X Window alatt, ha nem KDE-t használsz)
 * iceweasel
 * seamonkey
 * iceape
-* chromium (also supported as chromium-browser)
-* google-chrome (also supported as chrome)
-* konqueror (this is the default under KDE, see 'Note about konqueror' below)
+* chromium (chromium-browser néven is támogatott)
+* google-chrome (chrome néven is támogatott)
+* konqueror (ez az alapértelmezett KDE alatt, lásd lent a 'Note about konqueror' részt)
 * opera
-* w3m (this is the default outside graphical environments)
+* w3m (ez az alapértelmezett grafikus környezeteken kívül)
 * elinks
 * links
 * lynx
 * dillo
-* open (this is the default under Mac OS X GUI)
-* start (this is the default under MinGW)
-* cygstart (this is the default under Cygwin)
+* open (ez az alapértelmezett Mac OS X GUI alatt)
+* start (ez az alapértelmezett MinGW alatt)
+* cygstart (ez az alapértelmezett Cygwin alatt)
 * xdg-open
 
-Custom commands may also be specified.
+Egyéni parancsok is megadhatók.
 
 OPTIONS
 -------
 -b <browser>::
 --browser=<browser>::
-	Use the specified browser. It must be in the list of supported
-	browsers.
+	A megadott böngészőt használja. Szerepelnie kell a támogatott
+	böngészők listájában.
 
 -t <browser>::
 --tool=<browser>::
-	Same as above.
+	Ugyanaz, mint fent.
 
 -c <conf.var>::
 --config=<conf.var>::
-	CONF.VAR is looked up in the Git config files. If it's set,
-	then its value specifies the browser that should be used.
+	A CONF.VAR a Git konfigurációs fájljaiban lesz keresve. Ha be van
+	állítva, akkor az értéke adja meg a használandó böngészőt.
 
 CONFIGURATION VARIABLES
 -----------------------
 
-CONF.VAR (from -c option) and web.browser
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_conf_var_from_c_option_and_web_browser]]
+A CONF.VAR (a -c opcióból) és a web.browser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The web browser can be specified using a configuration variable passed
-with the -c (or --config) command-line option, or the `web.browser`
-configuration variable if the former is not used.
+A webböngésző megadható egy konfigurációs változóval, amelyet a -c (vagy
+--config) parancssori opcióval adsz át, vagy a `web.browser`
+konfigurációs változóval, ha az előbbit nem használod.
 
 browser.<tool>.path
 ~~~~~~~~~~~~~~~~~~~
 
-You can explicitly provide a full path to your preferred browser by
-setting the configuration variable `browser.<tool>.path`. For example,
-you can configure the absolute path to firefox by setting
-'browser.firefox.path'. Otherwise, 'git web{litdd}browse' assumes the tool
-is available in PATH.
+Kifejezetten megadhatod a preferált böngésződ teljes elérési útját a
+`browser.<tool>.path` konfigurációs változó beállításával. Például a
+firefox abszolút elérési útját a 'browser.firefox.path' beállításával
+konfigurálhatod. Egyébként a 'git web{litdd}browse' feltételezi, hogy az
+eszköz elérhető a PATH-ban.
 
 browser.<tool>.cmd
 ~~~~~~~~~~~~~~~~~~
 
-When the browser, specified by options or configuration variables, is
-not among the supported ones, then the corresponding
-`browser.<tool>.cmd` configuration variable will be looked up. If this
-variable exists then 'git web{litdd}browse' will treat the specified tool
-as a custom command and will use a shell eval to run the command with
-the URLs passed as arguments.
+Ha az opciókkal vagy konfigurációs változókkal megadott böngésző nincs
+a támogatottak között, akkor a megfelelő `browser.<tool>.cmd`
+konfigurációs változó lesz keresve. Ha ez a változó létezik, akkor a
+'git web{litdd}browse' a megadott eszközt egyéni parancsként kezeli, és
+shell eval-lal futtatja a parancsot az argumentumként átadott
+URL-ekkel.
 
 NOTE ABOUT KONQUEROR
 --------------------
 
-When 'konqueror' is specified by a command-line option or a
-configuration variable, we launch 'kfmclient' to try to open the HTML
-man page on an already opened konqueror in a new tab if possible.
+Amikor a 'konqueror'-t parancssori opció vagy konfigurációs változó
+adja meg, elindítjuk a 'kfmclient'-et, hogy ha lehetséges, megpróbálja
+megnyitni a HTML man page-et egy már megnyitott konqueror új lapján.
 
-For consistency, we also try such a trick if 'browser.konqueror.path' is
-set to something like `A_PATH_TO/konqueror`. That means we will try to
-launch `A_PATH_TO/kfmclient` instead.
+A konzisztencia kedvéért ezt a trükköt akkor is megpróbáljuk, ha a
+'browser.konqueror.path' valami olyasmire van állítva, mint
+`A_PATH_TO/konqueror`. Ez azt jelenti, hogy helyette a
+`A_PATH_TO/kfmclient` indítását próbáljuk meg.
 
-If you really want to use 'konqueror', then you can use something like
-the following:
+Ha tényleg a 'konqueror'-t szeretnéd használni, akkor valami ilyesmit
+használhatsz:
 
 ------------------------------------------------
 	[web]
@@ -106,19 +108,20 @@ the following:
 		cmd = A_PATH_TO/konqueror
 ------------------------------------------------
 
-Note about git-config --global
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_note_about_git_config_global]]
+Megjegyzés a git-config --global-ról
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note that these configuration variables should probably be set using
-the `--global` flag, for example like this:
+Vedd figyelembe, hogy ezeket a konfigurációs változókat valószínűleg a
+`--global` kapcsolóval érdemes beállítani, például így:
 
 ------------------------------------------------
 $ git config --global web.browser firefox
 ------------------------------------------------
 
-as they are probably more user specific than repository specific.
-See linkgit:git-config[1] for more information about this.
+mivel valószínűleg inkább felhasználóspecifikusak, mint
+repository-specifikusak. Erről bővebben lásd a linkgit:git-config[1]-et.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-name-rev(1)
 
 NAME
 ----
-git-name-rev - Find symbolic names for given revs
+git-name-rev - Szimbolikus nevek keresése adott revíziókhoz
 
 
 SYNOPSIS
@@ -14,42 +14,46 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Finds symbolic names suitable for human digestion for revisions given in any
-format parsable by 'git rev-parse'.
+Ember számára emészthető szimbolikus neveket keres olyan revíziókhoz,
+amelyek a 'git rev-parse' által elemezhető bármely formátumban meg
+vannak adva.
 
 
 OPTIONS
 -------
 
 --tags::
-	Do not use branch names, but only tags to name the commits
+	Ne használjon branchneveket, csak tageket a commitok elnevezéséhez
 
 --refs=<pattern>::
-	Only use refs whose names match a given shell pattern.  The pattern
-	can be a branch name, a tag name, or a fully qualified ref name. If
-	given multiple times, use refs whose names match any of the given shell
-	patterns. Use `--no-refs` to clear any previous ref patterns given.
+	Csak azokat a referenciákat használja, amelyek neve illeszkedik egy
+	adott shell-mintára.  A minta lehet branchnév, tagnév vagy teljesen
+	minősített referencianév. Ha többször van megadva, azokat a
+	referenciákat használja, amelyek neve a megadott shell-minták
+	bármelyikére illeszkedik. A `--no-refs` törli a korábban megadott
+	referencia-mintákat.
 
 --exclude=<pattern>::
-	Do not use any ref whose name matches a given shell pattern. The
-	pattern can be one of branch name, tag name or fully qualified ref
-	name. If given multiple times, a ref will be excluded when it matches
-	any of the given patterns. When used together with --refs, a ref will
-	be used as a match only when it matches at least one --refs pattern and
-	does not match any --exclude patterns. Use `--no-exclude` to clear the
-	list of exclude patterns.
+	Ne használjon egyetlen olyan referenciát sem, amelynek neve
+	illeszkedik egy adott shell-mintára. A minta lehet branchnév, tagnév
+	vagy teljesen minősített referencianév. Ha többször van megadva, egy
+	referencia kizárásra kerül, ha a megadott minták bármelyikére
+	illeszkedik. A --refs opcióval együtt használva egy referencia csak
+	akkor számít találatnak, ha legalább egy --refs mintára illeszkedik,
+	és egyetlen --exclude mintára sem. A `--no-exclude` törli a kizárási
+	minták listáját.
 
 --all::
-	List all commits reachable from all refs
+	Az összes referenciából elérhető összes commit listázása
 
 --annotate-stdin::
-	Transform stdin by substituting all the 40-character SHA-1
-	hexes (say $hex) with "$hex ($rev_name)".  When used with
-	--name-only, substitute with "$rev_name", omitting $hex
-	altogether. This option was called `--stdin` in older versions
-	of Git.
+	Átalakítja az stdin-t úgy, hogy az összes 40 karakteres SHA-1
+	hexet (mondjuk $hex) a "$hex ($rev_name)" alakra cseréli.  A
+	--name-only opcióval együtt használva a "$rev_name" alakra cseréli,
+	teljesen elhagyva a $hex-et. Ezt az opciót a Git régebbi verzióiban
+	`--stdin`-nek hívták.
 +
-For example:
+Például:
 +
 -----------
 $ cat sample.txt
@@ -72,36 +76,37 @@ while its tree object is 70d105cc79e63b81cfdcb08a15297c23e60b07ad
 -----------
 
 --name-only::
-	Instead of printing both the SHA-1 and the name, print only
-	the name.  If given with --tags the usual tag prefix of
-	"tags/" is also omitted from the name, matching the output
-	of `git-describe` more closely.
+	A SHA-1 és a név helyett csak a nevet írja ki.  A --tags opcióval
+	együtt megadva a szokásos "tags/" tag-előtag is elmarad a névből,
+	jobban megközelítve a `git-describe` kimenetét.
 
 --no-undefined::
-	Die with error code != 0 when a reference is undefined,
-	instead of printing `undefined`.
+	Nem nulla hibakóddal lép ki, ha egy referencia nincs definiálva,
+	az `undefined` kiírása helyett.
 
 --always::
-	Show uniquely abbreviated commit object as fallback.
+	Tartalék megoldásként egyedien rövidített commit-objektumot mutat.
 
 EXAMPLES
 --------
 
-Given a commit, find out where it is relative to the local refs. Say somebody
-wrote you about that fantastic commit 33db5f4d9027a10e477ccf054b2c1ab94f74c85a.
-Of course, you look into the commit, but that only tells you what happened, but
-not the context.
+Adott egy commit, és szeretnéd megtudni, hol helyezkedik el a helyi
+referenciákhoz képest. Tegyük fel, hogy valaki írt neked arról a
+fantasztikus 33db5f4d9027a10e477ccf054b2c1ab94f74c85a commitról.
+Természetesen belenézel a commitba, de az csak azt mondja meg, mi
+történt, a kontextust nem.
 
-Enter 'git name-rev':
+Jöjjön a 'git name-rev':
 
 ------------
 % git name-rev 33db5f4d9027a10e477ccf054b2c1ab94f74c85a
 33db5f4d9027a10e477ccf054b2c1ab94f74c85a tags/v0.99~940
 ------------
 
-Now you are wiser, because you know that it happened 940 revisions before v0.99.
+Most már okosabb vagy, mert tudod, hogy ez 940 revízióval a v0.99 előtt
+történt.
 
-Another nice thing you can do is:
+Egy másik hasznos dolog, amit tehetsz:
 
 ------------
 % git log | git name-rev --annotate-stdin
@@ -109,4 +114,4 @@ Another nice thing you can do is:
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

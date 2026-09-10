@@ -3,7 +3,7 @@ git-rev-list(1)
 
 NAME
 ----
-git-rev-list - Lists commit objects in reverse chronological order
+git-rev-list - Commit-objektumokat listáz fordított időrendben
 
 
 SYNOPSIS
@@ -17,11 +17,10 @@ DESCRIPTION
 :git-rev-list: 1
 include::rev-list-description.adoc[]
 
-'rev-list' is an essential Git command, since it
-provides the ability to build and traverse commit ancestry graphs. For
-this reason, it has a lot of different options that enable it to be
-used by commands as different as 'git bisect' and
-'git repack'.
+A 'rev-list' egy alapvető Git-parancs, mivel lehetővé teszi
+commit-ősgráfok felépítését és bejárását. Ezért sokféle különböző
+opciója van, amelyek lehetővé teszik, hogy olyan eltérő parancsok
+használják, mint a 'git bisect' és a 'git repack'.
 
 OPTIONS
 -------
@@ -34,60 +33,60 @@ include::pretty-formats.adoc[]
 EXAMPLES
 --------
 
-* Print the list of commits reachable from the current branch.
+* Az aktuális branchből elérhető commitok listájának kiírása.
 +
 ----------
 git rev-list HEAD
 ----------
 
-* Print the list of commits on this branch, but not present in the
-  upstream branch.
+* Az ezen a branchen lévő, de az upstream branchen nem szereplő
+  commitok listájának kiírása.
 +
 ----------
 git rev-list @{upstream}..HEAD
 ----------
 
-* Format commits with their author and commit message (see also the
-  porcelain linkgit:git-log[1]).
+* Commitok formázása a szerzőjükkel és a commit-üzenetükkel együtt
+  (lásd még a porcelain linkgit:git-log[1]-et).
 +
 ----------
 git rev-list --format=medium HEAD
 ----------
 
-* Format commits along with their diffs (see also the porcelain
-  linkgit:git-log[1], which can do this in a single process).
+* Commitok formázása a diffjeikkel együtt (lásd még a porcelain
+  linkgit:git-log[1]-et, amely ezt egyetlen folyamatban meg tudja tenni).
 +
 ----------
 git rev-list HEAD |
 git diff-tree --stdin --format=medium -p
 ----------
 
-* Print the list of commits on the current branch that touched any
-  file in the `Documentation` directory.
+* Az aktuális branchen lévő azon commitok listájának kiírása, amelyek
+  a `Documentation` könyvtár bármely fájlját érintették.
 +
 ----------
 git rev-list HEAD -- Documentation/
 ----------
 
-* Print the list of commits authored by you in the past year, on
-  any branch, tag, or other ref.
+* Az általad az elmúlt évben írt commitok listájának kiírása bármely
+  branchen, tagen vagy más referencián.
 +
 ----------
 git rev-list --author=you@example.com --since=1.year.ago --all
 ----------
 
-* Print the list of objects reachable from the current branch (i.e., all
-  commits and the blobs and trees they contain).
+* Az aktuális branchből elérhető objektumok listájának kiírása (azaz
+  minden commit, valamint az általuk tartalmazott blobok és tree-k).
 +
 ----------
 git rev-list --objects HEAD
 ----------
 
-* Compare the disk size of all reachable objects, versus those
-  reachable from reflogs, versus the total packed size. This can tell
-  you whether running `git repack -ad` might reduce the repository size
-  (by dropping unreachable objects), and whether expiring reflogs might
-  help.
+* Az összes elérhető objektum lemezméretének összehasonlítása a
+  reflogokból elérhetőkével, illetve a teljes csomagolt mérettel. Ez
+  megmutatja, hogy a `git repack -ad` futtatása csökkentheti-e a
+  repository méretét (az el nem érhető objektumok eldobásával), és hogy
+  a reflogok lejáratása segíthet-e.
 +
 ----------
 # reachable objects
@@ -100,10 +99,10 @@ du -c .git/objects/pack/*.pack .git/objects/??/*
 git count-objects -v
 ----------
 
-* Report the disk size of each branch, not including objects used by the
-  current branch. This can find outliers that are contributing to a
-  bloated repository size (e.g., because somebody accidentally committed
-  large build artifacts).
+* Az egyes branchek lemezméretének jelentése, az aktuális branch által
+  használt objektumok nélkül. Ez megtalálja azokat a kiugró értékeket,
+  amelyek a repository méretének felduzzadásához járulnak hozzá (pl.
+  mert valaki véletlenül nagy build-műtermékeket commitolt).
 +
 ----------
 git for-each-ref --format='%(refname)' |
@@ -115,10 +114,11 @@ done |
 sort -n
 ----------
 
-* Compare the on-disk size of branches in one group of refs, excluding
-  another. If you co-mingle objects from multiple remotes in a single
-  repository, this can show which remotes are contributing to the
-  repository size (taking the size of `origin` as a baseline).
+* A branchek lemezméretének összehasonlítása a referenciák egyik
+  csoportjában, egy másikat kizárva. Ha több remote objektumait
+  kevered egyetlen repository-ban, ez megmutatja, mely remote-ok
+  járulnak hozzá a repository méretéhez (az `origin` méretét véve
+  alapvonalnak).
 +
 ----------
 git rev-list --disk-usage --objects --remotes=$suspect --not --remotes=origin
@@ -126,4 +126,4 @@ git rev-list --disk-usage --objects --remotes=$suspect --not --remotes=origin
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
