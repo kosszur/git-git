@@ -3,7 +3,7 @@ git-for-each-ref(1)
 
 NAME
 ----
-git-for-each-ref - Output information on each ref
+git-for-each-ref - Információ kiírása minden refről
 
 SYNOPSIS
 --------
@@ -19,12 +19,13 @@ git for-each-ref [--count=<count>] [--shell|--perl|--python|--tcl]
 DESCRIPTION
 -----------
 
-Iterate over all refs that match _<pattern>_ and show them
-according to the given _<format>_, after sorting them according
-to the given set of _<key>_.  If _<count>_ is given, stop after
-showing that many refs.  The interpolated values in _<format>_
-can optionally be quoted as string literals in the specified
-host language allowing their direct evaluation in that language.
+Végigiterál minden refen, amely illeszkedik a `_<pattern>_`-re, és a
+megadott `_<format>_` szerint jeleníti meg őket, miután a megadott
+`_<key>_` halmaz szerint rendezte őket. Ha a `_<count>_` meg van adva,
+leáll, miután ennyi refet megjelenített. A `_<format>_`-ban lévő
+interpolált értékek opcionálisan sztringliterálként idézőjelezhetők a
+megadott gazdanyelvben, lehetővé téve a közvetlen kiértékelésüket abban a
+nyelvben.
 
 OPTIONS
 -------
@@ -33,172 +34,170 @@ include::for-each-ref-options.adoc[]
 FIELD NAMES
 -----------
 
-Various values from structured fields in referenced objects can
-be used to interpolate into the resulting output, or as sort
-keys.
+A hivatkozott objektumok strukturált mezőiből származó különböző
+értékek használhatók az eredményül kapott kimenetbe való
+interpolálásra, vagy rendezőkulcsként.
 
-For all objects, the following names can be used:
+Minden objektumra a következő nevek használhatók:
 
 `refname`::
-	The name of the ref (the part after `$GIT_DIR/`).
-	For a non-ambiguous short name of the ref append `:short`.
-	The option `core.warnAmbiguousRefs` is used to select the strict
-	abbreviation mode. If `lstrip=<n>` (`rstrip=<n>`) is appended, strip _<n>_
-	slash-separated path components from the front (back) of the refname
-	(e.g. `%(refname:lstrip=2)` turns `refs/tags/foo` into `foo` and
-	`%(refname:rstrip=2)` turns `refs/tags/foo` into `refs`).
-	If _<n>_ is a negative number, strip as many path components as
-	necessary from the specified end to leave `-<n>` path components
-	(e.g. `%(refname:lstrip=-2)` turns
-	`refs/tags/foo` into `tags/foo` and `%(refname:rstrip=-1)`
-	turns `refs/tags/foo` into `refs`). When the ref does not have
-	enough components, the result becomes an empty string if
-	stripping with positive _<n>_, or it becomes the full refname if
-	stripping with negative _<N>_.  Neither is an error.
+	A ref neve (a `$GIT_DIR/` utáni rész). A ref nem kétértelmű rövid
+	nevéhez fűzd hozzá a `:short`-ot. A `core.warnAmbiguousRefs`
+	kapcsoló a szigorú rövidítési mód kiválasztására szolgál. Ha
+	`lstrip=<n>` (`rstrip=<n>`) van hozzáfűzve, levág `_<n>_` perjellel
+	elválasztott útvonalkomponenst a refname elejéről (végéről) (pl. a
+	`%(refname:lstrip=2)` a `refs/tags/foo`-t `foo`-vá alakítja, a
+	`%(refname:rstrip=2)` pedig a `refs/tags/foo`-t `refs`-fé). Ha az
+	`_<n>_` negatív szám, annyi útvonalkomponenst vág le a megadott
+	végről, amennyi ahhoz kell, hogy `-<n>` útvonalkomponens maradjon
+	(pl. a `%(refname:lstrip=-2)` a `refs/tags/foo`-t `tags/foo`-vá
+	alakítja, a `%(refname:rstrip=-1)` pedig a `refs/tags/foo`-t
+	`refs`-fé). Amikor a refnek nincs elég komponense, az eredmény üres
+	sztring lesz, ha pozitív `_<n>_`-nel vágsz, vagy a teljes refname
+	lesz, ha negatív `_<N>_`-nel vágsz. Egyik sem hiba.
 +
-`strip` can be used as a synonym to `lstrip`.
+A `strip` a `lstrip` szinonimájaként használható.
 
 `objecttype`::
-	The type of the object (`blob`, `tree`, `commit`, `tag`).
+	Az objektum típusa (`blob`, `tree`, `commit`, `tag`).
 
 `objectsize`::
-	The size of the object (the same as 'git cat-file -s' reports).
-	Append `:disk` to get the size, in bytes, that the object takes up on
-	disk. See the note about on-disk sizes in the 'CAVEATS' section below.
+	Az objektum mérete (ugyanaz, amit a 'git cat-file -s' jelent). Fűzd
+	hozzá a `:disk`-et, hogy megkapd a méretet bájtban, amennyit az
+	objektum a lemezen elfoglal. Lásd a lemezen elfoglalt méretekről
+	szóló megjegyzést a lenti 'CAVEATS' szakaszban.
 `objectname`::
-	The object name (aka SHA-1).
-	For a non-ambiguous abbreviation of the object name append `:short`.
-	For an abbreviation of the object name with desired length append
-	`:short=<length>`, where the minimum length is `MINIMUM_ABBREV`. The
-	length may be exceeded to ensure unique object names.
+	Az objektumnév (más néven SHA-1). Az objektumnév nem kétértelmű
+	rövidítéséhez fűzd hozzá a `:short`-ot. Az objektumnév kívánt
+	hosszúságú rövidítéséhez fűzd hozzá a `:short=<length>`-et, ahol a
+	minimális hossz a `MINIMUM_ABBREV`. A hossz túlléphető az egyedi
+	objektumnevek biztosítása érdekében.
 `deltabase`::
-	This expands to the object name of the delta base for the
-	given object, if it is stored as a delta.  Otherwise it
-	expands to the null object name (all zeroes).
+	Ez az adott objektum delta-alapjának objektumnevévé fejlik ki, ha
+	az deltaként van tárolva. Egyébként a null objektumnévvé (csupa
+	nulla) fejlik ki.
 
 `upstream`::
-	The name of a local ref which can be considered ``upstream''
-	from the displayed ref. Respects `:short`, `:lstrip` and
-	`:rstrip` in the same way as `refname` above.  Additionally
-	respects `:track` to show "[ahead N, behind M]" and
-	`:trackshort` to show the terse version: ">" (ahead), "<"
-	(behind), "<>" (ahead and behind), or "=" (in sync). `:track`
-	also prints "[gone]" whenever unknown upstream ref is
-	encountered. Append `:track,nobracket` to show tracking
-	information without brackets (i.e "ahead N, behind M").
+	Egy olyan helyi ref neve, amely a megjelenített refhez képest
+	``upstream''-nek tekinthető. A `:short`, `:lstrip` és `:rstrip`
+	ugyanúgy érvényesül, mint a fenti `refname`-nél. Ezenkívül
+	érvényesül a `:track` a "[ahead N, behind M]" megjelenítésére, és a
+	`:trackshort` a tömör verzió megjelenítésére: ">" (előrébb), "<"
+	(hátrébb), "<>" (előrébb és hátrébb) vagy "=" (szinkronban). A
+	`:track` a "[gone]"-t is kiírja, valahányszor ismeretlen upstream
+	reffel találkozik. Fűzd hozzá a `:track,nobracket`-et, hogy a
+	követési információt zárójelek nélkül mutassa (azaz "ahead N, behind
+	M").
 +
-For any remote-tracking branch `%(upstream)`, `%(upstream:remotename)`
-and `%(upstream:remoteref)` refer to the name of the remote and the
-name of the tracked remote ref, respectively. In other words, the
-remote-tracking branch can be updated explicitly and individually by
-using the refspec `%(upstream:remoteref):%(upstream)` to fetch from
-`%(upstream:remotename)`.
+Bármely remote-tracking branchre a `%(upstream)`, `%(upstream:remotename)`
+és `%(upstream:remoteref)` a remote nevére, ill. a követett remote ref
+nevére hivatkozik. Más szóval a remote-tracking branch explicit és
+egyénileg frissíthető a `%(upstream:remoteref):%(upstream)` refspec
+használatával, hogy a `%(upstream:remotename)`-ből fetcheljen.
 +
-Has no effect if the ref does not have tracking information associated
-with it.  All the options apart from `nobracket` are mutually exclusive,
-but if used together the last option is selected.
+Nincs hatása, ha a refnek nincs hozzá társított követési információja. A
+`nobracket`-en kívüli összes kapcsoló kölcsönösen kizárja egymást, de ha
+együtt használják őket, az utolsó kapcsoló kerül kiválasztásra.
 
 `push`::
-	The name of a local ref which represents the `@{push}`
-	location for the displayed ref. Respects `:short`, `:lstrip`,
-	`:rstrip`, `:track`, `:trackshort`, `:remotename`, and `:remoteref`
-	options as `upstream` does. Produces an empty string if no `@{push}`
-	ref is configured.
+	Egy olyan helyi ref neve, amely a megjelenített ref `@{push}`
+	helyét képviseli. A `:short`, `:lstrip`, `:rstrip`, `:track`,
+	`:trackshort`, `:remotename` és `:remoteref` kapcsolók ugyanúgy
+	érvényesülnek, mint az `upstream`-nél. Üres sztringet produkál, ha
+	nincs `@{push}` ref konfigurálva.
 
 `HEAD`::
-	`*` if `HEAD` matches current ref (the checked out branch), ' '
-	otherwise.
+	`*`, ha a `HEAD` egyezik az aktuális reffel (a checkoutolt
+	branchcsel), egyébként ' '.
 
 `color`::
-	Change output color. Followed by `:<colorname>`, where color
-	names are described under Values in the "CONFIGURATION FILE"
-	section of linkgit:git-config[1].  For example,
-	`%(color:bold red)`.
+	Megváltoztatja a kimenet színét. A `:<colorname>` követi, ahol a
+	színnevek a linkgit:git-config[1] "CONFIGURATION FILE" szakaszának
+	Values része alatt vannak leírva. Például `%(color:bold red)`.
 
 `align`::
-	Left-, middle-, or right-align the content between
-	`%(align:...)` and `%(end)`. The "`align:`" is followed by
-	`width=<width>` and `position=<position>` in any order
-	separated by a comma, where the _<position>_ is either `left`,
-	`right` or `middle`, default being `left` and _<width>_ is the total
-	length of the content with alignment. For brevity, the
-	"width=" and/or "position=" prefixes may be omitted, and bare
-	_<width>_ and _<position>_ used instead.  For instance,
-	`%(align:<width>,<position>)`. If the contents length is more
-	than the width then no alignment is performed. If used with
-	`--quote` everything in between `%(align:...)` and `%(end)` is
-	quoted, but if nested then only the topmost level performs
-	quoting.
+	Balra, középre vagy jobbra igazítja a `%(align:...)` és `%(end)`
+	közötti tartalmat. Az "`align:`"-t a `width=<width>` és a
+	`position=<position>` követi tetszőleges sorrendben, vesszővel
+	elválasztva, ahol a `_<position>_` a `left`, `right` vagy `middle`
+	egyike, alapból `left`, a `_<width>_` pedig a tartalom teljes hossza
+	az igazítással. A rövidség kedvéért a "width=" és/vagy "position="
+	előtag elhagyható, és helyette csupasz `_<width>_` és `_<position>_`
+	használható. Például `%(align:<width>,<position>)`. Ha a tartalom
+	hossza nagyobb, mint a szélesség, nem történik igazítás. Ha a
+	`--quote`-tal használják, minden, ami a `%(align:...)` és `%(end)`
+	között van, idézőjelezve lesz, de ha egymásba van ágyazva, akkor
+	csak a legfelső szint végez idézőjelezést.
 
 `if`::
-	Used as `%(if)...%(then)...%(end)` or
-	`%(if)...%(then)...%(else)...%(end)`.  If there is an atom with
-	value or string literal after the `%(if)` then everything after
-	the `%(then)` is printed, else if the `%(else)` atom is used, then
-	everything after %(else) is printed. We ignore space when
-	evaluating the string before `%(then)`, this is useful when we
-	use the `%(HEAD)` atom which prints either "`*`" or " " and we
-	want to apply the 'if' condition only on the `HEAD` ref.
-	Append "`:equals=<string>`" or "`:notequals=<string>`" to compare
-	the value between the `%(if:...)` and `%(then)` atoms with the
-	given string.
+	`%(if)...%(then)...%(end)` vagy
+	`%(if)...%(then)...%(else)...%(end)` alakban használatos. Ha van egy
+	értékkel bíró atom vagy sztringliterál a `%(if)` után, akkor minden,
+	ami a `%(then)` után van, kiíródik, egyébként ha a `%(else)` atom
+	van használatban, akkor minden, ami a %(else) után van, kiíródik. A
+	`%(then)` előtti sztring kiértékelésekor figyelmen kívül hagyjuk a
+	szóközt; ez hasznos, amikor a `%(HEAD)` atomot használjuk, amely
+	vagy "`*`"-ot, vagy " "-t ír ki, és az 'if' feltételt csak a `HEAD`
+	refre akarjuk alkalmazni. Fűzd hozzá a "`:equals=<string>`"-et vagy
+	a "`:notequals=<string>`"-et, hogy összehasonlítsd a `%(if:...)` és
+	a `%(then)` atom közötti értéket a megadott sztringgel.
 
 `symref`::
-	The ref which the given symbolic ref refers to. If not a
-	symbolic ref, nothing is printed. Respects the `:short`,
-	`:lstrip` and `:rstrip` options in the same way as `refname`
-	above.
+	Az a ref, amelyre a megadott szimbolikus ref hivatkozik. Ha nem
+	szimbolikus ref, semmi nem íródik ki. A `:short`, `:lstrip` és
+	`:rstrip` kapcsolók ugyanúgy érvényesülnek, mint a fenti
+	`refname`-nél.
 
 `signature`::
-	The GPG signature of a commit.
+	Egy commit GPG-aláírása.
 
 `signature:grade`::
-	Show
-`G`;; for a good (valid) signature
-`B`;; for a bad signature
-`U`;; for a good signature with unknown validity
-`X`;;	for a good signature that has expired
-`Y`;; for a good signature made by an expired key
-`R`;; for a good signature made by a revoked key
-`E`;; if the signature cannot be checked (e.g. missing key)
-`N`;; for no signature.
+	Megjeleníti:
+`G`;; jó (érvényes) aláírás esetén
+`B`;; rossz aláírás esetén
+`U`;; ismeretlen érvényességű jó aláírás esetén
+`X`;;	lejárt jó aláírás esetén
+`Y`;; lejárt kulccsal készített jó aláírás esetén
+`R`;; visszavont kulccsal készített jó aláírás esetén
+`E`;; ha az aláírás nem ellenőrizhető (pl. hiányzó kulcs)
+`N`;; nincs aláírás esetén.
 
 `signature:signer`::
-	The signer of the GPG signature of a commit.
+	Egy commit GPG-aláírásának aláírója.
 
 `signature:key`::
-	The key of the GPG signature of a commit.
+	Egy commit GPG-aláírásának kulcsa.
 
 `signature:fingerprint`::
-	The fingerprint of the GPG signature of a commit.
+	Egy commit GPG-aláírásának ujjlenyomata.
 
 `signature:primarykeyfingerprint`::
-	The primary key fingerprint of the GPG signature of a commit.
+	Egy commit GPG-aláírásának elsődleges kulcs-ujjlenyomata.
 
 `signature:trustlevel`::
-	The trust level of the GPG signature of a commit. Possible
-	outputs are `ultimate`, `fully`, `marginal`, `never` and `undefined`.
+	Egy commit GPG-aláírásának bizalmi szintje. A lehetséges kimenetek:
+	`ultimate`, `fully`, `marginal`, `never` és `undefined`.
 
 `worktreepath`::
-	The absolute path to the worktree in which the ref is checked
-	out, if it is checked out in any linked worktree. Empty string
-	otherwise.
+	Annak a worktree-nek az abszolút útvonala, amelyben a ref
+	checkoutolva van, ha valamely linkelt worktree-ben checkoutolva
+	van. Egyébként üres sztring.
 
 `ahead-behind:<commit-ish>`::
-	Two integers, separated by a space, demonstrating the number of
-	commits ahead and behind, respectively, when comparing the output
-	ref to the _<committish>_ specified in the format.
+	Két egész szám, szóközzel elválasztva, amelyek az előrébb, ill.
+	hátrébb lévő commitok számát mutatják, amikor a kimeneti refet a
+	formátumban megadott `_<committish>_`-hez hasonlítjuk.
 
 `is-base:<commit-ish>`::
-	In at most one row, `(<commit-ish>)` will appear to indicate the ref
-	that is most likely the ref used as a starting point for the branch
-	that produced _<commit-ish>_. This choice is made using a heuristic:
-	choose the ref that minimizes the number of commits in the
-	first-parent history of _<commit-ish>_ and not in the first-parent
-	history of the ref.
+	Legfeljebb egy sorban megjelenik a `(<commit-ish>)`, hogy jelezze
+	azt a refet, amely a legvalószínűbben az a ref, amelyet
+	kiindulópontként használtak ahhoz a branchhez, amely a
+	`_<commit-ish>_`-t létrehozta. Ez a választás egy heurisztikával
+	történik: azt a refet választja, amely minimalizálja azoknak a
+	commitoknak a számát, amelyek a `_<commit-ish>_` first-parent
+	történetében vannak, és nem a ref first-parent történetében.
 +
-For example, consider the following figure of first-parent histories of
-several refs:
+Például vedd a következő ábrát több ref first-parent történetéről:
 +
 ----
 *--*--*--*--*--* refs/heads/A
@@ -213,8 +212,8 @@ several refs:
 	*--* refs/heads/D
 ----
 +
-Here, if `A`, `B`, and `C` are the filtered references, and the format
-string is `%(refname):%(is-base:D)`, then the output would be
+Itt, ha `A`, `B` és `C` a szűrt referenciák, és a formátumsztring
+`%(refname):%(is-base:D)`, akkor a kimenet ez lenne
 +
 ----
 refs/heads/A:
@@ -222,133 +221,135 @@ refs/heads/B:(D)
 refs/heads/C:
 ----
 +
-This is because the first-parent history of `D` has its earliest
-intersection with the first-parent histories of the filtered refs at a
-common first-parent ancestor of `B` and `C` and ties are broken by the
-earliest ref in the sorted order.
+Ez azért van, mert a `D` first-parent történetének a legkorábbi
+metszete a szűrt refek first-parent történeteivel a `B` és `C` egy közös
+first-parent ősénél van, és a döntetlent a rendezett sorrendben
+legkorábbi ref dönti el.
 +
-Note that this token will not appear if the first-parent history of
-_<commit-ish>_ does not intersect the first-parent histories of the
-filtered refs.
+Vedd figyelembe, hogy ez a token nem jelenik meg, ha a `_<commit-ish>_`
+first-parent története nem metszi a szűrt refek first-parent
+történeteit.
 
 `describe[:<option>,...]`::
-	A human-readable name, like linkgit:git-describe[1];
-	empty string for undescribable commits. The `describe` string may
-	be followed by a colon and one or more comma-separated options.
+	Egy ember által olvasható név, mint a linkgit:git-describe[1];
+	üres sztring a describe-elhetetlen commitokhoz. A `describe`
+	sztringet egy kettőspont és egy vagy több, vesszővel elválasztott
+	opció követheti.
 +
 --
 `tags=<bool-value>`;;
-	Instead of only considering annotated tags, consider
-	lightweight tags as well; see the corresponding option in
-	linkgit:git-describe[1] for details.
+	Ahelyett, hogy csak az annotált tageket venné figyelembe, a
+	könnyűsúlyú tageket is figyelembe veszi; a részletekért lásd a
+	megfelelő kapcsolót a linkgit:git-describe[1]-ben.
 `abbrev=<number>`;;
-	Use at least _<number>_ hexadecimal digits; see the corresponding
-	option in linkgit:git-describe[1] for details.
+	Legalább `_<number>_` hexadecimális számjegyet használ; a
+	részletekért lásd a megfelelő kapcsolót a linkgit:git-describe[1]-ben.
 `match=<pattern>`;;
-	Only consider tags matching the `glob`(7) _<pattern>_,
-	excluding the `refs/tags/` prefix; see the corresponding option
-	in linkgit:git-describe[1] for details.
+	Csak a `glob`(7) `_<pattern>_`-re illeszkedő tageket veszi
+	figyelembe, a `refs/tags/` előtag kivételével; a részletekért lásd a
+	megfelelő kapcsolót a linkgit:git-describe[1]-ben.
 `exclude=<pattern>`;;
-	Do not consider tags matching the `glob`(7) _<pattern>_,
-	excluding the `refs/tags/` prefix; see the corresponding option
-	in linkgit:git-describe[1] for details.
+	Nem veszi figyelembe a `glob`(7) `_<pattern>_`-re illeszkedő
+	tageket, a `refs/tags/` előtag kivételével; a részletekért lásd a
+	megfelelő kapcsolót a linkgit:git-describe[1]-ben.
 --
 
-In addition to the above, for commit and tag objects, the header
-field names (`tree`, `parent`, `object`, `type`, and `tag`) can
-be used to specify the value in the header field.
-Fields `tree` and `parent` can also be used with modifier `:short` and
-`:short=<length>` just like `objectname`.
+A fentieken felül a commit- és tagobjektumokhoz a fejlécmezők nevei
+(`tree`, `parent`, `object`, `type` és `tag`) használhatók a fejlécmező
+értékének megadására. A `tree` és `parent` mező a `:short` és
+`:short=<length>` módosítóval is használható, akárcsak az `objectname`.
 
-For commit and tag objects, the special `creatordate` and `creator`
-fields will correspond to the appropriate date or name-email-date tuple
-from the `committer` or `tagger` fields depending on the object type.
-These are intended for working on a mix of annotated and lightweight tags.
+A commit- és tagobjektumokhoz a speciális `creatordate` és `creator`
+mező a megfelelő dátumnak vagy név-email-dátum hármasnak fog megfelelni
+a `committer` vagy `tagger` mezőből, az objektumtípustól függően. Ezek
+annotált és könnyűsúlyú tagek keverékén való munkára valók.
 
-For tag objects, a `fieldname` prefixed with an asterisk (`*`) expands to
-the `fieldname` value of the peeled object, rather than that of the tag
-object itself.
+A tagobjektumokhoz egy csillaggal (`*`) előtagolt `fieldname` a
+lehántott objektum `fieldname`-értékévé fejlik ki, nem pedig magáé a
+tagobjektumé.
 
-Fields that have name-email-date tuple as its value (`author`,
-`committer`, and `tagger`) can be suffixed with `name`, `email`,
-and `date` to extract the named component.  For email fields (`authoremail`,
-`committeremail` and `taggeremail`), `:trim` can be appended to get the email
-without angle brackets, and `:localpart` to get the part before the `@` symbol
-out of the trimmed email. In addition to these, the `:mailmap` option and the
-corresponding `:mailmap,trim` and `:mailmap,localpart` can be used (order does
-not matter) to get values of the name and email according to the .mailmap file
-or according to the file set in the mailmap.file or mailmap.blob configuration
-variable (see linkgit:gitmailmap[5]).
+Azok a mezők, amelyeknek az értéke név-email-dátum hármas (`author`,
+`committer` és `tagger`), `name`, `email` és `date` utótaggal
+láthatók el a megnevezett komponens kinyeréséhez. Az email-mezőkhöz
+(`authoremail`, `committeremail` és `taggeremail`) a `:trim` fűzhető
+hozzá, hogy a hegyes zárójelek nélküli emailt kapd meg, a `:localpart`
+pedig, hogy a trimmelt emailből a `@` szimbólum előtti részt kapd meg.
+Ezeken felül a `:mailmap` kapcsoló és a megfelelő `:mailmap,trim` és
+`:mailmap,localpart` használható (a sorrend nem számít), hogy a név és
+az email értékeit a .mailmap fájl szerint kapd meg, vagy a mailmap.file
+vagy mailmap.blob konfigurációs változóban beállított fájl szerint (lásd:
+linkgit:gitmailmap[5]).
 
-The raw data in an object is `raw`.
+Egy objektum nyers adata a `raw`.
 
 `raw:size`::
-	The raw data size of the object.
+	Az objektum nyers adatának mérete.
 
-Note that `--format=%(raw)` can not be used with `--python`, `--shell`, `--tcl`,
-because such language may not support arbitrary binary data in their string
-variable type.
+Vedd figyelembe, hogy a `--format=%(raw)` nem használható a `--python`,
+`--shell`, `--tcl` kapcsolóval, mert az ilyen nyelvek nem biztos, hogy
+támogatnak tetszőleges bináris adatot a sztring változótípusukban.
 
-The message in a commit or a tag object is `contents`, from which
-`contents:<part>` can be used to extract various parts out of:
+Egy commit- vagy tagobjektum üzenete a `contents`, amelyből a
+`contents:<part>` használható különböző részek kinyerésére:
 
 `contents:size`::
-	The size in bytes of the commit or tag message.
+	A commit- vagy tag-üzenet mérete bájtban.
 
 `contents:subject`::
-	The first paragraph of the message, which typically is a
-	single line, is taken as the "subject" of the commit or the
-	tag message.
-	Instead of `contents:subject`, field `subject` can also be used to
-	obtain same results. `:sanitize` can be appended to `subject` for
-	subject line suitable for filename.
+	Az üzenet első bekezdése, amely jellemzően egyetlen sor, a commit-
+	vagy tag-üzenet "subject"-jének tekintendő. A `contents:subject`
+	helyett a `subject` mező is használható ugyanezen eredmények
+	eléréséhez. A `:sanitize` a `subject`-hez fűzhető fájlnévhez alkalmas
+	subject sorért.
 
 `contents:body`::
-	The remainder of the commit or the tag message that follows
-	the "subject".
+	A commit- vagy tag-üzenet fennmaradó része, amely a "subject" után
+	következik.
 
 `contents:signature`::
-	The optional GPG signature of the tag.
+	A tag opcionális GPG-aláírása.
 
 `contents:lines=<n>`::
-	The first _<n>_ lines of the message.
+	Az üzenet első `_<n>_` sora.
 
-Additionally, the trailers as interpreted by linkgit:git-interpret-trailers[1]
-are obtained as `trailers[:<option>,...]` (or by using the historical alias
-`contents:trailers[:<option>,...]`). For valid _<option>_ values see `trailers`
-section of linkgit:git-log[1].
+Ezenkívül a linkgit:git-interpret-trailers[1] által értelmezett
+trailerek `trailers[:<option>,...]`-ként kaphatók meg (vagy a történelmi
+`contents:trailers[:<option>,...]` aliassal). Az érvényes `_<option>_`
+értékekért lásd a linkgit:git-log[1] `trailers` szakaszát.
 
-For sorting purposes, fields with numeric values sort in numeric order
-(`objectsize`, `authordate`, `committerdate`, `creatordate`, `taggerdate`).
-All other fields are used to sort in their byte-value order.
+Rendezési célból a numerikus értékű mezők numerikus sorrendben
+rendeződnek (`objectsize`, `authordate`, `committerdate`, `creatordate`,
+`taggerdate`). Minden más mező a bájtérték-sorrendjében rendeződik.
 
-There is also an option to sort by versions, this can be done by using
-the fieldname `version:refname` or its alias `v:refname`.
+Van egy kapcsoló verziók szerinti rendezésre is, ez a `version:refname`
+mezőnévvel vagy annak `v:refname` aliasával tehető meg.
 
-In any case, a field name that refers to a field inapplicable to
-the object referred by the ref does not cause an error.  It
-returns an empty string instead.
+Mindenesetre egy olyan mezőnév, amely a ref által hivatkozott
+objektumra nem alkalmazható mezőre utal, nem okoz hibát. Helyette üres
+sztringet ad vissza.
 
-As a special case for the date-type fields, you may specify a format for the
-date by adding `:` followed by date format name (see the values the `--date`
-option to linkgit:git-rev-list[1] takes). If this formatting is provided in
-a `--sort` key, references will be sorted according to the byte-value of the
-formatted string rather than the numeric value of the underlying timestamp.
+A dátumtípusú mezők speciális eseteként megadhatsz formátumot a
+dátumhoz úgy, hogy hozzáadsz egy `:`-t, amelyet a dátumformátum neve
+követ (lásd az értékeket, amelyeket a linkgit:git-rev-list[1] `--date`
+kapcsolója fogad). Ha ez a formázás egy `--sort` kulcsban van megadva, a
+referenciák a formázott sztring bájtértéke szerint rendeződnek, nem
+pedig a mögöttes időbélyeg numerikus értéke szerint.
 
-Some atoms like `%(align)` and `%(if)` always require a matching `%(end)`.
-We call them "opening atoms" and sometimes denote them as `%($open)`.
+Egyes atomok, mint a `%(align)` és a `%(if)`, mindig megkövetelnek egy
+illő `%(end)`-et. Ezeket "nyitó atomoknak" nevezzük, és néha
+`%($open)`-ként jelöljük őket.
 
-When a scripting language specific quoting is in effect, everything
-between a top-level opening atom and its matching %(end) is evaluated
-according to the semantics of the opening atom and only its result
-from the top-level is quoted.
+Amikor egy szkriptnyelv-specifikus idézőjelezés van érvényben, minden,
+ami egy legfelső szintű nyitó atom és annak illő %(end)-je között van, a
+nyitó atom szemantikája szerint értékelődik ki, és csak a legfelső
+szintről származó eredménye idézőjeleződik.
 
 
 EXAMPLES
 --------
 
-An example directly producing formatted text.  Show the most recent
-3 tagged commits:
+Egy példa, amely közvetlenül formázott szöveget állít elő. Jelenítsd meg
+a 3 legutóbbi megtagelt commitot:
 
 ------------
 #!/bin/sh
@@ -364,8 +365,8 @@ Ref: %(*refname)
 ------------
 
 
-A simple example showing the use of shell eval on the output,
-demonstrating the use of `--shell`.  List the prefixes of all heads:
+Egy egyszerű példa, amely a shell eval használatát mutatja a kimeneten,
+a `--shell` használatát demonstrálva. Listázd ki az összes fej előtagját:
 
 ------------
 #!/bin/sh
@@ -379,8 +380,8 @@ done
 ------------
 
 
-A bit more elaborate report on tags, demonstrating that the format
-may be an entire script:
+Egy kicsit kidolgozottabb jelentés a tagekről, azt demonstrálva, hogy a
+formátum lehet egy egész szkript:
 
 ------------
 #!/bin/sh
@@ -433,16 +434,16 @@ eval "$eval"
 ------------
 
 
-An example to show the usage of `%(if)...%(then)...%(else)...%(end)`.
-This prefixes the current branch with a star.
+Egy példa a `%(if)...%(then)...%(else)...%(end)` használatának
+bemutatására. Ez az aktuális branchet egy csillaggal előtagolja.
 
 ------------
 git for-each-ref --format="%(if)%(HEAD)%(then)* %(else)  %(end)%(refname:short)" refs/heads/
 ------------
 
 
-An example to show the usage of `%(if)...%(then)...%(end)`.
-This prints the authorname, if present.
+Egy példa a `%(if)...%(then)...%(end)` használatának bemutatására. Ez
+kiírja az authorname-et, ha jelen van.
 
 ------------
 git for-each-ref --format="%(refname)%(if)%(authorname)%(then) Authored by: %(authorname)%(end)"
@@ -451,16 +452,16 @@ git for-each-ref --format="%(refname)%(if)%(authorname)%(then) Authored by: %(au
 CAVEATS
 -------
 
-Note that the sizes of objects on disk are reported accurately, but care
-should be taken in drawing conclusions about which refs or objects are
-responsible for disk usage. The size of a packed non-delta object may be
-much larger than the size of objects which delta against it, but the
-choice of which object is the base and which is the delta is arbitrary
-and is subject to change during a repack.
+Vedd figyelembe, hogy az objektumok lemezen elfoglalt méretei pontosan
+jelentődnek, de óvatosan kell eljárni annak megállapításakor, hogy mely
+refek vagy objektumok felelősek a lemezhasználatért. Egy csomagolt
+nem-delta objektum mérete sokkal nagyobb lehet, mint az ellene deltázó
+objektumok mérete, de az, hogy melyik objektum az alap, és melyik a
+delta, önkényes, és egy repack során változhat.
 
-Note also that multiple copies of an object may be present in the object
-database; in this case, it is undefined which copy's size or delta base
-will be reported.
+Vedd figyelembe azt is, hogy egy objektumnak több másolata is jelen
+lehet az objektumadatbázisban; ebben az esetben nincs meghatározva, hogy
+melyik másolat mérete vagy delta-alapja jelentődik.
 
 NOTES
 -----
@@ -473,4 +474,4 @@ linkgit:git-show-ref[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

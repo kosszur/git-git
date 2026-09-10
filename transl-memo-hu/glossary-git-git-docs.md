@@ -3190,3 +3190,157 @@ listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`g
   `Git Maintenance (<frequency>)` Windows-feladatnév, `refs/prefetch/`, `.graph` /
   `commit-graph-chain` fájlnevek angolul; a „GC" a "garbage collection" glosszájában
   „(szemétgyűjtés)" zárójeles fordítás.
+
+## 37. blokk — `giteveryday.adoc`, `git-interpret-trailers.adoc`, `git-for-each-ref.adoc`, `gitworkflows.adoc`, `git-submodule.adoc` — 2026-09-11
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorszám szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| Everyday Git | **„mindennapi Git"** | `giteveryday.adoc` |
+| standalone / participant / integrator (fejlesztői szerepek) | **„önálló" / „résztvevő" / „integrátor"** | `giteveryday.adoc` — a `<<ID,látható szöveg>>` xref-ekben kisbetűsen |
+| Repository Administration | **„repository-adminisztráció"** | `giteveryday.adoc` |
+| `"Smart http"` (idézőjeles, `Git-over-HTTP` mellett) | **bájtazonosan angolul, idézőjelben** | `giteveryday.adoc` — a 33. blokk „smart"/„dumb" HTTP kezelésének folytatása |
+| forward port (ige) | **„előreportol"** | `giteveryday.adoc`, `git-tag.adoc` mintájára nem, itt új |
+| bleeding edge | **marad „bleeding edge"** (angolul, toldalékkal: `bleeding edge-et`) | `giteveryday.adoc` |
+| release manager | **„kiadáskezelő"** | `giteveryday.adoc` |
+| `'restricted login shell'` (compat-mode idézőjeles) | **„'korlátozott bejelentkezési shell'"** (fordítva, a `'...'` jelölés megtartva) | `giteveryday.adoc` |
+| web front-end | **„webes felület"** | `giteveryday.adoc` |
+| trailer / trailer block / trailer key | **marad „trailer" / „trailer-blokk" / „trailer-kulcs"** (35./36. blokk) | `git-interpret-trailers.adoc` |
+| metadata | **„metaadat"** | `git-interpret-trailers.adoc` |
+| key-value pair / key / value | **„kulcs-érték pár" / „kulcs" / „érték"** | `git-interpret-trailers.adoc` |
+| blank line | **„üres sor"** | `git-interpret-trailers.adoc` |
+| divider (line) | **„elválasztó (sor)"** | `git-interpret-trailers.adoc` |
+| `"folding"` (RFC 822) / `"folded"` / to unfold | **`"folding"` (idézőjelben, angolul) / `"folded"` (idézőjelben) / „kihajtogat"** | `git-interpret-trailers.adoc` |
+| machine-friendly | **„gépbarát"** | `git-interpret-trailers.adoc` |
+| trimmelt / to trim (whitespace) | **„trimmelt" / „trimmelődik"** | `git-interpret-trailers.adoc` |
+| candidate trailer line/block | **„trailer-jelölt sor/blokk"** | `git-interpret-trailers.adoc` |
+| Git-generated / user-configured trailer | **„Git által generált" / „felhasználó által konfigurált trailer"** | `git-interpret-trailers.adoc` |
+| interpolate / interpolated values | **„interpolál" / „interpolált értékek"** | `git-for-each-ref.adoc` |
+| sort key(s) | **„rendezőkulcs"** | `git-for-each-ref.adoc` |
+| host language / scripting language | **„gazdanyelv" / „szkriptnyelv"** | `git-for-each-ref.adoc` |
+| string literal | **„sztringliterál"** | `git-for-each-ref.adoc` |
+| structured fields | **„strukturált mezők"** | `git-for-each-ref.adoc` |
+| header field | **„fejlécmező"** | `git-for-each-ref.adoc` |
+| name-email-date tuple | **„név-email-dátum hármas"** | `git-for-each-ref.adoc` |
+| peeled object | **„lehántott objektum"** | `git-for-each-ref.adoc` |
+| angle brackets (`<>`) | **„hegyes zárójelek"** | `git-for-each-ref.adoc` |
+| opening atom(s) | **„nyitó atom(ok)"** | `git-for-each-ref.adoc` |
+| first-parent history | **„first-parent történet"** (a `first-parent` angolul) | `git-for-each-ref.adoc` |
+| ties are broken by | **„a döntetlent … dönti el"** | `git-for-each-ref.adoc` |
+| human-readable name | **„ember által olvasható név"** | `git-for-each-ref.adoc` |
+| undescribable commits | **„describe-elhetetlen commitok"** | `git-for-each-ref.adoc` |
+| `"subject"` (commit-üzenet első bekezdése, idézőjelben) | **`"subject"`** (idézőjelben, angolul; a `subject`/`contents:subject` mezőnév literál) | `git-for-each-ref.adoc` |
+| `:sanitize` → „subject line suitable for filename" | **„fájlnévhez alkalmas subject sor"** | `git-for-each-ref.adoc` |
+| packed non-delta object | **„csomagolt nem-delta objektum"** | `git-for-each-ref.adoc` CAVEATS |
+| workflow | **„munkafolyamat"** (0. blokk) | `gitworkflows.adoc` |
+| integration branch | **„integrációs branch"** | `gitworkflows.adoc` |
+| graduation / to graduate (feature branchszinten előrelép) | **„Előlépés" (cím) / „előlép"** (idézőjelben, ahol a forrás `"graduates"`) | `gitworkflows.adoc` — „downwards graduation" → „lefelé előlépés" |
+| feature release / maintenance release | **„feature kiadás" / „karbantartási kiadás"** | `gitworkflows.adoc` |
+| throw-away branch / throw-away integration | **„eldobható branch" / „eldobható integráció"** | `gitworkflows.adoc` |
+| rewind / rewound / rebuild (branch) | **„visszateker" / „visszatekert" / „újraépít"** | `gitworkflows.adoc` |
+| side branch | **„oldalbranch"** | `gitworkflows.adoc` |
+| to fork off (at a branch) | **„leágaztat" / „leágazik"** | `gitworkflows.adoc`, `giteveryday.adoc` |
+| clean slate | **„tiszta lap"** | `gitworkflows.adoc` |
+| incarnation (of a topic) | **„megtestesülés"** | `gitworkflows.adoc` |
+| `"promise"` (merge commit, idézőjelben) | **„ígéret"** (fordítva, idézőjel megtartva) | `gitworkflows.adoc` |
+| `"habitually"` (idézőjelben) | **„megszokásból"** (fordítva, idézőjel megtartva) | `gitworkflows.adoc` |
+| subsystem maintainer | **„alrendszer-maintainer"** | `gitworkflows.adoc` |
+| `[caption="Rule: "]` / `[caption="Recipe: "]` | **bájtazonosan angolul** (skill: `[caption=...]` attribútum-sor nem fordul); a `.Title` blokk-cím viszont fordul; a `====` blokk **prózája** fordul, a csak `` `parancs` `` tartalmú blokk bájtazonos | `gitworkflows.adoc` |
+| superproject / subproject | **„szuperprojekt" / „alprojekt"** (0. blokk) | `git-submodule.adoc` |
+| gitlink | **marad „gitlink"** (Git jargon) | `git-submodule.adoc` |
+| authoritative upstream | **„mérvadó upstream"** | `git-submodule.adoc` |
+| canonical part (of source repo) | **„kanonikus rész"** | `git-submodule.adoc` |
+| ref storage format | **„ref-tárolási formátum"** | `git-submodule.adoc`, `git-for-each-ref.adoc` mintájára nem, itt új |
+| logical name | **„logikai név"** | `git-submodule.adoc` |
+| nested submodules | **„beágyazott submodule-ok"** | `git-submodule.adoc` |
+| to deinit / deinit-ing | **„deinitel" / „deinitelés"**; a `deinit` alparancsnév marad | `git-submodule.adoc` |
+| typechanged (submodule) | **„típusváltott"** | `git-submodule.adoc` |
+| conflict resolution tools | **„konfliktusfeloldó eszközök"** | `git-submodule.adoc` |
+| reference repository | **„referencia-repository"** | `git-submodule.adoc` |
+
+### Címsor-anchorok
+
+- **`giteveryday.adoc`** (NEM man page, `giteveryday(7)`): 4 meglévő **inline** `[[ID]]` anchor a
+  setext szakaszcímek végén (`Individual Developer (Standalone)[[STANDALONE]]` stb.) —
+  **bájtazonos**; a címszöveg fordult („Egyéni fejlesztő (önálló)[[STANDALONE]]" stb.), a setext
+  `-` aláhúzás a teljes sorhosszhoz (címszöveg + `[[ID]]`) igazítva. A DESCRIPTION-beli
+  `<<STANDALONE,Individual Developer (Standalone)>>` / `<<PARTICIPANT,…>>` / `<<INTEGRATOR,Integrator>>`
+  / `<<ADMINISTRATION,Repository Administration>>` xref-ek vessző utáni látható szövege **fordult,
+  kisbetűsen** („egyéni fejlesztő (önálló)" stb.). A 4 ismételt `Examples` `~~~~` alcím → „Példák",
+  **defenzív anchor NÉLKÜL** (ismételt generikus alcím, doc-order dedup-számozás hibaforrás — 1.
+  blokk precedens).
+- **`gitworkflows.adoc`** (NEM man page, `gitworkflows(7)`): 9 defenzív `[[<slug>]]` a `~~~~` Title
+  Case alcímek fölé (nincs rájuk `<<...>>` a fában): `[[_graduation]]` „Előlépés",
+  `[[_merging_upwards]]` „Merge-elés felfelé", `[[_topic_branches]]` „Topic branchek",
+  `[[_throw_away_integration]]` „Eldobható integráció", `[[_branch_management_for_a_release]]`
+  „Branchkezelés egy kiadáshoz", `[[_maintenance_branch_management_after_a_feature_release]]`,
+  `[[_branch_management_for_next_and_seen_after_a_feature_release]]`, `[[_merge_workflow]]`
+  „Merge-munkafolyamat", `[[_patch_workflow]]` „Patch-munkafolyamat". Setext `~` aláhúzás Python
+  `len()`-alapú pontos igazítással (3 db ±2–3 elütés menet közben javítva). A `"Merging upwards"`
+  prózahivatkozás (a MANAGING BRANCHES-ben) `"Merge-elés felfelé"`-re átírva, idézőjelben.
+- **`git-interpret-trailers.adoc`**, **`git-for-each-ref.adoc`**, **`git-submodule.adoc`**: nincs
+  `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként / csupa nagybetűs alcímként ANGOLUL hagyott címsorok (VÉGLEGES DÖNTÉS szerint)
+
+- **`gitworkflows.adoc`**: `SEPARATE CHANGES`, `MANAGING BRANCHES`, `DISTRIBUTED WORKFLOWS` — csupa
+  nagybetűs, kétsoros aláhúzású; bár ez NEM klasszikus parancs-man-page, van NAME/SYNOPSIS/DESCRIPTION
+  szekciója, és a `"DISTRIBUTED WORKFLOWS"` idézőjeles **önhivatkozó** prózahivatkozás is védi őket,
+  ezért a VÉGLEGES DÖNTÉS szerint **bájtazonosan angolul** (aláhúzás sem változott). A
+  `RECOVERING FROM UPSTREAM REBASE` (a `git-rebase[1]` szakaszára mutató prózahivatkozás) szintén
+  angolul.
+- **`git-interpret-trailers.adoc`**: `OTHER RULES`, `CONFIGURATION VARIABLES` — csupa nagybetűs,
+  kanonikus listán kívül → angolul (a `CONFIGURATION VARIABLES` a 31. blokk `git-help.adoc`
+  precedensét is követi).
+- **`git-for-each-ref.adoc`**: `FIELD NAMES` — csupa nagybetűs, kanonikus listán kívül → angolul
+  (a 34. blokk `git-ls-files.adoc` `FIELD NAMES` precedense). `"CONFIGURATION FILE"` és `'CAVEATS'`
+  idézőjeles prózahivatkozások angolul.
+- **`git-submodule.adoc`**: `COMMANDS` — csupa nagybetűs, kanonikus listán kívül → angolul (a 32.
+  blokk `git-remote.adoc`/`git-receive-pack.adoc` `COMMANDS` precedense).
+
+### Megőrzött markup / megjegyzések
+
+- **`giteveryday.adoc`**: 24 db `------------` (12 kötőjel) körülhatárolt blokk (`$ tar zxf …` /
+  `$ git switch -c …` / `satellite$ …` / `mothership$ …` / `[remote "ko"]` config / `$ grep …
+  /etc/…` shell-példák és kimenetek) **bájtazonos**; a `<1>`…`<13>` callout-jelölők a kódon belül
+  és a magyarázatoknál is megmaradtak (a magyarázat-szöveg fordult); a `link:howto/update-hook-example.html[…]`
+  látható szövege fordult („update hook howto"); a `www.github.com`, `git.kernel.org` URL-ek
+  változatlanok.
+- **`git-interpret-trailers.adoc`**: `[synopsis]` blokk; 8 db `------------------------------------------------`
+  (48 kötőjel) + 9 db `------------` (12 kötőjel) + 1 pár `----` (4 kötőjel) körülhatárolt blokk
+  **bájtazonos** (`subject`/`body text`/`Signed-off-by:` minta-commit-üzenetek, `$ git config
+  trailer.…` / `$ cat msg.txt` / `#!/bin/sh` szkriptek); 1 pár `--`…`--` open-block az OTHER RULES
+  `*` felsorolással (törzs fordult); 17 `+` folytatásjel; `include::includes/cmd-config-section-all.adoc[]`
+  + `include::config/trailer.adoc[]` változatlan; `core.commentString`, `trailer.*` config-kulcsok,
+  `addIfDifferent`/`addIfDifferentNeighbor`/`add`/`replace`/`doNothing` action-értékek, `after`/
+  `before`/`end`/`start` placement-értékek, `"`:`{nbsp}"` markup angolul/bájtazonos.
+- **`git-for-each-ref.adoc`**: `[synopsis]` blokk; 2 pár `----` (4 kötőjel) körülhatárolt blokk (a
+  `*--*--*` first-parent-történet ASCII-art és a `refs/heads/A:` minta-kimenet) + 5 db `------------`
+  (12 kötőjel) shell-szkript-példa **bájtazonos**; 1 pár `--`…`--` open-block a `describe` opció-
+  `;;`-listával (törzs fordult); `include::for-each-ref-options.adoc[]` + `include::ref-reachability-filters.adoc[]`
+  változatlan; a `refname`/`objecttype`/`upstream`/`push`/`HEAD`/`color`/`align`/`if`/`symref`/
+  `signature*`/`worktreepath`/`ahead-behind`/`is-base`/`describe`/`raw*`/`contents*` `::`-mezőnév-
+  címkék és a `G`/`B`/`U`/`X`/`Y`/`R`/`E`/`N` `;;`-aláírásminősítő-címkék **bájtazonosak** (csak a
+  törzs fordult); `%(…)` atom-szintaxis, `:short`/`:lstrip`/`:rstrip`/`:track`/`:trackshort`/
+  `:mailmap` stb. módosítók, `MINIMUM_ABBREV`, `.mailmap`/`mailmap.file`/`mailmap.blob` angolul.
+- **`gitworkflows.adoc`**: `[verse]` synopsis; 15 pár `=====================================` (37 `=`)
+  `[caption=…]` példablokk-határoló **bájtazonos** (a `.Title` fordult, a `[caption=…]` és a csak-
+  `` `parancs` `` tartalmú blokkok bájtazonosak, a prózát tartalmazó blokkok törzse fordult); 1 pár
+  `-------------------------------------` (37 kötőjel) a „Please pull from" minta-üzenettel
+  **bájtazonos**; `git.git`, `maint`/`master`/`next`/`seen` branchnevek, `submodule.<name>.update`
+  stb. config-kulcsok, `ai/topic_in_next1` példa-refnevek angolul.
+- **`git-submodule.adoc`**: `[synopsis]` blokk; 2 pár `--`…`--` open-block (`update` leírás +
+  `foreach` változólista) — a `;;`-címkék (`checkout`/`rebase`/`merge`/`!<custom-command>`/`none`
+  és `$name`/`$sm_path`/`$displaypath`/`$sha1`/`$toplevel`) **bájtazonosak**, a törzs fordult; 1
+  pár `--------------` (14 kötőjel) `git submodule foreach 'echo …'` példa bájtazonos; 31 `+`
+  folytatásjel; a `-f`/`--force` alatti `add`/`deinit`/`update` `;;`-címkék bájtazonosak; nincs
+  `include::`; `submodule.$name.url` / `submodule.<name>.branch` / `submodule.<name>.update` /
+  `submodule.fetchJobs` / `core.worktree` config-kulcsok, `.gitmodules` / `$GIT_DIR/modules` /
+  `.git/config` útvonalak, `++||:++` passthrough, `$PATH`/`$path` változónevek angolul; a
+  `NOTE:` admonition-kulcsszó megtartva (törzs fordult).

@@ -89,7 +89,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-fetch.adoc | [x] |  | 2026-09-04 |
 | git-filter-branch.adoc | [x] |  | 2026-09-04 |
 | git-fmt-merge-msg.adoc | [x] |  | 2026-09-10 |
-| git-for-each-ref.adoc | [ ] |  |  |
+| git-for-each-ref.adoc | [x] |  | 2026-09-11 |
 | git-for-each-repo.adoc | [x] |  | 2026-09-10 |
 | git-format-patch.adoc | [ ] |  |  |
 | git-format-rev.adoc | [x] |  | 2026-09-10 |
@@ -112,7 +112,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-init-db.adoc | [x] |  | 2026-09-10 |
 | git-init.adoc | [x] |  | 2026-09-10 |
 | git-instaweb.adoc | [x] |  | 2026-09-10 |
-| git-interpret-trailers.adoc | [ ] |  |  |
+| git-interpret-trailers.adoc | [x] |  | 2026-09-11 |
 | git-last-modified.adoc | [x] |  | 2026-09-10 |
 | git-log.adoc | [x] |  | 2026-09-10 |
 | git-ls-files.adoc | [x] |  | 2026-09-10 |
@@ -182,7 +182,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-stash.adoc | [x] |  | 2026-09-11 |
 | git-status.adoc | [ ] |  |  |
 | git-stripspace.adoc | [x] |  | 2026-09-10 |
-| git-submodule.adoc | [ ] |  |  |
+| git-submodule.adoc | [x] |  | 2026-09-11 |
 | git-svn.adoc | [ ] |  |  |
 | git-switch.adoc | [x] |  | 2026-09-10 |
 | git-symbolic-ref.adoc | [x] |  | 2026-09-10 |
@@ -237,7 +237,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitcvs-migration.adoc | [x] |  | 2026-09-10 |
 | gitdatamodel.adoc | [x] |  | 2026-09-10 |
 | gitdiffcore.adoc | [x] |  | 2026-09-10 |
-| giteveryday.adoc | [ ] |  |  |
+| giteveryday.adoc | [x] |  | 2026-09-11 |
 | gitfaq.adoc | [ ] |  |  |
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
 | gitformat-chunk.adoc | [x] |  | 2026-09-10 |
@@ -267,7 +267,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gittutorial.adoc | [ ] |  |  |
 | gitweb.adoc | [ ] |  |  |
 | gitweb.conf.adoc | [ ] |  |  |
-| gitworkflows.adoc | [ ] |  |  |
+| gitworkflows.adoc | [x] |  | 2026-09-11 |
 | glossary-content.adoc | [ ] |  |  |
 | i18n.adoc | [x] |  | 2026-09-10 |
 | line-range-format.adoc | [x] |  | 2026-09-10 |
@@ -863,3 +863,27 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   listán kívüli címek angolul: `SUBCOMMANDS`/`TASKS` (`git-read-tree.adoc` `MERGING`/`SPARSE
   CHECKOUT`; `git-stash.adoc` `COMMANDS`; `git-tag.adoc` csak kanonikus). Orchestrátor végezte
   közvetlenül. Részletek: `glossary-git-git-docs.md` „36. blokk".
+- **2026-09-11 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; a két gyökér-tábla együttes, sorszám szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `giteveryday.adoc` (455 sor, NEM man page), `git-interpret-trailers.adoc` (458),
+  `git-for-each-ref.adoc` (476), `gitworkflows.adoc` (479, NEM man page), `git-submodule.adoc` (485).
+  Anchor-kezelés: `giteveryday.adoc` — 4 meglévő inline `[[STANDALONE]]`/`[[PARTICIPANT]]`/
+  `[[INTEGRATOR]]`/`[[ADMINISTRATION]]` anchor **bájtazonos**; a hozzájuk tartozó címszöveg és a
+  rájuk mutató `<<STANDALONE,Individual Developer (Standalone)>>` stb. xref-ek vessző utáni
+  látható szövege fordult (kisbetűsen: „egyéni fejlesztő (önálló)" stb.); a 4 ismételt `Examples`
+  `~~~~` alcím → „Példák", **defenzív anchor nélkül** (a doc-order dedup-számozás hibaforrás, 1.
+  blokk precedens). `gitworkflows.adoc` — 9 defenzív `[[...]]` a `~~~~` Title Case alcímek fölé
+  (`_graduation`, `_merging_upwards`, `_topic_branches`, `_throw_away_integration`,
+  `_branch_management_for_a_release`, `_maintenance_branch_management_after_a_feature_release`,
+  `_branch_management_for_next_and_seen_after_a_feature_release`, `_merge_workflow`,
+  `_patch_workflow`), aláhúzás pontos hosszra igazítva. `git-interpret-trailers.adoc` /
+  `git-for-each-ref.adoc` / `git-submodule.adoc` — nincs `[[...]]`/`<<...>>`. Csupa nagybetűs,
+  kanonikus listán kívüli címek a VÉGLEGES DÖNTÉS szerint angolul: `SEPARATE CHANGES` /
+  `MANAGING BRANCHES` / `DISTRIBUTED WORKFLOWS` (`gitworkflows.adoc`, + a `"DISTRIBUTED WORKFLOWS"`
+  prózahivatkozás), `OTHER RULES` / `CONFIGURATION VARIABLES` (`git-interpret-trailers.adoc`),
+  `FIELD NAMES` (`git-for-each-ref.adoc`), `COMMANDS` (`git-submodule.adoc`). A `.Title` blokk-
+  címek és a `[caption="Rule: "]`/`[caption="Recipe: "]` attribútum-sorok: a `.Title` fordult, a
+  `[caption=...]` bájtazonos (skill-szabály). A `====` „Rule/Recipe" blokkokban a **prózát**
+  lefordítottam, a csak `` `parancsot` `` tartalmazó blokkokat bájtazonosan hagytam. Orchestrátor
+  végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „37. blokk".

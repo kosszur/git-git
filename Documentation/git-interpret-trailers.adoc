@@ -3,7 +3,7 @@ git-interpret-trailers(1)
 
 NAME
 ----
-git-interpret-trailers - Add or parse metadata in commit messages
+git-interpret-trailers - Metaadat hozzáadása vagy értelmezése commit-üzenetekben
 
 SYNOPSIS
 --------
@@ -14,15 +14,15 @@ git interpret-trailers [--in-place] [--trim-empty]
 
 DESCRIPTION
 -----------
-Add or parse trailer metadata at the end of the otherwise
-free-form part of a commit message, or any other kind of text.
+Trailer-metaadatot ad hozzá vagy értelmez egy commit-üzenet egyébként
+szabad formátumú részének a végén, vagy bármilyen más szövegben.
 
-A _trailer_ in its simplest form is a key-value pair with a colon as a
-separator. The _key_ consists of ASCII alphanumeric characters and
-hyphens (`-`). A _trailer block_ consists of one or more trailers. The
-trailer block needs to be preceded by a blank line, where a _blank line_
-is either an empty or a whitespace-only line. For example, in the
-following commit message
+Egy _trailer_ a legegyszerűbb formájában egy kulcs-érték pár, amelynek
+az elválasztója egy kettőspont. A _kulcs_ ASCII alfanumerikus
+karakterekből és kötőjelekből (`-`) áll. Egy _trailer-blokk_ egy vagy
+több trailerből áll. A trailer-blokkot egy üres sornak kell megelőznie,
+ahol egy _üres sor_ vagy egy teljesen üres, vagy egy csak whitespace-t
+tartalmazó sor. Például a következő commit-üzenetben
 
 ------------------------------------------------
 subject
@@ -33,84 +33,83 @@ Signed-off-by: Alice <alice@example.com>
 Signed-off-by: Bob <bob@example.com>
 ------------------------------------------------
 
-the last two lines starting with `Signed-off-by` are trailers.
+az utolsó két, `Signed-off-by`-jal kezdődő sor trailer.
 
-This command reads commit messages from either the
-_<file>_ arguments or the standard input if no _<file>_ is specified.
-If `--parse` is specified, the output consists of the parsed trailers
-coming from the input, without influencing them with any command line
-options or configuration variables.
+Ez a parancs a commit-üzeneteket vagy a _<file>_ argumentumokból olvassa
+be, vagy a standard bemenetről, ha nincs _<file>_ megadva. Ha a
+`--parse` meg van adva, a kimenet a bemenetről érkező, értelmezett
+trailerekből áll, anélkül, hogy bármilyen parancssori kapcsolóval vagy
+konfigurációs változóval befolyásolná őket.
 
-Otherwise, this command applies `trailer.<key-alias>` configuration
-variables (which could potentially add new trailers, as well as
-reposition them), as well as any command line arguments that can
-override configuration variables (such as `--trailer=...` which could
-also add new trailers), to each input file. The result is emitted on the
-standard output.
+Egyébként ez a parancs a `trailer.<key-alias>` konfigurációs változókat
+(amelyek potenciálisan új trailereket adhatnak hozzá, valamint át is
+helyezhetik őket), valamint bármely parancssori argumentumot, amely
+felülbírálhatja a konfigurációs változókat (mint a `--trailer=...`,
+amely szintén hozzáadhat új trailereket), alkalmazza minden bemeneti
+fájlra. Az eredmény a standard kimenetre kerül.
 
-This command can also operate on the output of linkgit:git-format-patch[1],
-which is more elaborate than a plain commit message. Namely, such output
-includes a commit message (as above), a `---` divider line, and a patch part.
-For these inputs, the divider and patch parts are not modified by
-this command and are emitted as is on the output, unless
-`--no-divider` is specified.
+Ez a parancs a linkgit:git-format-patch[1] kimenetén is működhet, amely
+kidolgozottabb, mint egy sima commit-üzenet. Nevezetesen az ilyen
+kimenet tartalmaz egy commit-üzenetet (mint fent), egy `---` elválasztó
+sort és egy patch-részt. Ezeknél a bemeneteknél az elválasztó és a
+patch-rész nem módosul e parancs által, és úgy, ahogy van, a kimenetre
+kerül, hacsak a `--no-divider` nincs megadva.
 
-Some configuration variables control the way the `--trailer` arguments
-are applied to each input and the way any existing trailer in
-the input is changed. They also make it possible to
-automatically add some trailers.
+Egyes konfigurációs változók vezérlik, hogyan alkalmazódnak a
+`--trailer` argumentumok minden bemenetre, és hogyan változik a
+bemenetben lévő bármely meglévő trailer. Lehetővé teszik azt is, hogy
+automatikusan hozzáadódjanak bizonyos trailerek.
 
-Let's consider new trailers added with `--trailer`.
-By default, the new trailer will appear at the end of the trailer block.
-Also by default, this new trailer will only be added
-if the last trailer is different to it.
-A trailer block will be created with only that trailer if a trailer
-block does not already exist. Recall that a trailer block needs to be
-preceded by a blank line, so a blank line will be inserted before the
-new trailer block in that case.
+Vegyünk a `--trailer`-rel hozzáadott új trailereket. Alapból az új
+trailer a trailer-blokk végén jelenik meg. Szintén alapból ez az új
+trailer csak akkor adódik hozzá, ha az utolsó trailer különbözik tőle.
+Egy trailer-blokk jön létre, amely csak azt a trailert tartalmazza, ha
+még nem létezik trailer-blokk. Emlékezz, hogy egy trailer-blokkot egy
+üres sornak kell megelőznie, így ebben az esetben egy üres sor kerül
+beszúrásra az új trailer-blokk elé.
 
-This is how the new trailer is added: a `<key>=<value>` or
-`<key>:<value>` argument given using `--trailer` will be appended after
-the existing trailers. The _<key>_ and _<value>_ parts will be trimmed
-to remove starting and trailing whitespace, and the resulting trimmed
-_<key>_ and _<value>_ will appear in the output like this:
+Így adódik hozzá az új trailer: egy `--trailer`-rel megadott
+`<key>=<value>` vagy `<key>:<value>` argumentum a meglévő trailerek után
+fűződik hozzá. A _<key>_ és a _<value>_ rész trimmelődik, hogy a kezdő
+és a záró whitespace eltávolítódjon, és az így trimmelt _<key>_ és
+_<value>_ így jelenik meg a kimenetben:
 
 ------------------------------------------------
 key: value
 ------------------------------------------------
 
-This means that the trimmed _<key>_ and _<value>_ will be separated by
-"`:`{nbsp}" (one colon followed by one space).
+Ez azt jelenti, hogy a trimmelt _<key>_-t és _<value>_-t a
+"`:`{nbsp}" (egy kettőspont, amelyet egy szóköz követ) választja el.
 
-Existing trailers are extracted from the input by looking for the
-trailer block. A trailer block is a group of one or more lines that (i)
-is all trailers, or (ii) contains at least one Git-generated or
-user-configured trailer and consists of at
-least 25% trailers.
-The trailer block is by definition at the end of the commit message.
-The message in turn is either (i) at the end of the input, or (ii) the
-last non-whitespace lines before a line that starts with `---` (followed
-by a space or the end of the line).
+A meglévő trailerek úgy kerülnek kinyerésre a bemenetből, hogy a
+trailer-blokkot keresi. Egy trailer-blokk egy vagy több sorból álló
+csoport, amely (i) csupa trailer, vagy (ii) tartalmaz legalább egy Git
+által generált vagy felhasználó által konfigurált trailert, és legalább
+25%-ban trailerekből áll.
+A trailer-blokk definíció szerint a commit-üzenet végén van. Az üzenet
+pedig vagy (i) a bemenet végén van, vagy (ii) az utolsó nem
+whitespace-sorok egy olyan sor előtt, amely `---`-mal kezdődik (amelyet
+egy szóköz vagy a sor vége követ).
 
-For convenience, a _<key-alias>_ can be configured to make using `--trailer`
-shorter to type on the command line. This can be configured using the
-`trailer.<key-alias>.key` configuration variable. The _<key-alias>_ must be a prefix
-of the full _<key>_ string, although case sensitivity does not matter. For
-example, if you have
+Kényelmi okból egy _<key-alias>_ konfigurálható, hogy a `--trailer`
+használatát rövidebbé tegye begépelni a parancssorban. Ez a
+`trailer.<key-alias>.key` konfigurációs változóval konfigurálható. A
+_<key-alias>_-nak a teljes _<key>_ sztring előtagjának kell lennie, bár
+a kis-nagybetűs érzékenység nem számít. Például ha ez van
 
 ------------------------------------------------
 trailer.sign.key "Signed-off-by: "
 ------------------------------------------------
 
-in your configuration, you only need to specify `--trailer="sign: foo"`
-on the command line instead of `--trailer="Signed-off-by: foo"`.
+a konfigurációdban, akkor csak `--trailer="sign: foo"`-t kell megadnod a
+parancssorban a `--trailer="Signed-off-by: foo"` helyett.
 
-When reading trailers, there can be no whitespace before or inside the
-_<key>_, but any number of regular space and tab characters are allowed
-between the _<key>_ and the separator. There can be whitespaces before,
-inside or after the _<value>_. The _<value>_ may be split over multiple lines
-with each subsequent line starting with at least one whitespace, like
-the "folding" in RFC 822. Example:
+Trailerek olvasásakor nem lehet whitespace a _<key>_ előtt vagy azon
+belül, de tetszőleges számú közönséges szóköz és tab karakter
+megengedett a _<key>_ és az elválasztó között. Lehet whitespace a
+_<value>_ előtt, azon belül vagy után. A _<value>_ több sorra
+osztható, ahol minden következő sor legalább egy whitespace-szel
+kezdődik, mint az RFC 822-beli "folding". Példa:
 
 ------------------------------------------------
 key: This is a very long value, with spaces and
@@ -120,113 +119,119 @@ key: This is a very long value, with spaces and
 OTHER RULES
 -----------
 
-What was covered in the previous section are the rules that are relevant
-for regular use. The following points are included for completeness.
+Az előző szakaszban tárgyaltak azok a szabályok, amelyek a szokásos
+használathoz relevánsak. A következő pontok a teljesség kedvéért
+szerepelnek.
 
 --
-* This command ignores comment lines (see `core.commentString` in
-  linkgit:git-config[1]). This is for use with the `prepare-commit-msg`
-  and `commit-msg` hooks.
+* Ez a parancs figyelmen kívül hagyja a komment-sorokat (lásd
+  `core.commentString` a linkgit:git-config[1]-ben). Ez a
+  `prepare-commit-msg` és `commit-msg` hookokkal való használatra való.
 
-* Candidate trailer lines that have `:` as the separator, that have no
-  whitespace before the value part, and that start with `//` are not
-  recognized as trailers. This is to avoid accidentally interpreting
-  URLs as trailers (e.g. lines that start with `https://`).
+* Azok a trailer-jelölt sorok, amelyeknél `:` az elválasztó, amelyeknél
+  nincs whitespace az értékrész előtt, és amelyek `//`-rel kezdődnek, nem
+  ismerődnek fel trailerként. Ez azért van, hogy elkerülje az URL-ek
+  véletlen trailerként való értelmezését (pl. a `https://`-rel kezdődő
+  sorok).
 --
 
 OPTIONS
 -------
 `--in-place`::
 `--no-in-place`::
-	Edit the files in place. The default is `--no-in-place`.
+	Helyben szerkeszti a fájlokat. Az alapértelmezés a `--no-in-place`.
 
 `--trim-empty`::
 `--no-trim-empty`::
-	If the _<value>_ part of any trailer contains only whitespace,
-	the whole trailer will be removed from the output.
-	This applies to existing trailers as well as new trailers.
+	Ha bármely trailer _<value>_ része csak whitespace-t tartalmaz, az
+	egész trailer eltávolítódik a kimenetből. Ez a meglévő trailerekre
+	és az új trailerekre is vonatkozik.
 +
-The default is `--no-trim-empty`.
+Az alapértelmezés a `--no-trim-empty`.
 
 `--trailer=<key>[(=|:)<value>]`::
 `--no-trailer`::
-	Specify a (_<key>_, _<value>_) pair that should be applied as a
-	trailer to the inputs. See the description of this command. Can
-	be given multiple times.
+	Megad egy (_<key>_, _<value>_) párt, amelyet trailerként kell
+	alkalmazni a bemenetekre. Lásd e parancs leírását. Többször is
+	megadható.
 +
-Use `--no-trailer` to reset the list.
+A `--no-trailer`-rel visszaállíthatod a listát.
 
 `--where=<placement>`::
 `--no-where`::
-	Specify where all new trailers will be added.  A setting
-	provided with `--where` overrides the `trailer.where` and any
-	applicable `trailer.<key-alias>.where` configuration variables
-	and applies to all `--trailer` options until the next occurrence of
-	`--where` or `--no-where`. Possible placements are `after`,
-	`before`, `end` or `start`.
+	Megadja, hova adódjon hozzá minden új trailer. A `--where`-rel
+	megadott beállítás felülbírálja a `trailer.where`-t és bármely
+	alkalmazható `trailer.<key-alias>.where` konfigurációs változót, és
+	minden `--trailer` kapcsolóra vonatkozik a `--where` vagy a
+	`--no-where` következő előfordulásáig. A lehetséges elhelyezések:
+	`after`, `before`, `end` vagy `start`.
 +
-Use `--no-where` to clear the effect of any previous use of `--where`,
-such that the relevant configuration variables are no longer overridden.
+A `--no-where`-rel törölheted bármely korábbi `--where` használat
+hatását, úgy, hogy a vonatkozó konfigurációs változók már nem
+felülbíráltak.
 
 `--if-exists=<action>`::
 `--no-if-exists`::
-	Specify what action will be performed when there is already at
-	least one trailer with the same _<key>_ in the input.  A setting
-	provided with `--if-exists` overrides the `trailer.ifExists` and any
-	applicable `trailer.<key-alias>.ifExists` configuration variables
-	and applies to all `--trailer` options until the next occurrence of
-	`--if-exists` or `--no-if-exists`. Possible actions are `addIfDifferent`,
-	`addIfDifferentNeighbor`, `add`, `replace` and `doNothing`.
+	Megadja, milyen művelet hajtódjon végre, amikor már van legalább
+	egy trailer ugyanazzal a _<key>_-vel a bemenetben. A `--if-exists`-szel
+	megadott beállítás felülbírálja a `trailer.ifExists`-t és bármely
+	alkalmazható `trailer.<key-alias>.ifExists` konfigurációs változót,
+	és minden `--trailer` kapcsolóra vonatkozik a `--if-exists` vagy a
+	`--no-if-exists` következő előfordulásáig. A lehetséges műveletek:
+	`addIfDifferent`, `addIfDifferentNeighbor`, `add`, `replace` és
+	`doNothing`.
 +
-Use `--no-if-exists` to clear the effect of any previous use of
-`--if-exists`, such that the relevant configuration variables are no
-longer overridden.
+A `--no-if-exists`-szel törölheted bármely korábbi `--if-exists`
+használat hatását, úgy, hogy a vonatkozó konfigurációs változók már nem
+felülbíráltak.
 
 `--if-missing=<action>`::
 `--no-if-missing`::
-	Specify what action will be performed when there is no other
-	trailer with the same _<key>_ in the input.  A setting
-	provided with `--if-missing` overrides the `trailer.ifMissing` and any
-	applicable `trailer.<key-alias>.ifMissing` configuration variables
-	and applies to all `--trailer` options until the next occurrence of
-	`--if-missing` or `--no-if-missing`. Possible actions are
-	`doNothing` or `add`.
+	Megadja, milyen művelet hajtódjon végre, amikor nincs másik trailer
+	ugyanazzal a _<key>_-vel a bemenetben. A `--if-missing`-gel megadott
+	beállítás felülbírálja a `trailer.ifMissing`-et és bármely
+	alkalmazható `trailer.<key-alias>.ifMissing` konfigurációs változót,
+	és minden `--trailer` kapcsolóra vonatkozik a `--if-missing` vagy a
+	`--no-if-missing` következő előfordulásáig. A lehetséges műveletek:
+	`doNothing` vagy `add`.
 +
-Use `--no-if-missing` to clear the effect of any previous use of
-`--if-missing`, such that the relevant configuration variables are no
-longer overridden.
+A `--no-if-missing`-gel törölheted bármely korábbi `--if-missing`
+használat hatását, úgy, hogy a vonatkozó konfigurációs változók már nem
+felülbíráltak.
 
 `--only-trailers`::
 `--no-only-trailers`::
-	Output only the trailers, not any other parts of the
-	input. The default is `--no-only-trailers`.
+	Csak a trailereket írja ki, a bemenet semmilyen más részét nem. Az
+	alapértelmezés a `--no-only-trailers`.
 
 `--only-input`::
 `--no-only-input`::
-	Output only trailers that exist in the input; do not add any
-	from the command-line or by applying `trailer.<key-alias>` configuration
-	variables. The default is `--no-only-input`.
+	Csak azokat a trailereket írja ki, amelyek a bemenetben léteznek;
+	nem ad hozzá egyet sem a parancssorból vagy a `trailer.<key-alias>`
+	konfigurációs változók alkalmazásával. Az alapértelmezés a
+	`--no-only-input`.
 
 `--unfold`::
 `--no-unfold`::
-	If a trailer has a value that runs over multiple lines (aka "folded"),
-	reformat the value into a single line. The default is `--no-unfold`.
+	Ha egy trailernek olyan értéke van, amely több sorra fut át (azaz
+	"folded"), újraformázza az értéket egyetlen sorra. Az alapértelmezés
+	a `--no-unfold`.
 
 `--parse`::
-	A convenience alias for `--only-trailers --only-input
-	--unfold`. This makes it easier to only see the trailers coming from the
-	input without influencing them with any command line options or
-	configuration variables, while also making the output machine-friendly with
-	`--unfold`.
+	Kényelmi alias a `--only-trailers --only-input --unfold`-hoz. Ez
+	megkönnyíti, hogy csak a bemenetről érkező trailereket lásd, anélkül,
+	hogy bármilyen parancssori kapcsolóval vagy konfigurációs változóval
+	befolyásolnád őket, egyben a `--unfold`-dal gépbaráttá téve a
+	kimenetet.
 +
-There is no convenience alias to negate this alias.
+Nincs kényelmi alias ennek az aliasnak a tagadására.
 
 `--divider`::
 `--no-divider`::
-	Treat `---` as the end of the commit message. This is the default.
-	Use `--no-divider` when you know your input contains just the
-	commit message itself (and not an email or the output of
-	linkgit:git-format-patch[1]).
+	A `---`-t a commit-üzenet végeként kezeli. Ez az alapértelmezés. A
+	`--no-divider`-t akkor használd, amikor tudod, hogy a bemeneted
+	csak magát a commit-üzenetet tartalmazza (nem egy e-mailt vagy a
+	linkgit:git-format-patch[1] kimenetét).
 
 CONFIGURATION VARIABLES
 -----------------------
@@ -238,8 +243,8 @@ include::config/trailer.adoc[]
 EXAMPLES
 --------
 
-* Configure a `sign` trailer with a `Signed-off-by` key, and then
-  add two of these trailers to a commit message file:
+* Konfigurálj egy `sign` trailert `Signed-off-by` kulccsal, majd adj
+  hozzá kettőt ezekből a trailerekből egy commit-üzenet fájlhoz:
 +
 ------------
 $ git config trailer.sign.key "Signed-off-by"
@@ -256,7 +261,8 @@ Signed-off-by: Alice <alice@example.com>
 Signed-off-by: Bob <bob@example.com>
 ------------
 
-* Use the `--in-place` option to edit a commit message file in place:
+* Használd a `--in-place` kapcsolót egy commit-üzenet fájl helyben
+  szerkesztéséhez:
 +
 ------------
 $ cat msg.txt
@@ -275,8 +281,8 @@ Signed-off-by: Bob <bob@example.com>
 Acked-by: Alice <alice@example.com>
 ------------
 
-* Extract the last commit as a patch, and add a `Cc` and a
-  `Reviewed-by` trailer to it:
+* Nyerd ki az utolsó commitot patchként, és adj hozzá egy `Cc` és egy
+  `Reviewed-by` trailert:
 +
 ------------
 $ git format-patch -1
@@ -284,9 +290,9 @@ $ git format-patch -1
 $ git interpret-trailers --trailer 'Cc: Alice <alice@example.com>' --trailer 'Reviewed-by: Bob <bob@example.com>' 0001-foo.patch >0001-bar.patch
 ------------
 
-* Configure a `sign` trailer with a command to automatically add a
-  "`Signed-off-by:`{nbsp}" with the author information only if there is no
-  "`Signed-off-by:`{nbsp}" already, and show how it works:
+* Konfigurálj egy `sign` trailert egy paranccsal, amely automatikusan
+  hozzáad egy "`Signed-off-by:`{nbsp}"-t a szerzőinformációval, csak akkor,
+  ha még nincs "`Signed-off-by:`{nbsp}", és mutasd meg, hogyan működik:
 +
 ------------
 $ cat msg1.txt
@@ -317,8 +323,9 @@ body text
 Signed-off-by: Alice <alice@example.com>
 ------------
 
-* Configure a `fix` trailer with a key that contains a `#` and no
-  space after this character, and show how it works:
+* Konfigurálj egy `fix` trailert olyan kulccsal, amely tartalmaz egy
+  `#`-et, és nincs szóköz e karakter után, és mutasd meg, hogyan
+  működik:
 +
 ------------
 $ git config trailer.separators ":#"
@@ -329,9 +336,10 @@ subject
 Fix #42
 ------------
 
-* Configure a `help` trailer with a cmd use a script `glog-find-author`
-  which search specified author identity from git log in git repository
-  and show how it works:
+* Konfigurálj egy `help` trailert egy cmd-vel, amely egy
+  `glog-find-author` szkriptet használ, amely a megadott szerzői
+  identitást keresi a git logból a git repository-ban, és mutasd meg,
+  hogyan működik:
 +
 ------------
 $ cat ~/bin/glog-find-author
@@ -353,9 +361,9 @@ Helped-by: Junio C Hamano <gitster@pobox.com>
 Helped-by: Christian Couder <christian.couder@gmail.com>
 ------------
 
-* Configure a `ref` trailer with a cmd use a script `glog-grep`
-  to grep last relevant commit from git log in the git repository
-  and show how it works:
+* Konfigurálj egy `ref` trailert egy cmd-vel, amely egy `glog-grep`
+  szkriptet használ, hogy grep-elje az utolsó releváns commitot a git
+  logból a git repository-ban, és mutasd meg, hogyan működik:
 +
 ------------
 $ cat ~/bin/glog-grep
@@ -376,8 +384,8 @@ body text
 Reference-to: 8bc9a0c769 (Add copyright notices., 2005-04-07)
 ------------
 
-* Configure a `see` trailer with a command to show the subject of a
-  commit that is related, and show how it works:
+* Konfigurálj egy `see` trailert egy paranccsal, amely egy kapcsolódó
+  commit subjectjét mutatja meg, és mutasd meg, hogyan működik:
 +
 ------------
 $ cat msg.txt
@@ -401,11 +409,11 @@ body text
 See-also: fe3187489d69c4 (subject of related commit)
 ------------
 
-* Configure a commit template with some trailers with empty values
-  (using sed to show and keep the trailing spaces at the end of the
-  trailers), then configure a commit-msg hook that uses
-  git-interpret-trailers(1) to remove trailers with empty values and to
-  add a `git-version` trailer:
+* Konfigurálj egy commit-sablont néhány üres értékű trailerrel (a
+  sed-et használva a trailerek végén lévő záró szóközök megjelenítésére
+  és megtartására), majd konfigurálj egy commit-msg hookot, amely a
+  git-interpret-trailers(1)-et használja az üres értékű trailerek
+  eltávolítására és egy `git-version` trailer hozzáadására:
 +
 ------------
 $ cat temp.txt
@@ -426,8 +434,8 @@ mv "\$1.new" "\$1"
 $ chmod +x .git/hooks/commit-msg
 ------------
 
-* Here we try to use three different trailer keys. But it fails because
-  two of them are not recognized as trailer keys.
+* Itt három különböző trailer-kulcsot próbálunk használni. De
+  meghiúsul, mert kettő közülük nem ismerődik fel trailer-kulcsként.
 +
 ----
 $ cat msg.txt
@@ -440,14 +448,16 @@ $ git interpret-trailers --only-trailers <msg.txt
 $
 ----
 +
-Recall that a trailer key has to consist of only ASCII alphanumeric
-characters and hyphens, and this does not hold for the two first
-supposed trailer keys. And now none are recognized as trailers because
-the candidate trailer block has at least one non-trailer line, even
-though `Reviewed-by` is a valid trailer key. Recall that a trailer block
-has to either (i) be all trailers, or (ii) consist of at least one
-Git-generated or user-configured trailer (and some other conditions).
-And (ii) is not satisfied since we have not configured any trailer keys.
+Emlékezz, hogy egy trailer-kulcsnak csak ASCII alfanumerikus
+karakterekből és kötőjelekből kell állnia, és ez nem áll fenn az első
+két feltételezett trailer-kulcsra. És most egyik sem ismerődik fel
+trailerként, mert a trailer-jelölt blokkban van legalább egy nem
+trailer sor, még akkor is, ha a `Reviewed-by` egy érvényes
+trailer-kulcs. Emlékezz, hogy egy trailer-blokknak vagy (i) csupa
+trailernek kell lennie, vagy (ii) legalább egy Git által generált vagy
+felhasználó által konfigurált trailerből kell állnia (és néhány egyéb
+feltétel). És a (ii) nem teljesül, mivel nem konfiguráltunk semmilyen
+trailer-kulcsot.
 
 SEE ALSO
 --------
@@ -455,4 +465,4 @@ linkgit:git-commit[1], linkgit:git-format-patch[1], linkgit:git-config[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

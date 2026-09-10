@@ -3,66 +3,66 @@ giteveryday(7)
 
 NAME
 ----
-giteveryday - A useful minimum set of commands for Everyday Git
+giteveryday - Hasznos minimális parancskészlet a mindennapi Githez
 
 SYNOPSIS
 --------
 
-Everyday Git With 20 Commands Or So
+A mindennapi Git nagyjából 20 paranccsal
 
 DESCRIPTION
 -----------
 
-Git users can broadly be grouped into four categories for the purposes of
-describing here a small set of useful commands for everyday Git.
+A Git-felhasználók nagyjából négy kategóriába sorolhatók, ahhoz, hogy itt
+leírjuk a mindennapi Githez hasznos parancsok egy kis készletét.
 
-*	<<STANDALONE,Individual Developer (Standalone)>> commands are essential
-	for anybody who makes a commit, even for somebody who works alone.
+*	Az <<STANDALONE,egyéni fejlesztő (önálló)>> parancsai
+	alapvetők bárkinek, aki commitol, még annak is, aki egyedül
+	dolgozik.
 
-*	If you work with other people, you will need commands listed in
-	the <<PARTICIPANT,Individual Developer (Participant)>> section as well.
+*	Ha másokkal dolgozol, szükséged lesz az <<PARTICIPANT,egyéni
+	fejlesztő (résztvevő)>> szakaszban felsorolt parancsokra is.
 
-*	People who play the <<INTEGRATOR,Integrator>> role need to learn some
-	more commands in addition to the above.
+*	Azoknak, akik az <<INTEGRATOR,integrátor>> szerepét töltik be, a
+	fentieken felül még néhány parancsot meg kell tanulniuk.
 
-*	<<ADMINISTRATION,Repository Administration>> commands are for system
-	administrators who are responsible for the care and feeding
-	of Git repositories.
+*	A <<ADMINISTRATION,repository-adminisztráció>> parancsai azoknak a
+	rendszergazdáknak valók, akik a Git-repository-k gondozásáért
+	felelősek.
 
 
-Individual Developer (Standalone)[[STANDALONE]]
------------------------------------------------
+Egyéni fejlesztő (önálló)[[STANDALONE]]
+---------------------------------------
 
-A standalone individual developer does not exchange patches with
-other people, and works alone in a single repository, using the
-following commands.
+Egy önálló egyéni fejlesztő nem cserél patcheket másokkal, és egyedül
+dolgozik egyetlen repository-ban, a következő parancsokat használva.
 
-  * linkgit:git-init[1] to create a new repository.
+  * linkgit:git-init[1] egy új repository létrehozásához.
 
-  * linkgit:git-log[1] to see what happened.
+  * linkgit:git-log[1] annak megtekintéséhez, hogy mi történt.
 
-  * linkgit:git-switch[1] and linkgit:git-branch[1] to switch
-    branches.
+  * linkgit:git-switch[1] és linkgit:git-branch[1] a branchek közötti
+    váltáshoz.
 
-  * linkgit:git-add[1] to manage the index file.
+  * linkgit:git-add[1] az indexfájl kezeléséhez.
 
-  * linkgit:git-diff[1] and linkgit:git-status[1] to see what
-    you are in the middle of doing.
+  * linkgit:git-diff[1] és linkgit:git-status[1] annak megtekintéséhez,
+    hogy minek a közepén vagy.
 
-  * linkgit:git-commit[1] to advance the current branch.
+  * linkgit:git-commit[1] az aktuális branch előreléptetéséhez.
 
-  * linkgit:git-restore[1] to undo changes.
+  * linkgit:git-restore[1] a változások visszavonásához.
 
-  * linkgit:git-merge[1] to merge between local branches.
+  * linkgit:git-merge[1] a helyi branchek közötti merge-eléshez.
 
-  * linkgit:git-rebase[1] to maintain topic branches.
+  * linkgit:git-rebase[1] a topic branchek karbantartásához.
 
-  * linkgit:git-tag[1] to mark a known point.
+  * linkgit:git-tag[1] egy ismert pont megjelöléséhez.
 
-Examples
-~~~~~~~~
+Példák
+~~~~~~
 
-Use a tarball as a starting point for a new repository.::
+Egy tarball használata kiindulópontként egy új repository-hoz.::
 +
 ------------
 $ tar zxf frotz.tar.gz
@@ -73,10 +73,10 @@ $ git commit -m "import of frotz source tree."
 $ git tag v2.43 <2>
 ------------
 +
-<1> add everything under the current directory.
-<2> make a lightweight, unannotated tag.
+<1> minden hozzáadása az aktuális könyvtár alatt.
+<2> könnyűsúlyú, nem annotált tag készítése.
 
-Create a topic branch and develop.::
+Topic branch létrehozása és fejlesztés.::
 +
 ------------
 $ git switch -c alsa-audio <1>
@@ -95,54 +95,55 @@ $ git log --since='3 days ago' <10>
 $ git log v2.43.. curses/ <11>
 ------------
 +
-<1> create a new topic branch.
-<2> revert your botched changes in `curses/ux_audio_oss.c`.
-<3> you need to tell Git if you added a new file; removal and
-modification will be caught if you do `git commit -a` later.
-<4> to see what changes you are committing.
-<5> commit everything, as you have tested, with your sign-off.
-<6> look at all your changes including the previous commit.
-<7> amend the previous commit, adding all your new changes,
-using your original message.
-<8> switch to the master branch.
-<9> merge a topic branch into your master branch.
-<10> review commit logs; other forms to limit output can be
-combined and include `-10` (to show up to 10 commits),
-`--until=2005-12-10`, etc.
-<11> view only the changes that touch what's in `curses/`
-directory, since `v2.43` tag.
+<1> új topic branch létrehozása.
+<2> az elrontott változásaid visszavonása a `curses/ux_audio_oss.c`-ben.
+<3> meg kell mondanod a Gitnek, ha új fájlt adtál hozzá; az
+eltávolítást és a módosítást elkapja, ha később `git commit -a`-t
+csinálsz.
+<4> annak megtekintéséhez, hogy milyen változásokat commitolsz.
+<5> minden commitolása, ahogy teszteltél, a sign-offoddal.
+<6> az összes változásod megtekintése az előző committal együtt.
+<7> az előző commit amendelése, minden új változásod hozzáadásával, az
+eredeti üzeneteddel.
+<8> váltás a master branchre.
+<9> egy topic branch merge-elése a master branchedbe.
+<10> commit-naplók áttekintése; a kimenet korlátozásának más alakjai
+kombinálhatók, és ilyen a `-10` (legfeljebb 10 commit megjelenítéséhez),
+a `--until=2005-12-10`, stb.
+<11> csak azoknak a változásoknak a megtekintése, amelyek a `curses/`
+könyvtárban lévő dolgokat érintik, a `v2.43` tag óta.
 
 
-Individual Developer (Participant)[[PARTICIPANT]]
--------------------------------------------------
+Egyéni fejlesztő (résztvevő)[[PARTICIPANT]]
+-------------------------------------------
 
-A developer working as a participant in a group project needs to
-learn how to communicate with others, and uses these commands in
-addition to the ones needed by a standalone developer.
+Egy csoportos projektben résztvevőként dolgozó fejlesztőnek meg kell
+tanulnia, hogyan kommunikáljon másokkal, és ezeket a parancsokat
+használja az önálló fejlesztő által igényelteken felül.
 
-  * linkgit:git-clone[1] from the upstream to prime your local
-    repository.
+  * linkgit:git-clone[1] az upstreamből a helyi repository-d
+    feltöltéséhez.
 
-  * linkgit:git-pull[1] and linkgit:git-fetch[1] from "origin"
-    to keep up-to-date with the upstream.
+  * linkgit:git-pull[1] és linkgit:git-fetch[1] az "origin"-ból, hogy
+    naprakész maradj az upstreammel.
 
-  * linkgit:git-push[1] to shared repository, if you adopt CVS
-    style shared repository workflow.
+  * linkgit:git-push[1] megosztott repository-ba, ha CVS-stílusú
+    megosztott repository munkafolyamatot alkalmazol.
 
-  * linkgit:git-format-patch[1] to prepare e-mail submission, if
-    you adopt Linux kernel-style public forum workflow.
+  * linkgit:git-format-patch[1] e-mailes beküldés előkészítéséhez, ha
+    Linux kernel stílusú nyilvános fórum munkafolyamatot alkalmazol.
 
-  * linkgit:git-send-email[1] to send your e-mail submission without
-    corruption by your MUA.
+  * linkgit:git-send-email[1] az e-mailes beküldésed elküldéséhez, a
+    MUA-d általi sérülés nélkül.
 
-  * linkgit:git-request-pull[1] to create a summary of changes
-    for your upstream to pull.
+  * linkgit:git-request-pull[1] a változások összefoglalójának
+    létrehozásához, hogy az upstreamed pull-olhassa.
 
 
-Examples
-~~~~~~~~
+Példák
+~~~~~~
 
-Clone the upstream and work on it.  Feed changes to upstream.::
+Az upstream klónozása és munka rajta. Változások betáplálása az upstreambe.::
 +
 ------------
 $ git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6
@@ -160,24 +161,25 @@ $ git reset --hard ORIG_HEAD <10>
 $ git gc <11>
 ------------
 +
-<1> checkout a new branch `mine` from master.
-<2> repeat as needed.
-<3> extract patches from your branch, relative to master,
-<4> and email them.
-<5> return to `master`, ready to see what's new
-<6> `git pull` fetches from `origin` by default and merges into the
-current branch.
-<7> immediately after pulling, look at the changes done upstream
-since last time we checked, only in the
-area we are interested in.
-<8> check the branch names in an external repository (if not known).
-<9> fetch from a specific branch `ALL` from a specific repository
-and merge it.
-<10> revert the pull.
-<11> garbage collect leftover objects from reverted pull.
+<1> egy új `mine` branch checkoutolása a masterből.
+<2> ismételd, ahányszor kell.
+<3> patchek kinyerése a branchedből, a masterhez képest,
+<4> és e-mailezd el őket.
+<5> visszatérés a `master`-hez, készen arra, hogy lásd, mi az újdonság
+<6> a `git pull` alapból az `origin`-ból fetchel, és az aktuális
+branchbe merge-el.
+<7> közvetlenül a pull-olás után nézd meg az upstreamen végzett
+változásokat, mióta legutóbb megnéztük, csak azon a területen, amely
+minket érdekel.
+<8> ellenőrizd a branchneveket egy külső repository-ban (ha nem
+ismertek).
+<9> fetchelj egy konkrét `ALL` branchből egy konkrét repository-ból, és
+merge-eld.
+<10> a pull visszavonása.
+<11> a visszavont pull-ból maradt objektumok szemétgyűjtése.
 
 
-Push into another repository.::
+Push egy másik repository-ba.::
 +
 ------------
 satellite$ git clone mothership:frotz frotz <1>
@@ -197,22 +199,22 @@ mothership$ git switch master
 mothership$ git merge satellite/master <5>
 ------------
 +
-<1> mothership machine has a frotz repository under your home
-directory; clone from it to start a repository on the satellite
-machine.
-<2> clone sets these configuration variables by default.
-It arranges `git pull` to fetch and store the branches of mothership
-machine to local `remotes/origin/*` remote-tracking branches.
-<3> arrange `git push` to push all local branches to
-their corresponding branch of the mothership machine.
-<4> push will stash all our work away on `remotes/satellite/*`
-remote-tracking branches on the mothership machine.  You could use this
-as a back-up method. Likewise, you can pretend that mothership
-"fetched" from you (useful when access is one sided).
-<5> on mothership machine, merge the work done on the satellite
-machine into the master branch.
+<1> a mothership gépen van egy frotz repository a home könyvtárad alatt;
+klónozz belőle, hogy repository-t indíts a satellite gépen.
+<2> a clone alapból beállítja ezeket a konfigurációs változókat. Úgy
+rendezi el a `git pull`-t, hogy a mothership gép branchjeit a helyi
+`remotes/origin/*` remote-tracking branchekbe fetchelje és tárolja.
+<3> rendezd el a `git push`-t úgy, hogy az összes helyi branchet a
+mothership gép megfelelő branchjébe pusholja.
+<4> a push az összes munkánkat elstasheli a mothership gépen lévő
+`remotes/satellite/*` remote-tracking branchekbe. Ezt használhatod
+biztonsági mentés módszerként. Hasonlóképp úgy tehetsz, mintha a
+mothership „fetchelt" volna tőled (hasznos, amikor a hozzáférés
+egyoldalú).
+<5> a mothership gépen merge-eld a satellite gépen végzett munkát a
+master branchbe.
 
-Branch off of a specific tag.::
+Leágazás egy konkrét tagről.::
 +
 ------------
 $ git switch -c private2.6.14 v2.6.14 <1>
@@ -221,50 +223,51 @@ $ git checkout master
 $ git cherry-pick v2.6.14..private2.6.14 <2>
 ------------
 +
-<1> create a private branch based on a well known (but somewhat behind)
-tag.
-<2> forward port all changes in `private2.6.14` branch to `master` branch
-without a formal "merging". Or longhand +
+<1> egy privát branch létrehozása egy jól ismert (de kissé lemaradt)
+tag alapján.
+<2> a `private2.6.14` branch összes változásának előreportolása a
+`master` branchbe formális „merge-elés" nélkül. Vagy hosszabban +
 `git format-patch -k -m --stdout v2.6.14..private2.6.14 |
   git am -3 -k`
 
-An alternate participant submission mechanism is using the
-`git request-pull` or pull-request mechanisms (e.g. as used on
-GitHub (www.github.com) to notify your upstream of your
-contribution.
+Egy alternatív résztvevői beküldési mechanizmus a `git request-pull`
+vagy a pull request mechanizmusok használata (pl. ahogy a GitHubon
+(www.github.com) használják), hogy értesítsd az upstreamedet a
+hozzájárulásodról.
 
-Integrator[[INTEGRATOR]]
+Integrátor[[INTEGRATOR]]
 ------------------------
 
-A fairly central person acting as the integrator in a group
-project receives changes made by others, reviews and integrates
-them and publishes the result for others to use, using these
-commands in addition to the ones needed by participants.
+Egy meglehetősen központi személy, aki egy csoportos projektben
+integrátorként jár el, megkapja a mások által végzett változásokat,
+átnézi és integrálja őket, és közzéteszi az eredményt, hogy mások
+használhassák, a résztvevők által igényelteken felül ezeket a
+parancsokat használva.
 
-This section can also be used by those who respond to `git
-request-pull` or pull-request on GitHub (www.github.com) to
-integrate the work of others into their history. A sub-area
-lieutenant for a repository will act both as a participant and
-as an integrator.
-
-
-  * linkgit:git-am[1] to apply patches e-mailed in from your
-    contributors.
-
-  * linkgit:git-pull[1] to merge from your trusted lieutenants.
-
-  * linkgit:git-format-patch[1] to prepare and send suggested
-    alternative to contributors.
-
-  * linkgit:git-revert[1] to undo botched commits.
-
-  * linkgit:git-push[1] to publish the bleeding edge.
+Ezt a szakaszt azok is használhatják, akik a `git request-pull`-ra vagy
+a GitHubon (www.github.com) lévő pull requestre válaszolnak, hogy mások
+munkáját a saját történetükbe integrálják. Egy repository egyik
+alterületének lieutenantja résztvevőként és integrátorként is eljár.
 
 
-Examples
-~~~~~~~~
+  * linkgit:git-am[1] a hozzájárulóidtól e-mailben beküldött patchek
+    alkalmazásához.
 
-A typical integrator's Git day.::
+  * linkgit:git-pull[1] a megbízható lieutenantjaidtól való
+    merge-eléshez.
+
+  * linkgit:git-format-patch[1] javasolt alternatíva előkészítéséhez és
+    elküldéséhez a hozzájárulóknak.
+
+  * linkgit:git-revert[1] az elszúrt commitok visszavonásához.
+
+  * linkgit:git-push[1] a bleeding edge közzétételéhez.
+
+
+Példák
+~~~~~~
+
+Egy tipikus integrátor Git-napja.::
 +
 ------------
 $ git status <1>
@@ -291,30 +294,32 @@ $ git fetch ko && for branch in master maint next seen <11>
 $ git push --follow-tags ko <13>
 ------------
 +
-<1> see what you were in the middle of doing, if anything.
-<2> see which branches haven't been merged into `master` yet.
-Likewise for any other integration branches e.g. `maint`, `next`
-and `seen`.
-<3> read mails, save ones that are applicable, and save others
-that are not quite ready (other mail readers are available).
-<4> apply them, interactively, with your sign-offs.
-<5> create topic branch as needed and apply, again with sign-offs.
-<6> rebase internal topic branch that has not been merged to the
-master or exposed as a part of a stable branch.
-<7> restart `seen` every time from the next.
-<8> and bundle topic branches still cooking.
-<9> backport a critical fix.
-<10> create a signed tag.
-<11> make sure master was not accidentally rewound beyond that
-already pushed out.
-<12> In the output from `git show-branch`, `master` should have
-everything `ko/master` has, and `next` should have
-everything `ko/next` has, etc.
-<13> push out the bleeding edge, together with new tags that point
-into the pushed history.
+<1> nézd meg, minek a közepén voltál, ha egyáltalán.
+<2> nézd meg, mely branchek nincsenek még merge-elve a `master`-be.
+Hasonlóképp bármely más integrációs branchre, pl. `maint`, `next` és
+`seen`.
+<3> olvasd el a leveleket, mentsd el az alkalmazhatóakat, és mentsd el
+külön azokat, amelyek még nem egészen készek (más levélolvasók is
+elérhetők).
+<4> alkalmazd őket, interaktívan, a sign-offjaiddal.
+<5> hozz létre topic branchet, ahogy kell, és alkalmazz, megint
+sign-offokkal.
+<6> rebase-eld a belső topic branchet, amely nincs merge-elve a
+masterbe, és nincs kitéve egy stabil branch részeként.
+<7> a `seen`-t minden alkalommal a nextből indítsd újra.
+<8> és bundle-eld az még főzés alatt lévő topic brancheket.
+<9> egy kritikus javítás backportolása.
+<10> egy aláírt tag létrehozása.
+<11> győződj meg róla, hogy a master nem lett véletlenül visszatekerve
+azon túl, amit már kipusholtál.
+<12> a `git show-branch` kimenetében a `master`-nek meg kell lennie
+mindennek, ami a `ko/master`-nek van, a `next`-nek pedig mindennek, ami
+a `ko/next`-nek van, stb.
+<13> pushold ki a bleeding edge-et, az új tagekkel együtt, amelyek a
+kipusholt történetbe mutatnak.
 
-In this example, the `ko` shorthand points at the Git maintainer's
-repository at kernel.org, and looks like this:
+Ebben a példában a `ko` rövidítés a Git maintainerének kernel.org-on
+lévő repository-jára mutat, és így néz ki:
 
 ------------
 (in .git/config)
@@ -328,42 +333,44 @@ repository at kernel.org, and looks like this:
 ------------
 
 
-Repository Administration[[ADMINISTRATION]]
+Repository-adminisztráció[[ADMINISTRATION]]
 -------------------------------------------
 
-A repository administrator uses the following tools to set up
-and maintain access to the repository by developers.
+Egy repository-adminisztrátor a következő eszközöket használja arra,
+hogy a fejlesztők repository-hoz való hozzáférését beállítsa és
+karbantartsa.
 
-  * linkgit:git-daemon[1] to allow anonymous download from
-    repository.
+  * linkgit:git-daemon[1] a repository-ból való anonim letöltés
+    engedélyezéséhez.
 
-  * linkgit:git-shell[1] can be used as a 'restricted login shell'
-    for shared central repository users.
+  * linkgit:git-shell[1] 'korlátozott bejelentkezési shellként'
+    használható a megosztott központi repository felhasználóihoz.
 
-  * linkgit:git-http-backend[1] provides a server side implementation
-    of Git-over-HTTP ("Smart http") allowing both fetch and push services.
+  * linkgit:git-http-backend[1] a Git-over-HTTP ("Smart http")
+    szerveroldali megvalósítását adja, amely fetch- és push-szolgáltatást
+    is lehetővé tesz.
 
-  * linkgit:gitweb[1] provides a web front-end to Git repositories,
-    which can be set-up using the linkgit:git-instaweb[1] script.
+  * linkgit:gitweb[1] webes felületet ad a Git-repository-khoz, amely a
+    linkgit:git-instaweb[1] szkripttel állítható be.
 
-link:howto/update-hook-example.html[update hook howto] has a good
-example of managing a shared central repository.
+A link:howto/update-hook-example.html[update hook howto] jó példát ad
+egy megosztott központi repository kezelésére.
 
-In addition there are a number of other widely deployed hosting, browsing
-and reviewing solutions such as:
+Ezenkívül számos más, széles körben telepített hosztolási, böngészési és
+átnézési megoldás létezik, mint például:
 
-  * gitolite, gerrit code review, cgit and others.
+  * gitolite, gerrit code review, cgit és mások.
 
-Examples
-~~~~~~~~
-We assume the following in /etc/services::
+Példák
+~~~~~~
+A következőt feltételezzük a /etc/services-ben::
 +
 ------------
 $ grep 9418 /etc/services
 git		9418/tcp		# Git Version Control System
 ------------
 
-Run git-daemon to serve /pub/scm from inetd.::
+A git-daemon futtatása a /pub/scm kiszolgálásához inetd-ből.::
 +
 ------------
 $ grep git /etc/inetd.conf
@@ -371,9 +378,9 @@ git	stream	tcp	nowait	nobody \
   /usr/bin/git-daemon git-daemon --inetd --export-all /pub/scm
 ------------
 +
-The actual configuration line should be on one line.
+A tényleges konfigurációs sornak egyetlen soron kell lennie.
 
-Run git-daemon to serve /pub/scm from xinetd.::
+A git-daemon futtatása a /pub/scm kiszolgálásához xinetd-ből.::
 +
 ------------
 $ cat /etc/xinetd.d/git-daemon
@@ -393,12 +400,12 @@ service git
 }
 ------------
 +
-Check your xinetd(8) documentation and setup, this is from a Fedora system.
-Others might be different.
+Ellenőrizd az xinetd(8) dokumentációdat és a beállításodat, ez egy Fedora
+rendszerről származik. Másoknál eltérhet.
 
-Give push/pull only access to developers using git-over-ssh.::
+Csak push/pull hozzáférés adása a fejlesztőknek git-over-ssh használatával.::
 
-e.g. those using:
+pl. azoknak, akik ezt használják:
 `$ git push/pull ssh://host.xz/pub/scm/project`
 +
 ------------
@@ -411,13 +418,13 @@ $ grep git /etc/shells <2>
 /usr/bin/git-shell
 ------------
 +
-<1> log-in shell is set to /usr/bin/git-shell, which does not
-allow anything but `git push` and `git pull`.  The users require
-ssh access to the machine.
-<2> in many distributions /etc/shells needs to list what is used
-as the login shell.
+<1> a bejelentkezési shell a /usr/bin/git-shell-re van állítva, amely
+csak a `git push`-t és a `git pull`-t engedi. A felhasználóknak
+ssh-hozzáférés kell a géphez.
+<2> sok disztribúcióban az /etc/shells-nek fel kell sorolnia, mit
+használnak bejelentkezési shellként.
 
-CVS-style shared repository.::
+CVS-stílusú megosztott repository.::
 +
 ------------
 $ grep git /etc/group <1>
@@ -442,14 +449,14 @@ refs/heads/doc-update	bob
 refs/tags/v[0-9]*	david
 ------------
 +
-<1> place the developers into the same git group.
-<2> and make the shared repository writable by the group.
-<3> use update-hook example by Carl from Documentation/howto/
-for branch policy control.
-<4> alice and cindy can push into master, only bob can push into doc-update.
-david is the release manager and is the only person who can
-create and push version tags.
+<1> helyezd a fejlesztőket ugyanabba a git csoportba.
+<2> és tedd a megosztott repository-t a csoport által írhatóvá.
+<3> használd Carl update-hook példáját a Documentation/howto/-ból a
+branch-politika szabályozásához.
+<4> alice és cindy pusholhat a masterbe, csak bob pusholhat a
+doc-update-be. david a kiadáskezelő, és ő az egyetlen személy, aki
+verziótageket hozhat létre és pusholhat.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
