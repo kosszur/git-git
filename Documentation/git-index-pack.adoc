@@ -3,7 +3,7 @@ git-index-pack(1)
 
 NAME
 ----
-git-index-pack - Build pack index file for an existing packed archive
+git-index-pack - Pack-indexfájl felépítése egy meglévő csomagolt archívumhoz
 
 
 SYNOPSIS
@@ -16,148 +16,149 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Reads a packed archive (.pack) from the specified file,
-builds a pack index file (.idx) for it, and optionally writes a
-reverse-index (.rev) for the specified pack. The packed
-archive, together with the pack index, can then be placed in
-the objects/pack/ directory of a Git repository.
+Beolvas egy csomagolt archívumot (.pack) a megadott fájlból, felépít
+hozzá egy pack-indexfájlt (.idx), és opcionálisan ír egy fordított
+indexet (.rev) a megadott packhez. A csomagolt archívum a
+pack-indexszel együtt ezután elhelyezhető egy Git repository
+objects/pack/ könyvtárában.
 
 
 OPTIONS
 -------
 -v::
-	Be verbose about what is going on, including progress status.
+	Bőbeszédűség a történésekről, beleértve a folyamatállapotot is.
 
 -o <index-file>::
-	Write the generated pack index into the specified
-	file.  Without this option the name of pack index
-	file is constructed from the name of packed archive
-	file by replacing .pack with .idx (and the program
-	fails if the name of packed archive does not end
-	with .pack).
+	A generált pack-index kiírása a megadott fájlba.  Ezen opció
+	nélkül a pack-indexfájl neve a csomagolt archívumfájl nevéből
+	épül fel úgy, hogy a .pack helyére .idx kerül (és a program
+	hibázik, ha a csomagolt archívum neve nem .pack-re végződik).
 
 --rev-index::
 --no-rev-index::
-	When this flag is provided, generate a reverse index
-	(a `.rev` file) corresponding to the given pack. If
-	`--verify` is given, ensure that the existing
-	reverse index is correct. Takes precedence over
-	`pack.writeReverseIndex`.
+	Ha ez a flag meg van adva, egy, a megadott packnek megfelelő
+	fordított index (egy `.rev` fájl) generálása. Ha a `--verify` meg
+	van adva, annak biztosítása, hogy a meglévő fordított index helyes.
+	Elsőbbséget élvez a `pack.writeReverseIndex`-szel szemben.
 
 --stdin::
-	When this flag is provided, the pack is read from stdin
-	instead and a copy is then written to <pack-file>. If
-	<pack-file> is not specified, the pack is written to
-	objects/pack/ directory of the current Git repository with
-	a default name determined from the pack content.  If
-	<pack-file> is not specified consider using --keep to
-	prevent a race condition between this process and
-	'git repack'.
+	Ha ez a flag meg van adva, a pack helyette az stdinről olvasódik
+	be, és egy másolat íródik a <pack-file>-ba. Ha a <pack-file> nincs
+	megadva, a pack az aktuális Git repository objects/pack/
+	könyvtárába íródik egy, a pack tartalmából meghatározott
+	alapértelmezett névvel.  Ha a <pack-file> nincs megadva, fontold
+	meg a --keep használatát, hogy elkerüld a versenyhelyzetet e
+	folyamat és a 'git repack' között.
 
 --fix-thin::
-	Fix a "thin" pack produced by `git pack-objects --thin` (see
-	linkgit:git-pack-objects[1] for details) by adding the
-	excluded objects the deltified objects are based on to the
-	pack. This option only makes sense in conjunction with --stdin.
+	A `git pack-objects --thin` által előállított "thin" (vékony) pack
+	javítása (l. linkgit:git-pack-objects[1] a részletekért) úgy, hogy
+	a packhez hozzáadja azokat a kizárt objektumokat, amelyeken a
+	deltásított objektumok alapulnak. Ennek az opciónak csak a --stdin
+	mellett van értelme.
 
 --keep::
-	Before moving the index into its final destination
-	create an empty .keep file for the associated pack file.
-	This option is usually necessary with --stdin to prevent a
-	simultaneous 'git repack' process from deleting
-	the newly constructed pack and index before refs can be
-	updated to use objects contained in the pack.
+	Mielőtt az indexet a végleges helyére mozgatná, egy üres .keep
+	fájl létrehozása a hozzá tartozó packfájlhoz. Ez az opció a
+	--stdin mellett általában szükséges, hogy megakadályozza, hogy egy
+	egyidejűleg futó 'git repack' folyamat törölje az újonnan
+	felépített packet és indexet, mielőtt a refek frissülhetnének a
+	packben lévő objektumok használatára.
 
 --keep=<msg>::
-	Like --keep, create a .keep file before moving the index into
-	its final destination.  However, instead of creating an empty file
-	place '<msg>' followed by an LF into the .keep file.  The '<msg>'
-	message can later be searched for within all .keep files to
-	locate any which have outlived their usefulness.
+	A --keep-hez hasonlóan .keep fájl létrehozása az index végleges
+	helyére mozgatása előtt.  Azonban üres fájl létrehozása helyett a
+	.keep fájlba a '<msg>'-t, majd egy LF-et helyez el.  A '<msg>'
+	üzenet később kikereshető az összes .keep fájlban, hogy megtaláld
+	azokat, amelyek túlélték a hasznosságukat.
 
 --index-version=<version>[,<offset>]::
-	This is intended to be used by the test suite only. It allows
-	to force the version for the generated pack index, and to force
-	64-bit index entries on objects located above the given offset.
+	Ez csak a tesztkészlet általi használatra szolgál. Lehetővé teszi
+	a generált pack-index verziójának kikényszerítését, és a 64 bites
+	indexbejegyzések kikényszerítését a megadott eltolás felett
+	elhelyezkedő objektumokon.
 
 --strict[=<msg-id>=<severity>...]::
-	Die, if the pack contains broken objects or links. An optional
-	comma-separated list of `<msg-id>=<severity>` can be passed to change
-	the severity of some possible issues, e.g.,
-	 `--strict="missingEmail=ignore,badTagName=error"`. See the entry for the
-	`fsck.<msg-id>` configuration options in linkgit:git-fsck[1] for more
-	information on the possible values of `<msg-id>` and `<severity>`.
+	Kilép hibával, ha a pack törött objektumokat vagy linkeket
+	tartalmaz. Átadható egy opcionális, vesszővel elválasztott
+	`<msg-id>=<severity>` lista egyes lehetséges problémák
+	súlyosságának megváltoztatásához, pl.
+	 `--strict="missingEmail=ignore,badTagName=error"`. A `<msg-id>` és
+	a `<severity>` lehetséges értékeiről további információért l. a
+	`fsck.<msg-id>` konfigurációs opciók bejegyzését a linkgit:git-fsck[1]-ben.
 
 --progress-title::
-	For internal use only.
+	Csak belső használatra.
 +
-Set the title of the progress bar. The title is "Receiving objects" by
-default and "Indexing objects" when `--stdin` is specified.
+A folyamatjelző sáv címének beállítása. A cím alapból "Receiving objects",
+és "Indexing objects", ha a `--stdin` meg van adva.
 
 --check-self-contained-and-connected::
-	Die if the pack contains broken links. For internal use only.
+	Kilép hibával, ha a pack törött linkeket tartalmaz. Csak belső
+	használatra.
 
 --fsck-objects[=<msg-id>=<severity>...]::
-	Die if the pack contains broken objects, but unlike `--strict`, don't
-	choke on broken links. If the pack contains a tree pointing to a
-	.gitmodules blob that does not exist, prints the hash of that blob
-	(for the caller to check) after the hash that goes into the name of the
-	pack/idx file (see "Notes").
+	Kilép hibával, ha a pack törött objektumokat tartalmaz, de a
+	`--strict`-kel ellentétben nem akad fenn a törött linkeken. Ha a
+	pack tartalmaz egy tree-t, amely egy nem létező .gitmodules blobra
+	mutat, kiírja annak a blobnak a hash-ét (hogy a hívó ellenőrizze) a
+	pack/idx fájl nevébe kerülő hash után (l. "Notes").
 +
-An optional comma-separated list of `<msg-id>=<severity>` can be passed to
-change the severity of some possible issues, e.g.,
-`--fsck-objects="missingEmail=ignore,badTagName=ignore"`. See the entry for the
-`fsck.<msg-id>` configuration options in linkgit:git-fsck[1] for more
-information on the possible values of `<msg-id>` and `<severity>`.
+Átadható egy opcionális, vesszővel elválasztott `<msg-id>=<severity>`
+lista egyes lehetséges problémák súlyosságának megváltoztatásához, pl.
+`--fsck-objects="missingEmail=ignore,badTagName=ignore"`. A `<msg-id>` és
+a `<severity>` lehetséges értékeiről további információért l. a
+`fsck.<msg-id>` konfigurációs opciók bejegyzését a linkgit:git-fsck[1]-ben.
 
 --threads=<n>::
-	Specifies the number of threads to spawn when resolving
-	deltas. This requires that index-pack be compiled with
-	pthreads otherwise this option is ignored with a warning.
-	This is meant to reduce packing time on multiprocessor
-	machines. The required amount of memory for the delta search
-	window is however multiplied by the number of threads.
-	Specifying 0 will cause Git to auto-detect the number of CPU's
-	and use maximum 3 threads.
+	Megadja a delták feloldásakor indítandó szálak számát. Ehhez az
+	kell, hogy az index-pack pthreads-szel legyen fordítva, egyébként
+	ez az opció figyelmen kívül marad egy figyelmeztetéssel.  Ez a
+	csomagolási idő csökkentésére szolgál többprocesszoros gépeken. A
+	delta-keresési ablakhoz szükséges memória mennyisége azonban
+	megszorzódik a szálak számával.  A 0 megadása hatására a Git
+	automatikusan felismeri a CPU-k számát, és legfeljebb 3 szálat
+	használ.
 
 --max-input-size=<size>::
-	Die, if the pack is larger than <size>.
+	Kilép hibával, ha a pack nagyobb, mint <size>.
 
 --object-format=<hash-algorithm>::
-	Specify the given object format (hash algorithm) for the pack.  The valid
-	values are 'sha1' and (if enabled) 'sha256'.  The default is the algorithm for
-	the current repository (set by `extensions.objectFormat`), or 'sha1' if no
-	value is set or outside a repository.
+	A megadott objektumformátum (hash-algoritmus) megadása a packhez.
+	Az érvényes értékek a 'sha1' és (ha engedélyezve van) a 'sha256'.
+	Az alapértelmezés az aktuális repository algoritmusa (amelyet az
+	`extensions.objectFormat` állít be), vagy a 'sha1', ha nincs érték
+	beállítva, vagy repository-n kívül vagy.
 +
-This option cannot be used with --stdin.
+Ez az opció nem használható a --stdin-nel.
 +
 include::object-format-disclaimer.adoc[]
 
 --promisor[=<message>]::
-	Before committing the pack-index, create a .promisor file for this
-	pack. Particularly helpful when writing a promisor pack with --fix-thin
-	since the name of the pack is not final until the pack has been fully
-	written. If a `<message>` is provided, then that content will be
-	written to the .promisor file for future reference. See
-	link:technical/partial-clone.html[partial clone] for more information.
+	A pack-index véglegesítése előtt egy .promisor fájl létrehozása
+	ehhez a packhez. Különösen hasznos, amikor promisor packet írsz a
+	--fix-thinnel, mivel a pack neve nem végleges addig, amíg a pack
+	teljesen ki nincs írva. Ha egy `<message>` meg van adva, akkor az a
+	tartalom a .promisor fájlba íródik későbbi hivatkozás céljából.
+	További információért l. link:technical/partial-clone.html[partial clone].
 +
-Also, if there are objects in the given pack that references non-promisor
-objects (in the repo), repacks those non-promisor objects into a promisor
-pack. This avoids a situation in which a repo has non-promisor objects that are
-accessible through promisor objects.
+Továbbá, ha a megadott packben vannak olyan objektumok, amelyek
+nem-promisor objektumokra hivatkoznak (a repóban), azokat a
+nem-promisor objektumokat egy promisor packbe csomagolja újra. Ez
+elkerül egy olyan helyzetet, amelyben egy repónak vannak nem-promisor
+objektumai, amelyek promisor objektumokon keresztül elérhetők.
 +
-Requires <pack-file> to not be specified.
+Megköveteli, hogy a <pack-file> ne legyen megadva.
 
 NOTES
 -----
 
-Once the index has been created, the hash that goes into the name of
-the pack/idx file is printed to stdout. If --stdin was
-also used then this is prefixed by either "pack\t", or "keep\t" if a
-new .keep file was successfully created. This is useful to remove a
-.keep file used as a lock to prevent the race with 'git repack'
-mentioned above.
+Miután az index létrejött, a pack/idx fájl nevébe kerülő hash az
+stdoutra íródik. Ha a --stdin is használva volt, akkor ez elé vagy
+"pack\t", vagy – ha egy új .keep fájl sikeresen létrejött – "keep\t"
+kerül. Ez hasznos a fent említett 'git repack'-kel való versenyhelyzet
+megakadályozására zárként használt .keep fájl eltávolításához.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

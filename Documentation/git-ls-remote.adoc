@@ -3,7 +3,7 @@ git-ls-remote(1)
 
 NAME
 ----
-git-ls-remote - List references in a remote repository
+git-ls-remote - Egy remote repository referenciáinak listázása
 
 
 SYNOPSIS
@@ -15,8 +15,8 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Displays references available in a remote repository along with the associated
-commit IDs.
+Egy remote repository-ban elérhető referenciák megjelenítése a hozzájuk
+tartozó commit-azonosítókkal együtt.
 
 
 OPTIONS
@@ -25,101 +25,101 @@ OPTIONS
 --branches::
 -t::
 --tags::
-	Limit to only local branches and local tags, respectively.
-	These options are _not_ mutually exclusive; when given
-	both, references stored in refs/heads and refs/tags are
-	displayed.  Note that `--heads` and `-h` are deprecated
-	synonyms for `--branches` and `-b` and may be removed in
-	the future.  Also note that `git ls-remote -h` used without
-	anything else on the command line gives help, consistent
-	with other git subcommands.
+	Korlátozás csak a lokális branchekre, illetve a lokális tagekre.
+	Ezek az opciók _nem_ zárják ki egymást; ha mindkettő meg van adva, a
+	refs/heads és a refs/tags alatt tárolt referenciák jelennek meg.
+	Vedd figyelembe, hogy a `--heads` és a `-h` a `--branches` és a `-b`
+	elavult szinonimái, és a jövőben eltávolításra kerülhetnek.  Vedd
+	figyelembe azt is, hogy a `git ls-remote -h`, ha a parancssorban
+	nincs mellette semmi más, súgót ad, összhangban a többi git
+	alparanccsal.
 
 --refs::
-	Do not show peeled tags or pseudorefs like `HEAD` in the output.
+	Ne jelenjenek meg a kimenetben a lehántott tagek vagy az olyan pszeudorefek, mint a `HEAD`.
 
 -q::
 --quiet::
-	Do not print remote URL to stderr.
+	Ne írja ki a remote URL-t az stderr-re.
 
 --upload-pack=<exec>::
-	Specify the full path of 'git-upload-pack' on the remote
-	host. This allows listing references from repositories accessed via
-	SSH and where the SSH daemon does not use the PATH configured by the
-	user.
+	A 'git-upload-pack' teljes útvonalának megadása a remote hoszton.
+	Ez lehetővé teszi a referenciák listázását az SSH-n keresztül elért
+	repository-kból, ahol az SSH daemon nem a felhasználó által konfigurált
+	PATH-t használja.
 
 --exit-code::
-	Exit with status "2" when no matching refs are found in the remote
-	repository. Usually the command exits with status "0" to indicate
-	it successfully talked with the remote repository, whether it
-	found any matching refs.
+	Kilépés "2" státusszal, ha nem található illeszkedő ref a remote
+	repository-ban. A parancs általában "0" státusszal lép ki, jelezve,
+	hogy sikeresen kommunikált a remote repository-val, függetlenül attól,
+	hogy talált-e illeszkedő refet.
 
 --get-url::
-	Expand the URL of the given remote repository taking into account any
-	"url.<base>.insteadOf" config setting (See linkgit:git-config[1]) and
-	exit without talking to the remote.
+	A megadott remote repository URL-jének kifejtése, figyelembe véve
+	bármely "url.<base>.insteadOf" config-beállítást (l. linkgit:git-config[1]),
+	majd kilépés a remote-tal való kommunikáció nélkül.
 
 --symref::
-	In addition to the object pointed by it, show the underlying
-	ref pointed by it when showing a symbolic ref.  Currently,
-	upload-pack only shows the symref HEAD, so it will be the only
-	one shown by ls-remote.
+	Szimbolikus ref megjelenítésekor az általa mutatott objektumon túl
+	az általa mutatott alapul fekvő ref megjelenítése is.  Jelenleg az
+	upload-pack csak a HEAD symrefet mutatja, így ez lesz az egyetlen,
+	amelyet az ls-remote megjelenít.
 
 --sort=<key>::
-	Sort based on the key given. Prefix `-` to sort in descending order
-	of the value. Supports "version:refname" or "v:refname" (tag names
-	are treated as versions). The "version:refname" sort order can also
-	be affected by the "versionsort.suffix" configuration variable.
-	See linkgit:git-for-each-ref[1] for more sort options, but be aware
-	keys like `committerdate` that require access to the objects
-	themselves will not work for refs whose objects have not yet been
-	fetched from the remote, and will give a `missing object` error.
+	Rendezés a megadott kulcs alapján. Tegyél elé `-`-t az érték szerinti
+	csökkenő rendezéshez. Támogatja a "version:refname"-et vagy a
+	"v:refname"-et (a tagnevek verzióként kezelődnek). A "version:refname"
+	rendezési sorrendet a "versionsort.suffix" konfigurációs változó is
+	befolyásolhatja.  További rendezési opciókért l. a
+	linkgit:git-for-each-ref[1]-et, de vedd figyelembe, hogy az olyan
+	kulcsok, mint a `committerdate`, amelyek magukhoz az objektumokhoz
+	való hozzáférést igénylik, nem működnek azoknál a refeknél, amelyek
+	objektumai még nem lettek lefetchelve a remote-ról, és `missing object`
+	hibát adnak.
 
 -o <option>::
 --server-option=<option>::
-	Transmit the given string to the server when communicating using
-	protocol version 2.  The given string must not contain a NUL or LF
-	character.
-	When multiple `--server-option=<option>` are given, they are all
-	sent to the other side in the order listed on the command line.
-	When no `--server-option=<option>` is given from the command line,
-	the values of configuration variable `remote.<name>.serverOption`
-	are used instead.
+	A megadott karakterlánc továbbítása a szervernek, ha a kommunikáció
+	a 2-es protokollverzióval történik.  A megadott karakterlánc nem
+	tartalmazhat NUL vagy LF karaktert.
+	Ha több `--server-option=<option>` van megadva, mind elküldésre kerül
+	a másik oldalnak a parancssorban felsorolt sorrendben.
+	Ha a parancssorból nincs `--server-option=<option>` megadva, helyette
+	a `remote.<name>.serverOption` konfigurációs változó értékei
+	használatosak.
 
 <repository>::
-	The "remote" repository to query.  This parameter can be
-	either a URL or the name of a remote (see the GIT URLS and
-	REMOTES sections of linkgit:git-fetch[1]).
+	A lekérdezendő „remote" repository.  Ez a paraméter lehet URL vagy egy
+	remote neve (l. a linkgit:git-fetch[1] GIT URLS és REMOTES szakaszait).
 
 <patterns>...::
-	When unspecified, all references, after filtering done
-	with --heads and --tags, are shown.  When <patterns>... are
-	specified, only references matching one or more of the given
-	patterns are displayed. Each pattern is interpreted as a glob
-	(see `glob` in linkgit:gitglossary[7]) which is matched against
-	the "tail" of a ref, starting either from the start of the ref
-	(so a full name like `refs/heads/foo` matches) or from a slash
-	separator (so `bar` matches `refs/heads/bar` but not
-	`refs/heads/foobar`).
+	Ha nincs megadva, az összes referencia megjelenik, a --heads és a
+	--tags szerinti szűrés után.  Ha <patterns>... van megadva, csak a
+	megadott minták egyikére vagy többjére illeszkedő referenciák
+	jelennek meg. Minden minta globként értelmeződik (l. a `glob`-ot a
+	linkgit:gitglossary[7]-ben), amely a ref „végére" illeszkedik, vagy a
+	ref elejétől (tehát egy teljes név, mint a `refs/heads/foo`,
+	illeszkedik), vagy egy perjel-elválasztótól kezdve (tehát a `bar`
+	illeszkedik a `refs/heads/bar`-ra, de nem a `refs/heads/foobar`-ra).
 
 OUTPUT
 ------
 
-The output is in the format:
+A kimenet formátuma:
 
 ------------
 <oid> TAB <ref> LF
 ------------
 
-When showing an annotated tag, unless `--refs` is given, two such
-lines are shown: one with the refname for the tag itself as `<ref>`,
-and another with `<ref>` followed by `^{}`. The `<oid>` on the latter
-line shows the name of the object the tag points at.
+Annotált tag megjelenítésekor – hacsak nincs megadva a `--refs` – két
+ilyen sor jelenik meg: az egyikben magának a tagnek a refneve szerepel
+`<ref>`-ként, a másikban a `<ref>`-et `^{}` követi. Az utóbbi soron
+lévő `<oid>` annak az objektumnak a nevét mutatja, amelyre a tag mutat.
 
 EXAMPLES
 --------
 
-* List all references (including symbolics and pseudorefs), peeling
-  tags:
+* Az összes referencia listázása (a szimbolikusakat és a pszeudorefeket
+  is beleértve), a tagek lehántásával:
 +
 ----
 $ git ls-remote
@@ -130,7 +130,7 @@ d4ca2e3147b409459955613c152220f4db848ee1	refs/tags/v2.40.0
 73876f4861cd3d187a4682290ab75c9dccadbc56	refs/tags/v2.40.0^{}
 ----
 
-* List all references matching given patterns:
+* A megadott mintákra illeszkedő összes referencia listázása:
 +
 ----
 $ git ls-remote http://www.kernel.org/pub/scm/git/git.git master seen rc
@@ -138,7 +138,7 @@ $ git ls-remote http://www.kernel.org/pub/scm/git/git.git master seen rc
 c781a84b5204fb294c9ccc79f8b3baceeb32c061	refs/heads/seen
 ----
 
-* List only tags matching a given wildcard pattern:
+* Csak egy megadott helyettesítő karakteres mintára illeszkedő tagek listázása:
 +
 ----
 $ git ls-remote --tags http://www.kernel.org/pub/scm/git/git.git v\*
@@ -154,4 +154,4 @@ linkgit:git-check-ref-format[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -108,7 +108,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
 | git-http-push.adoc | [x] |  | 2026-09-10 |
 | git-imap-send.adoc | [ ] |  |  |
-| git-index-pack.adoc | [ ] |  |  |
+| git-index-pack.adoc | [x] |  | 2026-09-10 |
 | git-init-db.adoc | [x] |  | 2026-09-10 |
 | git-init.adoc | [ ] |  |  |
 | git-instaweb.adoc | [x] |  | 2026-09-10 |
@@ -116,8 +116,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-last-modified.adoc | [x] |  | 2026-09-10 |
 | git-log.adoc | [ ] |  |  |
 | git-ls-files.adoc | [ ] |  |  |
-| git-ls-remote.adoc | [ ] |  |  |
-| git-ls-tree.adoc | [ ] |  |  |
+| git-ls-remote.adoc | [x] |  | 2026-09-10 |
+| git-ls-tree.adoc | [x] |  | 2026-09-10 |
 | git-mailinfo.adoc | [x] |  | 2026-09-10 |
 | git-mailsplit.adoc | [x] |  | 2026-09-10 |
 | git-maintenance.adoc | [ ] |  |  |
@@ -149,13 +149,13 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-read-tree.adoc | [ ] |  |  |
 | git-rebase.adoc | [ ] |  |  |
 | git-receive-pack.adoc | [ ] |  |  |
-| git-reflog.adoc | [ ] |  |  |
+| git-reflog.adoc | [x] |  | 2026-09-10 |
 | git-refs.adoc | [x] |  | 2026-09-10 |
 | git-remote-ext.adoc | [x] |  | 2026-09-10 |
 | git-remote-fd.adoc | [x] |  | 2026-09-10 |
 | git-remote.adoc | [ ] |  |  |
 | git-repack.adoc | [ ] |  |  |
-| git-replace.adoc | [ ] |  |  |
+| git-replace.adoc | [x] |  | 2026-09-10 |
 | git-replay.adoc | [ ] |  |  |
 | git-repo.adoc | [x] |  | 2026-09-10 |
 | git-request-pull.adoc | [x] |  | 2026-09-10 |
@@ -164,10 +164,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-restore.adoc | [ ] |  |  |
 | git-rev-list.adoc | [x] |  | 2026-09-10 |
 | git-rev-parse.adoc | [ ] |  |  |
-| git-revert.adoc | [ ] |  |  |
+| git-revert.adoc | [x] |  | 2026-09-10 |
 | git-rm.adoc | [ ] |  |  |
 | git-send-email.adoc | [ ] |  |  |
-| git-send-pack.adoc | [ ] |  |  |
+| git-send-pack.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n.adoc | [x] |  | 2026-09-10 |
 | git-sh-setup.adoc | [x] |  | 2026-09-10 |
@@ -214,14 +214,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | DecisionMaking.adoc | [x] |  | 2026-09-10 |
 | MyFirstContribution.adoc | [ ] |  |  |
 | MyFirstObjectWalk.adoc | [ ] |  |  |
-| ReviewingGuidelines.adoc | [ ] |  |  |
+| ReviewingGuidelines.adoc | [x] |  | 2026-09-10 |
 | ToolsForGit.adoc | [x] |  | 2026-09-10 |
 | blame-options.adoc | [x] |  | 2026-09-10 |
 | config.adoc | [ ] |  |  |
 | date-formats.adoc | [x] |  | 2026-09-10 |
 | diff-algorithm-option.adoc | [x] |  | 2026-09-10 |
 | diff-context-options.adoc | [x] |  | 2026-09-10 |
-| diff-format.adoc | [ ] |  |  |
+| diff-format.adoc | [x] |  | 2026-09-10 |
 | diff-generate-patch.adoc | [ ] |  |  |
 | diff-options.adoc | [ ] |  |  |
 | fetch-options.adoc | [ ] |  |  |
@@ -241,7 +241,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitfaq.adoc | [ ] |  |  |
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
 | gitformat-chunk.adoc | [x] |  | 2026-09-10 |
-| gitformat-commit-graph.adoc | [ ] |  |  |
+| gitformat-commit-graph.adoc | [x] |  | 2026-09-10 |
 | gitformat-index.adoc | [ ] |  |  |
 | gitformat-loose.adoc | [x] |  | 2026-09-10 |
 | gitformat-pack.adoc | [ ] |  |  |
@@ -661,3 +661,17 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   (a `git-clone.adoc` precedense, 23. blokk), a `<<REMOTES,REMOTES>>` és
   `<<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>>` angolul maradt. Orchestrátor végezte közvetlenül.
   Részletek: `glossary-git-git-docs.md` „26. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel; `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc`
+  kihagyva): `git-ls-remote.adoc`, `git-send-pack.adoc`, `git-reflog.adoc`, `git-index-pack.adoc`,
+  `git-ls-tree.adoc`, `git-replace.adoc`, `git-revert.adoc`, `ReviewingGuidelines.adoc`,
+  `diff-format.adoc`, `gitformat-commit-graph.adoc`. A `git-commit-graph.adoc` (175 sor) a
+  méretlistán ide esne, de már `[x]` (2026-09-04) — helyette a `gitformat-commit-graph.adoc` (186
+  sor) került be. Defenzív `[[...]]` anchorok: `git-reflog.adoc` (4 db, „Opciók a `show`-hoz" stb.
+  `~~~~` alcímek), `git-ls-tree.adoc` (`[[_output_format]]`), `git-revert.adoc` (0),
+  `ReviewingGuidelines.adoc` (9 db, NEM man page — minden cím fordult), `diff-format.adoc` (3 db),
+  `gitformat-commit-graph.adoc` (2 db `==` cím; a bináris format-spec törzse a
+  reftable/hash-function-transition precedens szerint bájtazonosan angolul maradt). `SPECIFYING
+  THE REFS` (`git-send-pack.adoc`), `MERGE STRATEGIES` (prózahivatkozás a `git-revert.adoc`-ban),
+  `FIELD NAMES` (`git-ls-tree.adoc`) a VÉGLEGES DÖNTÉS szerint angolul. Orchestrátor végezte
+  közvetlenül. Részletek: `glossary-git-git-docs.md` „27. blokk".

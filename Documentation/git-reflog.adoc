@@ -3,7 +3,7 @@ git-reflog(1)
 
 NAME
 ----
-git-reflog - Manage reflog information
+git-reflog - Reflog-információk kezelése
 
 
 SYNOPSIS
@@ -22,140 +22,147 @@ git reflog expire [--expire=<time>] [--expire-unreachable=<time>]
 
 DESCRIPTION
 -----------
-This command manages the information recorded in the reflogs.
+Ez a parancs a reflogokban rögzített információkat kezeli.
 
-Reference logs, or "reflogs", record when the tips of branches and
-other references were updated in the local repository. Reflogs are
-useful in various Git commands, to specify the old value of a
-reference. For example, `HEAD@{2}` means "where HEAD used to be two
-moves ago", `master@{one.week.ago}` means "where master used to point
-to one week ago in this local repository", and so on. See
-linkgit:gitrevisions[7] for more details.
+A referencianaplók, avagy „reflogok", rögzítik, hogy a branchek és más
+referenciák csúcsai mikor frissültek a lokális repository-ban. A reflogok
+számos Git parancsban hasznosak egy referencia korábbi értékének
+megadására. Például a `HEAD@{2}` azt jelenti: „ahol a HEAD két mozdulattal
+ezelőtt volt", a `master@{one.week.ago}` azt jelenti: „ahová a master egy
+héttel ezelőtt mutatott ebben a lokális repository-ban", és így tovább.
+További részletekért l. linkgit:gitrevisions[7].
 
-The command takes various subcommands, and different options
-depending on the subcommand:
+A parancs különféle alparancsokat fogad, és az alparancstól függően
+eltérő opciókat:
 
-The "show" subcommand (which is also the default, in the absence of
-any subcommands) shows the log of the reference provided in the
-command-line (or `HEAD`, by default). The reflog covers all recent
-actions, and in addition the `HEAD` reflog records branch switching.
-`git reflog show` is an alias for `git log -g --abbrev-commit
---pretty=oneline`; see linkgit:git-log[1] for more information.
+A "show" alparancs (amely egyben az alapértelmezett is, alparancs
+hiányában) a parancssorban megadott referencia (vagy alapból a `HEAD`)
+naplóját mutatja. A reflog minden friss műveletet lefed, és ezenfelül a
+`HEAD` reflog rögzíti a branchváltásokat is.  A `git reflog show` a
+`git log -g --abbrev-commit --pretty=oneline` álneve; további
+információért l. linkgit:git-log[1].
 
-The "list" subcommand lists all refs which have a corresponding reflog.
+A "list" alparancs felsorolja az összes refet, amelyhez tartozik reflog.
 
-The "exists" subcommand checks whether a ref has a reflog.  It exits
-with zero status if the reflog exists, and non-zero status if it does
-not.
+Az "exists" alparancs ellenőrzi, hogy egy refnek van-e reflogja.  Nulla
+státusszal lép ki, ha a reflog létezik, és nem nulla státusszal, ha nem.
 
-The "write" subcommand writes a single entry to the reflog of a given
-reference. This new entry is appended to the reflog and will thus become
-the most recent entry. The reference name must be fully qualified. Both the old
-and new object IDs must not be abbreviated and must point to existing objects.
-The reflog message gets normalized.
+A "write" alparancs egyetlen bejegyzést ír egy adott referencia
+reflogjába. Ez az új bejegyzés a refloghoz fűződik, és így a
+legfrissebb bejegyzéssé válik. A referencianévnek teljesen minősítettnek
+kell lennie. Sem a régi, sem az új objektumazonosító nem lehet
+rövidített, és létező objektumokra kell mutatniuk.  A reflog-üzenet
+normalizálásra kerül.
 
-The "delete" subcommand deletes single entries from the reflog, but
-not the reflog itself. Its argument must be an _exact_ entry (e.g. "`git
-reflog delete master@{2}`"). This subcommand is also typically not used
-directly by end users.
+A "delete" alparancs egyes bejegyzéseket töröl a reflogból, de magát a
+reflogot nem. Az argumentumának egy _pontos_ bejegyzésnek kell lennie
+(pl. "`git reflog delete master@{2}`"). Ezt az alparancsot szintén
+jellemzően nem közvetlenül a végfelhasználók használják.
 
-The "drop" subcommand completely removes the reflog for the specified
-references. This is in contrast to "expire" and "delete", both of which
-can be used to delete reflog entries, but not the reflog itself.
+A "drop" alparancs teljesen eltávolítja a megadott referenciák
+reflogját. Ez ellentétben áll az "expire"-rel és a "delete"-tel, amelyek
+mindegyike reflog-bejegyzések törlésére használható, de magának a
+reflognak a törlésére nem.
 
-The "expire" subcommand prunes older reflog entries. Entries older
-than `expire` time, or entries older than `expire-unreachable` time
-and not reachable from the current tip, are removed from the reflog.
-This is typically not used directly by end users -- instead, see
-linkgit:git-gc[1].
+Az "expire" alparancs metszi a régebbi reflog-bejegyzéseket. Az
+`expire` időnél régebbi bejegyzések, vagy az `expire-unreachable` időnél
+régebbi és az aktuális csúcsból el nem érhető bejegyzések eltávolításra
+kerülnek a reflogból.  Ezt jellemzően nem közvetlenül a végfelhasználók
+használják -- helyette l. linkgit:git-gc[1].
 
 OPTIONS
 -------
 
-Options for `show`
-~~~~~~~~~~~~~~~~~~
+[[_options_for_show]]
+Opciók a `show`-hoz
+~~~~~~~~~~~~~~~~~~~
 
-`git reflog show` accepts any of the options accepted by `git log`.
-
-
-Options for `delete`
-~~~~~~~~~~~~~~~~~~~~
-
-`git reflog delete` accepts options `--updateref`, `--rewrite`, `-n`,
-`--dry-run`, and `--verbose`, with the same meanings as when they are
-used with `expire`.
-
-Options for `drop`
-~~~~~~~~~~~~~~~~~~
-
-`--all`::
-	Drop the reflogs of all references from all worktrees.
-
-`--single-worktree`::
-	By default when `--all` is specified, reflogs from all working
-	trees are dropped. This option limits the processing to reflogs
-	from the current working tree only.
+A `git reflog show` elfogadja bármelyik olyan opciót, amelyet a
+`git log` elfogad.
 
 
-Options for `expire`
-~~~~~~~~~~~~~~~~~~~~
+[[_options_for_delete]]
+Opciók a `delete`-hez
+~~~~~~~~~~~~~~~~~~~~~
+
+A `git reflog delete` elfogadja a `--updateref`, `--rewrite`, `-n`,
+`--dry-run` és `--verbose` opciókat, ugyanazzal a jelentéssel, mint
+amikor az `expire`-rel használják őket.
+
+[[_options_for_drop]]
+Opciók a `drop`-hoz
+~~~~~~~~~~~~~~~~~~~
 
 `--all`::
-	Process the reflogs of all references.
+	Az összes referencia reflogjának eldobása az összes worktree-ből.
 
 `--single-worktree`::
-	By default when `--all` is specified, reflogs from all working
-	trees are processed. This option limits the processing to reflogs
-	from the current working tree only.
+	Alapból, amikor a `--all` meg van adva, az összes working tree
+	reflogja eldobásra kerül. Ez az opció a feldolgozást csak az
+	aktuális working tree reflogjaira korlátozza.
+
+
+[[_options_for_expire]]
+Opciók az `expire`-hez
+~~~~~~~~~~~~~~~~~~~~~~
+
+`--all`::
+	Az összes referencia reflogjának feldolgozása.
+
+`--single-worktree`::
+	Alapból, amikor a `--all` meg van adva, az összes working tree
+	reflogja feldolgozásra kerül. Ez az opció a feldolgozást csak az
+	aktuális working tree reflogjaira korlátozza.
 
 `--expire=<time>`::
-	Prune entries older than the specified time. If this option is
-	not specified, the expiration time is taken from the
-	configuration setting `gc.reflogExpire`, which in turn
-	defaults to 90 days. `--expire=all` prunes entries regardless
-	of their age; `--expire=never` turns off pruning of reachable
-	entries (but see `--expire-unreachable`).
+	A megadott időnél régebbi bejegyzések metszése. Ha ez az opció
+	nincs megadva, a lejárati idő a `gc.reflogExpire` konfigurációs
+	beállításból származik, amely viszont alapból 90 nap. A
+	`--expire=all` a bejegyzéseket a koruktól függetlenül metszi; a
+	`--expire=never` kikapcsolja az elérhető bejegyzések metszését
+	(de l. a `--expire-unreachable`-t).
 
 `--expire-unreachable=<time>`::
-	Prune entries older than `<time>` that are not reachable from
-	the current tip of the branch. If this option is not
-	specified, the expiration time is taken from the configuration
-	setting `gc.reflogExpireUnreachable`, which in turn defaults
-	to 30 days. `--expire-unreachable=all` prunes unreachable
-	entries regardless of their age; `--expire-unreachable=never`
-	turns off early pruning of unreachable entries (but see
-	`--expire`).
+	A `<time>`-nál régebbi olyan bejegyzések metszése, amelyek nem
+	érhetők el a branch aktuális csúcsából. Ha ez az opció nincs
+	megadva, a lejárati idő a `gc.reflogExpireUnreachable`
+	konfigurációs beállításból származik, amely viszont alapból 30 nap.
+	A `--expire-unreachable=all` az el nem érhető bejegyzéseket a
+	koruktól függetlenül metszi; a `--expire-unreachable=never`
+	kikapcsolja az el nem érhető bejegyzések korai metszését (de l. a
+	`--expire`-t).
 
 `--updateref`::
-	Update the reference to the value of the top reflog entry (i.e.
-	<ref>@\{0\}) if the previous top entry was pruned.  (This
-	option is ignored for symbolic references.)
+	A referencia frissítése a legfelső reflog-bejegyzés értékére (azaz
+	<ref>@\{0\}), ha a korábbi legfelső bejegyzés metszésre került.  (Ez
+	az opció figyelmen kívül marad a szimbolikus referenciáknál.)
 
 `--rewrite`::
-	If a reflog entry's predecessor is pruned, adjust its "old"
-	SHA-1 to be equal to the "new" SHA-1 field of the entry that
-	now precedes it.
+	Ha egy reflog-bejegyzés elődjét metszik, a bejegyzés "old" SHA-1-ét
+	úgy állítja be, hogy egyenlő legyen az őt most megelőző bejegyzés
+	"new" SHA-1 mezőjével.
 
 `--stale-fix`::
-	Prune any reflog entries that point to "broken commits". A
-	broken commit is a commit that is not reachable from any of
-	the reference tips and that refers, directly or indirectly, to
-	a missing commit, tree, or blob object.
+	Minden olyan reflog-bejegyzés metszése, amely „törött commitokra"
+	mutat. A törött commit olyan commit, amely egyetlen
+	referencia-csúcsból sem érhető el, és amely közvetlenül vagy
+	közvetve egy hiányzó commitra, tree-re vagy blob objektumra
+	hivatkozik.
 +
-This computation involves traversing all the reachable objects, i.e. it
-has the same cost as 'git prune'.  It is primarily intended to fix
-corruption caused by garbage collecting using older versions of Git,
-which didn't protect objects referred to by reflogs.
+Ez a számítás az összes elérhető objektum bejárásával jár, azaz
+ugyanolyan költséges, mint a 'git prune'.  Elsősorban a Git régebbi
+verzióival végzett szemétgyűjtés által okozott sérülés javítására
+szolgál, amelyek nem védték a reflogok által hivatkozott objektumokat.
 
 `-n`::
 `--dry-run`::
-	Do not actually prune any entries; just show what would have
-	been pruned.
+	Ne metssen ténylegesen egyetlen bejegyzést sem; csak mutassa meg,
+	mit metszett volna.
 
 `--verbose`::
-	Print extra information on screen.
+	Extra információ kiírása a képernyőre.
 
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

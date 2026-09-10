@@ -1972,3 +1972,146 @@ formátum-spec (`gitformat-loose` szekció 5, `gitformat-chunk` szekció 5).
 - Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`--`/`====`/`~~~~` határolók és man-page
   szekció-aláhúzások párban/pontos hosszal, az `ifdef::`/`ifndef::`/`endif::` számlálók egyeznek
   (`pretty-options` 3+3, `pull-fetch-param` 4+4, a többi 0), a bekezdéshatárok megtartva.
+
+## 27. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–21./23./25./26. blokkban. Orchestrátor fordította közvetlenül,
+subagent nélkül. Fájlok: `git-ls-remote.adoc`, `git-send-pack.adoc`, `git-reflog.adoc`,
+`git-index-pack.adoc`, `git-ls-tree.adoc`, `git-replace.adoc`, `git-revert.adoc`,
+`ReviewingGuidelines.adoc`, `diff-format.adoc`, `gitformat-commit-graph.adoc`. A `git-commit-graph.adoc`
+(175 sor) a méretlistán ebbe a batchbe esne, de már `[x]` volt (2026-09-04, friss `Read`-del
+megerősítve, hogy teljesen kész) — helyette a `gitformat-commit-graph.adoc` (186 sor, 8089 byte)
+került be. Nyolc man page (`git-ls-remote`, `git-send-pack`, `git-reflog`, `git-index-pack`,
+`git-ls-tree`, `git-replace`, `git-revert`, `gitformat-commit-graph` [5]), egy option-fragmens
+(`diff-format`, a `git-diff*`-ok `include`-olják), egy NEM man page guide (`ReviewingGuidelines`).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| review (fn / ige / reviewer) | **„átnézés" / „átnéz" / „átnéző"** | `ReviewingGuidelines.adoc` — új, git-docs-specifikus általános szakszó (a doksi kulcsfogalma); a `Reviewed-by:` trailer bájtazonosan angolul marad |
+| contributor / to contribute | **marad „contributor"** angolul (0./24. blokk); ige: **„hozzájárul"** | `ReviewingGuidelines.adoc` |
+| cover letter | **marad „cover letter"** angolul (a doksi maga definiálja Terminológia-tételként); a „kísérőlevél" alak is előfordul folyó szövegben szinonimaként | `ReviewingGuidelines.adoc` |
+| "blocking" / "non-blocking" (review-megjegyzés minősítés, idézőjelben) | **„blokkoló" / „nem blokkoló"** (fordítva, idézőjel megtartva); a `non-blocking:` `::` def-lista-címke viszont bájtazonosan angolul (a program-közeli, begépelendő prefixek mintája, 5. blokk) | `ReviewingGuidelines.adoc` |
+| `nit:` / `aside:` / `optional:` / `s/<before>/<after>/` / `#leftoverbits` (Terminológia `::` címkék) | **bájtazonosan angolul** (ezek a ténylegesen begépelt review-megjegyzés-prefixek); csak a leírás-törzs fordult | `ReviewingGuidelines.adoc` |
+| deltified / deltified form (objektum) | **„deltásított" / „deltásított forma"** | `git-index-pack.adoc` — a 18./26. blokk „deltásítva" mintája |
+| "thin" pack | **„thin" (vékony) pack** | `git-index-pack.adoc` — az 1. blokk „thin pack" döntése, első előforduláskor glosszázva |
+| Die, if … (man-page-i viselkedésleírás) | **„Kilép hibával, ha …"** | `git-index-pack.adoc` — NEM a `git-sh-setup` `die` shell-függvénye (21. blokk), hanem a „terminate with error" jelentésű ige |
+| pretty-print (objektumtartalom, `git-replace.adoc`) | **„szép formázás" / „szép formázással"** | a 26. blokk (`pretty-options.adoc`) „szép formázású kiírás" mintája |
+| graft / graft commit / graft file | **marad „graft" / „graft commit" / „graft fájl"** angolul | `git-replace.adoc` — Git-fogalomnév, a `bare repository` mintájára |
+| mainline (merge, `git-revert.adoc`) | **„fővonal"** | a `-m`/`--mainline` opció leírásában |
+| "src" / "dst" / "score" (raw diff mezőnevek, idézőjelben) | **bájtazonosan angolul, idézőjelben** | `diff-format.adoc` — a `git-check-ref-format.adoc`/`git-fetch.adoc` mezőnév-precedense (3./12. blokk) |
+| "combined diff" (idézőjelben, coined) | **változatlanul angolul, idézőjelben** | `diff-format.adoc` — konzisztens a `diff-generate-patch.adoc` (még lefordítatlan) használatával |
+| preimage / postimage | **„előkép" / „utókép"** | `diff-format.adoc` — ad hoc |
+| generation number / generation data (commit-graph) | **„generációs szám" / „Generation Data (chunk)"** — a chunk-név angolul marad | `gitformat-commit-graph.adoc` |
+| chunk (commit-graph, format-spec) | **marad „chunk"** (26. blokk döntése) | `gitformat-commit-graph.adoc` |
+| "tail" of a ref (idézőjelben) | **„a ref »végére«"** (fordítva) | `git-ls-remote.adoc` |
+| peeled tag / pseudoref | **„lehántott tag" / „pszeudoref"** | `git-ls-remote.adoc` |
+
+### Címsor-anchorok
+
+- **`git-reflog.adoc`**: 4 `~~~~` Title Case alcím (`Options for `show`` → „Opciók a `show`-hoz", `…delete`
+  → „…`delete`-hez", `…drop` → „…`drop`-hoz", `…expire` → „…`expire`-hez") — nincs rájuk `<<...>>` xref
+  (grep-pel ellenőrizve), defenzív `[[_options_for_show]]` / `[[_options_for_delete]]` /
+  `[[_options_for_drop]]` / `[[_options_for_expire]]` anchor (autogen slug az eredeti angol címből),
+  a `~~~~` aláhúzás a fordított cím pontos karakterhosszához igazítva (19/21/19/22 — Python `len()`
+  ellenőrzés).
+- **`git-ls-tree.adoc`**: `Output Format` (Title Case `----`) → „Kimeneti formátum" + `[[_output_format]]`
+  defenzív anchor; a `-z` opció leírásában lévő `See OUTPUT FORMAT below` prózahivatkozás is átírva
+  „l. lentebb a Kimeneti formátum szakaszt"-ra (nem `<<...>>` xref). `FIELD NAMES` csupa nagybetűs →
+  a VÉGLEGES DÖNTÉS szerint angolul.
+- **`ReviewingGuidelines.adoc`** (NEM man page): a level-0 doc-cím kivételével mind a 9 alcím fordult
+  (`Introduction`→„Bevezetés", `Principles`→„Alapelvek", `Selecting patch(es) to review`→„Átnézendő
+  patch(ek) kiválasztása", `Reviewing patches`→„Patchek átnézése", `High-level guidance`→„Magas szintű
+  útmutatás", `Performing your review`→„Az átnézésed elvégzése", `Completing a review`→„Egy átnézés
+  befejezése", `Terminology`→„Terminológia", `See Also`→„Lásd még"). Mindegyik fölé defenzív
+  `[[<angol-autogen-slug>]]` anchor (a 23. blokk `DecisionMaking.adoc` precedense; a `====` egysoros
+  alcímeknél is a sor fölé). Nincs rájuk `<<...>>` xref sehol a fában. Setext `=`/`-`/`~` aláhúzások a
+  fordított cím pontos hosszához igazítva (Python `len()` ellenőrzés; 3 db ±1 elütés menet közben
+  javítva). A `Terminology` cím itt Title Case (NEM csupa nagybetűs), ezért a VÉGLEGES DÖNTÉS nem
+  vonatkozik rá, fordult.
+- **`diff-format.adoc`**: 3 lowercase setext (`----`) alcím (`Raw output format` → „Nyers kimeneti
+  formátum", `diff format for merges` → „diff formátum merge-ekhez", `other diff formats` → „egyéb diff
+  formátumok") — defenzív `[[_raw_output_format]]` / `[[_diff_format_for_merges]]` /
+  `[[_other_diff_formats]]` anchor, aláhúzás pontos hosszra igazítva (23/25/21).
+- **`gitformat-commit-graph.adoc`**: 2 `==` egysoros cím (`Commit-graph files have the following format:`
+  → „A commit-graph fájlok formátuma a következő:", `Historical Notes:` → „Történeti megjegyzések:") —
+  defenzív `[[_commit_graph_files_have_the_following_format]]` / `[[_historical_notes]]` anchor. A
+  `=== HEADER:` / `CHUNK LOOKUP:` / `CHUNK DATA:` / `TRAILER:` csupa nagybetűs format-spec-címek és a
+  `==== OID Fanout` … `Base Graphs List` vegyes kis-nagybetűs chunk-nevek **változatlanul angolul**
+  (a chunk-nevek a fájl prózájában is név szerint hivatkozottak, pl. „into the Extra Edge List chunk");
+  ezekhez nem kellett anchor (a cím szövege nem változott).
+- A többi 4 fájlban (`git-ls-remote`, `git-send-pack`, `git-index-pack`, `git-replace`) nincs
+  `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott címsorok (VÉGLEGES DÖNTÉS szerint, automatikusan)
+
+- `git-ls-remote.adoc`: `OUTPUT` (3. blokk óta lezárt kategória); a `<repository>::` leírásában lévő
+  `the GIT URLS and REMOTES sections of linkgit:git-fetch[1]` prózahivatkozás `GIT URLS`/`REMOTES`
+  szakasznevei angolul maradtak (23./25. blokk).
+- `git-send-pack.adoc`: `SPECIFYING THE REFS` (l. `git-http-push.adoc` 21. blokk, ugyanaz a cím
+  ugyanígy angolul).
+- `git-reflog.adoc`: nincs — az `Options for X` alcímek Title Case-ek, fordultak (l. fent).
+- `git-replace.adoc`: `FORMATS`, `CREATING REPLACEMENT OBJECTS`.
+- `git-revert.adoc`: `SEQUENCER SUBCOMMANDS`; a `"Reset, restore and revert"` (git[1]-be) és a
+  `MERGE STRATEGIES` (git-merge[1]-be) idézőjeles/szó szerinti prózahivatkozások angolul maradtak
+  (a cél fájlok még lefordítatlanok; a `MERGE STRATEGIES` konzisztens a 26. blokk döntésével).
+- `git-index-pack.adoc`, `git-ls-tree.adoc` (`FIELD NAMES`), `git-ls-remote.adoc` — l. fent.
+
+### Megőrzött markup / megjegyzések
+
+- `git-ls-remote.adoc`: `[verse]` SYNOPSIS (tab-folytatásokkal), 4 `----`/`------------` kód-/kimeneti
+  példablokk (`$ git ls-remote …` valós OID-kimenettel) bájtazonos; `_not_` compat-emphasis (`_nem_`),
+  `"remote"` idézőjel, `<oid>`/`<ref>`/`^{}`/`TAB`/`LF` literálok, `'git-upload-pack'`/`'git ls-remote'`
+  compat-idézőjeles nevek változatlanok.
+- `git-send-pack.adoc`: `[verse]` SYNOPSIS; a ` - `/`   * ` (vezető szóközös) beágyazott felsorolás a
+  `<dst>` illesztési szabályokban megtartva; `<src>`/`<dst>` bare placeholderek, `"refs/"` idézőjel,
+  `'+'` jel változatlan.
+- `git-reflog.adoc`: `[synopsis]` blokk (tab-folytatásokkal); `<ref>@\{0\}` escape-elt kapcsos
+  zárójelek bájtazonosak; `"reflogs"`/`"show"`/`"list"`/… idézőjeles alparancsnevek és a
+  `"where HEAD used to be two moves ago"` stílusú `HEAD@{2}`-glosszák (magyarázó próza) fordultak,
+  a `"old"`/`"new"` SHA-1 mezőnevek angolul; `"broken commits"` → „törött commitok".
+- `git-index-pack.adoc`: `[verse]` SYNOPSIS; `include::object-format-disclaimer.adoc[]` változatlan;
+  `link:technical/partial-clone.html[partial clone]` — cél és `[partial clone]` látható szöveg is
+  angolul (3. blokk `partial clone` döntése); `"Receiving objects"`/`"Indexing objects"` progress-
+  címek és `"pack\t"`/`"keep\t"` kimeneti prefixek bájtazonosan angolul; `'sha1'`/`'sha256'`,
+  `<msg-id>=<severity>` változatlan; egy `  \`--strict=…\`` sor vezető szóköze megtartva.
+- `git-ls-tree.adoc`: `[verse]` SYNOPSIS; 3 tab-indentált formátum-sablonsor
+  (`%(objectmode) %(objecttype) …%x09%(path)`) bájtazonos; `%(fieldname)`/`%%`/`%xNN`/`\0`/`\t`/`\n`
+  token-példák, `"unusual"`/`"objectname"`/`"path"`/`"--format"` idézőjelek, `'sub'`/`'dir'`/
+  `'git update-index'` compat-nevek változatlanok; a `objectmode::`/`objecttype::`/… mezőnév-címkék
+  bájtazonosak, csak a leírás-törzs fordult.
+- `git-replace.adoc`: 4 `------------------------------------------------` (48 kötőjel) parancspélda-
+  blokk bájtazonos; a `FORMATS` szakasz `* 'short':` … `<replaced-sha1>` tab-indentált sablontörzse
+  **változatlan** (placeholder-sablon, nem próza); `'replace'`/`'foo'`/`'bar'`/`'git'` compat-nevek,
+  `GIT_NO_REPLACE_OBJECTS` env-változó, `https://github.com/newren/git-filter-repo[git-filter-repo]`
+  URL + látható szöveg változatlan.
+- `git-revert.adoc`: `[verse]` SYNOPSIS; `include::rerere-options.adoc[]` + `include::sequencer.adoc[]`
+  + `include::includes/cmd-config-section-all.adoc[]` + `include::config/revert.adoc[]` változatlan;
+  `_strongly_` (`_nyomatékosan_`), `'Reapply "Reapply "<original-subject>""'` literál tárgysor-példa,
+  `"This reverts <full-object-name-…>."` / `"--pretty=reference"` / `"Will merge to \'next\'?"`
+  (escape-elt aposztrófok) bájtazonosak; `link:howto/revert-a-faulty-merge.html[revert-a-faulty-merge
+  How-To]` — cél és `[… How-To]` látható szöveg is angolul (22./24. blokk „how-to" döntése).
+- `ReviewingGuidelines.adoc`: `:sectanchors:` nincs; a `====` egysoros alcímek megtartva (fölöttük
+  defenzív anchorral); az `s:"What's cooking"` / `s:"PATCH" -s:"Re:"` lekérdezés-literálok, a
+  „What's cooking" / „Needs review" / „[New Topics]" / „Patch 0" idézőjeles e-mail-/szakasznevek,
+  a `whats-cooking.txt` / `todo` / `next` branchnevek, a `link:MyFirstContribution.html[…]` link és a
+  `https://lore.kernel.org/…` / `https://github.com/gitster/git` URL-ek változatlanok; a
+  `[`lore.kernel.org` mailing list archive]` link látható szövegében a backtick-elt gazdanév
+  változatlan, a köré írt szöveg fordult.
+- `diff-format.adoc`: `include::diff-generate-patch.adoc[]` változatlan; 7 pár `----…----` (36/40/48
+  kötőjeles) raw-/numstat-/stat-kimeneti példablokk bájtazonos (`in-place edit  :100644 …`,
+  `arch/{i386 => x86}/Makefile …` stb.); `. ` számozott lista-jelölők és `- \`A\`: …` betűjel-
+  felsorolás megtartva; `0\{40\}` escape-elt kapcsos zárójelek, `"src"`/`"dst"`/`"score"`/`"unmerged"`/
+  `"in-place edit"`/`"unknown"`/`"unusual"` idézőjelek, `diffstat`(1) változatlanok.
+- `gitformat-commit-graph.adoc`: **a teljes bináris format-spec törzse (a `=== HEADER:` … `=== TRAILER:`
+  szakaszok minden szóközzel/tabbal behúzott sora, a `{'C','G','P','H'}` szignatúrák, a
+  `(1 << 30) + …` képlet, a `====` chunk-fejlécek és leírásaik, a MurmurHash-URL-ek, a `0x293ae76f`
+  konstansok) bájtazonosan angolul maradt** — a `reftable.adoc` / `hash-function-transition.adoc`
+  (1. blokk) format-spec-precedense szerint. Csak a DESCRIPTION flush-left prózája (a bevezető
+  bekezdés + 5 `- ` metaadat-felsoroláspont + a „These positional references…" bekezdés + „All
+  multi-byte numbers…"), a 2 `==` cím és a „Historical Notes" flush-left prózája fordult.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- Szintaxis-ellenőrzés: egyik fájlban sincs `ifdef::`/`ifndef::`/`endif::`; a `----`/`------------`/
+  `~~~~`/`====` határolók és man-page-aláhúzások párban/pontos hosszal (Python `len()` +
+  `cat -A` ellenőrzés), a bekezdéshatárok megtartva.

@@ -3,7 +3,7 @@ git-send-pack(1)
 
 NAME
 ----
-git-send-pack - Push objects over Git protocol to another repository
+git-send-pack - Objektumok pusholása Git protokollon keresztül egy másik repository-ba
 
 
 SYNOPSIS
@@ -17,142 +17,139 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Usually you would want to use 'git push', which is a
-higher-level wrapper of this command, instead. See linkgit:git-push[1].
+Általában helyette a 'git push'-t szeretnéd használni, amely ennek a
+parancsnak a magasabb szintű burkolója. L. linkgit:git-push[1].
 
-Invokes 'git-receive-pack' on a possibly remote repository, and
-updates it from the current repository, sending named refs.
+Meghívja a 'git-receive-pack'-et egy esetleg remote repository-n, és
+frissíti azt az aktuális repository-ból, megnevezett refeket küldve.
 
 
 OPTIONS
 -------
 --receive-pack=<git-receive-pack>::
-	Path to the 'git-receive-pack' program on the remote
-	end.  Sometimes useful when pushing to a remote
-	repository over ssh, and you do not have the program in
-	a directory on the default $PATH.
+	A 'git-receive-pack' program útvonala a remote végponton.  Néha
+	hasznos, amikor egy remote repository-ba pusholsz ssh-n keresztül,
+	és a program nincs az alapértelmezett $PATH egyik könyvtárában sem.
 
 --exec=<git-receive-pack>::
-	Same as --receive-pack=<git-receive-pack>.
+	Ugyanaz, mint a --receive-pack=<git-receive-pack>.
 
 --all::
-	Instead of explicitly specifying which refs to update,
-	update all heads that locally exist.
+	Ahelyett, hogy explicit módon megadnád, mely refeket kell frissíteni,
+	az összes lokálisan létező head frissítése.
 
 --stdin::
-	Take the list of refs from stdin, one per line. If there
-	are refs specified on the command line in addition to this
-	option, then the refs from stdin are processed after those
-	on the command line.
+	A refek listájának beolvasása az stdinről, soronként egyet. Ha ezen
+	opción felül a parancssorban is meg vannak adva refek, akkor az
+	stdinről érkező refek a parancssoriak után kerülnek feldolgozásra.
 +
-If `--stateless-rpc` is specified together with this option then
-the list of refs must be in packet format (pkt-line). Each ref must
-be in a separate packet, and the list must end with a flush packet.
+Ha a `--stateless-rpc` ezzel az opcióval együtt van megadva, akkor a
+refek listájának csomag formátumban (pkt-line) kell lennie. Minden refnek
+külön csomagban kell lennie, és a listának egy flush csomaggal kell
+végződnie.
 
 --dry-run::
-	Do everything except actually send the updates.
+	Minden elvégzése, kivéve a frissítések tényleges elküldését.
 
 --force::
-	Usually, the command refuses to update a remote ref that
-	is not an ancestor of the local ref used to overwrite it.
-	This flag disables the check.  This means that
-	the remote repository can lose commits; use it with
-	care.
+	A parancs általában megtagadja egy olyan remote ref frissítését,
+	amely nem őse a felülíráshoz használt lokális refnek.  Ez a flag
+	kikapcsolja az ellenőrzést.  Ez azt jelenti, hogy a remote repository
+	commitokat veszíthet; óvatosan használd.
 
 --verbose::
-	Run verbosely.
+	Futtatás bőbeszédűen.
 
 --thin::
-	Send a "thin" pack, which records objects in deltified form based
-	on objects not included in the pack to reduce network traffic.
+	"thin" (vékony) pack küldése, amely az objektumokat deltásított
+	formában rögzíti a packbe nem tartozó objektumok alapján, hogy
+	csökkentse a hálózati forgalmat.
 
 --atomic::
-	Use an atomic transaction for updating the refs. If any of the refs
-	fails to update then the entire push will fail without changing any
-	refs.
+	Atomi tranzakció használata a refek frissítéséhez. Ha bármelyik ref
+	frissítése meghiúsul, az egész push meghiúsul anélkül, hogy bármely
+	refet megváltoztatna.
 
 --signed::
 --no-signed::
 --signed=(true|false|if-asked)::
-	GPG-sign the push request to update refs on the receiving
-	side, to allow it to be checked by the hooks and/or be
-	logged.  If `false` or `--no-signed`, no signing will be
-	attempted.  If `true` or `--signed`, the push will fail if the
-	server does not support signed pushes.  If set to `if-asked`,
-	sign if and only if the server supports signed pushes.  The push
-	will also fail if the actual call to `gpg --sign` fails.  See
-	linkgit:git-receive-pack[1] for the details on the receiving end.
+	A push-kérés GPG-aláírása a refek frissítéséhez a fogadó oldalon,
+	hogy a hookok ellenőrizhessék és/vagy naplózhassák.  A `false` vagy a
+	`--no-signed` esetén nem történik aláírási kísérlet.  A `true` vagy a
+	`--signed` esetén a push meghiúsul, ha a szerver nem támogatja az
+	aláírt pusht.  Ha `if-asked`-re van állítva, akkor és csak akkor ír
+	alá, ha a szerver támogatja az aláírt pusht.  A push akkor is
+	meghiúsul, ha a `gpg --sign` tényleges hívása meghiúsul.  A fogadó
+	oldal részleteiért l. linkgit:git-receive-pack[1].
 
 --push-option=<string>::
-	Pass the specified string as a push option for consumption by
-	hooks on the server side.  If the server doesn't support push
-	options, error out.  See linkgit:git-push[1] and
-	linkgit:githooks[5] for details.
+	A megadott karakterlánc átadása push-opcióként a szerveroldali
+	hookok általi feldolgozásra.  Ha a szerver nem támogatja a
+	push-opciókat, hibával kilép.  A részletekért l. linkgit:git-push[1]
+	és linkgit:githooks[5].
 
 <host>::
-	A remote host to house the repository.  When this
-	part is specified, 'git-receive-pack' is invoked via
-	ssh.
+	Egy remote hoszt a repository elhelyezésére.  Ha ez a rész meg van
+	adva, a 'git-receive-pack' ssh-n keresztül hívódik meg.
 
 <directory>::
-	The repository to update.
+	A frissítendő repository.
 
 <ref>...::
-	The remote refs to update.
+	A frissítendő remote refek.
 
 
 SPECIFYING THE REFS
 -------------------
 
-There are three ways to specify which refs to update on the
-remote end.
+Háromféleképpen adható meg, hogy mely refeket kell frissíteni a remote
+végponton.
 
-With the `--all` flag, all refs that exist locally are transferred to
-the remote side.  You cannot specify any '<ref>' if you use
-this flag.
+A `--all` flaggel az összes lokálisan létező ref átvitelre kerül a
+remote oldalra.  Ha ezt a flaget használod, nem adhatsz meg egyetlen
+'<ref>'-et sem.
 
-Without `--all` and without any '<ref>', the heads that exist
-both on the local side and on the remote side are updated.
+A `--all` és bármely '<ref>' nélkül azok a headek frissülnek, amelyek
+a lokális és a remote oldalon egyaránt léteznek.
 
-When one or more '<ref>' are specified explicitly (whether on the
-command line or via `--stdin`), it can be either a
-single pattern, or a pair of such patterns separated by a colon
-":" (this means that a ref name cannot have a colon in it).  A
-single pattern '<name>' is just shorthand for '<name>:<name>'.
+Ha egy vagy több '<ref>' explicit módon van megadva (akár a
+parancssorban, akár a `--stdin`-en keresztül), az lehet egyetlen minta,
+vagy két ilyen minta párja kettősponttal ":" elválasztva (ez azt
+jelenti, hogy egy refnévben nem lehet kettőspont).  Egyetlen '<name>'
+minta csak a '<name>:<name>' rövidítése.
 
-Each pattern pair consists of the source side (before the colon)
-and the destination side (after the colon).  The ref to be
-pushed is determined by finding a match that matches the source
-side, and where it is pushed is determined by using the
-destination side. The rules used to match a ref are the same
-rules used by 'git rev-parse' to resolve a symbolic ref
-name. See linkgit:git-rev-parse[1].
+Minden mintapár a forrásoldalból (a kettőspont előtt) és a céloldalból
+(a kettőspont után) áll.  A pusholandó ref úgy határozódik meg, hogy
+a forrásoldalra illeszkedő találatot keresünk, az pedig, hogy hova
+pusholódik, a céloldal használatával határozódik meg. A ref
+illesztésére használt szabályok ugyanazok, mint amelyeket a
+'git rev-parse' használ egy szimbolikus refnév feloldására.
+L. linkgit:git-rev-parse[1].
 
- - It is an error if <src> does not match exactly one of the
-   local refs.
+ - Hiba, ha a <src> nem pontosan egy lokális refre illeszkedik.
 
- - It is an error if <dst> matches more than one remote ref.
+ - Hiba, ha a <dst> egynél több remote refre illeszkedik.
 
- - If <dst> does not match any remote ref, either
+ - Ha a <dst> nem illeszkedik egyetlen remote refre sem, akkor vagy
 
-   * it has to start with "refs/"; <dst> is used as the
-     destination literally in this case.
+   * "refs/"-fel kell kezdődnie; ebben az esetben a <dst> szó szerint
+     használatos célként.
 
-   * <src> == <dst> and the ref that matched the <src> must not
-     exist in the set of remote refs; the ref matched <src>
-     locally is used as the name of the destination.
+   * <src> == <dst>, és a <src>-re illeszkedő ref nem létezhet a remote
+     refek halmazában; a lokálisan a <src>-re illeszkedő ref használatos
+     a cél neveként.
 
-Without `--force`, the <src> ref is stored at the remote only if
-<dst> does not exist, or <dst> is a proper subset (i.e. an
-ancestor) of <src>.  This check, known as the "fast-forward check",
-is performed to avoid accidentally overwriting the
-remote ref and losing other people's commits from there.
+A `--force` nélkül a <src> ref csak akkor tárolódik a remote-on, ha a
+<dst> nem létezik, vagy a <dst> a <src> valódi részhalmaza (azaz őse).
+Ezt az ellenőrzést, amely „fast-forward ellenőrzés" néven ismert, azért
+végzik, hogy elkerüljék a remote ref véletlen felülírását és mások
+commitjainak elvesztését onnan.
 
-With `--force`, the fast-forward check is disabled for all refs.
+A `--force` esetén a fast-forward ellenőrzés minden refre ki van kapcsolva.
 
-Optionally, a <ref> parameter can be prefixed with a plus '+' sign
-to disable the fast-forward check only on that ref.
+Opcionálisan egy <ref> paraméter elé plusz '+' jel tehető, hogy a
+fast-forward ellenőrzés csak azon a refen legyen kikapcsolva.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

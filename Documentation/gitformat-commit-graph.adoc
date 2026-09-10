@@ -3,7 +3,7 @@ gitformat-commit-graph(5)
 
 NAME
 ----
-gitformat-commit-graph - Git commit-graph format
+gitformat-commit-graph - Git commit-graph formátum
 
 SYNOPSIS
 --------
@@ -14,34 +14,36 @@ $GIT_DIR/objects/info/commit-graphs/*
 DESCRIPTION
 -----------
 
-The Git commit-graph stores a list of commit OIDs and some associated
-metadata, including:
+A Git commit-graph a commit OID-ok listáját és néhány kapcsolódó
+metaadatot tárol, beleértve:
 
-- The generation number of the commit.
+- A commit generációs száma.
 
-- The root tree OID.
+- A gyökér-tree OID-ja.
 
-- The commit date.
+- A commit dátuma.
 
-- The parents of the commit, stored using positional references within
-  the graph file.
+- A commit szülői, a gráffájlon belüli pozicionális referenciákkal
+  tárolva.
 
-- The Bloom filter of the commit carrying the paths that were changed between
-  the commit and its first parent, if requested.
+- A commit Bloom filtere, amely a commit és az első szülője között
+  megváltozott elérési utakat hordozza, ha kérték.
 
-These positional references are stored as unsigned 32-bit integers
-corresponding to the array position within the list of commit OIDs. Due
-to some special constants we use to track parents, we can store at most
-(1 << 30) + (1 << 29) + (1 << 28) - 1 (around 1.8 billion) commits.
+Ezek a pozicionális referenciák előjel nélküli 32 bites egészként
+tárolódnak, amelyek a commit OID-ok listáján belüli tömbpozíciónak
+felelnek meg. Néhány speciális konstans miatt, amelyeket a szülők
+követésére használunk, legfeljebb (1 << 30) + (1 << 29) + (1 << 28) - 1
+(körülbelül 1,8 milliárd) commitot tudunk tárolni.
 
-== Commit-graph files have the following format:
+[[_commit_graph_files_have_the_following_format]]
+== A commit-graph fájlok formátuma a következő:
 
-In order to allow extensions that add extra data to the graph, we organize
-the body into "chunks" and provide a binary lookup table at the beginning
-of the body. The header includes certain values, such as number of chunks
-and hash type.
+Ahhoz, hogy lehetővé tegyük az olyan bővítményeket, amelyek extra adatot
+adnak a gráfhoz, a törzset "chunkokba" szervezzük, és a törzs elején
+biztosítunk egy bináris keresőtáblát. A fejléc bizonyos értékeket
+tartalmaz, például a chunkok számát és a hash típusát.
 
-All multi-byte numbers are in network byte order.
+Minden több bájtos szám hálózati bájtsorrendben van.
 
 === HEADER:
 
@@ -173,14 +175,16 @@ All multi-byte numbers are in network byte order.
 
 	H-byte HASH-checksum of all of the above.
 
-== Historical Notes:
+[[_historical_notes]]
+== Történeti megjegyzések:
 
-The Generation Data (GDA2) and Generation Data Overflow (GDO2) chunks have
-the number '2' in their chunk IDs because a previous version of Git wrote
-possibly erroneous data in these chunks with the IDs "GDAT" and "GDOV". By
-changing the IDs, newer versions of Git will silently ignore those older
-chunks and write the new information without trusting the incorrect data.
+A Generation Data (GDA2) és a Generation Data Overflow (GDO2) chunkok
+azért tartalmazzák a '2' számot a chunk-azonosítójukban, mert a Git egy
+korábbi verziója esetleg hibás adatot írt ezekbe a chunkokba a "GDAT" és
+"GDOV" azonosítóval. Az azonosítók megváltoztatásával a Git újabb verziói
+csendben figyelmen kívül hagyják azokat a régebbi chunkokat, és az
+inkorrekt adatban való megbízás nélkül írják az új információt.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

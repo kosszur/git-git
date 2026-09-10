@@ -1,29 +1,30 @@
-Raw output format
------------------
+[[_raw_output_format]]
+Nyers kimeneti formátum
+-----------------------
 
-The raw output format from `git-diff-index`, `git-diff-tree`,
-`git-diff-files` and `git diff --raw` are very similar.
+A `git-diff-index`, `git-diff-tree`, `git-diff-files` és a
+`git diff --raw` nyers kimeneti formátuma nagyon hasonló.
 
-These commands all compare two sets of things; what is
-compared differs:
+Ezek a parancsok mind két halmaznyi dolgot hasonlítanak össze; hogy mit,
+az eltérő:
 
 `git-diff-index <tree-ish>`::
-	compares the _<tree-ish>_ and the files on the filesystem.
+	a _<tree-ish>_-t és a fájlrendszeren lévő fájlokat hasonlítja össze.
 
 `git-diff-index --cached <tree-ish>`::
-	compares the _<tree-ish>_ and the index.
+	a _<tree-ish>_-t és az indexet hasonlítja össze.
 
 `git-diff-tree [-r] <tree-ish-1> <tree-ish-2> [<pattern>...]`::
-        compares the trees named by the two arguments.
+        a két argumentum által megnevezett tree-ket hasonlítja össze.
 
 `git-diff-files [<pattern>...]`::
-        compares the index and the files on the filesystem.
+        az indexet és a fájlrendszeren lévő fájlokat hasonlítja össze.
 
-All the commands print one output line per changed file,
-except `git diff-files` in the case of an unmerged file, which prints
-both an "unmerged" and an "in-place edit" line.
+Az összes parancs megváltozott fájlonként egy kimeneti sort ír ki,
+kivéve a `git diff-files`-t egy nem merge-elt fájl esetén, amely egy
+"unmerged" és egy "in-place edit" sort is kiír.
 
-An output line is formatted this way:
+Egy kimeneti sor formátuma a következő:
 
 ------------------------------------------------
 in-place edit  :100644 100644 bcd1234 0123456 M file0
@@ -34,75 +35,75 @@ delete         :100644 000000 1234567 0000000 D file5
 unmerged       :000000 000000 0000000 0000000 U file6
 ------------------------------------------------
 
-That is, from the left to the right:
+Azaz balról jobbra:
 
-. a colon.
-. mode for "src"; 000000 if creation, or if "src" is from the index and is unmerged.
-. a space.
-. mode for "dst"; 000000 if deletion, or if "dst" is from the index and is unmerged.
-. a space.
-. sha1 for "src"; 0\{40\} if creation, or if "src" is from the index and is unmerged.
-. a space.
-. sha1 for "dst"; 0\{40\} if deletion, if "dst" is from the index and is unmerged, or if "dst" is from the work tree and is out of sync with the index.
-. a space.
-. status, followed by optional "score" number.
-. a tab or a NUL when `-z` option is used.
-. path for "src"
-. a tab or a NUL when `-z` option is used; only exists for C or R.
-. path for "dst"; only exists for C or R.
-. an LF or a NUL when `-z` option is used, to terminate the record.
+. egy kettőspont.
+. mód a "src"-hez; 000000, ha létrehozás, vagy ha a "src" az indexből származik és nem merge-elt.
+. egy szóköz.
+. mód a "dst"-hez; 000000, ha törlés, vagy ha a "dst" az indexből származik és nem merge-elt.
+. egy szóköz.
+. sha1 a "src"-hez; 0\{40\}, ha létrehozás, vagy ha a "src" az indexből származik és nem merge-elt.
+. egy szóköz.
+. sha1 a "dst"-hez; 0\{40\}, ha törlés, ha a "dst" az indexből származik és nem merge-elt, vagy ha a "dst" a work tree-ből származik és nincs szinkronban az indexszel.
+. egy szóköz.
+. státusz, amelyet egy opcionális "score" szám követ.
+. egy tab vagy egy NUL, ha a `-z` opció használatban van.
+. útvonal a "src"-hez
+. egy tab vagy egy NUL, ha a `-z` opció használatban van; csak C vagy R esetén létezik.
+. útvonal a "dst"-hez; csak C vagy R esetén létezik.
+. egy LF vagy egy NUL, ha a `-z` opció használatban van, a rekord lezárására.
 
-Possible status letters are:
+A lehetséges státuszbetűk:
 
-- `A`: addition of a file
-- `C`: copy of a file into a new one
-- `D`: deletion of a file
-- `M`: modification of the contents or mode of a file
-- `R`: renaming of a file
-- `T`: change in the type of the file (regular file, symbolic link or submodule)
-- `U`: file is unmerged (you must complete the merge before it can
-  be committed)
-- `X`: "unknown" change type (most probably a bug, please report it)
+- `A`: egy fájl hozzáadása
+- `C`: egy fájl másolása egy újba
+- `D`: egy fájl törlése
+- `M`: egy fájl tartalmának vagy módjának módosítása
+- `R`: egy fájl átnevezése
+- `T`: a fájl típusának megváltozása (közönséges fájl, szimbolikus link vagy submodule)
+- `U`: a fájl nem merge-elt (be kell fejezned a merge-et, mielőtt
+  commitolható lenne)
+- `X`: "ismeretlen" változtatástípus (nagy valószínűséggel hiba, kérjük, jelentsd)
 
-Status letters `C` and `R` are always followed by a score (denoting the
-percentage of similarity between the source and target of the move or
-copy).  Status letter `M` may be followed by a score (denoting the
-percentage of dissimilarity) for file rewrites.
+A `C` és `R` státuszbetűket mindig egy score követi (amely a mozgatás
+vagy másolás forrása és célja közötti hasonlóság százalékát jelöli).  Az
+`M` státuszbetűt fájl-újraírásoknál követheti egy score (amely a
+különbözőség százalékát jelöli).
 
-The sha1 for "dst" is shown as all 0's if a file on the filesystem
-is out of sync with the index.
+A "dst" sha1-e csupa 0-ként jelenik meg, ha a fájlrendszeren lévő fájl
+nincs szinkronban az indexszel.
 
-Example:
+Példa:
 
 ------------------------------------------------
 :100644 100644 5be4a4a 0000000 M file.c
 ------------------------------------------------
 
-Without the `-z` option, pathnames with "unusual" characters are
-quoted as explained for the configuration variable `core.quotePath`
-(see linkgit:git-config[1]).  Using `-z` the filename is output
-verbatim and the line is terminated by a NUL byte.
+A `-z` opció nélkül a "szokatlan" karaktereket tartalmazó útvonalnevek
+idézőjelbe kerülnek a `core.quotePath` konfigurációs változónál leírtak
+szerint (l. linkgit:git-config[1]).  A `-z` használatával a fájlnév szó
+szerint kerül a kimenetre, és a sort egy NUL bájt zárja.
 
-diff format for merges
-----------------------
+[[_diff_format_for_merges]]
+diff formátum merge-ekhez
+-------------------------
 
-`git-diff-tree`, `git-diff-files` and `git-diff --raw`
-can take `-c` or `--cc` option
-to generate diff output also for merge commits.  The output differs
-from the format described above in the following way:
+A `git-diff-tree`, a `git-diff-files` és a `git-diff --raw` a `-c` vagy
+a `--cc` opciót is elfogadja, hogy merge-commitokhoz is generáljon diff
+kimenetet.  A kimenet a fent leírt formátumtól a következő módon tér el:
 
-. there is a colon for each parent
-. there are more "src" modes and "src" sha1
-. status is concatenated status characters for each parent
-. no optional "score" number
-. tab-separated pathname(s) of the file
+. minden szülőhöz van egy kettőspont
+. több "src" mód és "src" sha1 van
+. a státusz minden szülőhöz összefűzött státuszkarakterek
+. nincs opcionális "score" szám
+. a fájl tabbal elválasztott útvonalnév(ei)
 
-For `-c` and `--cc`, only the destination or final path is shown even
-if the file was renamed on any side of history.  With
-`--combined-all-paths`, the name of the path in each parent is shown
-followed by the name of the path in the merge commit.
+A `-c` és a `--cc` esetén csak a cél vagy a végső útvonal jelenik meg,
+még akkor is, ha a fájlt az előzmények bármely oldalán átnevezték.  A
+`--combined-all-paths` esetén minden szülőben megjelenik az útvonal
+neve, amelyet a merge-commitban lévő útvonal neve követ.
 
-Examples for `-c` and `--cc` without `--combined-all-paths`:
+Példák a `-c`-re és a `--cc`-re a `--combined-all-paths` nélkül:
 
 ------------------------------------------------
 ::100644 100644 100644 fabadb8 cc95eb0 4866510 MM	desc.c
@@ -110,7 +111,7 @@ Examples for `-c` and `--cc` without `--combined-all-paths`:
 ::100644 100644 100644 e07d6c5 9042e82 ee91881 RR	phooey.c
 ------------------------------------------------
 
-Examples when `--combined-all-paths` added to either `-c` or `--cc`:
+Példák, amikor a `--combined-all-paths` hozzáadódik a `-c`-hez vagy a `--cc`-hez:
 
 ------------------------------------------------
 ::100644 100644 100644 fabadb8 cc95eb0 4866510 MM	desc.c	desc.c	desc.c
@@ -118,69 +119,72 @@ Examples when `--combined-all-paths` added to either `-c` or `--cc`:
 ::100644 100644 100644 e07d6c5 9042e82 ee91881 RR	fooey.c	fuey.c	phooey.c
 ------------------------------------------------
 
-Note that 'combined diff' lists only files which were modified from
-all parents.
+Vedd figyelembe, hogy a 'combined diff' csak azokat a fájlokat sorolja
+fel, amelyek minden szülőhöz képest módosultak.
 
 
 include::diff-generate-patch.adoc[]
 
 
-other diff formats
-------------------
+[[_other_diff_formats]]
+egyéb diff formátumok
+---------------------
 
-The `--summary` option describes newly added, deleted, renamed and
-copied files.  The `--stat` option adds `diffstat`(1) graph to the
-output.  These options can be combined with other options, such as
-`-p`, and are meant for human consumption.
+A `--summary` opció az újonnan hozzáadott, törölt, átnevezett és másolt
+fájlokat írja le.  A `--stat` opció `diffstat`(1) grafikont ad a
+kimenethez.  Ezek az opciók más opciókkal (mint a `-p`) kombinálhatók,
+és ember általi feldolgozásra szolgálnak.
 
-When showing a change that involves a rename or a copy, `--stat` output
-formats the pathnames compactly by combining common prefix and suffix of
-the pathnames.  For example, a change that moves `arch/i386/Makefile` to
-`arch/x86/Makefile` while modifying 4 lines will be shown like this:
+Amikor egy átnevezést vagy másolást is magában foglaló változtatást
+mutat, a `--stat` kimenet kompaktan formázza az útvonalneveket az
+útvonalnevek közös előtagjának és utótagjának összevonásával.  Például
+egy változtatás, amely az `arch/i386/Makefile`-t az `arch/x86/Makefile`-ba
+mozgatja 4 sor módosításával, így jelenik meg:
 
 ------------------------------------
 arch/{i386 => x86}/Makefile    |   4 +--
 ------------------------------------
 
-The `--numstat` option gives the diffstat(1) information but is designed
-for easier machine consumption.  An entry in `--numstat` output looks
-like this:
+A `--numstat` opció a diffstat(1) információt adja, de a könnyebb gépi
+feldolgozásra tervezték.  Egy bejegyzés a `--numstat` kimenetében így
+néz ki:
 
 ----------------------------------------
 1	2	README
 3	1	arch/{i386 => x86}/Makefile
 ----------------------------------------
 
-That is, from left to right:
+Azaz balról jobbra:
 
-. the number of added lines;
-. a tab;
-. the number of deleted lines;
-. a tab;
-. pathname (possibly with rename/copy information);
-. a newline.
+. a hozzáadott sorok száma;
+. egy tab;
+. a törölt sorok száma;
+. egy tab;
+. útvonalnév (esetleg átnevezés/másolás információval);
+. egy újsor.
 
-When `-z` output option is in effect, the output is formatted this way:
+Amikor a `-z` kimeneti opció érvényben van, a kimenet formátuma a következő:
 
 ----------------------------------------
 1	2	README NUL
 3	1	NUL arch/i386/Makefile NUL arch/x86/Makefile NUL
 ----------------------------------------
 
-That is:
+Azaz:
 
-. the number of added lines;
-. a tab;
-. the number of deleted lines;
-. a tab;
-. a NUL (only exists if renamed/copied);
-. pathname in preimage;
-. a NUL (only exists if renamed/copied);
-. pathname in postimage (only exists if renamed/copied);
-. a NUL.
+. a hozzáadott sorok száma;
+. egy tab;
+. a törölt sorok száma;
+. egy tab;
+. egy NUL (csak átnevezés/másolás esetén létezik);
+. útvonalnév az előképben;
+. egy NUL (csak átnevezés/másolás esetén létezik);
+. útvonalnév az utóképben (csak átnevezés/másolás esetén létezik);
+. egy NUL.
 
-The extra `NUL` before the preimage path in renamed case is to allow
-scripts that read the output to tell if the current record being read is
-a single-path record or a rename/copy record without reading ahead.
-After reading added and deleted lines, reading up to `NUL` would yield
-the pathname, but if that is `NUL`, the record will show two paths.
+Az extra `NUL` az előkép-útvonal előtt átnevezés esetén azért van, hogy
+a kimenetet olvasó szkriptek előreolvasás nélkül meg tudják állapítani,
+hogy az éppen olvasott rekord egyutas rekord-e, vagy átnevezés/másolás
+rekord.  A hozzáadott és törölt sorok elolvasása után a `NUL`-ig való
+olvasás az útvonalnevet adná, de ha az `NUL`, a rekord két útvonalat
+fog mutatni.

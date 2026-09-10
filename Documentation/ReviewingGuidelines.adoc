@@ -1,179 +1,200 @@
-Reviewing Patches in the Git Project
-====================================
+Patchek átnézése a Git projektben
+=================================
 
-Introduction
+[[_introduction]]
+Bevezetés
+---------
+A Git fejlesztői közössége egyének széles körben elosztott, sokszínű,
+folyamatosan változó csoportja. A Git levelezőlistán keresztüli aszinkron
+kommunikáció egyedi kihívásokat jelent a patchek átnézésekor vagy
+megvitatásakor. Ez a dokumentum néhány vezérelvet és hasznos eszközt
+tartalmaz, amelyekkel az átnézéseidet egyszerre teheted hatékonyabbá saját
+magad számára és eredményesebbé más contributorok számára.
+
+Vedd figyelembe, hogy az itteni ajánlások egyike sem kötelező, és
+semmilyen módon nem feltétele a Git közösségben való részvételnek.
+Erőforrásként szolgálnak a contributori készségeid kiegészítésére.
+
+[[_principles]]
+Alapelvek
+---------
+
+[[_selecting_patch_es_to_review]]
+Átnézendő patch(ek) kiválasztása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ha átnézésre váró patchsorozatot keresel, kezdd a legutóbbi "What's
+cooking in git.git" e-mail megnézésével
+(https://lore.kernel.org/git/xmqqilm1yp3m.fsf@gitster.g/[példa]). A "What's
+cooking" e-mailek és válaszok az `s:"What's cooking"` lekérdezéssel
+találhatók meg a https://lore.kernel.org/git/[`lore.kernel.org` levelezőlista-archívumban];
+másik lehetőségként a "What's cooking" e-mail tartalmát a Git `todo`
+branchén, a `whats-cooking.txt` fájlban követve is megtalálhatod. A "Needs
+review" címkével ellátott témák és a "[New Topics]" szakaszban lévők
+jellemzően azok, amelyek a legtöbbet profitálnának a további átnézésből.
+
+A patchek kézzel is kereshetők a levelezőlista-archívumban egy olyan
+lekérdezéssel, mint az `s:"PATCH" -s:"Re:"`. Ezekben az eredményekben a
+szakértelmedhez vagy érdeklődésedhez kapcsolódó témák után böngészhetsz.
+
+Ha már hozzájárultál a Githez, előfordulhat, hogy CC-be kerülsz egy másik
+contributor patchsorozatában. Ezek olyan témák, ahol a szerző úgy érzi,
+hogy indokolt a figyelmed. Ennek oka lehet, hogy a patchük olyasmit
+változtat meg, amit korábban te írtál (így jól meg tudod ítélni, hogy az
+új megközelítés működik-e vagy sem), vagy hogy megvan a szakértelmed egy
+kivételesen hasznos átnézés nyújtásához. Nincs előírás ezeknek a
+patcheknek az átnézésére, de a nyílt forráskódú együttműködés szellemében
+erősen fontold meg, hogy megteszed.
+
+[[_reviewing_patches]]
+Patchek átnézése
+~~~~~~~~~~~~~~~~
+Bár minden contributor a maga módján áll hozzá a patchek átnézéséhez, íme
+néhány általános tanács, hogy az átnézéseidet a lehető legvilágosabbá és
+leghasznosabbá tedd. A tanácsok két durva kategóriába vannak sorolva:
+magas szintű átnézési útmutatás, és konkrét tippek a patchekkel való
+munkához a levelezőlistán.
+
+[[_high_level_guidance]]
+==== Magas szintű útmutatás
+- Ne feledd, hogy a patch diffjében lévő kódváltoztatás mellett a
+  commit-üzenetek tartalmát is nézd át helyesség és érthetőség
+  szempontjából. Egy patch commit-üzenetének pontosan és teljesen el kell
+  magyaráznia a diffben végzett kódváltoztatást.
+
+- A tesztlefedettség átnézése az átnézések egy fontos – de könnyen
+  figyelmen kívül hagyható – összetevője. Egy patch változtatásait
+  fedhetik meglévő tesztek, vagy új tesztek kerülhetnek be az új
+  viselkedés gyakorlására. Egy patch vagy sorozat lokális checkoutolása
+  lehetővé teszi, hogy kézzel módosítsd az új és a meglévő tesztek sorait
+  a várt sikeres/sikertelen viselkedés ellenőrzésére. Ezt az információt
+  felhasználhatod a megfelelő lefedettség ellenőrzésére, vagy hogy további
+  teszteket javasolj, amelyeket a szerző hozzáadhatna.
+
+- Amikor ajánlást fogalmazol meg, a lehető legvilágosabban jelezd, hogy
+  "blokkolónak" tekinted-e (a kód hibás lenne, vagy más módon rosszabbá
+  válna, ha egy problémát nem javítanak) vagy "nem blokkolónak" (a patch
+  jobbá tehető az ajánlás megfogadásával, de a sorozat elfogadása nem
+  igényli). A nem blokkoló ajánlások különösen kétértelműek lehetnek,
+  amikor egy sorozathoz kapcsolódnak – de annak hatókörén kívül esnek
+  ("nice-to-have"-ek), vagy amikor csak stilisztikai különbségeket
+  jelentenek a szerző és az átnéző között.
+
+- Amikor egy problémához fűzöl megjegyzést, próbálj javaslatokat is
+  mellékelni arra, hogyan javíthatná ki a szerző. Ez nemcsak abban segíti
+  a szerzőt, hogy megértse és kijavítsa a problémát, hanem elmélyíti és
+  javítja a téma megértését is nálad.
+
+- Az átnézéseknek nem kell kizárólag problémákra rámutatniuk.  A pozitív
+  átnézések azt jelzik, hogy nem csak a patchek eredeti szerzőjének
+  fontos az a probléma, amelyet a patchek megcéloznak, és erősen
+  bátorítottak.
+
+- Ne habozz pozitív átnézést adni egy munkatársad sorozatára.  Ha a
+  pozitív átnézésed jól van megírva, nem fog úgy tűnni, mintha ti ketten
+  vállalati érdeket képviselnétek egy olyan sorozaton, amely egyébként
+  nem érdekli a közösség többi tagját, és rájuk erőltetnétek azt.
+
+- Úgy írj pozitív átnézést, hogy mások megérthessék, miért támogatod a
+  célt, a megközelítést és a patchek által választott implementációt.
+  Mindenképp mutasd meg, hogy alaposan elolvastad a sorozatot, és eléggé
+  megértetted a problémakört ahhoz, hogy meg tudd mondani, a patchek jól
+  vannak megírva.  Nyugodtan "gondolkodj hangosan" az átnézésedben: írd
+  le, hogyan olvastad és értetted meg egy patch egy összetett szakaszát,
+  tegyél fel kérdést valamiről, ami összezavart, mutass rá valamire,
+  amit kivételesen jól megírtnak találtál, stb.
+
+- Különösen a felemelő visszajelzés sokat tesz azért, hogy a
+  contributorokat aktívabb részvételre bátorítsa a Git közösségben.
+
+[[_performing_your_review]]
+==== Az átnézésed elvégzése
+- Az átnézési megjegyzéseidet patchenként add meg egy egyszerű szöveges
+  "Reply-All" e-mailben az érintett patchre. A megjegyzéseket a szövegbe
+  ágyazva, közvetlenül az érintett szakasz(ok) alatt kell megtenni.
+
+- Előfordulhat, hogy a patch diffjében biztosított korlátozott
+  kontextus néha nem elegendő egy alapos átnézéshez. Ilyen esetekben a
+  patcheket a lokális tree-dben nézheted át úgy, hogy vagy alkalmazod a
+  patcheket a linkgit:git-am[1]-mel, vagy checkoutolod a hozzá tartozó
+  branchet a https://github.com/gitster/git-ről, ha a sorozat már ott
+  van követve.
+
+- A nagy, bonyolult patch-diffek néha elkerülhetetlenek, például amikor
+  meglévő kódot refaktorálnak. Ha egy ilyen patchet nehéznek találsz
+  értelmezni, próbáld meg a `--color-moved` és/vagy a
+  `--ignore-space-change` opcióval előállított diffet átnézni.
+
+- Ha egy patch hosszú, bátorítunk, hogy töröld belőle az e-mail-válaszban
+  azokat a részeket, amelyek nem kapcsolódnak az átnézésedhez. Ügyelj rá,
+  hogy elég kontextust hagyj ahhoz, hogy az olvasók megértsék a
+  megjegyzéseidet!
+
+- Ha nem tudsz egy sorozat teljes átnézését egyszerre elvégezni, fontold
+  meg, hogy tudatod a szerzővel (a listán vagy azon kívül), hogy
+  tervezed-e, és ha igen, mikor átnézni a sorozat többi részét.
+
+[[_completing_a_review]]
+Egy átnézés befejezése
+~~~~~~~~~~~~~~~~~~~~~~
+Miután egy sorozat minden patchét átnézték, a szerző (és/vagy más
+contributorok) megvitathatják az átnézés(eke)t. Ez eredményezheti azt,
+hogy nem alkalmaznak változtatásokat, vagy a szerző elküldi a patch(ek)
+egy új verzióját.
+
+Miután egy sorozatot a te vagy mások átnézésére válaszul újragöngyölnek,
+mindenképp nézd át újra a frissítéseket. Ha elégedett vagy a
+patchsorozat állapotával, explicit módon jelezd a jóváhagyásodat
+(jellemzően a legfrissebb verzió kísérőlevelére adott válasszal).
+Opcionálisan tudathatod a szerzővel, hogy hozzáadhatnak egy
+"Reviewed-by: <te>" trailert, ha a sorozat egy későbbi iterációjában szó
+szerint újra beküldik az átnézett patchet.
+
+Végül a későbbi "What's cooking" e-mailek explicit módon rákérdezhetnek,
+hogy egy átnézett téma készen áll-e a `next` branchbe való merge-elésre
+(jellemzően "Will merge to \'next\'?" megfogalmazással). Segíthetsz a
+maintainernek és a szerzőnek azzal, hogy röviden leírod a saját (és ha
+van, mások) átnézésének állapotát, beleértve az érintett szál(ak)ra
+mutató linkeket.
+
+[[_terminology]]
+Terminológia
 ------------
-The Git development community is a widely distributed, diverse, ever-changing
-group of individuals. Asynchronous communication via the Git mailing list poses
-unique challenges when reviewing or discussing patches. This document contains
-some guiding principles and helpful tools you can use to make your reviews both
-more efficient for yourself and more effective for other contributors.
-
-Note that none of the recommendations here are binding or in any way a
-requirement of participation in the Git community. They are provided as a
-resource to supplement your skills as a contributor.
-
-Principles
-----------
-
-Selecting patch(es) to review
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you are looking for a patch series in need of review, start by checking
-the latest "What's cooking in git.git" email
-(https://lore.kernel.org/git/xmqqilm1yp3m.fsf@gitster.g/[example]). The "What's
-cooking" emails & replies can be found using the query `s:"What's cooking"` on
-the https://lore.kernel.org/git/[`lore.kernel.org` mailing list archive];
-alternatively, you can find the contents of the "What's cooking" email tracked
-in `whats-cooking.txt` on the `todo` branch of Git. Topics tagged with "Needs
-review" and those in the "[New Topics]" section are typically those that would
-benefit the most from additional review.
-
-Patches can also be searched manually in the mailing list archive using a query
-like `s:"PATCH" -s:"Re:"`. You can browse these results for topics relevant to
-your expertise or interest.
-
-If you've already contributed to Git, you may also be CC'd in another
-contributor's patch series. These are topics where the author feels that your
-attention is warranted. This may be because their patch changes something you
-wrote previously (making you a good judge of whether the new approach does or
-doesn't work), or because you have the expertise to provide an exceptionally
-helpful review. There is no requirement to review these patches but, in the
-spirit of open source collaboration, you should strongly consider doing so.
-
-Reviewing patches
-~~~~~~~~~~~~~~~~~
-While every contributor takes their own approach to reviewing patches, here are
-some general pieces of advice to make your reviews as clear and helpful as
-possible. The advice is broken into two rough categories: high-level reviewing
-guidance, and concrete tips for interacting with patches on the mailing list.
-
-==== High-level guidance
-- Remember to review the content of commit messages for correctness and clarity,
-  in addition to the code change in the patch's diff. The commit message of a
-  patch should accurately and fully explain the code change being made in the
-  diff.
-
-- Reviewing test coverage is an important - but easy to overlook - component of
-  reviews. A patch's changes may be covered by existing tests, or new tests may
-  be introduced to exercise new behavior. Checking out a patch or series locally
-  allows you to manually mutate lines of new & existing tests to verify expected
-  pass/fail behavior. You can use this information to verify proper coverage or
-  to suggest additional tests the author could add.
-
-- When providing a recommendation, be as clear as possible about whether you
-  consider it "blocking" (the code would be broken or otherwise made worse if an
-  issue isn't fixed) or "non-blocking" (the patch could be made better by taking
-  the recommendation, but acceptance of the series does not require it).
-  Non-blocking recommendations can be particularly ambiguous when they are
-  related to - but outside the scope of - a series ("nice-to-have"s), or when
-  they represent only stylistic differences between the author and reviewer.
-
-- When commenting on an issue, try to include suggestions for how the author
-  could fix it. This not only helps the author to understand and fix the issue,
-  it also deepens and improves your understanding of the topic.
-
-- Reviews do not need to exclusively point out problems.  Positive
-  reviews indicate that it is not only the original author of the
-  patches who care about the issue the patches address, and are
-  highly encouraged.
-
-- Do not hesitate to give positive reviews on a series from your
-  work colleague.  If your positive review is written well, it will
-  not make you look as if you two are representing corporate
-  interest on a series that is otherwise uninteresting to other
-  community members and shoving it down their throat.
-
-- Write a positive review in such a way that others can understand
-  why you support the goal, the approach, and the implementation the
-  patches took.  Make sure to demonstrate that you did thoroughly read
-  the series and understood problem area well enough to be able to
-  say that the patches are written well.  Feel free to "think out
-  loud" in your review: describe how you read & understood a complex section of
-  a patch, ask a question about something that confused you, point out something
-  you found exceptionally well-written, etc.
-
-- In particular, uplifting feedback goes a long way towards
-  encouraging contributors to participate more actively in the Git
-  community.
-
-==== Performing your review
-- Provide your review comments per-patch in a plaintext "Reply-All" email to the
-  relevant patch. Comments should be made inline, immediately below the relevant
-  section(s).
-
-- You may find that the limited context provided in the patch diff is sometimes
-  insufficient for a thorough review. In such cases, you can review patches in
-  your local tree by either applying patches with linkgit:git-am[1] or checking
-  out the associated branch from https://github.com/gitster/git once the series
-  is tracked there.
-
-- Large, complicated patch diffs are sometimes unavoidable, such as when they
-  refactor existing code. If you find such a patch difficult to parse, try
-  reviewing the diff produced with the `--color-moved` and/or
-  `--ignore-space-change` options.
-
-- If a patch is long, you are encouraged to delete parts of it that are
-  unrelated to your review from the email reply. Make sure to leave enough
-  context for readers to understand your comments!
-
-- If you cannot complete a full review of a series all at once, consider letting
-  the author know (on- or off-list) if/when you plan to review the rest of the
-  series.
-
-Completing a review
-~~~~~~~~~~~~~~~~~~~
-Once each patch of a series is reviewed, the author (and/or other contributors)
-may discuss the review(s). This may result in no changes being applied, or the
-author will send a new version of their patch(es).
-
-After a series is rerolled in response to your or others' review, make sure to
-re-review the updates. If you are happy with the state of the patch series,
-explicitly indicate your approval (typically with a reply to the latest
-version's cover letter). Optionally, you can let the author know that they can
-add a "Reviewed-by: <you>" trailer if they resubmit the reviewed patch verbatim
-in a later iteration of the series.
-
-Finally, subsequent "What's cooking" emails may explicitly ask whether a
-reviewed topic is ready for merging to the `next` branch (typically phrased
-"Will merge to \'next\'?"). You can help the maintainer and author by responding
-with a short description of the state of your (and others', if applicable)
-review, including the links to the relevant thread(s).
-
-Terminology
------------
 nit: ::
-	Denotes a small issue that should be fixed, such as a typographical error
-	or misalignment of conditions in an `if()` statement.
+	Egy kis problémát jelöl, amelyet ki kellene javítani, például egy
+	elgépelést vagy a feltételek elrendezésének eltérését egy `if()`
+	utasításban.
 
 aside: ::
 optional: ::
 non-blocking: ::
-	Indicates to the reader that the following comment should not block the
-	acceptance of the patch or series. These are typically recommendations
-	related to code organization & style, or musings about topics related to
-	the patch in question, but beyond its scope.
+	Az olvasó számára jelzi, hogy a következő megjegyzés nem
+	blokkolhatja a patch vagy a sorozat elfogadását. Ezek jellemzően a
+	kódszervezéshez és -stílushoz kapcsolódó ajánlások, vagy a szóban
+	forgó patchhez kapcsolódó, de annak hatókörén kívül eső témákon való
+	tűnődések.
 
 s/<before>/<after>/::
-	Shorthand for "you wrote <before>, but I think you meant <after>," usually
-	for misspellings or other typographical errors. The syntax is a reference
-	to "substitute" command commonly found in Unix tools such as `ed`, `sed`,
-	`vim`, and `perl`.
+	Rövidítés arra, hogy "azt írtad, hogy <before>, de szerintem
+	<after>-t akartál", általában elírásokra vagy más elgépelésekre.
+	A szintaxis a Unix-eszközökben (mint az `ed`, `sed`, `vim` és `perl`)
+	gyakran megtalálható "substitute" parancsra utal.
 
 cover letter::
-	The "Patch 0" of a multi-patch series. This email describes the
-	high-level intent and structure of the patch series to readers on the
-	Git mailing list. It is also where the changelog notes and range-diff of
-	subsequent versions are provided by the author.
+	Egy több patchből álló sorozat "Patch 0"-ja. Ez az e-mail leírja a
+	patchsorozat magas szintű szándékát és szerkezetét a Git levelezőlista
+	olvasói számára. Itt adja meg a szerző a következő verziók changelog-
+	jegyzeteit és range-diffjét is.
 +
-On single-patch submissions, cover letter content is typically not sent as a
-separate email. Instead, it is inserted between the end of the patch's commit
-message (after the `---`) and the beginning of the diff.
+Egy patchből álló beküldéseknél a cover letter tartalmát jellemzően nem
+külön e-mailként küldik el. Ehelyett a patch commit-üzenetének vége (a
+`---` után) és a diff eleje közé kerül beszúrásra.
 
 #leftoverbits::
-  Used by either an author or a reviewer to describe features or suggested
-  changes that are out-of-scope of a given patch or series, but are relevant
-  to the topic for the sake of discussion.
+  Szerző vagy átnéző használja olyan funkciók vagy javasolt
+  változtatások leírására, amelyek egy adott patch vagy sorozat hatókörén
+  kívül esnek, de a vita kedvéért relevánsak a témához.
 
-See Also
+[[_see_also]]
+Lásd még
 --------
 link:MyFirstContribution.html[MyFirstContribution]

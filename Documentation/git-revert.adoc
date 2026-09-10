@@ -3,7 +3,7 @@ git-revert(1)
 
 NAME
 ----
-git-revert - Revert some existing commits
+git-revert - Néhány meglévő commit revertelése
 
 SYNOPSIS
 --------
@@ -14,113 +14,111 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Given one or more existing commits, revert the changes that the
-related patches introduce, and record some new commits that record
-them.  This requires your working tree to be clean (no modifications
-from the HEAD commit).
+Egy vagy több meglévő commit alapján visszavonja a hozzájuk tartozó
+patchek által bevezetett változtatásokat, és néhány új commitot rögzít,
+amelyek ezt rögzítik.  Ehhez az kell, hogy a working tree tiszta legyen
+(nincs módosítás a HEAD commithoz képest).
 
-Note: 'git revert' is used to record some new commits to reverse the
-effect of some earlier commits (often only a faulty one).  If you want to
-throw away all uncommitted changes in your working directory, you
-should see linkgit:git-reset[1], particularly the `--hard` option.  If
-you want to extract specific files as they were in another commit, you
-should see linkgit:git-restore[1], specifically the `--source`
-option. Take care with these alternatives as
-both will discard uncommitted changes in your working directory.
+Megjegyzés: a 'git revert' arra szolgál, hogy néhány új commitot
+rögzítsen néhány korábbi commit (gyakran csak egyetlen hibás)
+hatásának visszafordítására.  Ha az összes nem commitolt változtatást
+el akarod dobni a munkakönyvtáradban, nézd meg a linkgit:git-reset[1]-et,
+különösen a `--hard` opciót.  Ha bizonyos fájlokat úgy akarsz kinyerni,
+ahogy egy másik commitban voltak, nézd meg a linkgit:git-restore[1]-et,
+konkrétan a `--source` opciót. Légy óvatos ezekkel az alternatívákkal,
+mert mindkettő eldobja a nem commitolt változtatásokat a
+munkakönyvtáradban.
 
-See "Reset, restore and revert" in linkgit:git[1] for the differences
-between the three commands.
+A három parancs közötti különbségekért l. a "Reset, restore and revert"
+szakaszt a linkgit:git[1]-ben.
 
 OPTIONS
 -------
 <commit>...::
-	Commits to revert.
-	For a more complete list of ways to spell commit names, see
+	A revertelendő commitok.
+	A commitnevek megadási módjainak teljesebb listájáért l.
 	linkgit:gitrevisions[7].
-	Sets of commits can also be given but no traversal is done by
-	default, see linkgit:git-rev-list[1] and its `--no-walk`
-	option.
+	Commitok halmazai is megadhatók, de alapból nem történik bejárás;
+	l. linkgit:git-rev-list[1] és a `--no-walk` opcióját.
 
 -e::
 --edit::
-	With this option, 'git revert' will let you edit the commit
-	message prior to committing the revert. This is the default if
-	you run the command from a terminal.
+	Ezzel az opcióval a 'git revert' hagyja, hogy szerkeszd a
+	commit-üzenetet a revert commitolása előtt. Ez az alapértelmezett,
+	ha a parancsot terminálból futtatod.
 
 -m parent-number::
 --mainline parent-number::
-	Usually you cannot revert a merge because you do not know which
-	side of the merge should be considered the mainline.  This
-	option specifies the parent number (starting from 1) of
-	the mainline and allows revert to reverse the change
-	relative to the specified parent.
+	Általában nem tudsz merge-et revertelni, mert nem tudod, hogy a
+	merge melyik oldalát kell fővonalnak tekinteni.  Ez az opció megadja
+	a fővonal szülőjének számát (1-től kezdve), és lehetővé teszi a
+	revertnek, hogy a megadott szülőhöz képest fordítsa vissza a
+	változtatást.
 +
-Reverting a merge commit declares that you will never want the tree changes
-brought in by the merge.  As a result, later merges will only bring in tree
-changes introduced by commits that are not ancestors of the previously
-reverted merge.  This may or may not be what you want.
+Egy merge-commit revertelése azt jelenti ki, hogy soha nem akarod majd a
+merge által behozott tree-változtatásokat.  Ennek eredményeként a
+későbbi merge-ek csak olyan commitok által bevezetett
+tree-változtatásokat hoznak be, amelyek nem ősei a korábban revertelt
+merge-nek.  Lehet, hogy ezt akarod, de lehet, hogy nem.
 +
-See the link:howto/revert-a-faulty-merge.html[revert-a-faulty-merge How-To] for
-more details.
+További részletekért l. a link:howto/revert-a-faulty-merge.html[revert-a-faulty-merge How-To]-t.
 
 --no-edit::
-	With this option, 'git revert' will not start the commit
-	message editor.
+	Ezzel az opcióval a 'git revert' nem indítja el a commit-üzenet
+	szerkesztőjét.
 
 --cleanup=<mode>::
-	This option determines how the commit message will be cleaned up before
-	being passed on to the commit machinery. See linkgit:git-commit[1] for more
-	details. In particular, if the '<mode>' is given a value of `scissors`,
-	scissors will be appended to `MERGE_MSG` before being passed on in the case
-	of a conflict.
+	Ez az opció meghatározza, hogyan lesz megtisztítva a commit-üzenet,
+	mielőtt továbbadódik a commit-gépezetnek. További részletekért l.
+	linkgit:git-commit[1]. Konkrétan, ha a '<mode>' a `scissors` értéket
+	kapja, konfliktus esetén egy ollóvonal fűződik a `MERGE_MSG`-hez,
+	mielőtt továbbadódna.
 
 -n::
 --no-commit::
-	Usually the command automatically creates some commits with
-	commit log messages stating which commits were
-	reverted.  This flag applies the changes necessary
-	to revert the named commits to your working tree
-	and the index, but does not make the commits.  In addition,
-	when this option is used, your index does not have to match
-	the HEAD commit.  The revert is done against the
-	beginning state of your index.
+	A parancs általában automatikusan létrehoz néhány commitot olyan
+	commit napló-üzenetekkel, amelyek megadják, mely commitok lettek
+	revertelve.  Ez a flag a megnevezett commitok reverteléséhez
+	szükséges változtatásokat alkalmazza a working tree-den és az
+	indexen, de nem készíti el a commitokat.  Ezenkívül, amikor ezt az
+	opciót használod, az indexednek nem kell egyeznie a HEAD committal.
+	A revert az indexed kiinduló állapotához képest történik.
 +
-This is useful when reverting more than one commits'
-effect to your index in a row.
+Ez akkor hasznos, amikor egymás után több commit hatását revertelsz az
+indexedbe.
 
 -S[<keyid>]::
 --gpg-sign[=<keyid>]::
 --no-gpg-sign::
-	GPG-sign commits. The `keyid` argument is optional and
-	defaults to the committer identity; if specified, it must be
-	stuck to the option without a space. `--no-gpg-sign` is useful to
-	countermand both `commit.gpgSign` configuration variable, and
-	earlier `--gpg-sign`.
+	Commitok GPG-aláírása. A `keyid` argumentum opcionális, és alapból
+	a commitoló identitása; ha meg van adva, szóköz nélkül kell az
+	opcióhoz tapadnia. A `--no-gpg-sign` hasznos mind a `commit.gpgSign`
+	konfigurációs változó, mind egy korábbi `--gpg-sign`
+	hatálytalanítására.
 
 -s::
 --signoff::
-	Add a `Signed-off-by` trailer at the end of the commit message.
-	See the signoff option in linkgit:git-commit[1] for more information.
+	Egy `Signed-off-by` trailer hozzáadása a commit-üzenet végén.
+	További információért l. a signoff opciót a linkgit:git-commit[1]-ben.
 
 --strategy=<strategy>::
-	Use the given merge strategy.  Should only be used once.
-	See the MERGE STRATEGIES section in linkgit:git-merge[1]
-	for details.
+	A megadott merge-stratégia használata.  Csak egyszer szabad
+	használni.  A részletekért l. a MERGE STRATEGIES szakaszt a
+	linkgit:git-merge[1]-ben.
 
 -X<option>::
 --strategy-option=<option>::
-	Pass the merge strategy-specific option through to the
-	merge strategy.  See linkgit:git-merge[1] for details.
+	A merge-stratégia-specifikus opció továbbítása a merge-stratégiának.
+	A részletekért l. linkgit:git-merge[1].
 
 include::rerere-options.adoc[]
 
 --reference::
-	Instead of starting the body of the log message with "This
-	reverts <full-object-name-of-the-commit-being-reverted>.",
-	refer to the commit using "--pretty=reference" format
-	(cf. linkgit:git-log[1]).  The `revert.reference`
-	configuration variable can be used to enable this option by
-	default.
+	Ahelyett, hogy a napló-üzenet törzsét a "This reverts
+	<full-object-name-of-the-commit-being-reverted>." kezdené, a
+	commitra "--pretty=reference" formátumban hivatkozz
+	(vö. linkgit:git-log[1]).  A `revert.reference` konfigurációs
+	változóval ez az opció alapból bekapcsolható.
 
 
 SEQUENCER SUBCOMMANDS
@@ -131,26 +129,27 @@ EXAMPLES
 --------
 `git revert HEAD~3`::
 
-	Revert the changes specified by the fourth last commit in HEAD
-	and create a new commit with the reverted changes.
+	A HEAD-ben a negyedik utolsó commit által megadott változtatások
+	revertelése, és egy új commit létrehozása a revertelt
+	változtatásokkal.
 
 `git revert -n master~5..master~2`::
 
-	Revert the changes done by commits from the fifth last commit
-	in master (included) to the third last commit in master
-	(included), but do not create any commit with the reverted
-	changes. The revert only modifies the working tree and the
-	index.
+	A masterben az ötödik utolsó committól (beleértve) a harmadik
+	utolsó commitig (beleértve) terjedő commitok által végzett
+	változtatások revertelése, de bármilyen commit létrehozása nélkül a
+	revertelt változtatásokkal. A revert csak a working tree-t és az
+	indexet módosítja.
 
 DISCUSSION
 ----------
 
-While git creates a basic commit message automatically, it is
-_strongly_ recommended to explain why the original commit is being
-reverted.
-In addition, repeatedly reverting reverts will result in increasingly
-unwieldy subject lines, for example 'Reapply "Reapply "<original-subject>""'.
-Please consider rewording these to be shorter and more unique.
+Bár a git automatikusan létrehoz egy alap commit-üzenetet,
+_nyomatékosan_ ajánlott elmagyarázni, miért lesz revertelve az eredeti
+commit.
+Ezenkívül a revertek ismételt revertelése egyre nehézkesebb
+tárgysorokat eredményez, például 'Reapply "Reapply "<original-subject>""'.
+Fontold meg ezek átfogalmazását rövidebbre és egyedibbre.
 
 CONFIGURATION
 -------------
@@ -165,4 +164,4 @@ linkgit:git-cherry-pick[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

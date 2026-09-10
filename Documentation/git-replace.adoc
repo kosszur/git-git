@@ -3,7 +3,7 @@ git-replace(1)
 
 NAME
 ----
-git-replace - Create, list, delete refs to replace objects
+git-replace - Objektumokat helyettesítő refek létrehozása, listázása, törlése
 
 SYNOPSIS
 --------
@@ -17,101 +17,102 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Adds a 'replace' reference in `refs/replace/` namespace.
+Hozzáad egy 'replace' referenciát a `refs/replace/` névtérben.
 
-The name of the 'replace' reference is the SHA-1 of the object that is
-replaced. The content of the 'replace' reference is the SHA-1 of the
-replacement object.
+A 'replace' referencia neve a helyettesített objektum SHA-1-e. A
+'replace' referencia tartalma a helyettesítő objektum SHA-1-e.
 
-The replaced object and the replacement object must be of the same type.
-This restriction can be bypassed using `-f`.
+A helyettesített objektumnak és a helyettesítő objektumnak azonos
+típusúnak kell lennie. Ez a megkötés a `-f` használatával megkerülhető.
 
-Unless `-f` is given, the 'replace' reference must not yet exist.
+Hacsak nincs megadva a `-f`, a 'replace' referencia még nem létezhet.
 
-There is no other restriction on the replaced and replacement objects.
-Merge commits can be replaced by non-merge commits and vice versa.
+A helyettesített és a helyettesítő objektumokra nincs más megkötés. A
+merge-commitok helyettesíthetők nem merge-commitokkal és fordítva.
 
-Replacement references will be used by default by all Git commands
-except those doing reachability traversal (prune, pack transfer and
-fsck).
+A helyettesítő referenciákat alapból minden Git parancs használja,
+kivéve azokat, amelyek elérhetőségi bejárást végeznek (prune, pack
+átvitel és fsck).
 
-It is possible to disable the use of replacement references for any
-command using the `--no-replace-objects` option just after 'git'.
+Bármely parancsnál letiltható a helyettesítő referenciák használata a
+`--no-replace-objects` opcióval, közvetlenül a 'git' után.
 
-For example if commit 'foo' has been replaced by commit 'bar':
+Például, ha a 'foo' commitot a 'bar' commit helyettesítette:
 
 ------------------------------------------------
 $ git --no-replace-objects cat-file commit foo
 ------------------------------------------------
 
-shows information about commit 'foo', while:
+a 'foo' commitról mutat információt, míg:
 
 ------------------------------------------------
 $ git cat-file commit foo
 ------------------------------------------------
 
-shows information about commit 'bar'.
+a 'bar' commitról mutat információt.
 
-The `GIT_NO_REPLACE_OBJECTS` environment variable can be set to
-achieve the same effect as the `--no-replace-objects` option.
+A `GIT_NO_REPLACE_OBJECTS` környezeti változó beállításával ugyanaz a
+hatás érhető el, mint a `--no-replace-objects` opcióval.
 
 OPTIONS
 -------
 -f::
 --force::
-	If an existing replace ref for the same object exists, it will
-	be overwritten (instead of failing).
+	Ha ugyanahhoz az objektumhoz létezik replace ref, az felülíródik
+	(a hibázás helyett).
 
 -d::
 --delete::
-	Delete existing replace refs for the given objects.
+	A megadott objektumokhoz tartozó meglévő replace refek törlése.
 
 --edit <object>::
-	Edit an object's content interactively. The existing content
-	for <object> is pretty-printed into a temporary file, an
-	editor is launched on the file, and the result is parsed to
-	create a new object of the same type as <object>. A
-	replacement ref is then created to replace <object> with the
-	newly created object. See linkgit:git-var[1] for details about
-	how the editor will be chosen.
+	Egy objektum tartalmának interaktív szerkesztése. Az <object>
+	meglévő tartalma szép formázással egy ideiglenes fájlba kerül, egy
+	szerkesztő indul a fájlon, és az eredmény elemzésével egy új,
+	<object>-tel azonos típusú objektum jön létre. Ezután egy
+	helyettesítő ref jön létre, amely az <object>-et az újonnan
+	létrehozott objektumra cseréli. A szerkesztő kiválasztásának
+	részleteiről l. linkgit:git-var[1].
 
 --raw::
-	When editing, provide the raw object contents rather than
-	pretty-printed ones. Currently this only affects trees, which
-	will be shown in their binary form. This is harder to work with,
-	but can help when repairing a tree that is so corrupted it
-	cannot be pretty-printed. Note that you may need to configure
-	your editor to cleanly read and write binary data.
+	Szerkesztéskor a szép formázás helyett a nyers objektumtartalmat
+	adja. Jelenleg ez csak a tree-ket érinti, amelyek bináris
+	formájukban jelennek meg. Ezzel nehezebb dolgozni, de segíthet egy
+	olyan tree javításakor, amely annyira sérült, hogy nem lehet szép
+	formázással megjeleníteni. Vedd figyelembe, hogy szükség lehet a
+	szerkesztőd beállítására a bináris adatok tiszta olvasásához és
+	írásához.
 
 --graft <commit> [<parent>...]::
-	Create a graft commit. A new commit is created with the same
-	content as <commit> except that its parents will be
-	[<parent>...] instead of <commit>'s parents. A replacement ref
-	is then created to replace <commit> with the newly created
-	commit. Use `--convert-graft-file` to convert a
-	`$GIT_DIR/info/grafts` file and use replace refs instead.
+	Egy graft commit létrehozása. Egy új commit jön létre a <commit>-tal
+	azonos tartalommal, azzal a kivétellel, hogy a szülői [<parent>...]
+	lesznek a <commit> szülői helyett. Ezután egy helyettesítő ref jön
+	létre, amely a <commit>-ot az újonnan létrehozott commitra cseréli.
+	Egy `$GIT_DIR/info/grafts` fájl konvertálásához és helyette replace
+	refek használatához használd a `--convert-graft-file`-t.
 
 --convert-graft-file::
-	Creates graft commits for all entries in `$GIT_DIR/info/grafts`
-	and deletes that file upon success. The purpose is to help users
-	with transitioning off of the now-deprecated graft file.
+	Graft commitokat hoz létre a `$GIT_DIR/info/grafts` összes
+	bejegyzéséhez, és siker esetén törli azt a fájlt. A cél az, hogy
+	segítse a felhasználókat a mostanra elavult graft fájlról való
+	áttérésben.
 
 -l <pattern>::
 --list <pattern>::
-	List replace refs for objects that match the given pattern (or
-	all if no pattern is given).
-	Typing "git replace" without arguments, also lists all replace
-	refs.
+	A megadott mintára illeszkedő objektumokhoz tartozó replace refek
+	listázása (vagy az összesé, ha nincs minta megadva).
+	A "git replace" argumentumok nélküli begépelése szintén felsorolja
+	az összes replace refet.
 
 --format=<format>::
-	When listing, use the specified <format>, which can be one of
-	'short', 'medium' and 'long'. When omitted, the format
-	defaults to 'short'.
+	Listázáskor a megadott <format> használata, amely a 'short',
+	'medium' és 'long' egyike lehet. Ha hiányzik, a formátum alapból
+	'short'.
 
 FORMATS
 -------
 
-The following formats are available:
+A következő formátumok érhetők el:
 
 * 'short':
 	<replaced-sha1>
@@ -123,34 +124,34 @@ The following formats are available:
 CREATING REPLACEMENT OBJECTS
 ----------------------------
 
-linkgit:git-hash-object[1], linkgit:git-rebase[1], and
-https://github.com/newren/git-filter-repo[git-filter-repo], among other git commands, can be used to
-create replacement objects from existing objects. The `--edit` option
-can also be used with 'git replace' to create a replacement object by
-editing an existing object.
+A linkgit:git-hash-object[1], a linkgit:git-rebase[1] és a
+https://github.com/newren/git-filter-repo[git-filter-repo] – más git parancsok mellett – használható
+helyettesítő objektumok létrehozására meglévő objektumokból. A `--edit`
+opció a 'git replace'-szel is használható helyettesítő objektum
+létrehozására egy meglévő objektum szerkesztésével.
 
-If you want to replace many blobs, trees or commits that are part of a
-string of commits, you may just want to create a replacement string of
-commits and then only replace the commit at the tip of the target
-string of commits with the commit at the tip of the replacement string
-of commits.
+Ha sok blobot, tree-t vagy commitot szeretnél helyettesíteni, amelyek
+egy commitfüzér részei, akkor lehet, hogy elég csak egy helyettesítő
+commitfüzért létrehozni, majd csak a cél-commitfüzér csúcsán lévő
+commitot helyettesíteni a helyettesítő commitfüzér csúcsán lévő
+committal.
 
 BUGS
 ----
-Comparing blobs or trees that have been replaced with those that
-replace them will not work properly. And using `git reset --hard` to
-go back to a replaced commit will move the branch to the replacement
-commit instead of the replaced commit.
+A helyettesített blobok vagy tree-k összehasonlítása az őket
+helyettesítőkkel nem működik megfelelően. És ha a `git reset --hard`-ot
+használod, hogy visszatérj egy helyettesített commithoz, az a branchet
+a helyettesítő commitra mozgatja a helyettesített commit helyett.
 
-There may be other problems when using 'git rev-list' related to
-pending objects.
+Előfordulhatnak más problémák is a 'git rev-list' használatakor, a
+függőben lévő objektumokkal kapcsolatban.
 
 CAVEATS
 -------
 
-The existence of replace objects or commit grafts turns off reading or
-writing to the commit-graph, which can cause performance issues. See
-linkgit:git-commit-graph[1].
+A replace objektumok vagy a commit graftok létezése kikapcsolja a
+commit-graph olvasását és írását, ami teljesítményproblémákat okozhat.
+L. linkgit:git-commit-graph[1].
 
 SEE ALSO
 --------
@@ -165,4 +166,4 @@ https://github.com/newren/git-filter-repo[git-filter-repo]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
