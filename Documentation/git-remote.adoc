@@ -3,7 +3,7 @@ git-remote(1)
 
 NAME
 ----
-git-remote - Manage set of tracked repositories
+git-remote - Követett repositoryk halmazának kezelése
 
 
 SYNOPSIS
@@ -26,7 +26,7 @@ git remote [-v | --verbose] update [-p | --prune] [(<group> | <remote>)...]
 DESCRIPTION
 -----------
 
-Manage the set of repositories ("remotes") whose branches you track.
+Azon repositoryk ("remote-ok") halmazának kezelése, amelyek branchét követed.
 
 
 OPTIONS
@@ -34,192 +34,196 @@ OPTIONS
 
 `-v`::
 `--verbose`::
-	Be a little more verbose and show remote url after name.
-	For promisor remotes, also show which filters (`blob:none` etc.)
-	are configured.
-	NOTE: This must be placed between `remote` and subcommand.
+	Legyen kicsit bőbeszédűbb, és a név után mutassa a remote url-jét.
+	Promisor remote-oknál azt is mutassa, mely szűrők (`blob:none` stb.)
+	vannak beállítva.
+	NOTE: Ezt a `remote` és az alparancs közé kell tenni.
 
 
 COMMANDS
 --------
 
-With no arguments, show a list of existing remotes.  Several
-subcommands are available to perform operations on the remotes.
+Argumentumok nélkül a meglévő remote-ok listáját mutatja.  Több alparancs
+áll rendelkezésre a remote-okon végzett műveletekhez.
 
 `add`::
 
-Add a remote named _<name>_ for the repository at
-_<URL>_.  The command `git fetch <name>` can then be used to create and
-update remote-tracking branches `<name>/<branch>`.
+Hozzáad egy _<name>_ nevű remote-ot az _<URL>_ helyen lévő repositoryhoz.
+A `git fetch <name>` parancs ezután használható a `<name>/<branch>`
+remote-tracking branchek létrehozására és frissítésére.
 +
-With `-f` option, `git fetch <name>` is run immediately after
-the remote information is set up.
+A `-f` kapcsolóval a `git fetch <name>` közvetlenül a remote-információk
+beállítása után lefut.
 +
-With `--tags` option, `git fetch <name>` imports every tag from the
-remote repository.
+A `--tags` kapcsolóval a `git fetch <name>` minden taget importál a remote
+repositoryból.
 +
-With `--no-tags` option, `git fetch <name>` does not import tags from
-the remote repository.
+A `--no-tags` kapcsolóval a `git fetch <name>` nem importál tageket a remote
+repositoryból.
 +
-By default, only tags on fetched branches are imported
-(see linkgit:git-fetch[1]).
+Alapértelmezés szerint csak a fetchelt branchekhez tartozó tageket importálja
+(lásd linkgit:git-fetch[1]).
 +
-With `-t <branch>` option, instead of the default glob
-refspec for the remote to track all branches under
-the `refs/remotes/<name>/` namespace, a refspec to track only _<branch>_
-is created.  You can give more than one `-t <branch>` to track
-multiple branches without grabbing all branches.
+A `-t <branch>` kapcsolóval az alapértelmezett glob refspec helyett, amely a
+remote-ot a `refs/remotes/<name>/` névtér alatti összes branch követésére
+állítja be, egy csak a _<branch>_ követésére szolgáló refspec jön létre.
+Több `-t <branch>` is megadható több branch követéséhez anélkül, hogy az
+összes branchet átvennéd.
 +
-With `-m <master>` option, a symbolic-ref `refs/remotes/<name>/HEAD` is set
-up to point at remote's _<master>_ branch. See also the set-head command.
+A `-m <master>` kapcsolóval egy `refs/remotes/<name>/HEAD` symbolic-ref jön
+létre, amely a remote _<master>_ branchére mutat. Lásd még a set-head
+parancsot.
 +
-When a fetch mirror is created with `--mirror=fetch`, the refs will not
-be stored in the `refs/remotes/` namespace, but rather everything in
-`refs/` on the remote will be directly mirrored into `refs/` in the
-local repository. This option only makes sense in bare repositories,
-because a fetch would overwrite any local commits.
+Amikor a `--mirror=fetch`-csel fetch-tükör jön létre, a refek nem a
+`refs/remotes/` névtérben tárolódnak, hanem a remote-on lévő `refs/`-ben
+minden közvetlenül a lokális repository `refs/`-ébe tükröződik. Ennek a
+kapcsolónak csak bare repositoryban van értelme, mert egy fetch felülírná a
+lokális commitokat.
 +
-When a push mirror is created with `--mirror=push`, then `git push`
-will always behave as if `--mirror` was passed.
+Amikor a `--mirror=push`-sal push-tükör jön létre, a `git push` mindig úgy
+viselkedik, mintha a `--mirror` át lenne adva.
 
 `rename`::
 
-Rename the remote named _<old>_ to _<new>_. All remote-tracking branches and
-configuration settings for the remote are updated.
+Átnevezi az _<old>_ nevű remote-ot _<new>_-ra. A remote összes
+remote-tracking branché és konfigurációs beállítása frissül.
 +
-In case _<old>_ and _<new>_ are the same, and _<old>_ is a file under
-`$GIT_DIR/remotes` or `$GIT_DIR/branches`, the remote is converted to
-the configuration file format.
+Ha az _<old>_ és a _<new>_ megegyezik, és az _<old>_ egy fájl a
+`$GIT_DIR/remotes` vagy a `$GIT_DIR/branches` alatt, a remote átalakul a
+konfigurációsfájl-formátumra.
 
 `remove`::
 `rm`::
 
-Remove the remote named _<name>_. All remote-tracking branches and
-configuration settings for the remote are removed.
+Eltávolítja az _<name>_ nevű remote-ot. A remote összes remote-tracking
+branché és konfigurációs beállítása eltávolításra kerül.
 
 `set-head`::
 
-Set or delete the default branch (i.e. the target of the
-symbolic-ref `refs/remotes/<name>/HEAD`) for
-the named remote. Having a default branch for a remote is not required,
-but allows the name of the remote to be specified in lieu of a specific
-branch. For example, if the default branch for `origin` is set to
-`master`, then `origin` may be specified wherever you would normally
-specify `origin/master`.
+Beállítja vagy törli a megnevezett remote alapértelmezett branchét (azaz a
+`refs/remotes/<name>/HEAD` symbolic-ref célját). Egy remote-nak nem
+kötelező alapértelmezett branchcsel rendelkeznie, de lehetővé teszi, hogy a
+remote nevét egy konkrét branch helyett adhasd meg. Például ha az `origin`
+alapértelmezett branché `master`-re van állítva, akkor az `origin` megadható
+bárhol, ahol normál esetben `origin/master`-t adnál meg.
 +
-With `-d` or `--delete`, the symbolic ref `refs/remotes/<name>/HEAD` is deleted.
+A `-d` vagy `--delete` a `refs/remotes/<name>/HEAD` symbolic refet törli.
 +
-With `-a` or `--auto`, the remote is queried to determine its `HEAD`, then the
-symbolic-ref `refs/remotes/<name>/HEAD` is set to the same branch. e.g., if the remote
-`HEAD` is pointed at `next`, `git remote set-head origin -a` will set
-the symbolic-ref `refs/remotes/origin/HEAD` to `refs/remotes/origin/next`. This will
-only work if `refs/remotes/origin/next` already exists; if not it must be
-fetched first.
+A `-a` vagy `--auto` esetén a remote-ot lekérdezi a `HEAD`-je
+meghatározásához, majd a `refs/remotes/<name>/HEAD` symbolic-refet ugyanarra
+a branchre állítja. Pl. ha a remote `HEAD` a `next`-re mutat, a
+`git remote set-head origin -a` a `refs/remotes/origin/HEAD` symbolic-refet a
+`refs/remotes/origin/next`-re állítja. Ez csak akkor működik, ha a
+`refs/remotes/origin/next` már létezik; ha nem, előbb fetchelni kell.
 +
-Use _<branch>_ to set the symbolic-ref `refs/remotes/<name>/HEAD` explicitly. e.g., `git
-remote set-head origin master` will set the symbolic-ref `refs/remotes/origin/HEAD` to
-`refs/remotes/origin/master`. This will only work if
-`refs/remotes/origin/master` already exists; if not it must be fetched first.
+A _<branch>_ használatával explicit módon állíthatod be a
+`refs/remotes/<name>/HEAD` symbolic-refet. Pl. a
+`git remote set-head origin master` a `refs/remotes/origin/HEAD`
+symbolic-refet a `refs/remotes/origin/master`-re állítja. Ez csak akkor
+működik, ha a `refs/remotes/origin/master` már létezik; ha nem, előbb
+fetchelni kell.
 +
 
 `set-branches`::
 
-Change the list of branches tracked by the named remote.
-This can be used to track a subset of the available remote branches
-after the initial setup for a remote.
+Megváltoztatja a megnevezett remote által követett branchek listáját.
+Ezzel az elérhető remote branchek egy részhalmaza követhető egy remote
+kezdeti beállítása után.
 +
-The named branches will be interpreted as if specified with the
-`-t` option on the `git remote add` command line.
+A megnevezett branchek úgy értelmeződnek, mintha a `git remote add`
+parancssorában a `-t` kapcsolóval lennének megadva.
 +
-With `--add`, instead of replacing the list of currently tracked
-branches, adds to that list.
+A `--add` esetén a jelenleg követett branchek listájának cseréje helyett
+ehhez a listához ad hozzá.
 
 `get-url`::
 
-Retrieves the URLs for a remote. Configurations for `insteadOf` and
-`pushInsteadOf` are expanded here. By default, only the first URL is listed.
+Lekéri egy remote URL-jeit. Az `insteadOf` és a `pushInsteadOf`
+beállításokat itt kifejti. Alapértelmezés szerint csak az első URL kerül
+listázásra.
 +
-With `--push`, push URLs are queried rather than fetch URLs.
+A `--push` esetén a fetch URL-ek helyett a push URL-eket kérdezi le.
 +
-With `--all`, all URLs for the remote will be listed.
+A `--all` esetén a remote összes URL-je listázásra kerül.
 
 `set-url`::
 
-Change URLs for the remote. Sets first URL for remote _<name>_ that matches
-regex _<oldurl>_ (first URL if no _<oldurl>_ is given) to _<newurl>_. If
-_<oldurl>_ doesn't match any URL, an error occurs and nothing is changed.
+Megváltoztatja a remote URL-jeit. Az _<name>_ remote első olyan URL-jét,
+amely illeszkedik az _<oldurl>_ regexre (az első URL-t, ha nincs _<oldurl>_
+megadva), _<newurl>_-re állítja. Ha az _<oldurl>_ egyetlen URL-re sem
+illeszkedik, hiba lép fel, és semmi sem változik.
 +
-With `--push`, push URLs are manipulated instead of fetch URLs.
+A `--push` esetén a fetch URL-ek helyett a push URL-eket módosítja.
 +
-With `--add`, instead of changing existing URLs, new URL is added.
+A `--add` esetén a meglévő URL-ek módosítása helyett új URL-t ad hozzá.
 +
-With `--delete`, instead of changing existing URLs, all URLs matching
-regex _<URL>_ are deleted for remote _<name>_.  Trying to delete all
-non-push URLs is an error.
+A `--delete` esetén a meglévő URL-ek módosítása helyett az _<name>_
+remote-nál minden, az _<URL>_ regexre illeszkedő URL törlődik.  Az összes
+nem-push URL törlésének megkísérlése hiba.
 +
-Note that the push URL and the fetch URL, even though they can
-be set differently, must still refer to the same place.  What you
-pushed to the push URL should be what you would see if you
-immediately fetched from the fetch URL.  If you are trying to
-fetch from one place (e.g. your upstream) and push to another (e.g.
-your publishing repository), use two separate remotes.
+Vedd figyelembe, hogy a push URL-nek és a fetch URL-nek, még ha eltérően is
+állíthatók be, ugyanarra a helyre kell hivatkoznia.  Amit a push URL-re
+pusholtál, annak kell megjelennie, ha rögtön fetchelnél a fetch URL-ről.
+Ha egy helyről (pl. az upstreamedről) fetchelsz, és egy másikra (pl. a
+publikáló repositorydba) pusholsz, használj két külön remote-ot.
 
 
 `show`::
 
-Give some information about the remote _<name>_.
+Némi információt ad az _<name>_ remote-ról.
 +
-With `-n` option, the remote heads are not queried first with
-`git ls-remote <name>`; cached information is used instead.
+A `-n` kapcsolóval a remote headeket nem kérdezi le előbb a
+`git ls-remote <name>`-mel; helyette gyorsítótárazott információt használ.
 
 `prune`::
 
-Delete stale references associated with _<name>_. By default, stale
-remote-tracking branches under _<name>_ are deleted, but depending on
-global configuration and the configuration of the remote we might even
-prune local tags that haven't been pushed there. Equivalent to `git
-fetch --prune <name>`, except that no new references will be fetched.
+Törli az _<name>_-hez tartozó elavult referenciákat. Alapértelmezés szerint
+az _<name>_ alatti elavult remote-tracking brancheket törli, de a globális
+konfigurációtól és a remote konfigurációjától függően akár olyan lokális
+tageket is kigyomlálhat, amelyeket nem pusholtak oda. Egyenértékű a
+`git fetch --prune <name>`-mel, azzal a különbséggel, hogy nem fetchel új
+referenciákat.
 +
-See the PRUNING section of linkgit:git-fetch[1] for what it'll prune
-depending on various configuration.
+Arról, hogy különböző konfigurációktól függően mit gyomlál ki, lásd a
+linkgit:git-fetch[1] PRUNING szakaszát.
 +
-With `--dry-run` option, report what branches would be pruned, but do not
-actually prune them.
+A `--dry-run` kapcsolóval jelenti, mely branchek lennének kigyomlálva, de
+ténylegesen nem gyomlálja ki őket.
 
 `update`::
 
-Fetch updates for remotes or remote groups in the repository as defined by
-`remotes.<group>`. If neither group nor remote is specified on the command line,
-the configuration parameter `remotes.default` will be used; if
-`remotes.default` is not defined, all remotes which do not have the
-configuration parameter `remote.<name>.skipDefaultUpdate` set to `true` will
-be updated.  (See linkgit:git-config[1]).
+Frissítéseket fetchel a repositoryban lévő remote-okhoz vagy
+remote-csoportokhoz, ahogyan azt a `remotes.<group>` meghatározza. Ha sem
+csoport, sem remote nincs megadva a parancssorban, a `remotes.default`
+konfigurációs paramétert használja; ha a `remotes.default` nincs definiálva,
+minden olyan remote frissül, amelynél a `remote.<name>.skipDefaultUpdate`
+konfigurációs paraméter nincs `true`-ra állítva.  (Lásd linkgit:git-config[1]).
 +
-With `--prune` option, run pruning against all the remotes that are updated.
+A `--prune` kapcsolóval kigyomlálást futtat minden frissített remote-on.
 
 
 DISCUSSION
 ----------
 
-The remote configuration is achieved using the `remote.origin.url` and
-`remote.origin.fetch` configuration variables.  (See
-linkgit:git-config[1]).
+A remote konfigurálása a `remote.origin.url` és a `remote.origin.fetch`
+konfigurációs változókkal érhető el.  (Lásd linkgit:git-config[1]).
 
 EXIT STATUS
 -----------
 
-On success, the exit status is `0`.
+Siker esetén a kilépési állapot `0`.
 
-When subcommands such as `add`, `rename`, and `remove` can't find the
-remote in question, the exit status is `2`. When the remote already
-exists, the exit status is `3`.
+Amikor az olyan alparancsok, mint az `add`, a `rename` és a `remove`, nem
+találják a szóban forgó remote-ot, a kilépési állapot `2`. Amikor a remote
+már létezik, a kilépési állapot `3`.
 
-On any other error, the exit status may be any other non-zero value.
+Bármely más hiba esetén a kilépési állapot bármely más, nem nulla érték
+lehet.
 
 EXAMPLES
 --------
 
-* Add a new remote, fetch, and check out a branch from it
+* Új remote hozzáadása, fetchelés, és egy branch checkoutolása belőle
 +
 ------------
 $ git remote
@@ -247,7 +251,7 @@ $ git switch -c staging staging/master
 ...
 ------------
 
-* Imitate `git clone` but track only selected branches
+* A `git clone` utánzása, de csak kiválasztott branchek követésével
 +
 ------------
 $ mkdir project.git
@@ -266,4 +270,4 @@ linkgit:git-config[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -2532,3 +2532,102 @@ listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`g
   hunkok, `(1/1) Stage addition [y,n,q,a,d,p,?]? y` interaktív promptsorok) **bájtazonosak**. A
   `--` … `--` nyílt blokk a `--empty` leírásában + a benne lévő `*` felsorolás prózája fordult, a
   határolók változatlanok. `SYNOPSIS`-ban nincs `(EXPERIMENTAL!)` előtag (eltér a `git-replay.adoc`-tól).
+
+## 32. blokk — `fsck-msgids.adoc`, `gitignore.adoc`, `git-remote.adoc`, `git-receive-pack.adoc`, `gitcli.adoc` — 2026-09-10
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl. Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel (nagyobb, ~5–15 soros blokkokban).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| fsck message severity `(ERROR)` / `(INFO)` / `(WARN)` / `(FATAL)` / `(IGNORE)` | **bájtazonosan angolul**, zárójelben | `fsck-msgids.adoc` — az `fsck.<msg-id>` mechanizmus tényleges szintnevei, program-token; nem próza |
+| fsck msg-id címkék (`badDate`, `gitmodulesUrl`, `nulInHeader`, …) | **bájtazonosan angolul** (`` `id`:: ``) | csak a leírás-törzs fordult |
+| "packed-refs" / "quarantine" / "nonce" (idézőjeles token a prózában) | **angolul, idézőjelben** | `fsck-msgids.adoc`, `git-receive-pack.adoc` — fájlnév, ill. protokoll-token |
+| loose ref | **„laza ref"** | `fsck-msgids.adoc` (a 0. blokk `loose object` → „laza objektum" mintája) |
+| referent (symref célja) | **„hivatkozott"** (fn) | `fsck-msgids.adoc` `badReferentName` / `symrefTargetIsNotARef` |
+| pattern (gitignore) | **„minta"**; „to match" → „illeszkedik" | `gitignore.adoc` |
+| wildcard | **„helyettesítő karakter"** (0. blokk öröklött) | `gitignore.adoc`, `gitcli.adoc` |
+| to glob / globbed by the shell / fileglob | **„a shell kifejti" / „globbing" (a `git` felé) / „fileglob"** | `gitignore.adoc`, `gitcli.adoc` — a `file globbing` → „fájlnév-globbing" |
+| separator (`/` a mintában) | **„elválasztó"** | `gitignore.adoc` |
+| to anchor (a match) | **„rögzíti (az illeszkedést)"** | `gitignore.adoc` |
+| backslash | **„visszaperjel"**; „escape" (ige) → „escapel" | `gitignore.adoc` — „`\`" bájtazonos |
+| hash (a `#` karakter) | **„kettőskereszt"** | `gitignore.adoc` — a SHA-értelmű „hash" továbbra is „hash" |
+| mirror (fetch/push mirror) | **„tükör" / „fetch-tükör" / „push-tükör"**; ige: „tükröződik" | `git-remote.adoc` |
+| stale reference / stale remote-tracking branch | **„elavult referencia" / „elavult remote-tracking branch"** | `git-remote.adoc`, a `git prune` kontextusban |
+| to prune | **„kigyomlál" / „kigyomlálás"** | `git-remote.adoc` (konzisztens a `git-fetch`/`git-gc` korábbi „PRUNING" szakaszfordításokkal) |
+| default branch (remote) | **„alapértelmezett branch"** | `git-remote.adoc` `set-head` |
+| quarantine directory / quarantined objects | **„karantén könyvtár" / „karanténba helyezett objektumok"**; a `"quarantine"` idézőjeles token angolul | `git-receive-pack.adoc` |
+| to migrate (objektum a fő tárba) | **„átvándorol" / „átvándorlás"** | `git-receive-pack.adoc` QUARANTINE ENVIRONMENT |
+| connectivity check / object connectivity | **„kapcsolódási ellenőrzés" / „objektum-kapcsolódás"** | `git-receive-pack.adoc` `--skip-connectivity-check` |
+| transitive closure (of reachable objects) | **„tranzitív lezárt"** | `git-receive-pack.adoc` |
+| push certificate | **„push-tanúsítvány"** | `git-receive-pack.adoc` |
+| nonce (aláírt push) | **marad „nonce"**; toldalék: `nonce-ot`, `nonce-sztring` | `git-receive-pack.adoc` |
+| to replay (tanúsítványt) | **„visszajátszik"** | `git-receive-pack.adoc` — konzisztens a `git-replay` 30. blokk „újrajátszás"-ával, itt a „replay attack" értelmében „visszajátszás" |
+| dumb transport | **marad „dumb transzport"** | `git-receive-pack.adoc` (a `smart`/`dumb` protokoll 17./19. blokk kezelése) |
+| convention (CLI) | **„konvenció"** | `gitcli.adoc` |
+| to disambiguate / disambiguating `--` | **„egyértelműsít" / „egyértelműsítő `--`"** | `gitcli.adoc` |
+| 'stuck' form (opció-argumentum) | **marad "'stuck' (összeragadt) alak"** (első előforduláskor glosszázva) | `gitcli.adoc` |
+| to aggregate short options | **„rövid opciók összevonása"** | `gitcli.adoc` |
+| to trump (configuration/environment) | **„felülír"** | `gitcli.adoc` „Options trump…" cím |
+| dot-repository | **marad „dot-repository"** | `gitcli.adoc` |
+| flag (a CLI-kapcsoló szinonimája) | **marad „flag"** (idézőjelben, ahogy a forrás: `"flags"` → `"flag"-ek`) | `gitcli.adoc` |
+
+### Címsor-anchorok
+
+- **`gitcli.adoc`** — 7 defenzív `[[...]]` a `~~~~` alcímek fölé (az `ENHANCED OPTION PARSER` alatt),
+  **mind fordult**, aláhúzás pontos karakterhosszra igazítva (Python `len()` ellenőrzés):
+  `[[_magic_options]]` „Mágikus opciók" (14), `[[_negating_options]]` „Opciók negálása" (15),
+  `[[_options_trump_configuration_and_environment]]` „Az opciók felülírják a konfigurációt és a
+  környezetet" (53), `[[_aggregating_short_options]]` „Rövid opciók összevonása" (24),
+  `[[_abbreviating_long_options]]` „Hosszú opciók rövidítése" (24),
+  `[[_separating_argument_from_the_option]]` „Az argumentum elválasztása az opciótól" (38),
+  `[[_magic_filename_options]]` „Mágikus fájlnév-opciók" (22). Nincs rájuk `<<...>>`.
+- `fsck-msgids.adoc`, `gitignore.adoc`, `git-remote.adoc`, `git-receive-pack.adoc`: nincs
+  `[[...]]`/`<<...>>`. `git-remote.adoc`/`git-receive-pack.adoc` `*-HOOK` és
+  `QUARANTINE ENVIRONMENT` / `COMMANDS` alcímek csupa nagybetűsek → angolul (l. lent), nem kaptak
+  anchort (autogen slug az angol címből stabil).
+
+### Man-page címként / csupa nagybetűs alcímként ANGOLUL hagyott címsorok
+
+- **`PATTERN FORMAT`** (`gitignore.adoc`), **`COMMANDS`** (`git-remote.adoc`),
+  **`PRE-RECEIVE HOOK`** / **`UPDATE HOOK`** / **`POST-RECEIVE HOOK`** / **`POST-UPDATE HOOK`** /
+  **`QUARANTINE ENVIRONMENT`** (`git-receive-pack.adoc`), **`ENHANCED OPTION PARSER`** /
+  **`NOTES ON FREQUENTLY CONFUSED OPTIONS`** (`gitcli.adoc`) — csupa nagybetűs, kanonikus listán
+  kívüli → VÉGLEGES DÖNTÉS szerint bájtazonosan angolul (aláhúzás sem változott). A `HOOKS` a
+  VÉGLEGES DÖNTÉS szakasz saját példái közt szerepel.
+- **`NOTES`** (`gitignore.adoc`, + a `see the NOTES below` prózahivatkozás), **`EXIT STATUS`**
+  (`git-remote.adoc`) — a skill kanonikus listáján, angolul.
+- **`PRUNING`** (`git-remote.adoc` prózahivatkozás a `linkgit:git-fetch[1]` szakaszára) — a
+  `git-fetch.adoc`-ban is angolul maradt (progress), így a hivatkozás is angol.
+
+### Megőrzött markup / megjegyzések
+
+- **RFC 2119 kulcsszavak angolul** (21./23. blokk precedens): `MUST NOT` (`git-receive-pack.adoc`
+  QUARANTINE ENVIRONMENT 3. pont — a magyar mondatba beékelve: „…hook MUST NOT frissítsen egyetlen
+  refet sem…"), `SHOULD` és `*NOT*` (`gitcli.adoc`). Az `"options then args"` szabálynév
+  (`gitcli.adoc`) idézőjelben, angolul.
+- **`fsck-msgids.adoc`**: `0\{40}` attribútum-escape bájtazonos; a `git@vger.kernel.org`
+  levelezőlista-cím változatlan; a fájlnak nincs NAME/SYNOPSIS/GIT (tiszta `::` def-lista-fragmens).
+- **`gitignore.adoc`**: az `SP`/`LF`/`CR` és a `$XDG_CONFIG_HOME`/`$GIT_COMMON_DIR`/`core.excludesFile`
+  tokenek, a `fnmatch(3)` / `FNM_PATHNAME` hívásnevek, valamint a
+  `--------------------------------------------------------------` (60 kötőjeles) `$ git …` /
+  `[imap]`-szerű shell-példablokkok **bájtazonosak**. A `NOTES`/`EXAMPLES`/`CONFIGURATION` kanonikus
+  címek angolul.
+- **`git-remote.adoc`**: a `------------` (12) és `------…` (48) EXAMPLES-blokkok (`$ git remote` /
+  `$ git fetch staging` kimenet, `From git://…` sorok, `$ git switch -c …`) **bájtazonosak**;
+  az `add`/`rename`/`remove`/`rm`/`set-head`/`set-branches`/`get-url`/`set-url`/`show`/`prune`/`update`
+  `::` alparancs-címkék változatlanok (csak a törzs fordult); `NOTE:` admonition-kulcsszó a `-v`
+  leírásában megtartva.
+- **`git-receive-pack.adoc`**: a szóközzel behúzott literál sorok (`sha1-old SP sha1-new SP refname
+  LF`, `$GIT_DIR/hooks/update refname sha1-old sha1-new`) és a `----` shell-szkript blokkok
+  (`#!/bin/sh`, `git rev-list --pretty`, `git cat-file blob …`, `exec git update-server-info`)
+  **bájtazonosak**; a `GIT_PUSH_CERT*` env-változó `::` címkék és az `UNSOLICITED`/`MISSING`/`BAD`/
+  `OK`/`SLOP` `;;` másodszintű státusz-címkék változatlanok; a `"git push --signed"` idézett
+  parancs angolul.
+- **`gitcli.adoc`**: a `--------…` (32/44/28/26 kötőjeles) `$ git …` shell-példablokkok
+  (benne a `usage: git describe …` súgókimenet, a `# correct` / `# NOT WHAT YOU MEANT` /
+  `# if COMMIT_EDITMSG does not exist…` kommentek) **bájtazonosak**; a `lore.kernel.org` URL-ek
+  változatlanok; a `'on'` / `'stuck'` / `'.'` compat-mode `'...'` jelölések megtartva.

@@ -1,253 +1,252 @@
 `badDate`::
-	(ERROR) Invalid date format in an author/committer line.
+	(ERROR) Érvénytelen dátumformátum egy author/committer sorban.
 
 `badDateOverflow`::
-	(ERROR) Invalid date value in an author/committer line.
+	(ERROR) Érvénytelen dátumérték egy author/committer sorban.
 
 `badEmail`::
-	(ERROR) Invalid email format in an author/committer line.
+	(ERROR) Érvénytelen e-mail-formátum egy author/committer sorban.
 
 `badFilemode`::
-	(INFO) A tree contains a bad filemode entry.
+	(INFO) Egy fa hibás filemode-bejegyzést tartalmaz.
 
 `badGpgsig`::
-	(ERROR) A tag contains a bad (truncated) signature (e.g., `gpgsig`) header.
+	(ERROR) Egy tag hibás (csonka) aláírásfejlécet (pl. `gpgsig`) tartalmaz.
 
 `badHeadTarget`::
-	(ERROR) The `HEAD` ref is a symref that does not refer to a branch.
+	(ERROR) A `HEAD` ref olyan symref, amely nem branchre hivatkozik.
 
 `badHeaderContinuation`::
-	(ERROR) A continuation header (such as for `gpgsig`) is unexpectedly truncated.
+	(ERROR) Egy folytatásfejléc (például a `gpgsig`-hez) váratlanul csonka.
 
 `badName`::
-	(ERROR) An author/committer name is empty.
+	(ERROR) Egy author/committer név üres.
 
 `badObjectSha1`::
-	(ERROR) An object has a bad sha1.
+	(ERROR) Egy objektumnak hibás a sha1-e.
 
 `badPackedRefEntry`::
-	(ERROR) The "packed-refs" file contains an invalid entry.
+	(ERROR) A "packed-refs" fájl érvénytelen bejegyzést tartalmaz.
 
 `badPackedRefHeader`::
-	(ERROR) The "packed-refs" file contains an invalid
-	header.
+	(ERROR) A "packed-refs" fájl érvénytelen
+	fejlécet tartalmaz.
 
 `badParentSha1`::
-	(ERROR) A commit object has a bad parent sha1.
+	(ERROR) Egy commit-objektumnak hibás a szülő-sha1-e.
 
 `badRefContent`::
-	(ERROR) A ref has bad content.
+	(ERROR) Egy refnek hibás a tartalma.
 
 `badRefFiletype`::
-	(ERROR) A ref has a bad file type.
+	(ERROR) Egy refnek hibás a fájltípusa.
 
 `badRefName`::
-	(ERROR) A ref has an invalid format.
+	(ERROR) Egy ref formátuma érvénytelen.
 
 `badRefOid`::
-	(ERROR) A ref points to an invalid object ID.
+	(ERROR) Egy ref érvénytelen objektumazonosítóra mutat.
 
 `badReferentName`::
-	(ERROR) The referent name of a symref is invalid.
+	(ERROR) Egy symref hivatkozott neve érvénytelen.
 
 `badReftableTableName`::
-	(WARN) A reftable table has an invalid name.
+	(WARN) Egy reftable tábla neve érvénytelen.
 
 `badTagName`::
-	(INFO) A tag has an invalid format.
+	(INFO) Egy tag formátuma érvénytelen.
 
 `badTimezone`::
-	(ERROR) Found an invalid time zone in an author/committer line.
+	(ERROR) Érvénytelen időzóna egy author/committer sorban.
 
 `badTree`::
-	(ERROR) A tree cannot be parsed.
+	(ERROR) Egy fa nem elemezhető.
 
 `badTreeSha1`::
-	(ERROR) A tree has an invalid format.
+	(ERROR) Egy fa formátuma érvénytelen.
 
 `badType`::
-	(ERROR) Found an invalid object type.
+	(ERROR) Érvénytelen objektumtípus.
 
 `duplicateEntries`::
-	(ERROR) A tree contains duplicate file entries.
+	(ERROR) Egy fa duplikált fájlbejegyzéseket tartalmaz.
 
 `emptyName`::
-	(WARN) A path contains an empty name.
+	(WARN) Egy elérési út üres nevet tartalmaz.
 
 `emptyPackedRefsFile`::
-	(INFO) "packed-refs" file is empty. Report to the
-	git@vger.kernel.org mailing list if you see this error. As only
-	very early versions of Git would create such an empty
-	"packed_refs" file, we might tighten this rule in the future.
+	(INFO) A "packed-refs" fájl üres. Ha ezt a hibát látod, jelezd a
+	git@vger.kernel.org levelezőlistán. Mivel csak a Git nagyon korai
+	verziói hoztak létre ilyen üres "packed_refs" fájlt, a jövőben
+	szigoríthatunk ezen a szabályon.
 
 `extraHeaderEntry`::
-	(IGNORE) Extra headers found after `tagger`.
+	(IGNORE) A `tagger` után extra fejlécek találhatók.
 
 `fullPathname`::
-	(WARN) A path contains the full path starting with "/".
+	(WARN) Egy elérési út a "/"-rel kezdődő teljes elérési utat tartalmazza.
 
 `gitattributesBlob`::
-	(ERROR) A non-blob found at `.gitattributes`.
+	(ERROR) Nem blob található a `.gitattributes` helyén.
 
 `gitattributesLarge`::
-	(ERROR) The `.gitattributes` blob is too large.
+	(ERROR) A `.gitattributes` blob túl nagy.
 
 `gitattributesLineLength`::
-	(ERROR) The `.gitattributes` blob contains too long lines.
+	(ERROR) A `.gitattributes` blob túl hosszú sorokat tartalmaz.
 
 `gitattributesMissing`::
-	(ERROR) Unable to read `.gitattributes` blob.
+	(ERROR) A `.gitattributes` blob nem olvasható.
 
 `gitattributesSymlink`::
-	(INFO) `.gitattributes` is a symlink.
+	(INFO) A `.gitattributes` egy symlink.
 
 `gitignoreSymlink`::
-	(INFO) `.gitignore` is a symlink.
+	(INFO) A `.gitignore` egy symlink.
 
 `gitmodulesBlob`::
-	(ERROR) A non-blob found at `.gitmodules`.
+	(ERROR) Nem blob található a `.gitmodules` helyén.
 
 `gitmodulesLarge`::
-	(ERROR) The `.gitmodules` file is too large to parse.
+	(ERROR) A `.gitmodules` fájl túl nagy az elemzéshez.
 
 `gitmodulesMissing`::
-	(ERROR) Unable to read `.gitmodules` blob.
+	(ERROR) A `.gitmodules` blob nem olvasható.
 
 `gitmodulesName`::
-	(ERROR) A submodule name is invalid.
+	(ERROR) Egy submodule-név érvénytelen.
 
 `gitmodulesParse`::
-	(INFO) Could not parse `.gitmodules` blob.
+	(INFO) A `.gitmodules` blob nem volt elemezhető.
 
 `gitmodulesPath`::
-	(ERROR) `.gitmodules` path is invalid.
+	(ERROR) A `.gitmodules` elérési útja érvénytelen.
 
 `gitmodulesSymlink`::
-	(ERROR) `.gitmodules` is a symlink.
+	(ERROR) A `.gitmodules` egy symlink.
 
 `gitmodulesUpdate`::
-	(ERROR) Found an invalid submodule update setting.
+	(ERROR) Érvénytelen submodule-frissítési beállítás.
 
 `gitmodulesUrl`::
-	(ERROR) Found an invalid submodule url.
+	(ERROR) Érvénytelen submodule-url.
 
 `hasDot`::
-	(WARN) A tree contains an entry named `.`.
+	(WARN) Egy fa `.` nevű bejegyzést tartalmaz.
 
 `hasDotdot`::
-	(WARN) A tree contains an entry named `..`.
+	(WARN) Egy fa `..` nevű bejegyzést tartalmaz.
 
 `hasDotgit`::
-	(WARN) A tree contains an entry named `.git`.
+	(WARN) Egy fa `.git` nevű bejegyzést tartalmaz.
 
 `largePathname`::
-	(WARN) A tree contains an entry with a very long path name. If
-	the value of `fsck.largePathname` contains a colon, that value
-	is used as the maximum allowable length (e.g., "warn:10" would
-	complain about any path component of 11 or more bytes). The
-	default value is 4096.
+	(WARN) Egy fa nagyon hosszú elérésiút-nevet tartalmazó bejegyzést
+	tartalmaz. Ha a `fsck.largePathname` értéke kettőspontot tartalmaz,
+	azt az értéket használja a megengedett maximális hosszként (pl. a
+	"warn:10" minden 11 vagy több bájtos útvonalkomponensre panaszkodna).
+	Az alapértelmezett érték 4096.
 
 `mailmapSymlink`::
-	(INFO) `.mailmap` is a symlink.
+	(INFO) A `.mailmap` egy symlink.
 
 `missingAuthor`::
-	(ERROR) Author is missing.
+	(ERROR) Hiányzik az author.
 
 `missingCommitter`::
-	(ERROR) Committer is missing.
+	(ERROR) Hiányzik a committer.
 
 `missingEmail`::
-	(ERROR) Email is missing in an author/committer line.
+	(ERROR) Hiányzik az e-mail egy author/committer sorban.
 
 `missingNameBeforeEmail`::
-	(ERROR) Missing name before an email in an author/committer line.
+	(ERROR) Hiányzik a név egy e-mail előtt egy author/committer sorban.
 
 `missingObject`::
-	(ERROR) Missing `object` line in tag object.
+	(ERROR) Hiányzik az `object` sor a tag-objektumból.
 
 `missingSpaceBeforeDate`::
-	(ERROR) Missing space before date in an author/committer line.
+	(ERROR) Hiányzik a szóköz a dátum előtt egy author/committer sorban.
 
 `missingSpaceBeforeEmail`::
-	(ERROR) Missing space before the email in an author/committer line.
+	(ERROR) Hiányzik a szóköz az e-mail előtt egy author/committer sorban.
 
 `missingTag`::
-	(ERROR) Unexpected end after `type` line in a tag object.
+	(ERROR) Váratlan vég a `type` sor után egy tag-objektumban.
 
 `missingTagEntry`::
-	(ERROR) Missing `tag` line in a tag object.
+	(ERROR) Hiányzik a `tag` sor egy tag-objektumból.
 
 `missingTaggerEntry`::
-	(INFO) Missing `tagger` line in a tag object.
+	(INFO) Hiányzik a `tagger` sor egy tag-objektumból.
 
 `missingTree`::
-	(ERROR) Missing `tree` line in a commit object.
+	(ERROR) Hiányzik a `tree` sor egy commit-objektumból.
 
 `missingType`::
-	(ERROR) Invalid type value on the `type` line in a tag object.
+	(ERROR) Érvénytelen típusérték a `type` sorban egy tag-objektumban.
 
 `missingTypeEntry`::
-	(ERROR) Missing `type` line in a tag object.
+	(ERROR) Hiányzik a `type` sor egy tag-objektumból.
 
 `multipleAuthors`::
-	(ERROR) Multiple author lines found in a commit.
+	(ERROR) Több author sor található egy commitban.
 
 `nulInCommit`::
-	(WARN) Found a NUL byte in the commit object body.
+	(WARN) NUL bájt található a commit-objektum törzsében.
 
 `nulInHeader`::
-	(FATAL) NUL byte exists in the object header.
+	(FATAL) NUL bájt van az objektumfejlécben.
 
 `nullSha1`::
-	(WARN) Tree contains entries pointing to a null sha1.
+	(WARN) A fa null sha1-re mutató bejegyzéseket tartalmaz.
 
 `packedRefEntryNotTerminated`::
-	(ERROR) The "packed-refs" file contains an entry that is
-	not terminated by a newline.
+	(ERROR) A "packed-refs" fájl olyan bejegyzést tartalmaz, amelyet
+	nem zár le újsor.
 
 `packedRefUnsorted`::
-	(ERROR) The "packed-refs" file is not sorted.
+	(ERROR) A "packed-refs" fájl nincs rendezve.
 
 `refMissingNewline`::
-	(INFO) A loose ref that does not end with newline(LF). As
-	valid implementations of Git never created such a loose ref
-	file, it may become an error in the future. Report to the
-	git@vger.kernel.org mailing list if you see this error, as
-	we need to know what tools created such a file.
+	(INFO) Egy laza ref, amely nem újsorral (LF) végződik. Mivel a Git
+	érvényes implementációi sosem hoztak létre ilyen laza ref-fájlt, ez a
+	jövőben hibává válhat. Ha ezt a hibát látod, jelezd a
+	git@vger.kernel.org levelezőlistán, mert tudnunk kell, mely eszközök
+	hoztak létre ilyen fájlt.
 
 `symlinkRef`::
-	(INFO) A symbolic link is used as a symref. Report to the
-	git@vger.kernel.org mailing list if you see this error, as we
-	are assessing the feasibility of dropping the support to drop
-	creating symbolic links as symrefs.
+	(INFO) Egy szimbolikus link van symrefként használva. Ha ezt a hibát
+	látod, jelezd a git@vger.kernel.org levelezőlistán, mert éppen azt
+	mérjük fel, megvalósítható-e a szimbolikus linkek symrefként való
+	létrehozásának megszüntetése.
 
 `symrefTargetIsNotARef`::
-	(INFO) The target of a symbolic reference points neither to
-	a root reference nor to a reference starting with "refs/".
-	Although we allow create a symref pointing to the referent which
-	is outside the "ref" by using `git symbolic-ref`, we may tighten
-	the rule in the future. Report to the git@vger.kernel.org
-	mailing list if you see this error, as we need to know what tools
-	created such a file.
+	(INFO) Egy szimbolikus referencia célja sem gyökérreferenciára, sem
+	"refs/"-fel kezdődő referenciára nem mutat. Bár a `git symbolic-ref`
+	használatával megengedjük olyan symref létrehozását, amely a "ref"-en
+	kívüli hivatkozottra mutat, a jövőben szigoríthatunk a szabályon. Ha
+	ezt a hibát látod, jelezd a git@vger.kernel.org levelezőlistán, mert
+	tudnunk kell, mely eszközök hoztak létre ilyen fájlt.
 
 `trailingRefContent`::
-	(INFO) A loose ref has trailing content. As valid implementations
-	of Git never created such a loose ref file, it may become an
-	error in the future. Report to the git@vger.kernel.org mailing
-	list if you see this error, as we need to know what tools
-	created such a file.
+	(INFO) Egy laza refnek záró tartalma van. Mivel a Git érvényes
+	implementációi sosem hoztak létre ilyen laza ref-fájlt, ez a jövőben
+	hibává válhat. Ha ezt a hibát látod, jelezd a git@vger.kernel.org
+	levelezőlistán, mert tudnunk kell, mely eszközök hoztak létre ilyen
+	fájlt.
 
 `treeNotSorted`::
-	(ERROR) A tree is not properly sorted.
+	(ERROR) Egy fa nincs megfelelően rendezve.
 
 `unknownType`::
-	(ERROR) Found an unknown object type.
+	(ERROR) Ismeretlen objektumtípus.
 
 `unterminatedHeader`::
-	(FATAL) Missing end-of-line in the object header.
+	(FATAL) Hiányzik a sorvég az objektumfejlécben.
 
 `zeroPaddedDate`::
-	(ERROR) Found a zero padded date in an author/committer line.
+	(ERROR) Nullákkal feltöltött dátum egy author/committer sorban.
 
 `zeroPaddedFilemode`::
-	(WARN) Found a zero padded filemode in a tree.
+	(WARN) Nullákkal feltöltött filemode egy fában.

@@ -3,7 +3,7 @@ gitcli(7)
 
 NAME
 ----
-gitcli - Git command-line interface and conventions
+gitcli - Git parancssori felület és konvenciók
 
 SYNOPSIS
 --------
@@ -13,121 +13,127 @@ gitcli
 DESCRIPTION
 -----------
 
-This manual describes the convention used throughout Git CLI.
+Ez a kézikönyv a Git CLI-ben végig használt konvenciót írja le.
 
-Many commands take revisions (most often "commits", but sometimes
-"tree-ish", depending on the context and command) and paths as their
-arguments.  Here are the rules:
+Sok parancs revíziókat (leggyakrabban "commitokat", de néha
+"tree-ish"-t, a kontextustól és a parancstól függően) és elérési utakat
+vesz argumentumként.  A szabályok a következők:
 
- * Options come first and then args.
-    A subcommand may take dashed options (which may take their own
-    arguments, e.g. "--max-parents 2") and arguments.  You SHOULD
-    give dashed options first and then arguments.  Some commands may
-    accept dashed options after you have already given non-option
-    arguments (which may make the command ambiguous), but you should
-    not rely on it (because eventually we may find a way to fix
-    these ambiguities by enforcing the "options then args" rule).
+ * Előbb az opciók jönnek, aztán az argumentumok.
+    Egy alparancs kötőjeles opciókat (amelyeknek saját argumentumaik
+    lehetnek, pl. "--max-parents 2") és argumentumokat vehet.  SHOULD
+    előbb a kötőjeles opciókat, majd az argumentumokat megadni.  Egyes
+    parancsok elfogadhatnak kötőjeles opciókat azután is, hogy már
+    megadtál nem opció argumentumokat (ami többértelművé teheti a
+    parancsot), de erre nem szabad támaszkodnod (mert végül találhatunk
+    módot ezeknek a többértelműségeknek a javítására az "options then
+    args" szabály kikényszerítésével).
 
- * Revisions come first and then paths.
-   E.g. in `git diff v1.0 v2.0 arch/x86 include/asm-x86`,
-   `v1.0` and `v2.0` are revisions and `arch/x86` and `include/asm-x86`
-   are paths.
+ * Előbb a revíziók jönnek, aztán az elérési utak.
+   Pl. a `git diff v1.0 v2.0 arch/x86 include/asm-x86`-ban a `v1.0` és a
+   `v2.0` revíziók, az `arch/x86` és az `include/asm-x86` pedig elérési
+   utak.
 
- * When an argument can be misunderstood as either a revision or a path,
-   they can be disambiguated by placing `--` between them.
-   E.g. `git diff -- HEAD` is, "I have a file called HEAD in my work
-   tree.  Please show changes between the version I staged in the index
-   and what I have in the work tree for that file", not "show the difference
-   between the HEAD commit and the work tree as a whole".  You can say
-   `git diff HEAD --` to ask for the latter.
+ * Amikor egy argumentum félreérthető akár revízióként, akár elérési
+   útként, egyértelműsíthetők úgy, hogy `--`-t teszel közéjük.
+   Pl. a `git diff -- HEAD` azt jelenti: "Van egy HEAD nevű fájlom a
+   munkakönyvtáramban.  Kérlek, mutasd az általam az indexbe stage-elt
+   verzió és az e fájlból a munkakönyvtáramban lévő közötti
+   változásokat", nem pedig azt, hogy "mutasd a HEAD commit és a
+   munkakönyvtár egésze közötti különbséget".  Az utóbbit a
+   `git diff HEAD --` kérésével kérheted.
 
- * Without disambiguating `--`, Git makes a reasonable guess, but errors
-   out and asks you to disambiguate when ambiguous.  E.g. if you have a
-   file called HEAD in your work tree, `git diff HEAD` is ambiguous, and
-   you have to say either `git diff HEAD --` or `git diff -- HEAD` to
-   disambiguate.
+ * Egyértelműsítő `--` nélkül a Git ésszerű tippet ad, de többértelműség
+   esetén hibával kilép, és egyértelműsítést kér.  Pl. ha van egy HEAD
+   nevű fájlod a munkakönyvtáradban, a `git diff HEAD` többértelmű, és az
+   egyértelműsítéshez vagy a `git diff HEAD --`-t, vagy a
+   `git diff -- HEAD`-t kell kiadnod.
 
- * Because `--` disambiguates revisions and paths in some commands, it
-   cannot be used for those commands to separate options and revisions.
-   You can use `--end-of-options` for this (it also works for commands
-   that do not distinguish between revisions in paths, in which case it
-   is simply an alias for `--`).
+ * Mivel a `--` egyes parancsokban a revíziókat és az elérési utakat
+   egyértelműsíti, ezeknél a parancsoknál nem használható az opciók és a
+   revíziók elválasztására.  Erre a `--end-of-options` használható (ez
+   olyan parancsoknál is működik, amelyek nem tesznek különbséget a
+   revíziók és az elérési utak között, ilyenkor egyszerűen a `--`
+   aliasa).
 +
-When writing a script that is expected to handle random user-input, it is
-a good practice to make it explicit which arguments are which by placing
-disambiguating `--` at appropriate places.
+Amikor olyan szkriptet írsz, amelynek várhatóan tetszőleges felhasználói
+bemenetet kell kezelnie, jó gyakorlat egyértelművé tenni, melyik argumentum
+micsoda úgy, hogy egyértelműsítő `--`-t helyezel a megfelelő helyekre.
 
- * Many commands allow wildcards in paths, but you need to protect
-   them from getting globbed by the shell.  These two mean different
-   things:
+ * Sok parancs megenged helyettesítő karaktereket az elérési utakban, de
+   meg kell védened őket attól, hogy a shell kifejtse őket.  Ez a kettő
+   különböző dolgot jelent:
 +
 --------------------------------
 $ git restore *.c
 $ git restore \*.c
 --------------------------------
 +
-The former lets your shell expand the fileglob, and you are asking
-the dot-C files in your working tree to be overwritten with the version
-in the index.  The latter passes the `*.c` to Git, and you are asking
-the paths in the index that match the pattern to be checked out to your
-working tree.  After running `git add hello.c; rm hello.c`, you will _not_
-see `hello.c` in your working tree with the former, but with the latter
-you will.
+Az előbbi hagyja, hogy a shell kifejtse a fileglobot, és azt kéred, hogy a
+munkakönyvtáradban lévő pont-C fájlok felülíródjanak az indexben lévő
+verzióval.  Az utóbbi átadja a `*.c`-t a Gitnek, és azt kéred, hogy az
+indexben lévő, a mintára illeszkedő elérési utak checkoutolódjanak a
+munkakönyvtáradba.  A `git add hello.c; rm hello.c` futtatása után az
+előbbivel _nem_ fogod látni a `hello.c`-t a munkakönyvtáradban, az
+utóbbival viszont igen.
 
- * Just as the filesystem '.' (period) refers to the current directory,
-   using a '.' as a repository name in Git (a dot-repository) is a relative
-   path and means your current repository.
+ * Ahogyan a fájlrendszerben a '.' (pont) az aktuális könyvtárra utal, a
+   '.' repository-névként való használata a Gitben (dot-repository) relatív
+   elérési út, és az aktuális repositorydat jelenti.
 
-Here are the rules regarding the "flags" that you should follow when you are
-scripting Git:
+Az alábbi szabályokat kell követned a "flag"-ekkel kapcsolatban, amikor a
+Gitet szkripteled:
 
- * Splitting short options to separate words (prefer `git foo -a -b`
-   to `git foo -ab`, the latter may not even work).
+ * A rövid opciók külön szavakra bontása (részesítsd előnyben a
+   `git foo -a -b`-t a `git foo -ab`-vel szemben; az utóbbi lehet, hogy
+   nem is működik).
 
- * When a command-line option takes an argument, use the 'stuck' form.  In
-   other words, write `git foo -oArg` instead of `git foo -o Arg` for short
-   options, and `git foo --long-opt=Arg` instead of `git foo --long-opt Arg`
-   for long options.  An option that takes optional option-argument must be
-   written in the 'stuck' form.
+ * Amikor egy parancssori opció argumentumot vesz, használd a 'stuck'
+   (összeragadt) alakot.  Más szóval rövid opcióknál a `git foo -o Arg`
+   helyett a `git foo -oArg`-ot írd, hosszú opcióknál pedig a
+   `git foo --long-opt Arg` helyett a `git foo --long-opt=Arg`-ot.  Egy
+   opcionális opció-argumentumot vevő opciót a 'stuck' alakban kell írni.
 
- * Despite the above suggestion, when Arg is a path relative to the
-   home directory of a user, e.g. `~/directory/file` or `~u/d/f`, you
-   may want to use the separate form, e.g. `git foo --file ~/mine`,
-   not `git foo --file=~/mine`.  The shell will expand `~/` in the
-   former to your home directory, but most shells keep the tilde in
-   the latter.  Some of our commands know how to tilde-expand the
-   option value even when given in the stuck form, but not all of
-   them do.
+ * A fenti javaslat ellenére, amikor az Arg egy felhasználó
+   home-könyvtárához képest relatív elérési út, pl. `~/directory/file`
+   vagy `~u/d/f`, érdemes lehet a különálló alakot használni, pl.
+   `git foo --file ~/mine`, nem `git foo --file=~/mine`.  A shell az
+   előbbiben kifejti a `~/`-t a home-könyvtáradra, de a legtöbb shell az
+   utóbbiban megtartja a tildét.  Egyes parancsaink tudják, hogyan
+   fejtsék ki tildével az opció értékét akkor is, ha stuck alakban van
+   megadva, de nem mindegyik.
 
- * When you give a revision parameter to a command, make sure the parameter is
-   not ambiguous with a name of a file in the work tree.  E.g. do not write
-   `git log -1 HEAD` but write `git log -1 HEAD --`; the former will not work
-   if you happen to have a file called `HEAD` in the work tree.
+ * Amikor revízió-paramétert adsz egy parancsnak, győződj meg róla, hogy a
+   paraméter nem többértelmű a munkakönyvtárban lévő valamely fájl
+   nevével.  Pl. ne a `git log -1 HEAD`-et írd, hanem a
+   `git log -1 HEAD --`-t; az előbbi nem működik, ha netán van egy `HEAD`
+   nevű fájlod a munkakönyvtárban.
 
- * Many commands allow a long option `--option` to be abbreviated
-   only to their unique prefix (e.g. if there is no other option
-   whose name begins with `opt`, you may be able to spell `--opt` to
-   invoke the `--option` flag), but you should fully spell them out
-   when writing your scripts; later versions of Git may introduce a
-   new option whose name shares the same prefix, e.g. `--optimize`,
-   to make a short prefix that used to be unique no longer unique.
+ * Sok parancs megengedi, hogy egy `--option` hosszú opciót csak az
+   egyedi előtagjára rövidíts (pl. ha nincs másik opció, amelynek a neve
+   `opt`-tal kezdődik, talán a `--opt` beírásával is meghívhatod a
+   `--option` flaget), de a szkriptjeid írásakor teljesen ki kell írnod
+   őket; a Git későbbi verziói bevezethetnek egy új opciót, amelynek a
+   neve ugyanazt az előtagot osztja, pl. `--optimize`, amitől egy korábban
+   egyedi rövid előtag már nem lesz egyedi.
 
 
 ENHANCED OPTION PARSER
 ----------------------
-From the Git 1.5.4 series and further, many Git commands (not all of them at the
-time of the writing though) come with an enhanced option parser.
+A Git 1.5.4-es sorozatától kezdve sok Git parancs (bár az írás idején nem
+mindegyik) továbbfejlesztett opció-elemzővel érkezik.
 
-Here is a list of the facilities provided by this option parser.
+Íme az ezen opció-elemző által nyújtott lehetőségek listája.
 
 
-Magic Options
-~~~~~~~~~~~~~
-Commands which have the enhanced option parser activated all understand a
-couple of magic command-line options:
+[[_magic_options]]
+Mágikus opciók
+~~~~~~~~~~~~~~
+Azok a parancsok, amelyeknél a továbbfejlesztett opció-elemző aktiválva
+van, mind értenek néhány mágikus parancssori opciót:
 
 -h::
-	gives a pretty printed usage of the command.
+	a parancs szépen formázott használati útmutatóját adja.
 +
 ---------------------------------------------
 $ git describe -h
@@ -142,63 +148,69 @@ usage: git describe [<options>] <commit-ish>*
     --abbrev[=<n>]        use <n> digits to display SHA-1s
 ---------------------------------------------
 +
-Note that some subcommand (e.g. `git grep`) may behave differently
-when there are things on the command line other than `-h`, but `git
-subcmd -h` without anything else on the command line is meant to
-consistently give the usage.
+Vedd figyelembe, hogy egyes alparancsok (pl. `git grep`) másképp
+viselkedhetnek, ha a `-h`-n kívül más is van a parancssorban, de a `git
+subcmd -h` a parancssorban minden más nélkül a használati útmutatót
+hivatott következetesen megadni.
 
 --help-all::
-	Some Git commands take options that are only used for plumbing or that
-	are deprecated, and such options are hidden from the default usage. This
-	option gives the full list of options.
+	Egyes Git parancsok olyan opciókat vesznek, amelyeket csak plumbing
+	célra használnak, vagy amelyek elavultak, és az ilyen opciók rejtve
+	vannak az alapértelmezett használati útmutatóból. Ez az opció megadja
+	az opciók teljes listáját.
 
 
-Negating options
-~~~~~~~~~~~~~~~~
-Options with long option names can be negated by prefixing `--no-`. For
-example, `git branch` has the option `--track` which is 'on' by default. You
-can use `--no-track` to override that behaviour. The same goes for `--color`
-and `--no-color`.
+[[_negating_options]]
+Opciók negálása
+~~~~~~~~~~~~~~~
+A hosszú opciónévvel rendelkező opciók a `--no-` előtaggal negálhatók.
+Például a `git branch` `--track` opciója alapértelmezés szerint 'on'. A
+`--no-track` használatával felülbírálhatod ezt a viselkedést. Ugyanez
+vonatkozik a `--color`-ra és a `--no-color`-ra.
 
 
-Options trump configuration and environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_options_trump_configuration_and_environment]]
+Az opciók felülírják a konfigurációt és a környezetet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When there is a configuration variable or an environment variable
-that tweak the behaviour of an aspect of a Git command, and also a
-command line option that tweaks the same, the command line option
-overrides what the configuration and/or environment variable say.
+Amikor van egy konfigurációs változó vagy egy környezeti változó, amely
+egy Git parancs valamely aspektusának viselkedését hangolja, és van egy
+parancssori opció is, amely ugyanazt hangolja, a parancssori opció
+felülírja azt, amit a konfigurációs és/vagy a környezeti változó mond.
 
-For example, the `user.name` configuration variable is used to
-specify the human-readable name used by the `git commit` command to
-record the author and the committer name in a newly created commit.
-The `GIT_AUTHOR_NAME` environment variable, if set, takes precedence
-when deciding what author name to record.  The `--author=<author>`
-command line option of the `git commit` command, when given, takes
-precedence over these two sources of information.
-
-
-Aggregating short options
-~~~~~~~~~~~~~~~~~~~~~~~~~
-Commands that support the enhanced option parser allow you to aggregate short
-options. This means that you can for example use `git rm -rf` or
-`git clean -fdx`.
+Például a `user.name` konfigurációs változó azt az ember által olvasható
+nevet adja meg, amelyet a `git commit` parancs használ az author és a
+committer nevének rögzítésére egy újonnan létrehozott commitban. A
+`GIT_AUTHOR_NAME` környezeti változó, ha be van állítva, elsőbbséget élvez
+annak eldöntésekor, milyen author nevet rögzítsen.  A `git commit` parancs
+`--author=<author>` parancssori opciója, ha meg van adva, elsőbbséget
+élvez ezzel a két információforrással szemben.
 
 
-Abbreviating long options
-~~~~~~~~~~~~~~~~~~~~~~~~~
-Commands that support the enhanced option parser accepts unique
-prefix of a long option as if it is fully spelled out, but use this
-with a caution.  For example, `git commit --amen` behaves as if you
-typed `git commit --amend`, but that is true only until a later version
-of Git introduces another option that shares the same prefix,
-e.g. `git commit --amenity` option.
+[[_aggregating_short_options]]
+Rövid opciók összevonása
+~~~~~~~~~~~~~~~~~~~~~~~~
+Azok a parancsok, amelyek támogatják a továbbfejlesztett opció-elemzőt,
+lehetővé teszik a rövid opciók összevonását. Ez azt jelenti, hogy például
+használhatod a `git rm -rf`-et vagy a `git clean -fdx`-et.
 
 
-Separating argument from the option
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can write the mandatory option parameter to an option as a separate
-word on the command line.  That means that all the following uses work:
+[[_abbreviating_long_options]]
+Hosszú opciók rövidítése
+~~~~~~~~~~~~~~~~~~~~~~~~
+Azok a parancsok, amelyek támogatják a továbbfejlesztett opció-elemzőt, egy
+hosszú opció egyedi előtagját úgy fogadják el, mintha teljesen ki lenne
+írva, de ezt óvatosan használd.  Például a `git commit --amen` úgy
+viselkedik, mintha a `git commit --amend`-et gépelted volna, de ez csak
+addig igaz, amíg a Git egy későbbi verziója be nem vezet egy másik opciót,
+amely ugyanazt az előtagot osztja, pl. a `git commit --amenity` opciót.
+
+
+[[_separating_argument_from_the_option]]
+Az argumentum elválasztása az opciótól
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Egy opció kötelező opció-paraméterét külön szóként is írhatod a
+parancssorban.  Ez azt jelenti, hogy az összes alábbi használat működik:
 
 ----------------------------
 $ git foo --long-opt=Arg
@@ -207,8 +219,8 @@ $ git foo -oArg
 $ git foo -o Arg
 ----------------------------
 
-However, this is *NOT* allowed for switches with an optional value, where the
-'stuck' form must be used:
+Ez azonban *NEM* megengedett az opcionális értékű kapcsolóknál, ahol a
+'stuck' alakot kell használni:
 
 ----------------------------
 $ git describe --abbrev HEAD     # correct
@@ -217,9 +229,10 @@ $ git describe --abbrev 10 HEAD  # NOT WHAT YOU MEANT
 ----------------------------
 
 
-Magic filename options
+[[_magic_filename_options]]
+Mágikus fájlnév-opciók
 ~~~~~~~~~~~~~~~~~~~~~~
-Options that take a filename allow a prefix `:(optional)`. For example:
+A fájlnevet vevő opciók megengednek egy `:(optional)` előtagot. Például:
 
 ----------------------------
 git commit -F :(optional)COMMIT_EDITMSG
@@ -227,57 +240,55 @@ git commit -F :(optional)COMMIT_EDITMSG
 git commit
 ----------------------------
 
-Like with configuration values, if the named file is missing Git behaves as if
-the option was not given at all. See "Values" in linkgit:git-config[1].
+A konfigurációs értékekhez hasonlóan, ha a megnevezett fájl hiányzik, a Git
+úgy viselkedik, mintha az opció egyáltalán nem lett volna megadva. Lásd a
+"Values" szakaszt a linkgit:git-config[1]-ben.
 
 NOTES ON FREQUENTLY CONFUSED OPTIONS
 ------------------------------------
 
-Many commands that can work on files in the working tree
-and/or in the index can take `--cached` and/or `--index`
-options.  Sometimes people incorrectly think that, because
-the index was originally called cache, these two are
-synonyms.  They are *not* -- these two options mean very
-different things.
+Sok parancs, amely a munkakönyvtárban és/vagy az indexben lévő fájlokon
+tud dolgozni, elfogadja a `--cached` és/vagy a `--index` opciót.  Néha az
+emberek tévesen azt gondolják, hogy mivel az indexet eredetileg cache-nek
+hívták, ez a kettő szinonima.  *Nem* azok -- ez a két opció nagyon
+különböző dolgokat jelent.
 
- * The `--cached` option is used to ask a command that
-   usually works on files in the working tree to *only* work
-   with the index.  For example, `git grep`, when used
-   without a commit to specify from which commit to look for
-   strings in, usually works on files in the working tree,
-   but with the `--cached` option, it looks for strings in
-   the index.
+ * A `--cached` opció arra való, hogy egy olyan parancsot, amely
+   általában a munkakönyvtárban lévő fájlokon dolgozik, *csak* az
+   indexszel dolgoztass.  Például a `git grep`, ha commit nélkül
+   használják annak megadására, mely commitban keressen sztringeket,
+   általában a munkakönyvtárban lévő fájlokon dolgozik, de a `--cached`
+   opcióval az indexben keres sztringeket.
 
- * The `--index` option is used to ask a command that
-   usually works on files in the working tree to *also*
-   affect the index.  For example, `git stash apply` usually
-   merges changes recorded in a stash entry to the working tree,
-   but with the `--index` option, it also merges changes to
-   the index as well.
+ * A `--index` opció arra való, hogy egy olyan parancsot, amely általában
+   a munkakönyvtárban lévő fájlokon dolgozik, *arra kérj*, hogy az indexet
+   *is* érintse.  Például a `git stash apply` általában egy
+   stash-bejegyzésben rögzített változásokat merge-eli a munkakönyvtárba,
+   de a `--index` opcióval az indexbe is bemerge-eli a változásokat.
 
-`git apply` command can be used with `--cached` and
-`--index` (but not at the same time).  Usually the command
-only affects the files in the working tree, but with
-`--index`, it patches both the files and their index
-entries, and with `--cached`, it modifies only the index
-entries.
+A `git apply` parancs használható a `--cached`-del és a `--index`-szel (de
+nem egyszerre).  A parancs általában csak a munkakönyvtárban lévő fájlokat
+érinti, de a `--index`-szel mind a fájlokat, mind az indexbejegyzéseiket
+patcheli, a `--cached`-del pedig csak az indexbejegyzéseket módosítja.
 
-See also https://lore.kernel.org/git/7v64clg5u9.fsf@assigned-by-dhcp.cox.net/ and
-https://lore.kernel.org/git/7vy7ej9g38.fsf@gitster.siamese.dyndns.org/ for further
-information.
+További információért lásd még a
+https://lore.kernel.org/git/7v64clg5u9.fsf@assigned-by-dhcp.cox.net/ és a
+https://lore.kernel.org/git/7vy7ej9g38.fsf@gitster.siamese.dyndns.org/
+címet.
 
-Some other commands that also work on files in the working tree and/or
-in the index can take `--staged` and/or `--worktree`.
+Néhány más parancs, amely szintén a munkakönyvtárban és/vagy az indexben
+lévő fájlokon dolgozik, elfogadja a `--staged` és/vagy a `--worktree`
+opciót.
 
-* `--staged` is exactly like `--cached`, which is used to ask a
-  command to only work on the index, not the working tree.
+* A `--staged` pontosan olyan, mint a `--cached`, amely arra kéri a
+  parancsot, hogy csak az indexen dolgozzon, ne a munkakönyvtáron.
 
-* `--worktree` is the opposite, to ask a command to work on the
-  working tree only, not the index.
+* A `--worktree` az ellentéte, arra kéri a parancsot, hogy csak a
+  munkakönyvtáron dolgozzon, ne az indexen.
 
-* The two options can be specified together to ask a command to work
-  on both the index and the working tree.
+* A két opció együtt is megadható, hogy a parancs az indexen és a
+  munkakönyvtáron is dolgozzon.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

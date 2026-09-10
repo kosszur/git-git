@@ -148,12 +148,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-range-diff.adoc | [ ] |  |  |
 | git-read-tree.adoc | [ ] |  |  |
 | git-rebase.adoc | [ ] |  |  |
-| git-receive-pack.adoc | [ ] |  |  |
+| git-receive-pack.adoc | [x] |  | 2026-09-10 |
 | git-reflog.adoc | [x] |  | 2026-09-10 |
 | git-refs.adoc | [x] |  | 2026-09-10 |
 | git-remote-ext.adoc | [x] |  | 2026-09-10 |
 | git-remote-fd.adoc | [x] |  | 2026-09-10 |
-| git-remote.adoc | [ ] |  |  |
+| git-remote.adoc | [x] |  | 2026-09-10 |
 | git-repack.adoc | [ ] |  |  |
 | git-replace.adoc | [x] |  | 2026-09-10 |
 | git-replay.adoc | [x] |  | 2026-09-10 |
@@ -228,10 +228,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | for-each-ref-options.adoc | [x] |  | 2026-09-10 |
 | format-patch-caveats.adoc | [x] |  | 2026-09-10 |
 | format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
-| fsck-msgids.adoc | [ ] |  |  |
+| fsck-msgids.adoc | [x] |  | 2026-09-10 |
 | git.adoc | [ ] |  |  |
 | gitattributes.adoc | [ ] |  |  |
-| gitcli.adoc | [ ] |  |  |
+| gitcli.adoc | [x] |  | 2026-09-10 |
 | gitcore-tutorial.adoc | [ ] |  |  |
 | gitcredentials.adoc | [ ] |  |  |
 | gitcvs-migration.adoc | [x] |  | 2026-09-10 |
@@ -248,7 +248,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitformat-signature.adoc | [x] |  | 2026-09-10 |
 | gitglossary.adoc | [ ] |  |  |
 | githooks.adoc | [ ] |  |  |
-| gitignore.adoc | [ ] |  |  |
+| gitignore.adoc | [x] |  | 2026-09-10 |
 | gitk.adoc | [x] |  | 2026-09-10 |
 | gitmailmap.adoc | [x] |  | 2026-09-10 |
 | gitmodules.adoc | [x] |  | 2026-09-10 |
@@ -747,3 +747,22 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   precedens ellenére, amely NEM man page volt). NAME `EXPERIMENTAL:` → „KÍSÉRLETI:" és a
   `THIS COMMAND IS EXPERIMENTAL…` mondat nagybetűsen lefordítva (`git-history.adoc`, 3./29. blokk).
   Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „31. blokk".
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; ugyanaz a módszer): `fsck-msgids.adoc`, `gitignore.adoc`, `git-remote.adoc`,
+  `git-receive-pack.adoc`, `gitcli.adoc`. Defenzív `[[...]]` anchorok: `gitcli.adoc` (7 — az
+  `ENHANCED OPTION PARSER` alatti `~~~~` Title/sentence case alcímek: `_magic_options`,
+  `_negating_options`, `_options_trump_configuration_and_environment`, `_aggregating_short_options`,
+  `_abbreviating_long_options`, `_separating_argument_from_the_option`, `_magic_filename_options` —
+  mind fordult, aláhúzás pontos hosszra igazítva). A többi 4 fájlban nincs `[[...]]`/`<<...>>`.
+  `fsck-msgids.adoc` include-fragmens: a `` `msgid`:: `` címkék (`badDate`, `gitmodulesUrl`, …) és a
+  `(ERROR)`/`(INFO)`/`(WARN)`/`(FATAL)`/`(IGNORE)` szintjelzők **bájtazonosak**, csak a leírás-törzs
+  fordult; `0\{40}` attribútum-escape változatlan; nincs NAME/GIT. Csupa nagybetűs, kanonikus listán
+  kívüli alcímek a VÉGLEGES DÖNTÉS szerint angolul: `PATTERN FORMAT` (`gitignore.adoc`),
+  `COMMANDS`/`QUARANTINE ENVIRONMENT`/`PRE-RECEIVE HOOK`/`UPDATE HOOK`/`POST-RECEIVE HOOK`/
+  `POST-UPDATE HOOK` (`git-remote.adoc`, `git-receive-pack.adoc`), `ENHANCED OPTION PARSER`/
+  `NOTES ON FREQUENTLY CONFUSED OPTIONS` (`gitcli.adoc`); `NOTES` (`gitignore.adoc`) és
+  `EXIT STATUS` (`git-remote.adoc`) kanonikus. `git-remote.adoc` `PRUNING` prózahivatkozás
+  (git-fetch[1] szakaszra) angolul. RFC 2119 kulcsszavak angolul: `MUST NOT` (`git-receive-pack.adoc`),
+  `SHOULD` / `*NOT*` (`gitcli.adoc`) — 21./23. blokk precedens. `gitcli.adoc` `"Values"`
+  (git-config[1] szakasznév) angolul (a `config.adoc` még lefordítatlan). Orchestrátor végezte
+  közvetlenül. Részletek: `glossary-git-git-docs.md` „32. blokk".
