@@ -95,7 +95,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-format-rev.adoc | [ ] |  |  |
 | git-fsck-objects.adoc | [x] |  | 2026-09-10 |
 | git-fsck.adoc | [ ] |  |  |
-| git-fsmonitor--daemon.adoc | [ ] |  |  |
+| git-fsmonitor--daemon.adoc | [x] |  | 2026-09-10 |
 | git-gc.adoc | [ ] |  |  |
 | git-get-tar-commit-id.adoc | [x] |  | 2026-09-10 |
 | git-grep.adoc | [ ] |  |  |
@@ -122,7 +122,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mailsplit.adoc | [x] |  | 2026-09-10 |
 | git-maintenance.adoc | [ ] |  |  |
 | git-merge-base.adoc | [ ] |  |  |
-| git-merge-file.adoc | [ ] |  |  |
+| git-merge-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-index.adoc | [x] |  | 2026-09-10 |
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-tree.adoc | [ ] |  |  |
@@ -151,7 +151,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-receive-pack.adoc | [ ] |  |  |
 | git-reflog.adoc | [ ] |  |  |
 | git-refs.adoc | [ ] |  |  |
-| git-remote-ext.adoc | [ ] |  |  |
+| git-remote-ext.adoc | [x] |  | 2026-09-10 |
 | git-remote-fd.adoc | [x] |  | 2026-09-10 |
 | git-remote.adoc | [ ] |  |  |
 | git-repack.adoc | [ ] |  |  |
@@ -172,7 +172,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-sh-i18n.adoc | [x] |  | 2026-09-10 |
 | git-sh-setup.adoc | [x] |  | 2026-09-10 |
 | git-shell.adoc | [x] |  | 2026-09-10 |
-| git-shortlog.adoc | [ ] |  |  |
+| git-shortlog.adoc | [x] |  | 2026-09-10 |
 | git-show-branch.adoc | [ ] |  |  |
 | git-show-index.adoc | [x] |  | 2026-09-10 |
 | git-show-ref.adoc | [ ] |  |  |
@@ -290,7 +290,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | signoff-option.adoc | [x] |  | 2026-09-10 |
 | trace2-target-values.adoc | [x] |  | 2026-09-10 |
 | transfer-data-leaks.adoc | [x] |  | 2026-09-10 |
-| urls-remotes.adoc | [ ] |  |  |
+| urls-remotes.adoc | [x] |  | 2026-09-10 |
 | urls.adoc | [x] |  | 2026-09-10 |
 | user-manual.adoc | [ ] |  |  |
 
@@ -637,3 +637,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   próza + felső szintű `- ` pontok + 6 szekciócím fordult). Egyik fájlban sincs `[[...]]`/`<<...>>`.
   Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „24. blokk" (a „23."
   számot egy párhuzamos „Gyökér"-munkamenet foglalta le).
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért): `git-remote-ext.adoc`, `git-fsmonitor--daemon.adoc`, `git-merge-file.adoc`,
+  `git-shortlog.adoc`, `urls-remotes.adoc`. Az `urls-remotes.adoc` include-cél fragmens
+  (`git-clone`/`git-fetch`/`git-pull`/`git-push`/`git-ls-remote` `include`-olja): a `REMOTES` és
+  `UPSTREAM BRANCHES` explicit `[[...]]` anchorral rendelkező, csupa nagybetűs címei a VÉGLEGES
+  DÖNTÉS szerint angolul maradtak (rájuk `<<REMOTES,REMOTES>>` / `<<UPSTREAM-BRANCHES,...>>` xref
+  mutat még lefordítatlan fájlokból), a 3 Title Case `~~~~` alcím viszont fordult, defenzív
+  anchorral. `git-shortlog.adoc` `MAPPING AUTHORS` a VÉGLEGES DÖNTÉS szerint angolul maradt (a
+  2026-09-04-i `git-blame.adoc`/`git-check-mailmap.adoc` „Szerzők leképezése" fordítás korábbi,
+  a döntés csak előre hatályos). Orchestrátor végezte közvetlenül. Részletek:
+  `glossary-git-git-docs.md` „25. blokk".

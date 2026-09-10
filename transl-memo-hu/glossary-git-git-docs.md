@@ -1762,3 +1762,100 @@ változatlan.
 
 - **`ADDENDUM`** (`revert-a-faulty-merge.adoc`) — l. a döntés-táblát. A többi fájl összes alcíme
   fordult (mind Title Case vagy mondat-alakú, egyik sem csupa nagybetűs man-page-stílusú).
+
+## 25. blokk — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** a felhasználó 5-ös bontást kért; ugyanaz a lista-logika, mint a 15–23. blokkban.
+**Számozás:** a „24." számot egy párhuzamos `howto/`-munkamenet foglalta le, ezért ez a „25. blokk".
+Fájlok: `git-remote-ext.adoc`, `git-fsmonitor--daemon.adoc`, `git-merge-file.adoc`,
+`git-shortlog.adoc`, `urls-remotes.adoc`. Az `urls-remotes.adoc` include-cél fragmens (a
+`git-clone`/`git-fetch`/`git-pull`/`git-push`/`git-ls-remote` `include`-olja), a többi rövid man
+page. Orchestrátor fordította közvetlenül.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| smart transport (NAME-mezőben, `git-remote-ext.adoc`) | **`»smart«` átvitel** (guillemet-ben) | a 19. blokk (`git-remote-fd.adoc`) `»smart« átviteli adatfolyam` mintáját követi; **jövőbeli döntési függőség marad** a `gitprotocol-http.adoc` fordításakor |
+| remote helper | **marad „remote helper"** angolul | `git-remote-ext.adoc`, `urls.adoc` (21. blokk) precedense |
+| escape-elt / nem escape-elt (szóköz) | **„escape-elt" / „nem escape-elt"** | `git-remote-ext.adoc` |
+| vhost / service / repository field (git:// protokoll-kérés mezőnevei) | **változatlanul angolul** (`vhost`, `service`, `repository` mező) | `git-remote-ext.adoc` — protokoll-mezőnevek, nem fordítandók |
+| link-level address | **„link-szintű cím"** | `git-remote-ext.adoc` |
+| filesystem monitor / fsmonitor daemon | **„fájlrendszer-figyelő" / „fsmonitor daemon"** | `git-fsmonitor--daemon.adoc` — a `daemon` a 0. blokk szerint angolul marad |
+| watch (inotify, fn) | **„figyelő"** | `git-fsmonitor--daemon.adoc` LINUX CAVEATS |
+| network-mounted (filesystem/repository) | **„hálózati csatolású"** | `git-fsmonitor--daemon.adoc` |
+| Unix domain socket (UDS) | **marad angolul** a rövidítéssel; „socket" / „socket-fájl" | `git-fsmonitor--daemon.adoc` |
+| super repo | **„szuperrepó"** | `git-fsmonitor--daemon.adoc` — a 3. blokk `superproject` → `szuperprojekt` mintájának rokona |
+| simple IPC (link-szöveg) | **„egyszerű IPC"** (a `link:` látható szövege fordult, a `.html` cél változatlan) | `git-fsmonitor--daemon.adoc` |
+| three-way file merge | **„háromutas fájl-merge"** | `git-merge-file.adoc` — a 0. blokk `three-way merge` → `háromutas merge` mintája |
+| conflict marker / marker | **„konfliktusjelölő"** | `git-merge-file.adoc` |
+| `<<<<<<<` / `>>>>>>>` (konfliktus-jelölők a prózában, backtick NÉLKÜL a forrásban) | **bájtazonosan megtartva** a magyar mondatban is | `git-merge-file.adoc` — a forrás sem teszi backtick közé; a markupot karakterazonosan visszük át |
+| "diff3" / "zdiff3" / "myers" / "histogram" / "patience" (konfliktus-/diff-stílusnevek, idézőjelben) | **változatlanul angolul, idézőjelben** | `git-merge-file.adoc` — a 15. blokk (`diff-algorithm-option.adoc`) döntése |
+| mismerge | **„hibás merge"** | `git-merge-file.adoc` |
+| release announcements | **„kiadási bejelentések"** | `git-shortlog.adoc` |
+| trailer (`--group=trailer:<field>`) | **marad „trailer"** angolul | `git-shortlog.adoc` — a 11. blokk (`git-commit.adoc`) döntése |
+| `name <email>` identity | **„`name <email>` identitás"** | `git-shortlog.adoc` |
+| co-author | **„társszerző"** | `git-shortlog.adoc` |
+| Linewrap / rewrap (kimenet) | **„sortördel" / „újratördel"** | `git-shortlog.adoc` |
+| "tracking information" (idézőjelben, git-branch terminológia) | **változatlanul angolul, idézőjelben** | `urls-remotes.adoc` `[NOTE]` — a doksi maga idézőjelezi, git-kimenet-közeli kifejezés |
+| branch (allatívusz: „társítható … branchhez") | **`branchhez`** (kötőjel nélkül, a 7. blokk „branch toldalék kötőjel NÉLKÜL" szabálya szerint) | `urls-remotes.adoc` — az instrumentális („branchcsel") kerülve, allatívuszra átfogalmazva a jobb olvashatóságért |
+
+### Címsor-anchorok
+
+- **`urls-remotes.adoc`**:
+  - `REMOTES[[REMOTES]]` (csupa nagybetűs, explicit inline `[[REMOTES]]` anchor) és
+    `[[UPSTREAM-BRANCHES]]` / `UPSTREAM BRANCHES` (csupa nagybetűs, explicit anchor) — a **VÉGLEGES
+    DÖNTÉS** szerint **angolul maradtak**; rájuk `<<REMOTES,REMOTES>>` és
+    `<<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>>` / `<<UPSTREAM-BRANCHES,upstream>>` xref mutat a még
+    lefordítatlan `git-pull.adoc` / `git-push.adoc` / `pull-fetch-param.adoc` fájlokból (grep-pel
+    ellenőrizve) — mind explicit anchor id-vel, tehát biztonságosak. A cím szövege és a látható
+    link-szöveg is angol marad.
+  - 3 Title Case `~~~~` alcím fordult defenzív anchorral: `[[_named_remote_in_configuration_file]]`
+    („Megnevezett remote a konfigurációs fájlban"),
+    `[[_named_file_in_git_dir_remotes]]` („Megnevezett fájl a `$GIT_DIR/remotes`-ban"),
+    `[[_named_file_in_git_dir_branches]]` („Megnevezett fájl a `$GIT_DIR/branches`-ban"). Nincs
+    rájuk `<<...>>` xref sehol. A `~~~~` aláhúzás a fordított cím **pontos** karakterhosszához
+    igazítva (Python `len()` alapú utólagos ellenőrzés; 3 db +1 elütés javítva: 43→42, 42→41,
+    43→42).
+- A másik 4 fájlban nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott címsorok (VÉGLEGES DÖNTÉS szerint, automatikusan)
+
+- `git-remote-ext.adoc`: `ENVIRONMENT VARIABLES PASSED TO COMMAND` (a `ENVIRONMENT VARIABLES` a
+  kanonikus listán).
+- `git-fsmonitor--daemon.adoc`: `REMARKS`, `LINUX CAVEATS` (a `CAVEATS` a kanonikus listán).
+- `git-shortlog.adoc`: `MAPPING AUTHORS` — csupa nagybetűs, nem kanonikus → **angolul maradt** a
+  VÉGLEGES DÖNTÉS szerint. **Megjegyzés:** a `git-blame.adoc` és a `git-check-mailmap.adoc`
+  (2026-09-04, 3./7. blokk) ugyanezt a címet még „Szerzők leképezése"-ként fordította — a VÉGLEGES
+  DÖNTÉS (2026-09-04, a 14. blokk előtt) viszont csak előre hatályos, és nem igényel visszamenőleges
+  javítást; a `git-shortlog.adoc` ezért a korábbi két fájltól eltérően angolul hagyja. Ha a
+  felhasználó egységesítést kér, a `git-shortlog.adoc`-ot lehet „Szerzők leképezése"-re javítani
+  (+ `[[_mapping_authors]]` defenzív anchor), nem a másik kettőt visszabontani.
+
+### Megőrzött markup / megjegyzések
+
+- `git-remote-ext.adoc`: a `'% '`, `'%%'`, `'%s'`, `'%S'`, `'%G'`, `'%V'` compat-mode-idézőjeles
+  szekvencia-nevek és a `(must be the first characters in an argument)` angol zárójeles
+  megjegyzés a `::` címkékben **változatlan** (a címke a szekvencia-jelölés, nem fordul); csak a
+  leírás-törzs fordult. Az EXAMPLES `"ext::..."` `::` címkéi (valós parancsstringek) bájtazonosak,
+  köztük a forrásbeli `, "git push <URL>"` elgépelt vezető vessző is (nem „javítva"). A `&#64;`
+  entitás változatlan.
+- `git-fsmonitor--daemon.adoc`: a `-- a special type of file --` közbevetés `--` jelölői
+  megtartva; 3 db 4-szóközzel behúzott literál blokk (`cat /proc/...`, `sudo sysctl ...`,
+  `fs.inotify...`) bájtazonos; `include::includes/cmd-config-section-all.adoc[]` +
+  `include::config/fsmonitor--daemon.adoc[]` változatlan; a `"File System Monitor"` idézőjeles
+  szakaszcím-hivatkozás (`git-update-index[1]`-re) angolul maradt.
+- `git-merge-file.adoc`: a tab-indentált `<<<<<<< A` … `>>>>>>> B` konfliktus-példablokk
+  bájtazonos; az `RCS 'merge'` / `RCS 'merge''s` compat-idézőjeles hivatkozások változatlanok.
+- `git-shortlog.adoc`: 1 pár `--`/`--` nyitott blokk (`--group` felsorolás) a ` - ` behúzott
+  lista-elemekkel; `:git-shortlog: 1` attribútum + `include::rev-list-options.adoc[]` változatlan;
+  a `'PRETTY FORMATS'`, `'Commit Formatting'`, `'Specifying Ranges'` compat-idézőjeles
+  szakaszcím-hivatkozások angolul maradtak. A `"Your branch and 'origin/main' have diverged…"`
+  idézett Git-kimenet bájtazonosan angolul (`urls-remotes.adoc`-ban is).
+- `urls-remotes.adoc`: `include::urls.adoc[]` (1. sor) változatlan; 6 pár `------------` (12
+  kötőjel) config-mintablokk bájtazonos (a `[remote "<name>"]` / `URL:`/`Push:`/`Pull:` /
+  `<URL>#<head>` / `refs/heads/...` sablonokkal); a `[NOTE]` egysoros admonition-blokk jelölő
+  változatlan, a törzse fordult.
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- Szintaxis-ellenőrzés: mind az 5 fájlban a `----`/`--`/`~~~~` határolók és aláhúzások
+  párban/pontos hosszal, `ifdef::`/`endif::` egyikben sincs, a bekezdéshatárok megtartva.

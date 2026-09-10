@@ -3,26 +3,28 @@ include::urls.adoc[]
 REMOTES[[REMOTES]]
 ------------------
 
-The name of one of the following can be used instead
-of a URL as _<repository>_ argument:
+A következők egyikének a neve használható URL helyett _<repository>_
+argumentumként:
 
-* a remote in the Git configuration file: `$GIT_DIR/config`,
-* a file in the `$GIT_DIR/remotes` directory, or
-* a file in the `$GIT_DIR/branches` directory.
+* egy remote a Git konfigurációs fájlban: `$GIT_DIR/config`,
+* egy fájl a `$GIT_DIR/remotes` könyvtárban, vagy
+* egy fájl a `$GIT_DIR/branches` könyvtárban.
 
-All of these also allow you to omit the refspec from the command line
-because they each contain a refspec which git will use by default.
+Ezek mindegyike lehetővé teszi a refspec elhagyását a parancssorból,
+mert mindegyik tartalmaz egy refspecet, amelyet a git alapértelmezés
+szerint használ.
 
-Named remote in configuration file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_named_remote_in_configuration_file]]
+Megnevezett remote a konfigurációs fájlban
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can choose to provide the name of a remote which you had previously
-configured using linkgit:git-remote[1], linkgit:git-config[1]
-or even by a manual edit to the `$GIT_DIR/config` file.  The URL of
-this remote will be used to access the repository.  The refspec
-of this remote will be used by default when you do
-not provide a refspec on the command line.  The entry in the
-config file would appear like this:
+Megadhatod egy olyan remote nevét, amelyet korábban a
+linkgit:git-remote[1], a linkgit:git-config[1] segítségével, vagy akár a
+`$GIT_DIR/config` fájl kézi szerkesztésével konfiguráltál.  Ennek a
+remote-nak az URL-je lesz használva a repository eléréséhez.  Ennek a
+remote-nak a refspecje lesz használva alapértelmezés szerint, amikor
+nem adsz meg refspecet a parancssoron.  A config fájlban a bejegyzés
+így nézne ki:
 
 ------------
 	[remote "<name>"]
@@ -32,20 +34,21 @@ config file would appear like this:
 		fetch = <refspec>
 ------------
 
-The _<pushurl>_ is used for pushes only. It is optional and defaults
-to _<URL>_. Pushing to a remote affects all defined pushurls or all
-defined urls if no pushurls are defined. Fetch, however, will only
-fetch from the first defined url if multiple urls are defined.
+A _<pushurl>_ csak a pushokhoz használatos. Opcionális, és
+alapértelmezése a _<URL>_. Egy remote-ba való pusholás az összes
+megadott pushurlt érinti, vagy az összes megadott urlt, ha nincsenek
+pushurlok megadva. A fetch viszont csak az első megadott urlről
+fetchel, ha több url van megadva.
 
-Named file in `$GIT_DIR/remotes`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_named_file_in_git_dir_remotes]]
+Megnevezett fájl a `$GIT_DIR/remotes`-ban
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can choose to provide the name of a
-file in `$GIT_DIR/remotes`.  The URL
-in this file will be used to access the repository.  The refspec
-in this file will be used as default when you do not
-provide a refspec on the command line.  This file should have the
-following format:
+Megadhatod egy `$GIT_DIR/remotes`-ban lévő fájl nevét.  Az ebben a
+fájlban lévő URL lesz használva a repository eléréséhez.  Az ebben a
+fájlban lévő refspec lesz használva alapértelmezésként, amikor nem
+adsz meg refspecet a parancssoron.  Ennek a fájlnak a következő
+formátumúnak kell lennie:
 
 ------------
 	URL: one of the above URL formats
@@ -54,38 +57,36 @@ following format:
 
 ------------
 
-`Push:` lines are used by `git push` and
-`Pull:` lines are used by `git pull` and `git fetch`.
-Multiple `Push:` and `Pull:` lines may
-be specified for additional branch mappings.
+A `Push:` sorokat a `git push`, a `Pull:` sorokat pedig a `git pull` és
+a `git fetch` használja.  Több `Push:` és `Pull:` sor is megadható
+további branch-leképezésekhez.
 
-Named file in `$GIT_DIR/branches`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_named_file_in_git_dir_branches]]
+Megnevezett fájl a `$GIT_DIR/branches`-ban
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can choose to provide the name of a
-file in `$GIT_DIR/branches`.
-The URL in this file will be used to access the repository.
-This file should have the following format:
+Megadhatod egy `$GIT_DIR/branches`-ban lévő fájl nevét.
+Az ebben a fájlban lévő URL lesz használva a repository eléréséhez.
+Ennek a fájlnak a következő formátumúnak kell lennie:
 
 
 ------------
 	<URL>#<head>
 ------------
 
-_<URL>_ is required; `#<head>` is optional.
+A _<URL>_ kötelező; a `#<head>` opcionális.
 
-Depending on the operation, git will use one of the following
-refspecs, if you don't provide one on the command line.
-_<branch>_ is the name of this file in `$GIT_DIR/branches` and
-_<head>_ defaults to `master`.
+A művelettől függően a git a következő refspecek egyikét használja, ha
+nem adsz meg egyet a parancssoron.  A _<branch>_ ennek a fájlnak a neve
+a `$GIT_DIR/branches`-ban, a _<head>_ alapértelmezése pedig a `master`.
 
-git fetch uses:
+A git fetch ezt használja:
 
 ------------
 	refs/heads/<head>:refs/heads/<branch>
 ------------
 
-git push uses:
+A git push ezt használja:
 
 ------------
 	HEAD:refs/heads/<head>
@@ -96,23 +97,25 @@ git push uses:
 UPSTREAM BRANCHES
 -----------------
 
-Branches in Git can optionally have an upstream remote branch.
-Git defaults to using the upstream branch for remote operations, for example:
+A Git branchei opcionálisan társíthatók egy upstream remote branchhez.
+A Git alapértelmezés szerint az upstream branchet használja a remote
+műveletekhez, például:
 
-* It's the default for `git pull` or `git fetch` with no arguments.
-* It's the default for `git push` with no arguments, with some exceptions.
-  For example, you can use the `branch.<name>.pushRemote` option to push
-  to a different remote than you pull from, and by default with
-  `push.default=simple` the upstream branch you configure must have
-  the same name.
-* Various commands, including `git checkout` and `git status`, will
-  show you how many commits have been added to your current branch and
-  the upstream since you forked from it, for example "Your branch and
+* Ez az alapértelmezés az argumentum nélküli `git pull` vagy
+  `git fetch` esetén.
+* Ez az alapértelmezés az argumentum nélküli `git push` esetén, néhány
+  kivétellel. Használhatod például a `branch.<name>.pushRemote` opciót,
+  hogy más remote-ba pushold, mint amelyikből pullolsz, és
+  alapértelmezés szerint a `push.default=simple` mellett az általad
+  konfigurált upstream branchnek ugyanolyan nevűnek kell lennie.
+* Különféle parancsok, köztük a `git checkout` és a `git status`,
+  megmutatják, hány commit került az aktuális branchedre és az
+  upstreamre, amióta leágaztál róla, például "Your branch and
   'origin/main' have diverged, and have 2 and 3 different commits each
   respectively".
 
-The upstream is stored in `.git/config`, in the "`remote`" and "`merge`"
-fields. For example, if `main`'s upstream is `origin/main`:
+Az upstream a `.git/config`-ban van tárolva, a "`remote`" és "`merge`"
+mezőkben. Például, ha a `main` upstreamje az `origin/main`:
 
 ------------
 [branch "main"]
@@ -120,19 +123,19 @@ fields. For example, if `main`'s upstream is `origin/main`:
    merge = refs/heads/main
 ------------
 
-You can set an upstream branch explicitly with
-`git push --set-upstream <remote> <branch>`
-but Git will often automatically set the upstream for you, for example:
+Explicit módon beállíthatsz egy upstream branchet a
+`git push --set-upstream <remote> <branch>` paranccsal, de a Git gyakran
+automatikusan beállítja helyetted az upstreamet, például:
 
-* When you clone a repository, Git will automatically set the upstream
-  for the default branch.
-* If you have the `push.autoSetupRemote` configuration option set,
-  `git push` will automatically set the upstream the first time you push
-  a branch.
-* Checking out a remote-tracking branch with `git checkout <branch>`
-  will automatically create a local branch with that name and set
-  the upstream to the remote branch.
+* Amikor klónozol egy repository-t, a Git automatikusan beállítja az
+  upstreamet az alapértelmezett branchhez.
+* Ha be van állítva a `push.autoSetupRemote` konfigurációs opció, a
+  `git push` automatikusan beállítja az upstreamet, amikor először
+  pusholsz egy branchet.
+* Egy remote-tracking branch checkoutolása a `git checkout <branch>`
+  paranccsal automatikusan létrehoz egy helyi branchet ezzel a névvel,
+  és az upstreamet a remote branchre állítja.
 
 [NOTE]
-Upstream branches are sometimes referred to as "tracking information",
-as in "set the branch's tracking information".
+Az upstream brancheket néha "tracking information"-ként emlegetik,
+mint a "set the branch's tracking information" kifejezésben.

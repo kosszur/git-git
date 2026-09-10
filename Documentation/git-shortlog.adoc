@@ -3,7 +3,7 @@ git-shortlog(1)
 
 NAME
 ----
-git-shortlog - Summarize `git log` output
+git-shortlog - A `git log` kimenetének összegzése
 
 SYNOPSIS
 --------
@@ -13,106 +13,109 @@ git log --pretty=short | git shortlog [<options>]
 
 DESCRIPTION
 -----------
-Summarizes `git log` output in a format suitable for inclusion
-in release announcements. Each commit will be grouped by author and title.
+A `git log` kimenetét kiadási bejelentésekbe illeszthető formátumban
+összegzi. Minden commit szerző és cím szerint csoportosítva lesz.
 
-Additionally, "[PATCH]" will be stripped from the commit description.
+Ezenkívül a "[PATCH]" eltávolításra kerül a commit leírásából.
 
-If no revisions are passed on the command line and either standard input
-is not a terminal or there is no current branch, `git shortlog` will
-output a summary of the log read from standard input, without
-reference to the current repository.
+Ha nincs revízió átadva a parancssoron, és vagy a standard bemenet nem
+terminál, vagy nincs aktuális branch, a `git shortlog` a standard
+bemenetről beolvasott napló összegzését adja ki, az aktuális
+repository-ra való hivatkozás nélkül.
 
 OPTIONS
 -------
 
 `-n`::
 `--numbered`::
-	Sort output according to the number of commits per author instead
-	of author alphabetic order.
+	A kimenetet a szerzőnkénti commitok száma szerint rendezi, nem a
+	szerzők ábécésorrendje szerint.
 
 `-s`::
 `--summary`::
-	Suppress commit description and provide a commit count summary only.
+	Elnyomja a commit leírását, és csak commitszám-összegzést ad.
 
 `-e`::
 `--email`::
-	Show the email address of each author.
+	Megjeleníti minden szerző e-mail-címét.
 
 `--format[=<format>]`::
-	Instead of the commit subject, use some other information to
-	describe each commit. _<format>_ can be any string accepted
-	by the `--format` option of `git log`, such as '* [%h] %s'.
-	(See the 'PRETTY FORMATS' section of linkgit:git-log[1].)
+	A commit tárgya helyett valamilyen más információt használ az egyes
+	commitok leírásához. A _<format>_ bármely olyan karakterlánc lehet,
+	amelyet a `git log` `--format` opciója elfogad, például '* [%h] %s'.
+	(Lásd a linkgit:git-log[1] 'PRETTY FORMATS' szakaszát.)
 +
-Each pretty-printed commit will be rewrapped before it is shown.
+Minden pretty-printelt commit újratördelésre kerül, mielőtt megjelenik.
 
 `--date=<format>`::
-	Show dates formatted according to the given date string. (See
-	the `--date` option in the 'Commit Formatting' section of
-	linkgit:git-log[1]). Useful with `--group=format:<format>`.
+	A dátumokat a megadott dátum-karakterlánc szerint formázva jeleníti
+	meg. (Lásd a `--date` opciót a linkgit:git-log[1] 'Commit
+	Formatting' szakaszában). Hasznos a `--group=format:<format>`-tal.
 
 `--group=<type>`::
-	Group commits based on _<type>_. If no `--group` option is
-	specified, the default is `author`. _<type>_ is one of:
+	A commitokat a _<type>_ alapján csoportosítja. Ha nincs `--group`
+	opció megadva, az alapértelmezés az `author`. A _<type>_ a
+	következők egyike:
 +
 --
- - `author`, commits are grouped by author
- - `committer`, commits are grouped by committer (the same as `-c`)
- - `trailer:<field>`, the _<field>_ is interpreted as a case-insensitive
-   commit message trailer (see linkgit:git-interpret-trailers[1]). For
-   example, if your project uses `Reviewed-by` trailers, you might want
-   to see who has been reviewing with
-   `git shortlog -ns --group=trailer:reviewed-by`.
+ - `author`, a commitok szerző szerint csoportosítva
+ - `committer`, a commitok committer szerint csoportosítva (ugyanaz, mint a `-c`)
+ - `trailer:<field>`, a _<field>_ kis-nagybetűtől független
+   commit-üzenet trailerként értelmeződik (lásd
+   linkgit:git-interpret-trailers[1]). Ha például a projekted
+   `Reviewed-by` trailereket használ, a
+   `git shortlog -ns --group=trailer:reviewed-by` paranccsal
+   megnézheted, ki review-zott.
 +
-Note that commits that do not include the trailer will not be counted.
-Likewise, commits with multiple trailers (e.g., multiple signoffs) may
-be counted more than once (but only once per unique trailer value in
-that commit).
+Vedd figyelembe, hogy a trailert nem tartalmazó commitok nem
+számítanak bele. Hasonlóképpen a több trailerrel rendelkező commitok
+(pl. több signoff) egynél többször is beszámíthatnak (de az adott
+commiton belül trailerenkénti egyedi értékenként csak egyszer).
 +
-Shortlog will attempt to parse each trailer value as a `name <email>`
-identity. If successful, the mailmap is applied and the email is omitted
-unless the `--email` option is specified. If the value cannot be parsed
-as an identity, it will be taken literally and completely.
+A shortlog megpróbálja minden trailer-értéket `name <email>`
+identitásként elemezni. Ha sikerül, a mailmap alkalmazásra kerül, és az
+e-mail kimarad, hacsak a `--email` opció nincs megadva. Ha az érték nem
+elemezhető identitásként, szó szerint és teljesen lesz felhasználva.
 
- - `format:<format>`, any string accepted by the `--format` option of
-   `git log`. (See the 'PRETTY FORMATS' section of
-   linkgit:git-log[1].)
+ - `format:<format>`, bármely karakterlánc, amelyet a `git log`
+   `--format` opciója elfogad. (Lásd a linkgit:git-log[1] 'PRETTY
+   FORMATS' szakaszát.)
 --
 +
-If `--group` is specified multiple times, commits are counted under each
-value (but again, only once per unique value in that commit). For
-example, `git shortlog --group=author --group=trailer:co-authored-by`
-counts both authors and co-authors.
+Ha a `--group` többször van megadva, a commitok minden érték alatt
+beszámítanak (de ismét, az adott commiton belül egyedi értékenként csak
+egyszer). Például a `git shortlog --group=author --group=trailer:co-authored-by`
+a szerzőket és a társszerzőket is számolja.
 
 `-c`::
 `--committer`::
-	This is an alias for `--group=committer`.
+	Ez a `--group=committer` álneve.
 
 `-w[<width>[,<indent1>[,<indent2>]]]`::
-	Linewrap the output by wrapping each line at `width`.  The first
-	line of each entry is indented by `indent1` spaces, and the second
-	and subsequent lines are indented by `indent2` spaces. `width`,
-	`indent1`, and `indent2` default to 76, 6 and 9 respectively.
+	Sortördeli a kimenetet úgy, hogy minden sort a `width` szélességnél
+	tör.  Minden bejegyzés első sora `indent1` szóközzel van behúzva, a
+	második és további sorok pedig `indent2` szóközzel. A `width`, az
+	`indent1` és az `indent2` alapértelmezése rendre 76, 6 és 9.
 +
-If width is `0` (zero) then indent the lines of the output without wrapping
-them.
+Ha a szélesség `0` (nulla), akkor a kimenet sorai behúzásra kerülnek,
+tördelés nélkül.
 
 `<revision-range>`::
-	Show only commits in the specified revision range.  When no
-	_<revision-range>_ is specified, it defaults to `HEAD` (i.e. the
-	whole history leading to the current commit).  `origin..HEAD`
-	specifies all the commits reachable from the current commit
-	(i.e. `HEAD`), but not from `origin`. For a complete list of
-	ways to spell _<revision-range>_, see the 'Specifying Ranges'
-	section of linkgit:gitrevisions[7].
+	Csak a megadott revíziótartományban lévő commitokat jeleníti meg.
+	Ha nincs _<revision-range>_ megadva, az alapértelmezés a `HEAD`
+	(azaz az aktuális commithoz vezető teljes előzmény).  Az
+	`origin..HEAD` az összes olyan commitot jelöli, amely az aktuális
+	commitból (azaz a `HEAD`-ből) elérhető, de az `origin`-ből nem. A
+	_<revision-range>_ megadási módjainak teljes listájáért lásd a
+	linkgit:gitrevisions[7] 'Specifying Ranges' szakaszát.
 
 `[--] <path>...`::
-	Consider only commits that are enough to explain how the files
-	that match the specified paths came to be.
+	Csak azokat a commitokat veszi figyelembe, amelyek elegendők annak
+	megmagyarázásához, hogyan jöttek létre a megadott útvonalakra
+	illeszkedő fájlok.
 +
-Paths may need to be prefixed with `--` to separate them from
-options or the revision range, when confusion arises.
+Az útvonalakat esetleg `--`-tal kell prefixelni, hogy elkülönüljenek
+az opcióktól vagy a revíziótartománytól, ha zavar keletkezik.
 
 :git-shortlog: 1
 include::rev-list-options.adoc[]
@@ -120,12 +123,12 @@ include::rev-list-options.adoc[]
 MAPPING AUTHORS
 ---------------
 
-See linkgit:gitmailmap[5].
+Lásd linkgit:gitmailmap[5].
 
-Note that if `git shortlog` is run outside of a repository (to process
-log contents on standard input), it will look for a `.mailmap` file in
-the current directory.
+Vedd figyelembe, hogy ha a `git shortlog` repository-n kívül fut (hogy
+a napló tartalmát a standard bemenetről dolgozza fel), a `.mailmap`
+fájlt az aktuális könyvtárban keresi.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

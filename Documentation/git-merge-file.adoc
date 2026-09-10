@@ -3,7 +3,7 @@ git-merge-file(1)
 
 NAME
 ----
-git-merge-file - Run a three-way file merge
+git-merge-file - Háromutas fájl-merge futtatása
 
 
 SYNOPSIS
@@ -16,18 +16,19 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Given three files `<current>`, `<base>` and `<other>`,
-'git merge-file' incorporates all changes that lead from `<base>`
-to `<other>` into `<current>`. The result ordinarily goes into
-`<current>`. 'git merge-file' is useful for combining separate changes
-to an original. Suppose `<base>` is the original, and both
-`<current>` and `<other>` are modifications of `<base>`,
-then 'git merge-file' combines both changes.
+Adott három fájl, a `<current>`, a `<base>` és az `<other>`; a
+'git merge-file' minden olyan változtatást beépít a `<current>`-be,
+amely a `<base>`-től az `<other>`-hez vezet. Az eredmény rendszerint a
+`<current>`-be kerül. A 'git merge-file' egy eredeti fájlon végzett
+külön változtatások egyesítésére hasznos. Tegyük fel, hogy a `<base>`
+az eredeti, a `<current>` és az `<other>` pedig egyaránt a `<base>`
+módosításai; ekkor a 'git merge-file' egyesíti mindkét változtatást.
 
-A conflict occurs if both `<current>` and `<other>` have changes
-in a common segment of lines. If a conflict is found, 'git merge-file'
-normally outputs a warning and brackets the conflict with lines containing
-<<<<<<< and >>>>>>> markers. A typical conflict will look like this:
+Konfliktus keletkezik, ha mind a `<current>`-ben, mind az `<other>`-ben
+van változtatás a sorok egy közös szakaszában. Ha talál konfliktust, a
+'git merge-file' általában figyelmeztetést ad, és a konfliktust
+<<<<<<< és >>>>>>> jelölőket tartalmazó sorokkal keríti be. Egy tipikus
+konfliktus így néz ki:
 
 	<<<<<<< A
 	lines in file A
@@ -35,91 +36,100 @@ normally outputs a warning and brackets the conflict with lines containing
 	lines in file B
 	>>>>>>> B
 
-If there are conflicts, the user should edit the result and delete one of
-the alternatives.  When `--ours`, `--theirs`, or `--union` option is in effect,
-however, these conflicts are resolved favouring lines from `<current>`,
-lines from `<other>`, or lines from both respectively.  The length of the
-conflict markers can be given with the `--marker-size` option.
+Ha vannak konfliktusok, a felhasználónak szerkesztenie kell az
+eredményt, és törölnie kell az egyik alternatívát.  Ha azonban a
+`--ours`, `--theirs` vagy `--union` opció van érvényben, ezek a
+konfliktusok úgy oldódnak fel, hogy rendre a `<current>` sorait, az
+`<other>` sorait, illetve mindkettő sorait részesítik előnyben.  A
+konfliktusjelölők hossza a `--marker-size` opcióval adható meg.
 
-If `--object-id` is specified, exactly the same behavior occurs, except that
-instead of specifying what to merge as files, it is specified as a list of
-object IDs referring to blobs.
+Ha a `--object-id` meg van adva, pontosan ugyanez a viselkedés
+történik, azzal a különbséggel, hogy a mergelendő tartalmat nem
+fájlként, hanem blobokra hivatkozó objektumazonosítók listájaként adod
+meg.
 
-The exit value of this program is negative on error, and the number of
-conflicts otherwise (truncated to 127 if there are more than that many
-conflicts). If the merge was clean, the exit value is 0.
+A program kilépési értéke hiba esetén negatív, egyébként a
+konfliktusok száma (127-re csonkítva, ha ennél több konfliktus van).
+Ha a merge tiszta volt, a kilépési érték 0.
 
-'git merge-file' is designed to be a minimal clone of RCS 'merge'; that is, it
-implements all of RCS 'merge''s functionality which is needed by
-linkgit:git[1].
+A 'git merge-file' az RCS 'merge' minimális klónjának készült; azaz az
+RCS 'merge' minden olyan funkcióját megvalósítja, amelyre a
+linkgit:git[1]-nek szüksége van.
 
 
 OPTIONS
 -------
 
 --object-id::
-	Specify the contents to merge as blobs in the current repository instead of
-	files.  In this case, the operation must take place within a valid repository.
+	A mergelendő tartalmat fájlok helyett az aktuális repository-ban lévő
+	blobokként add meg.  Ebben az esetben a műveletnek érvényes
+	repository-n belül kell történnie.
 +
-If the `-p` option is specified, the merged file (including conflicts, if any)
-goes to standard output as normal; otherwise, the merged file is written to the
-object store and the object ID of its blob is written to standard output.
+Ha a `-p` opció meg van adva, a merge-elt fájl (a konfliktusokkal
+együtt, ha vannak) a szokásos módon a standard kimenetre kerül;
+egyébként a merge-elt fájl az objektumtárba íródik, a blobjának
+objektumazonosítója pedig a standard kimenetre.
 
 -L <label>::
-	This option may be given up to three times, and
-	specifies labels to be used in place of the
-	corresponding file names in conflict reports. That is,
-	`git merge-file -L x -L y -L z a b c` generates output that
-	looks like it came from files x, y and z instead of
-	from files a, b and c.
+	Ez az opció legfeljebb háromszor adható meg, és olyan címkéket ad
+	meg, amelyeket a konfliktusjelentésekben a megfelelő fájlnevek
+	helyett kell használni. Azaz a
+	`git merge-file -L x -L y -L z a b c` olyan kimenetet állít elő,
+	amely úgy néz ki, mintha az a, b és c fájlok helyett az x, y és z
+	fájlokból származna.
 
 -p::
-	Send results to standard output instead of overwriting
-	`<current>`.
+	Az eredményeket a standard kimenetre küldi a `<current>` felülírása
+	helyett.
 
 -q::
-	Quiet; do not warn about conflicts.
+	Csendes; nem figyelmeztet a konfliktusokra.
 
 --diff3::
-	Show conflicts in "diff3" style.
+	A konfliktusokat "diff3" stílusban jeleníti meg.
 
 --zdiff3::
-	Show conflicts in "zdiff3" style.
+	A konfliktusokat "zdiff3" stílusban jeleníti meg.
 +
-The `--diff3` and `--zdiff3` options default to the value of the
-`merge.conflictStyle` configuration variable (see linkgit:git-config[1]).
+A `--diff3` és a `--zdiff3` opció alapértelmezése a
+`merge.conflictStyle` konfigurációs változó értéke (lásd
+linkgit:git-config[1]).
 
 --ours::
 --theirs::
 --union::
-	Instead of leaving conflicts in the file, resolve conflicts
-	favouring our (or their or both) side of the lines.
+	A konfliktusok fájlban hagyása helyett úgy oldja fel a
+	konfliktusokat, hogy a sorok saját (vagy az ő, vagy mindkét)
+	oldalát részesíti előnyben.
 
 --diff-algorithm={patience|minimal|histogram|myers}::
-	Use a different diff algorithm while merging. The current default is "myers",
-	but selecting more recent algorithm such as "histogram" can help
-	avoid mismerges that occur due to unimportant matching lines
-	(such as braces from distinct functions). See also
-	linkgit:git-diff[1] `--diff-algorithm`.
+	Más diff algoritmust használ a merge során. A jelenlegi
+	alapértelmezés a "myers", de egy újabb algoritmus, például a
+	"histogram" választása segíthet elkerülni a lényegtelen egyező
+	sorok (például különböző függvények kapcsos zárójelei) miatt
+	bekövetkező hibás merge-eket. Lásd még a linkgit:git-diff[1]
+	`--diff-algorithm`-ot.
 
 EXAMPLES
 --------
 
 `git merge-file README.my README README.upstream`::
 
-	combines the changes of README.my and README.upstream since README,
-	tries to merge them and writes the result into README.my.
+	egyesíti a README.my és a README.upstream README óta történt
+	változtatásait, megpróbálja merge-elni őket, és az eredményt a
+	README.my-ba írja.
 
 `git merge-file -L a -L b -L c tmp/a123 tmp/b234 tmp/c345`::
 
-	merges tmp/a123 and tmp/c345 with the base tmp/b234, but uses labels
-	`a` and `c` instead of `tmp/a123` and `tmp/c345`.
+	merge-eli a tmp/a123-at és a tmp/c345-öt a tmp/b234 alappal, de az
+	`a` és `c` címkéket használja a `tmp/a123` és `tmp/c345` helyett.
 
 `git merge-file -p --object-id abc1234 def567 890abcd`::
 
-	combines the changes of the blob abc1234 and 890abcd since def567,
-	tries to merge them and writes the result to standard output
+	egyesíti az abc1234 és a 890abcd blob def567 óta történt
+	változtatásait, megpróbálja merge-elni őket, és az eredményt a
+	standard kimenetre írja
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
