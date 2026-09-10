@@ -3,7 +3,7 @@ gitformat-loose(5)
 
 NAME
 ----
-gitformat-loose - Git loose object format
+gitformat-loose - Git laza objektumformátum
 
 
 SYNOPSIS
@@ -15,117 +15,123 @@ $GIT_DIR/objects/object-map/map-*.map
 DESCRIPTION
 -----------
 
-Loose objects are how Git stores individual objects, where every object is
-written as a separate file.
+A laza objektumok révén tárolja a Git az egyes objektumokat: minden
+objektum külön fájlként íródik ki.
 
-Over the lifetime of a repository, objects are usually written as loose objects
-initially.  Eventually, these loose objects will be compacted into packfiles
-via repository maintenance to improve disk space usage and speed up the lookup
-of these objects.
+Egy repository élettartama során az objektumok kezdetben általában laza
+objektumként íródnak ki.  Ezek a laza objektumok végül a repository
+karbantartása során packfile-okba tömörülnek a lemezterület-használat
+javítása és az objektumok gyorsabb kikeresése érdekében.
 
-== Loose objects
+[[_loose_objects]]
+== Laza objektumok
 
-Each loose object contains a prefix, followed immediately by the data of the
-object.  The prefix contains `<type> <size>\0`.  `<type>` is one of `blob`,
-`tree`, `commit`, or `tag` and `size` is the size of the data (without the
-prefix) as a decimal integer expressed in ASCII.
+Minden laza objektum egy előtagot tartalmaz, amelyet közvetlenül az
+objektum adata követ.  Az előtag a `<type> <size>\0`-t tartalmazza.  A
+`<type>` a `blob`, `tree`, `commit` vagy `tag` egyike, a `size` pedig az
+adat mérete (az előtag nélkül) ASCII-ban kifejezett decimális egészként.
 
-The entire contents, prefix and data concatenated, is then compressed with zlib
-and the compressed data is stored in the file.  The object ID of the object is
-the SHA-1 or SHA-256 (as appropriate) hash of the uncompressed data.
+A teljes tartalom – az előtag és az adat összefűzve – ezután zlib-bel
+tömörítésre kerül, és a tömörített adat kerül a fájlba.  Az objektum
+objektumazonosítója a tömörítetlen adat SHA-1 vagy (a helyzettől függően)
+SHA-256 hash-e.
 
-The file for the loose object is stored under the `objects` directory, with the
-first two hex characters of the object ID being the directory and the remaining
-characters being the file name.  This is done to shard the data and avoid too
-many files being in one directory, since some file systems perform poorly with
-many items in a directory.
+A laza objektum fájlja az `objects` könyvtár alatt tárolódik, ahol az
+objektumazonosító első két hexadecimális karaktere a könyvtár, a többi
+karakter pedig a fájlnév.  Ez az adat szilánkokra bontását szolgálja, és
+azt, hogy ne legyen túl sok fájl egy könyvtárban, mivel egyes
+fájlrendszerek rosszul teljesítenek, ha sok elem van egy könyvtárban.
 
-As an example, the empty tree contains the data (when uncompressed) `tree 0\0`
-and, in a SHA-256 repository, would have the object ID
-`6ef19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321` and would be
-stored under
-`$GIT_DIR/objects/6e/f19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321`.
+Példaként az üres tree (tömörítetlenül) a `tree 0\0` adatot tartalmazza,
+és egy SHA-256 repository-ban a
+`6ef19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321`
+objektumazonosítója lenne, és a
+`$GIT_DIR/objects/6e/f19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321`
+alatt tárolódna.
 
-Similarly, a blob containing the contents `abc` would have the uncompressed
-data of `blob 3\0abc`.
+Hasonlóképp egy `abc` tartalmú blob tömörítetlen adata a `blob 3\0abc`
+lenne.
 
-== Loose object mapping
+[[_loose_object_mapping]]
+== Laza objektumok leképezése
 
-When the `compatObjectFormat` option is used, Git needs to store a mapping
-between the repository's main algorithm and the compatibility algorithm for
-loose objects as well as some auxiliary information.
+Amikor a `compatObjectFormat` opció használatban van, a Gitnek tárolnia
+kell egy leképezést a repository fő algoritmusa és a kompatibilitási
+algoritmus között a laza objektumokra, valamint némi kiegészítő információt.
 
-The mapping consists of a set of files under `$GIT_DIR/objects/object-map`
-ending in `.map`.  The portion of the filename before the extension is that of
-the main hash checksum (that is, the one specified in
-`extensions.objectformat`) in hex format.
+A leképezés a `$GIT_DIR/objects/object-map` alatti, `.map`-re végződő
+fájlok halmazából áll.  A fájlnév kiterjesztés előtti része a fő
+hash-ellenőrzőösszeg (azaz az `extensions.objectformat`-ban megadott)
+hexadecimális formátumban.
 
-`git gc` will repack existing entries into one file, removing any unnecessary
-objects, such as obsolete shallow entries or loose objects that have been
-packed.
+A `git gc` a meglévő bejegyzéseket egy fájlba csomagolja újra, eltávolítva
+minden szükségtelen objektumot, például az elavult shallow bejegyzéseket
+vagy a már csomagolt laza objektumokat.
 
-The file format is as follows.  All values are in network byte order and all
-4-byte and 8-byte values must be 4-byte aligned in the file, so the NUL padding
-may be required in some cases.  Git always uses the smallest number of NUL
-bytes (including zero) that is required for the padding in order to make
-writing files deterministic.
+A fájlformátum a következő.  Minden érték hálózati bájtsorrendben van, és
+minden 4 és 8 bájtos értéknek 4 bájtra igazítottnak kell lennie a fájlban,
+így egyes esetekben NUL-kitöltésre lehet szükség.  A Git mindig a
+kitöltéshez szükséges legkevesebb NUL-bájtot (akár nullát) használja, hogy
+a fájlok írása determinisztikus legyen.
 
-- A header appears at the beginning and consists of the following:
-	* A 4-byte mapping signature: `LMAP`
-	* 4-byte version number: 1
-	* 4-byte length of the header section (including reserved entries but
-		excluding any NUL padding).
-	* 4-byte number of objects declared in this map file.
-	* 4-byte number of object formats declared in this map file.
-	* For each object format:
-		** 4-byte format identifier (e.g., `sha1` for SHA-1)
-		** 4-byte length in bytes of shortened object names (that is, prefixes of
-			 the full object names). This is the shortest possible length needed to
-			 make names in the shortened object name table unambiguous.
-		** 8-byte integer, recording where tables relating to this format
-		are stored in this index file, as an offset from the beginning.
-	* 8-byte offset to the trailer from the beginning of this file.
-	* The remainder of the header section is reserved for future use.
-		Readers must ignore unrecognized data here.
-- Zero or more NUL bytes.  These are used to improve the alignment of the
-	4-byte quantities below.
-- Tables for the first object format:
-	* A sorted table of shortened object names.  These are prefixes of the names
-		of all objects in this file, packed together to reduce the cache footprint
-		of the binary search for a specific object name.
-  * A sorted table of full object names.
-	* A table of 4-byte metadata values.
-- Zero or more NUL bytes.
-- Tables for subsequent object formats:
-	* A sorted table of shortened object names.  These are prefixes of the names
-		of all objects in this file, packed together without offset values to
-		reduce the cache footprint of the binary search for a specific object name.
-	* A table of full object names in the order specified by the first object format.
-	* A table of 4-byte values mapping object name order to the order of the
-		first object format. For an object in the table of sorted shortened object
-		names, the value at the corresponding index in this table is the index in
-		the previous table for that same object.
-	* Zero or more NUL bytes.
-- The trailer consists of the following:
-	* Hash checksum of all of the above using the main hash.
+- A fájl elején egy fejléc áll, amely a következőkből áll:
+	* 4 bájtos leképezés-szignatúra: `LMAP`
+	* 4 bájtos verziószám: 1
+	* A fejléc szakasz 4 bájtos hossza (a fenntartott bejegyzésekkel együtt,
+		de a NUL-kitöltés nélkül).
+	* Az ebben a map-fájlban deklarált objektumok 4 bájtos száma.
+	* Az ebben a map-fájlban deklarált objektumformátumok 4 bájtos száma.
+	* Minden objektumformátumhoz:
+		** 4 bájtos formátumazonosító (pl. `sha1` a SHA-1-hez)
+		** A rövidített objektumnevek (azaz a teljes objektumnevek előtagjai)
+			 hossza bájtban, 4 bájton. Ez a lehető legrövidebb hossz, amely
+			 egyértelművé teszi a rövidített objektumnév-tábla neveit.
+		** 8 bájtos egész, amely rögzíti, hogy az ehhez a formátumhoz tartozó táblák
+		hol tárolódnak ebben az indexfájlban, a fájl elejétől számított eltolásként.
+	* 8 bájtos eltolás a záró blokkig, e fájl elejétől számítva.
+	* A fejléc szakasz többi része jövőbeli felhasználásra van fenntartva.
+		Az olvasóknak itt figyelmen kívül kell hagyniuk a fel nem ismert adatot.
+- Nulla vagy több NUL-bájt.  Ezek az alábbi 4 bájtos mennyiségek
+	igazításának javítására szolgálnak.
+- Táblák az első objektumformátumhoz:
+	* A rövidített objektumnevek rendezett táblája.  Ezek az ebben a fájlban
+		lévő összes objektum nevének előtagjai, egymáshoz csomagolva, hogy
+		csökkentsék egy adott objektumnév bináris keresésének gyorsítótár-igényét.
+  * A teljes objektumnevek rendezett táblája.
+	* 4 bájtos metaadat-értékek táblája.
+- Nulla vagy több NUL-bájt.
+- Táblák a további objektumformátumokhoz:
+	* A rövidített objektumnevek rendezett táblája.  Ezek az ebben a fájlban
+		lévő összes objektum nevének előtagjai, eltolásértékek nélkül egymáshoz
+		csomagolva, hogy csökkentsék egy adott objektumnév bináris keresésének
+		gyorsítótár-igényét.
+	* A teljes objektumnevek táblája az első objektumformátum által megadott sorrendben.
+	* 4 bájtos értékek táblája, amely az objektumnév-sorrendet az első
+		objektumformátum sorrendjére képezi le. A rendezett rövidített
+		objektumnevek táblájában lévő objektumhoz az ebben a táblában lévő
+		megfelelő indexnél található érték az előző táblában ugyanazon objektum
+		indexe.
+	* Nulla vagy több NUL-bájt.
+- A záró blokk a következőkből áll:
+	* A fentiek mindegyikének hash-ellenőrzőösszege a fő hash használatával.
 
-The lower six bits of each metadata table contain a type field indicating the
-reason that this object is stored:
+Minden metaadat-tábla alsó hat bitje egy típusmezőt tartalmaz, amely
+megadja az objektum tárolásának okát:
 
 0::
-	Reserved.
+	Fenntartva.
 1::
-	This object is stored as a loose object in the repository.
+	Ez az objektum laza objektumként van tárolva a repository-ban.
 2::
-	This object is a shallow entry.  The mapping refers to a shallow value
-	returned by a remote server.
+	Ez az objektum egy shallow bejegyzés.  A leképezés egy remote szerver
+	által visszaadott shallow értékre hivatkozik.
 3::
-	This object is a submodule entry.  The mapping refers to the commit stored
-	representing a submodule.
+	Ez az objektum egy submodule-bejegyzés.  A leképezés a submodule-t
+	reprezentáló, tárolt commitra hivatkozik.
 
-Other data may be stored in this field in the future.  Bits that are not used
-must be zero.
+A jövőben más adat is tárolható ebben a mezőben.  A nem használt bitek
+nullák kell legyenek.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

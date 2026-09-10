@@ -128,7 +128,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge-tree.adoc | [ ] |  |  |
 | git-merge.adoc | [ ] |  |  |
 | git-mergetool--lib.adoc | [x] |  | 2026-09-10 |
-| git-mergetool.adoc | [ ] |  |  |
+| git-mergetool.adoc | [x] |  | 2026-09-10 |
 | git-mktag.adoc | [x] |  | 2026-09-10 |
 | git-mktree.adoc | [x] |  | 2026-09-10 |
 | git-multi-pack-index.adoc | [ ] |  |  |
@@ -150,14 +150,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-rebase.adoc | [ ] |  |  |
 | git-receive-pack.adoc | [ ] |  |  |
 | git-reflog.adoc | [ ] |  |  |
-| git-refs.adoc | [ ] |  |  |
+| git-refs.adoc | [x] |  | 2026-09-10 |
 | git-remote-ext.adoc | [x] |  | 2026-09-10 |
 | git-remote-fd.adoc | [x] |  | 2026-09-10 |
 | git-remote.adoc | [ ] |  |  |
 | git-repack.adoc | [ ] |  |  |
 | git-replace.adoc | [ ] |  |  |
 | git-replay.adoc | [ ] |  |  |
-| git-repo.adoc | [ ] |  |  |
+| git-repo.adoc | [x] |  | 2026-09-10 |
 | git-request-pull.adoc | [x] |  | 2026-09-10 |
 | git-rerere.adoc | [ ] |  |  |
 | git-reset.adoc | [ ] |  |  |
@@ -216,7 +216,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | MyFirstObjectWalk.adoc | [ ] |  |  |
 | ReviewingGuidelines.adoc | [ ] |  |  |
 | ToolsForGit.adoc | [x] |  | 2026-09-10 |
-| blame-options.adoc | [ ] |  |  |
+| blame-options.adoc | [x] |  | 2026-09-10 |
 | config.adoc | [ ] |  |  |
 | date-formats.adoc | [x] |  | 2026-09-10 |
 | diff-algorithm-option.adoc | [x] |  | 2026-09-10 |
@@ -240,10 +240,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | giteveryday.adoc | [ ] |  |  |
 | gitfaq.adoc | [ ] |  |  |
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
-| gitformat-chunk.adoc | [ ] |  |  |
+| gitformat-chunk.adoc | [x] |  | 2026-09-10 |
 | gitformat-commit-graph.adoc | [ ] |  |  |
 | gitformat-index.adoc | [ ] |  |  |
-| gitformat-loose.adoc | [ ] |  |  |
+| gitformat-loose.adoc | [x] |  | 2026-09-10 |
 | gitformat-pack.adoc | [ ] |  |  |
 | gitformat-signature.adoc | [ ] |  |  |
 | gitglossary.adoc | [ ] |  |  |
@@ -251,7 +251,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitignore.adoc | [ ] |  |  |
 | gitk.adoc | [ ] |  |  |
 | gitmailmap.adoc | [x] |  | 2026-09-10 |
-| gitmodules.adoc | [ ] |  |  |
+| gitmodules.adoc | [x] |  | 2026-09-10 |
 | gitnamespaces.adoc | [x] |  | 2026-09-10 |
 | gitpacking.adoc | [ ] |  |  |
 | gitprotocol-capabilities.adoc | [ ] |  |  |
@@ -273,12 +273,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | line-range-format.adoc | [x] |  | 2026-09-10 |
 | line-range-options.adoc | [x] |  | 2026-09-10 |
 | merge-options.adoc | [ ] |  |  |
-| merge-strategies.adoc | [ ] |  |  |
+| merge-strategies.adoc | [x] |  | 2026-09-10 |
 | object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
 | pack-refs-options.adoc | [x] |  | 2026-09-10 |
 | pretty-formats.adoc | [ ] |  |  |
-| pretty-options.adoc | [ ] |  |  |
-| pull-fetch-param.adoc | [ ] |  |  |
+| pretty-options.adoc | [x] |  | 2026-09-10 |
+| pull-fetch-param.adoc | [x] |  | 2026-09-10 |
 | ref-reachability-filters.adoc | [x] |  | 2026-09-10 |
 | ref-storage-format.adoc | [x] |  | 2026-09-10 |
 | rerere-options.adoc | [x] |  | 2026-09-10 |
@@ -648,3 +648,16 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   2026-09-04-i `git-blame.adoc`/`git-check-mailmap.adoc` „Szerzők leképezése" fordítás korábbi,
   a döntés csak előre hatályos). Orchestrátor végezte közvetlenül. Részletek:
   `glossary-git-git-docs.md` „25. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel: a két gyökér-tábla együttes, sorméret szerint növekvő listája, `gitglossary.adoc`/
+  `git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva): `pretty-options.adoc`,
+  `pull-fetch-param.adoc`, `git-mergetool.adoc`, `gitformat-loose.adoc`, `gitformat-chunk.adoc`,
+  `gitmodules.adoc`, `git-repo.adoc`, `git-refs.adoc`, `blame-options.adoc`, `merge-strategies.adoc`.
+  A `gitformat-loose.adoc` (2 db `==` szakasz) és a `gitformat-chunk.adoc` (2 Title Case setext
+  alcím + 1 „Examples" → „Példák") defenzív `[[...]]` anchort kapott. A `merge-strategies.adoc`
+  `MERGE STRATEGIES` csupa nagybetűs setext-címe a VÉGLEGES DÖNTÉS szerint angolul maradt
+  (konzisztensen a `git-cherry-pick.adoc` már meglévő „MERGE STRATEGIES szakaszát" fordításával).
+  A `pull-fetch-param.adoc` `<<URLS,GIT URLS>>` látható szövegét `<<URLS,GIT URL-ek>>`-re írtuk át
+  (a `git-clone.adoc` precedense, 23. blokk), a `<<REMOTES,REMOTES>>` és
+  `<<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>>` angolul maradt. Orchestrátor végezte közvetlenül.
+  Részletek: `glossary-git-git-docs.md` „26. blokk".

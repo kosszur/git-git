@@ -3,7 +3,7 @@ git-refs(1)
 
 NAME
 ----
-git-refs - Low-level access to refs
+git-refs - Alacsonyszintű hozzáférés a refekhez
 
 
 SYNOPSIS
@@ -28,123 +28,123 @@ git refs rename [--message=<reason>] <old-ref> <new-ref>
 DESCRIPTION
 -----------
 
-This command provides low-level access to refs.
+Ez a parancs alacsonyszintű hozzáférést biztosít a refekhez.
 
 COMMANDS
 --------
 
 `migrate`::
-	Migrate ref store between different formats.
+	Ref-tároló migrálása különböző formátumok között.
 +
 [WARNING]
 --
-The ref format migration has several known limitations in its current form:
+A ref-formátum migrálásának jelenlegi formájában több ismert korlátja van:
 
-* It is not possible to migrate repositories that have worktrees.
+* A worktree-kkel rendelkező repository-k nem migrálhatók.
 
-* There is no way to block concurrent writes to the repository during an
-  ongoing migration. Concurrent writes can lead to an inconsistent migrated
-  state. Users are expected to block writes on a higher level. If your
-  repository is registered for scheduled maintenance, it is recommended to
-  unregister it first with linkgit:git-maintenance[1].
+* Nincs mód a repository-ba irányuló párhuzamos írások blokkolására egy
+  folyamatban lévő migráció során. A párhuzamos írások inkonzisztens
+  migrált állapothoz vezethetnek. A felhasználóknak magasabb szinten kell
+  blokkolniuk az írásokat. Ha a repository-d ütemezett karbantartásra van
+  regisztrálva, ajánlott előbb kiregisztrálni a linkgit:git-maintenance[1]-gyel.
 
-These limitations may eventually be lifted.
+Ezek a korlátok idővel feloldásra kerülhetnek.
 --
 
 `verify`::
-	Verify reference database consistency.
+	A referencia-adatbázis konzisztenciájának ellenőrzése.
 
 list::
-	List references in the repository with support for filtering,
-	formatting, and sorting. This subcommand is an alias for
-	linkgit:git-for-each-ref[1] and offers identical functionality.
+	A repository-ban lévő referenciák listázása szűrés, formázás és
+	rendezés támogatásával. Ez az alparancs a linkgit:git-for-each-ref[1]
+	álneve, és azzal azonos funkcionalitást kínál.
 
 exists::
-	Check whether the given reference exists. Returns an exit code of 0 if
-	it does, 2 if it is missing, and 1 in case looking up the reference
-	failed with an error other than the reference being missing. This does
-	not verify whether the reference resolves to an actual object.
+	Ellenőrzi, hogy a megadott referencia létezik-e. 0 kilépési kódot ad
+	vissza, ha igen, 2-t, ha hiányzik, és 1-et, ha a referencia
+	kikeresése a referencia hiányától eltérő hibával hiúsult meg. Ez nem
+	ellenőrzi, hogy a referencia egy tényleges objektumra oldódik-e fel.
 
 optimize::
-	Optimizes references to improve repository performance and reduce disk
-	usage. This subcommand is an alias for linkgit:git-pack-refs[1] and
-	offers identical functionality.
+	Optimalizálja a referenciákat a repository teljesítményének javítása és
+	a lemezhasználat csökkentése érdekében. Ez az alparancs a
+	linkgit:git-pack-refs[1] álneve, és azzal azonos funkcionalitást kínál.
 
 create::
-	Create the given reference, which must not already exist, pointing at
-	`<new-value>`.
+	A megadott referencia létrehozása – amely még nem létezhet – a
+	`<new-value>`-ra mutatva.
 
 delete::
-	Delete the given reference. This subcommand mirrors `git update-ref -d`
-	(see linkgit:git-update-ref[1]). When `<old-value>` is given, the
-	reference is only deleted after verifying that it currently contains
-	`<old-value>`.
+	A megadott referencia törlése. Ez az alparancs a `git update-ref -d`-t
+	tükrözi (l. linkgit:git-update-ref[1]). Ha a `<old-value>` meg van
+	adva, a referencia csak azután törlődik, hogy ellenőrizve lett: jelenleg
+	a `<old-value>`-t tartalmazza.
 
 update::
-	Update the given reference to point at `<new-value>`. If `<old-value>`
-	is given, the reference is only updated after verifying that it
-	currently contains `<old-value>`. As a special case, an all-zeroes
-	`<new-value>` deletes the branch, whereas an all-zeroes `<old-value>`
-	ensures that the branch does not yet exist.
+	A megadott referencia frissítése úgy, hogy a `<new-value>`-ra mutasson.
+	Ha a `<old-value>` meg van adva, a referencia csak azután frissül, hogy
+	ellenőrizve lett: jelenleg a `<old-value>`-t tartalmazza. Speciális
+	esetként a csupa nulla `<new-value>` törli a branchet, míg a csupa nulla
+	`<old-value>` biztosítja, hogy a branch még nem létezik.
 
 rename::
-	Rename the reference `<oldref>` to `<newref>`. The old reference must
-	exist and the new reference must not yet exist, and both must have a
-	well-formed name (see linkgit:git-check-ref-format[1]).
+	A `<oldref>` referencia átnevezése `<newref>`-re. A régi referenciának
+	léteznie kell, az új referencia még nem létezhet, és mindkettőnek
+	jól formált nevűnek kell lennie (l. linkgit:git-check-ref-format[1]).
 
 OPTIONS
 -------
 
-The following options are specific to `git refs migrate`:
+A következő opciók a `git refs migrate`-re jellemzők:
 
 `--ref-format=<format>`::
-	The ref format to migrate the ref store to. Can be one of:
+	A ref-formátum, amelyre a ref-tárolót migrálni kell. A következők egyike lehet:
 +
 include::ref-storage-format.adoc[]
 
 `--dry-run`::
-	Perform the migration, but do not modify the repository. The migrated
-	refs will be written into a separate directory that can be inspected
-	separately. The name of the directory will be reported on stdout. This
-	can be used to double check that the migration works as expected before
-	performing the actual migration.
+	A migráció végrehajtása, de a repository módosítása nélkül. A migrált
+	refek egy külön könyvtárba íródnak, amely külön megvizsgálható. A
+	könyvtár neve az stdouton jelenik meg. Ezzel ellenőrizhető, hogy a
+	migráció a várt módon működik-e, mielőtt a tényleges migrációt
+	végrehajtanád.
 
 `--reflog`::
 `--no-reflog`::
-	Choose between migrating the reflog data to the new backend,
-	and discarding them.  The default is "--reflog", to migrate.
+	Választás aközött, hogy a reflog adatait az új backendre migráljuk,
+	vagy eldobjuk.  Az alapértelmezés a "--reflog", azaz a migrálás.
 
-The following options are specific to `git refs verify`:
+A következő opciók a `git refs verify`-re jellemzők:
 
 `--strict`::
-	Enable stricter error checking. This will cause warnings to be
-	reported as errors. See linkgit:git-fsck[1].
+	Szigorúbb hibaellenőrzés bekapcsolása. Ettől a figyelmeztetések
+	hibaként jelennek meg. L. linkgit:git-fsck[1].
 
 `--verbose`::
-	When verifying the reference database consistency, be chatty.
+	A referencia-adatbázis konzisztenciájának ellenőrzésekor legyen bőbeszédű.
 
-The following options are specific to 'git refs list':
+A következő opciók a 'git refs list'-re jellemzők:
 
 include::for-each-ref-options.adoc[]
 
-The following options are specific to 'git refs optimize':
+A következő opciók a 'git refs optimize'-ra jellemzők:
 
 include::pack-refs-options.adoc[]
 
-The following options are specific to commands which write references:
+A következő opciók a referenciákat író parancsokra jellemzők:
 
 `--create-reflog`::
-	Create a reflog for the reference even if one would not ordinarily be
-	created.
+	Reflog létrehozása a referenciához akkor is, ha egyébként nem jönne
+	létre.
 
 `--message=<reason>`::
-	Use the given <reason> string for the reflog entry associated with the
-	update. An empty message is rejected.
+	A megadott <reason> karakterlánc használata a frissítéshez tartozó
+	reflog-bejegyzéshez. Az üres üzenet elutasításra kerül.
 
 `--no-deref`::
-	Operate on <ref> itself rather than the reference it points to via a
-	symbolic ref.
+	Magán a <ref>-en végezzen műveletet, ne azon a referencián, amelyre az
+	egy szimbolikus refen keresztül mutat.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

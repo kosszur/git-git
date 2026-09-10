@@ -1859,3 +1859,116 @@ page. Orchestrátor fordította közvetlenül.
 - Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
 - Szintaxis-ellenőrzés: mind az 5 fájlban a `----`/`--`/`~~~~` határolók és aláhúzások
   párban/pontos hosszal, `ifdef::`/`endif::` egyikben sincs, a bekezdéshatárok megtartva.
+
+## 26. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–21./23./25. blokkban (a két gyökér-tábla együttes, sorméret szerint
+növekvő listája, `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/
+`glossary-content.adoc` kihagyva). Orchestrátor fordította közvetlenül, subagent nélkül. Fájlok:
+`pretty-options.adoc`, `pull-fetch-param.adoc`, `git-mergetool.adoc`, `gitformat-loose.adoc`,
+`gitformat-chunk.adoc`, `gitmodules.adoc`, `git-repo.adoc`, `git-refs.adoc`, `blame-options.adoc`,
+`merge-strategies.adoc`. Öt include-cél fragmens (`pretty-options`, `pull-fetch-param`,
+`blame-options`, `merge-strategies` – utóbbi a `git-merge`/`git-pull`/`git-rebase` `include`-olja),
+három man page (`git-mergetool`, `git-repo` [KÍSÉRLETI], `git-refs`, `gitmodules` szekció 5), két
+formátum-spec (`gitformat-loose` szekció 5, `gitformat-chunk` szekció 5).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| pretty-print (commit-naplók) | **„szép formázású kiírás"** | `pretty-options.adoc`; a `pretty` formátumnevek (`oneline`/`short`/`medium`/…) és a `--pretty`/`--format` kapcsolók angolul |
+| tab expansion (`--expand-tabs`) | **„tabulátor-kifejtés"** | `pretty-options.adoc` |
+| chunk / chunk-based (fájlformátum) | **marad „chunk" / „chunk-alapú"**; `chunkok`, `chunkhoz` | `gitformat-chunk.adoc` — Git-specifikus formátum-terminus, a `hunk` (marad, 0. blokk) mintájára; a `chunk-format` API-név és a `chunk-format.h` bájtazonos |
+| table of contents (chunk-formátum) | **„tartalomjegyzék"** | `gitformat-chunk.adoc` |
+| loose object | **„laza objektum"** (0. blokk `loose / packed object` tételének alkalmazása) | `gitformat-loose.adoc`; a NAME „Git loose object format" → „Git laza objektumformátum" |
+| loose object mapping | **„laza objektumok leképezése"** | `gitformat-loose.adoc` — a `compatObjectFormat` `.map` fájljai |
+| to shard (data) | **„szilánkokra bont"** | `gitformat-loose.adoc` |
+| trailing hash (fájlformátum vége) | **„záró hash"** | `gitformat-loose.adoc`, `gitformat-chunk.adoc` |
+| trailer (chunk-formátum, a záró blokk) | **„záró blokk"** | `gitformat-loose.adoc`, `gitformat-chunk.adoc` — itt NEM a `git commit trailer` értelmében (az marad „trailer", 11./25. blokk), hanem a fájlformátum végén lévő ellenőrzőösszeg-blokk |
+| ref store / ref-format migration | **„ref-tároló" / „ref-formátum migrálása"** | `git-refs.adoc` |
+| merge strategy / merge mechanism | **„merge-stratégia" / „merge-mechanizmus"** (0. blokk `merge strategy` tétele) | `merge-strategies.adoc` |
+| 'our' / 'their' version (merge, compat-emphasis) | **'mi' verziónk / 'ő' verziójuk** (a `'...'` emphasis-jelölők megtartva a fordított szón) | `merge-strategies.adoc` — a `git-merge-file.adoc` (25. blokk) `<<<<<<<`/`>>>>>>>` markup-átvitel elvének analógiája: a jelölést karakterazonosan visszük, a szó fordul |
+| mismerge | **„hibás merge"** (25. blokk `git-merge-file.adoc` döntése) | `merge-strategies.adoc` |
+| criss-cross merge (ambiguity) | **„keresztirányú merge(-kétértelműség)"** | `merge-strategies.adoc` (`resolve` stratégia) |
+| "Ostensibly Recursive's Twin" (az `ort` betűszó feloldása, idézőjelben) | **változatlanul angolul, idézőjelben** | `merge-strategies.adoc` — a betűszó szó szerinti jelentése, coined term |
+| strategy nevek (`ort`/`resolve`/`octopus`/`ours`/`subtree`/`recursive`) és `-X` opciónevek | **változatlanul angolul** (a `::`/`;;` def-lista-címkék bájtazonosak) | `merge-strategies.adoc` — csak a leírás-törzs fordult |
+| `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` | **„EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT."** | `git-repo.adoc` — a `git-backfill.adoc` (3. blokk) / `git-for-each-repo.adoc` (19. blokk) / `git-last-modified.adoc` (20. blokk) pontos mintáját ismétli |
+| `flag` (`--format` kapcsoló mint „flag") | **marad „flag"** angolul; `flaggel` | `git-repo.adoc` |
+| checkin / check-out és check-in (RCS-értelemben, `renormalize`) | **marad „check-out" / „check-in"** angolul, kötőjellel, ahogy a forrás | `merge-strategies.adoc` |
+
+### Címsor-anchorok
+
+- **`gitformat-loose.adoc`**: 2 egysoros `==` szakaszcím (`Loose objects` → „Laza objektumok",
+  `Loose object mapping` → „Laza objektumok leképezése") — nincs rájuk `<<...>>` xref sehol a fában
+  (grep-pel ellenőrizve), defenzív `[[_loose_objects]]` ill. `[[_loose_object_mapping]]` anchor
+  került eléjük (autogen slug az eredeti angol címből).
+- **`gitformat-chunk.adoc`**: 2 Title Case setext (`----`) alcím (`Writing chunk-based file formats`
+  → „Chunk-alapú fájlformátumok írása", `Reading chunk-based file formats` → „Chunk-alapú
+  fájlformátumok olvasása") + 1 `Examples` → „Példák" (vegyes kis-nagybetűs, NEM `EXAMPLES`, a
+  18./23. blokk precedense szerint fordul). Mind defenzív anchort kapott
+  (`[[_writing_chunk_based_file_formats]]`, `[[_reading_chunk_based_file_formats]]`, `[[_examples]]`),
+  nincs rájuk `<<...>>` xref. A setext `----` aláhúzások a fordított cím pontos karakterhosszához
+  igazítva (Python `len()` alapú ellenőrzés; 32/32, 35/35, 6/6 — 1 db +1 elütés menet közben javítva).
+- **`pull-fetch-param.adoc`**: `[[fetch-refspec]]` explicit anchor változatlan. A `<<URLS,GIT URLS>>`
+  látható szövege `<<URLS,GIT URL-ek>>`-re átírva a `git-clone.adoc` / 23. blokk precedense szerint;
+  a `<<REMOTES,REMOTES>>` és a `<<CRTB,CONFIGURED REMOTE-TRACKING BRANCHES>>` xrefek (anchor + látható
+  szöveg) angolul maradtak (25., ill. 12. blokk döntése).
+- A többi 7 fájlban nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve).
+
+### Man-page címként angolul hagyott címsorok (VÉGLEGES DÖNTÉS szerint, automatikusan)
+
+- `git-mergetool.adoc`: `TEMPORARY FILES`, `BACKEND SPECIFIC HINTS`. A `vimdiff` `~~~~` alcím
+  **változatlanul** maradt (tool-név / config-kulcs-literál, a 23. blokk `browser.<tool>.path`
+  precedense szerint — nincs fordítás, nincs anchor).
+- `git-repo.adoc`: `COMMANDS`, `INFO KEYS` (rájuk mutató prózahivatkozás: `"INFO KEYS"` idézőjelben
+  angolul maradt).
+- `git-refs.adoc`: `COMMANDS`.
+- `merge-strategies.adoc`: `MERGE STRATEGIES` (csupa nagybetűs setext főcím a fragmensben) —
+  angolul maradt; rá `<<...>>` xref nincs, de prózahivatkozás igen (`git-cherry-pick.adoc:173`
+  már „MERGE STRATEGIES szakaszát" alakban fordítva, `git-revert.adoc` [még lefordítatlan] szintén
+  szó szerint hivatkozik rá). A `"NOTES MERGE STRATEGIES"` (`git-notes.adoc`/`config/notes.adoc`)
+  egy **másik**, különálló szakasz — nincs ütközés.
+
+### Megőrzött markup / megjegyzések
+
+- `pretty-options.adoc`: 3 `ifdef::`/`ifndef::` nyitó (`git-rev-list`, `with-breaking-changes` ×2) +
+  3 `endif::`, mind párban; `"PRETTY FORMATS"` idézőjeles szakaszcím-hivatkozás angolul maradt
+  (7./25. blokk precedense); a `NOTE:` admonition-kulcsszó változatlan.
+- `pull-fetch-param.adoc`: 4+4 `ifdef::git-pull[]`/`ifndef::git-pull[]` + `endif::`, mind párban;
+  2 `[NOTE]` egysoros admonition-blokk jelölő változatlan; `_<repository>_`/`_<refspec>_`/`_<src>_`/
+  `_<dst>_`/`__<refspec>__` placeholderek és a `+` refspec-jelölő változatlanok.
+- `git-mergetool.adoc`: `[synopsis]` blokk + `git mergetool …` mintasor bájtazonos; `BASE`/`LOCAL`/
+  `REMOTE`/`MERGED` env-változónevek, `merge.tool`/`merge.guitool`/`mergetool.<tool>.path` config-
+  kulcsok, `include::includes/cmd-config-section-all.adoc[]` + `include::config/mergetool.adoc[]` +
+  `include::mergetools/vimdiff.adoc[]` + `:git-mergetool: 1` attribútum változatlanok.
+- `gitformat-loose.adoc`: a `- `/`\t* `/`\t\t** ` felsorolás-jelölők és a tab-behúzás
+  (helyenként `\t\t\t ` = 3 tab + szóköz, ill. egy `  * ` = 2 szóközös inkonzisztencia a forrásban)
+  **bájtazonosan megtartva**; a `[verse]` SYNOPSIS-blokk (`$GIT_DIR/objects/...`) és a `LMAP`/`sha1`/
+  `NUL`/`SHA-1`/`SHA-256` literálok, a `0::`/`1::`/`2::`/`3::` típusmező def-lista-címkék változatlanok.
+- `gitformat-chunk.adoc`: a 2 szóközzel behúzott ASCII-táblázat (`| Chunk ID (4 bytes) | …`)
+  bájtazonos; C-függvénynevek (`init_chunkfile()`, `add_chunk()`, `read_table_of_contents()` stb.),
+  `struct chunkfile`/`struct hashfile`, `*commit-graph:*`/`*multi-pack-index:*` félkövér címkék és a
+  `_at least_` compat-emphasis (`_legalább_`) változatlanok.
+- `gitmodules.adoc`: `submodule.<name>.*` config-kulcs `::` címkék bájtazonosak; a `--`/`--` nyitott
+  blokk az `all;;`/`dirty;;`/`untracked;;`/`none;;` `;;` beágyazott def-lista-címkékkel (opcióértékek,
+  angolul) — a `\t` + `\t    ` (tab + 4 szóköz) behúzás pontosan megtartva; a `----` `.gitmodules`
+  példablokk (`[submodule "libfoo"]` …) bájtazonos.
+- `git-repo.adoc`: `[synopsis]` blokk; `include::ref-storage-format.adoc[]`; 2 `------------`
+  EXAMPLES parancspélda-blokk (`git repo info …`) bájtazonos; a `lines`/`nul`/`table` formátumnevek,
+  `_NUL_`, `layout.bare`/`path.gitdir.absolute` stb. kulcs `::`/`:::` címkék változatlanok.
+- `git-refs.adoc`: `[synopsis]` többsoros blokk (tab-folytatásokkal) bájtazonos; `[WARNING]` + `--`/`--`
+  nyitott blokk a `*` felsorolással; `include::ref-storage-format.adoc[]` +
+  `include::for-each-ref-options.adoc[]` + `include::pack-refs-options.adoc[]` változatlanok;
+  `'git refs list'` / `'git refs optimize'` compat-idézőjeles parancsnevek és a `"--reflog"` idézett
+  opcióérték angolul maradtak.
+- `blame-options.adoc`: minden `::` címke backtickelt opciónév, bájtazonos; `include::line-range-format.adoc[]`
+  változatlan; `_<start>_`/`_<end>_`/`_<funcname>_`/`_<rev>_`/`_<num>_`/`_A_`/`_B_` placeholderek,
+  `?`/`*`/`""` jelölések, `ignored`/`unblamable` program-kimeneti tokenek változatlanok.
+- `merge-strategies.adoc`: `MERGE STRATEGIES` setext főcím + `----` aláhúzás bájtazonos (angolul);
+  minden `::` (stratégia) és `;;` (`-X` opció) def-lista-címke bájtazonos; a `"Merging branches with
+  differing checkin/checkout attributes"` idézőjeles szakaszcím-hivatkozás (`gitattributes[5]`-re,
+  még lefordítatlan) angolul maradt (7./14./21. blokk prózahivatkozás-precedense); a `* ` felsorolás
+  2 szóközös behúzása megtartva.
+- Szintaxis-ellenőrzés: mind a 10 fájlban a `----`/`--`/`====`/`~~~~` határolók és man-page
+  szekció-aláhúzások párban/pontos hosszal, az `ifdef::`/`ifndef::`/`endif::` számlálók egyeznek
+  (`pretty-options` 3+3, `pull-fetch-param` 4+4, a többi 0), a bekezdéshatárok megtartva.

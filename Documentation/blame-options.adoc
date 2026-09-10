@@ -1,151 +1,153 @@
 `-b`::
-	Show blank SHA-1 for boundary commits.  This can also
-	be controlled via the `blame.blankBoundary` config option.
+	Üres SHA-1 megjelenítése a határ-commitokhoz.  Ez a
+	`blame.blankBoundary` config-opcióval is szabályozható.
 
 `--root`::
-	Do not treat root commits as boundaries.  This can also be
-	controlled via the `blame.showRoot` config option.
+	Ne kezelje a gyökér-commitokat határként.  Ez a
+	`blame.showRoot` config-opcióval is szabályozható.
 
 `--show-stats`::
-	Include additional statistics at the end of blame output.
+	További statisztikák beszúrása a blame kimenetének végére.
 
 `-L <start>,<end>`::
 `-L :<funcname>`::
-	Annotate only the line range given by `<start>,<end>`,
-	or by the function name regex _<funcname>_.
-	May be specified multiple times. Overlapping ranges are allowed.
+	Csak a `<start>,<end>` által, vagy a _<funcname>_ függvénynév-regex
+	által megadott sortartomány annotálása.
+	Többször is megadható. Az átfedő tartományok megengedettek.
 +
-_<start>_ and _<end>_ are optional. `-L <start>` or `-L <start>,` spans from
-_<start>_ to end of file. `-L ,<end>` spans from start of file to _<end>_.
+A _<start>_ és a _<end>_ opcionális. A `-L <start>` vagy a `-L <start>,` a
+_<start>_-tól a fájl végéig terjed. A `-L ,<end>` a fájl elejétől a
+_<end>_-ig terjed.
 +
 include::line-range-format.adoc[]
 
 `-l`::
-	Show long rev (Default: off).
+	Hosszú rev megjelenítése (alapértelmezés: kikapcsolva).
 
 `-t`::
-	Show raw timestamp (Default: off).
+	Nyers időbélyeg megjelenítése (alapértelmezés: kikapcsolva).
 
 `-S <revs-file>`::
-	Use revisions from _<revs-file>_ instead of calling
-	linkgit:git-rev-list[1].
+	A _<revs-file>_-ból származó revíziók használata a
+	linkgit:git-rev-list[1] hívása helyett.
 
 `--reverse <start>..<end>`::
-	Walk history forward instead of backward. Instead of showing
-	the revision in which a line appeared, this shows the last
-	revision in which a line has existed. This requires a range of
-	revision like `<start>..<end>` where the path to blame exists in
-	_<start>_.  `git blame --reverse <start>` is taken as `git blame
-	--reverse <start>..HEAD` for convenience.
+	Az előzmények bejárása előrefelé, nem visszafelé. Ahelyett, hogy azt
+	a revíziót mutatná, amelyben egy sor megjelent, azt az utolsó
+	revíziót mutatja, amelyben egy sor létezett. Ehhez egy revíziótartomány
+	kell, mint `<start>..<end>`, ahol a blame-elendő útvonal létezik a
+	_<start>_-ban.  A `git blame --reverse <start>` a kényelem kedvéért
+	`git blame --reverse <start>..HEAD`-ként értelmeződik.
 
 `--first-parent`::
-	Follow only the first parent commit upon seeing a merge
-	commit. This option can be used to determine when a line
-	was introduced to a particular integration branch, rather
-	than when it was introduced to the history overall.
+	Merge-commit esetén csak az első szülő commit követése. Ezzel az
+	opcióval meghatározható, hogy egy sor mikor került be egy adott
+	integrációs branchbe, nem pedig az, hogy mikor került be az
+	előzményekbe általában.
 
 `-p`::
 `--porcelain`::
-	Show in a format designed for machine consumption.
+	Megjelenítés gépi feldolgozásra tervezett formátumban.
 
 `--line-porcelain`::
-	Show the porcelain format, but output commit information for
-	each line, not just the first time a commit is referenced.
-	Implies `--porcelain`.
+	A porcelain formátum megjelenítése, de a commit-információ kiírása
+	minden sorhoz, nem csak akkor, amikor egy commitra először történik
+	hivatkozás.  Maga után vonja a `--porcelain`-t.
 
 `--incremental`::
-	Show the result incrementally in a format designed for
-	machine consumption.
+	Az eredmény inkrementális megjelenítése gépi feldolgozásra tervezett
+	formátumban.
 
 `--encoding=<encoding>`::
-	Specify the encoding used to output author names
-	and commit summaries. Setting it to `none` makes blame
-	output unconverted data. For more information see the
-	discussion about encoding in the linkgit:git-log[1]
-	manual page.
+	A szerzőnevek és a commit-összefoglalók kiírásához használt kódolás
+	megadása. A `none`-ra állítása hatására a blame konvertálatlan adatot
+	ír ki. További információért l. a kódolásról szóló tárgyalást a
+	linkgit:git-log[1] kézikönyvoldalon.
 
 `--contents <file>`::
-	Annotate using the contents from _<file>_, starting from _<rev>_
-	if it is specified, and `HEAD` otherwise. You may specify `-` to make
-	the command read from the standard input for the file contents.
+	Annotálás a _<file>_ tartalmának felhasználásával, a _<rev>_-től
+	kezdve, ha az meg van adva, egyébként a `HEAD`-től. Megadhatod a `-`-t,
+	hogy a parancs a szabványos bemenetről olvassa a fájl tartalmát.
 
 `--date <format>`::
-	Specify the format used to output dates. If `--date` is not
-	provided, the value of the `blame.date` config variable is
-	used. If the `blame.date` config variable is also not set, the
-	iso format is used. For supported values, see the discussion
-	of the `--date` option at linkgit:git-log[1].
+	A dátumok kiírásához használt formátum megadása. Ha a `--date` nincs
+	megadva, a `blame.date` config-változó értéke kerül felhasználásra. Ha
+	a `blame.date` config-változó sincs beállítva, az iso formátum
+	használatos. A támogatott értékekért l. a `--date` opció tárgyalását a
+	linkgit:git-log[1]-ben.
 
 `--progress`::
 `--no-progress`::
-	Enable progress reporting on the standard error stream even if
-	not attached to a terminal. By default, progress status is
-	reported only when it is attached. You can't use `--progress`
-	together with `--porcelain` or `--incremental`.
+	Folyamatjelzés engedélyezése a szabványos hibakimeneten akkor is, ha
+	az nem terminálhoz kapcsolódik. Alapból a folyamatállapot csak akkor
+	jelenik meg, ha kapcsolódik. A `--progress` nem használható a
+	`--porcelain`-nel vagy a `--incremental`-lal együtt.
 
 `-M[<num>]`::
-	Detect moved or copied lines within a file. When a commit
-	moves or copies a block of lines (e.g. the original file
-	has _A_ and then _B_, and the commit changes it to _B_ and then
-	_A_), the traditional `blame` algorithm notices only half of
-	the movement and typically blames the lines that were moved
-	up (i.e. _B_) to the parent and assigns blame to the lines that
-	were moved down (i.e. _A_) to the child commit.  With this
-	option, both groups of lines are blamed on the parent by
-	running extra passes of inspection.
+	Fájlon belül mozgatott vagy másolt sorok észlelése. Amikor egy commit
+	egy sorblokkot mozgat vagy másol (pl. az eredeti fájlban _A_ van, majd
+	_B_, és a commit ezt _B_-re, majd _A_-ra változtatja), a hagyományos
+	`blame` algoritmus a mozgásnak csak a felét veszi észre, és jellemzően
+	a felfelé mozgatott sorokat (azaz _B_-t) a szülőnek tulajdonítja, a
+	lefelé mozgatott sorokat (azaz _A_-t) pedig a gyermek commitnak.  Ezzel
+	az opcióval extra vizsgálati menetek futtatásával mindkét sorcsoport a
+	szülőnek tulajdonítódik.
 +
-_<num>_ is optional, but it is the lower bound on the number of
-alphanumeric characters that Git must detect as moving/copying
-within a file for it to associate those lines with the parent
-commit. The default value is 20.
+A _<num>_ opcionális, de az alsó korlátja azon alfanumerikus karakterek
+számának, amelyeket a Gitnek fájlon belül mozgásként/másolásként kell
+észlelnie ahhoz, hogy azokat a sorokat a szülő committal társítsa. Az
+alapértelmezett érték 20.
 
 `-C[<num>]`::
-	In addition to `-M`, detect lines moved or copied from other
-	files that were modified in the same commit.  This is
-	useful when you reorganize your program and move code
-	around across files.  When this option is given twice,
-	the command additionally looks for copies from other
-	files in the commit that creates the file. When this
-	option is given three times, the command additionally
-	looks for copies from other files in any commit.
+	A `-M`-en túl olyan sorok észlelése, amelyeket ugyanabban a commitban
+	módosított más fájlokból mozgattak vagy másoltak.  Ez akkor hasznos,
+	amikor átszervezed a programodat, és fájlok között mozgatod a kódot.
+	Ha ezt az opciót kétszer adod meg, a parancs ezenfelül a fájlt
+	létrehozó commitban lévő más fájlokból való másolásokat is keresi. Ha
+	ezt az opciót háromszor adod meg, a parancs ezenfelül bármely commitban
+	lévő más fájlokból való másolásokat is keresi.
 +
-_<num>_ is optional, but it is the lower bound on the number of
-alphanumeric characters that Git must detect as moving/copying
-between files for it to associate those lines with the parent
-commit. And the default value is 40. If there are more than one
-`-C` options given, the _<num>_ argument of the last `-C` will
-take effect.
+A _<num>_ opcionális, de az alsó korlátja azon alfanumerikus karakterek
+számának, amelyeket a Gitnek fájlok között mozgásként/másolásként kell
+észlelnie ahhoz, hogy azokat a sorokat a szülő committal társítsa. Az
+alapértelmezett érték pedig 40. Ha egynél több `-C` opció van megadva, az
+utolsó `-C` _<num>_ argumentuma lép érvénybe.
 
 `--ignore-rev <rev>`::
-	Ignore changes made by the revision when assigning blame, as if the
-	change never happened.  Lines that were changed or added by an ignored
-	commit will be blamed on the previous commit that changed that line or
-	nearby lines.  This option may be specified multiple times to ignore
-	more than one revision.  If the `blame.markIgnoredLines` config option
-	is set, then lines that were changed by an ignored commit and attributed to
-	another commit will be marked with a `?` in the blame output.  If the
-	`blame.markUnblamableLines` config option is set, then those lines touched
-	by an ignored commit that we could not attribute to another revision are
-	marked with a `*`. In the porcelain modes, we print `ignored` and
-	`unblamable` on a newline respectively.
+	A revízió által végzett változtatások figyelmen kívül hagyása a blame
+	hozzárendelésekor, mintha a változtatás sosem történt volna meg.  Egy
+	figyelmen kívül hagyott commit által megváltoztatott vagy hozzáadott
+	sorok az előző olyan commitnak tulajdonítódnak, amely az adott sort
+	vagy a közeli sorokat megváltoztatta.  Ez az opció többször is
+	megadható egynél több revízió figyelmen kívül hagyásához.  Ha a
+	`blame.markIgnoredLines` config-opció be van állítva, akkor azok a
+	sorok, amelyeket egy figyelmen kívül hagyott commit változtatott meg,
+	és egy másik commitnak lettek tulajdonítva, `?`-lel jelölődnek a blame
+	kimenetében.  Ha a `blame.markUnblamableLines` config-opció be van
+	állítva, akkor azok a figyelmen kívül hagyott commit által érintett
+	sorok, amelyeket nem tudtunk másik revíziónak tulajdonítani, `*`-gal
+	jelölődnek. A porcelain módokban rendre az `ignored` és az `unblamable`
+	szót írjuk ki egy külön sorban.
 
 `--ignore-revs-file <file>`::
-	Ignore revisions listed in _<file>_, which must be in the same format as an
-	`fsck.skipList`.  This option may be repeated, and these files will be
-	processed after any files specified with the `blame.ignoreRevsFile` config
-	option.  An empty file name, `""`, will clear the list of revs from
-	previously processed files.
+	A _<file>_-ban felsorolt revíziók figyelmen kívül hagyása; a fájlnak
+	ugyanolyan formátumúnak kell lennie, mint egy `fsck.skipList`.  Ez az
+	opció ismételhető, és ezek a fájlok a `blame.ignoreRevsFile`
+	config-opcióval megadott fájlok után kerülnek feldolgozásra.  Egy üres
+	fájlnév, `""`, törli a korábban feldolgozott fájlokból származó
+	revíziók listáját.
 
 `--color-lines`::
-	Color line annotations in the default format differently if they come from
-	the same commit as the preceding line. This makes it easier to distinguish
-	code blocks introduced by different commits. The color defaults to cyan and
-	can be adjusted using the `color.blame.repeatedLines` config option.
+	Az alapértelmezett formátumban a sor-annotációk eltérő színezése, ha
+	ugyanabból a commitból származnak, mint az előző sor. Ez megkönnyíti a
+	különböző commitok által bevezetett kódblokkok megkülönböztetését. A
+	szín alapból ciánkék, és a `color.blame.repeatedLines` config-opcióval
+	állítható be.
 
 `--color-by-age`::
-	Color line annotations depending on the age of the line in
-	the default format.  The `color.blame.highlightRecent` config
-	option controls what color is used for each range of age.
+	Az alapértelmezett formátumban a sor-annotációk színezése a sor kora
+	szerint.  A `color.blame.highlightRecent` config-opció szabályozza,
+	hogy melyik kortartományhoz milyen szín tartozik.
 
 `-h`::
-	Show help message.
+	Súgóüzenet megjelenítése.

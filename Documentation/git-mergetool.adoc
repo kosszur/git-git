@@ -3,7 +3,7 @@ git-mergetool(1)
 
 NAME
 ----
-git-mergetool - Run merge conflict resolution tools to resolve merge conflicts
+git-mergetool - Merge-konfliktus-feloldó eszközök futtatása a merge-konfliktusok feloldására
 
 SYNOPSIS
 --------
@@ -13,92 +13,89 @@ git mergetool [--tool=<tool>] [-y | --[no-]prompt] [<file>...]
 DESCRIPTION
 -----------
 
-Use `git mergetool` to run one of several merge utilities to resolve
-merge conflicts.  It is typically run after `git merge`.
+A `git mergetool`-lal futtathatod a többféle merge-segédeszköz egyikét a
+merge-konfliktusok feloldására.  Jellemzően a `git merge` után futtatják.
 
-If one or more <file> parameters are given, the merge tool program will
-be run to resolve differences in each file (skipping those without
-conflicts).  Specifying a directory will include all unresolved files in
-that path.  If no _<file>_ names are specified, `git mergetool` will run
-the merge tool program on every file with merge conflicts.
+Ha egy vagy több <file> paramétert megadsz, a merge-eszköz program az
+egyes fájlokban lévő eltérések feloldására fut (kihagyva a konfliktus
+nélkülieket).  Egy könyvtár megadása az adott útvonalon lévő összes
+feloldatlan fájlt beveszi.  Ha nincs _<file>_ név megadva, a `git mergetool`
+a merge-eszköz programot minden merge-konfliktusos fájlon lefuttatja.
 
 OPTIONS
 -------
 `-t <tool>`::
 `--tool=<tool>`::
-	Use the merge resolution program specified by _<tool>_.
-	Valid values include `emerge`, `gvimdiff`, `kdiff3`,
-	`meld`, `vimdiff`, and `tortoisemerge`. Run `git mergetool --tool-help`
-	for the list of valid _<tool>_ settings.
+	A _<tool>_ által megadott merge-feloldó program használata.
+	Az érvényes értékek közé tartozik az `emerge`, `gvimdiff`, `kdiff3`,
+	`meld`, `vimdiff` és `tortoisemerge`. Az érvényes _<tool>_ beállítások
+	listájáért futtasd a `git mergetool --tool-help`-et.
 +
-If a merge resolution program is not specified, `git mergetool`
-will use the configuration variable `merge.tool`.  If the
-configuration variable `merge.tool` is not set, `git mergetool`
-will pick a suitable default.
+Ha nincs megadva merge-feloldó program, a `git mergetool` a `merge.tool`
+konfigurációs változót használja.  Ha a `merge.tool` konfigurációs változó
+nincs beállítva, a `git mergetool` egy megfelelő alapértelmezést választ.
 +
-You can explicitly provide a full path to the tool by setting the
-configuration variable `mergetool.<tool>.path`. For example, you
-can configure the absolute path to kdiff3 by setting
-`mergetool.kdiff3.path`. Otherwise, `git mergetool` assumes the
-tool is available in `$PATH`.
+Az eszközhöz explicit módon megadhatsz teljes útvonalat a
+`mergetool.<tool>.path` konfigurációs változó beállításával. Például a
+kdiff3 abszolút útvonalát a `mergetool.kdiff3.path` beállításával
+konfigurálhatod. Egyébként a `git mergetool` feltételezi, hogy az eszköz
+elérhető a `$PATH`-ban.
 +
-Instead of running one of the known merge tool programs,
-`git mergetool` can be customized to run an alternative program
-by specifying the command line to invoke in a configuration
-variable `mergetool.<tool>.cmd`.
+Az ismert merge-eszköz programok egyikének futtatása helyett a
+`git mergetool` testre szabható úgy, hogy egy alternatív programot
+futtasson, ha a meghívandó parancssort a `mergetool.<tool>.cmd`
+konfigurációs változóban megadod.
 +
-When `git mergetool` is invoked with this tool (either through the
-`-t` or `--tool` option or the `merge.tool` configuration
-variable), the configured command line will be invoked with `BASE`
-set to the name of a temporary file containing the common base for
-the merge, if available; `LOCAL` set to the name of a temporary
-file containing the contents of the file on the current branch;
-`REMOTE` set to the name of a temporary file containing the
-contents of the file to be merged, and `MERGED` set to the name
-of the file to which the merge tool should write the result of the
-merge resolution.
+Amikor a `git mergetool` ezzel az eszközzel indul (akár a `-t` vagy
+`--tool` opción, akár a `merge.tool` konfigurációs változón keresztül),
+a konfigurált parancssor a következőkkel hívódik meg: a `BASE` egy olyan
+ideiglenes fájl nevére van állítva, amely a merge közös alapját tartalmazza,
+ha elérhető; a `LOCAL` egy olyan ideiglenes fájl nevére, amely a fájl
+aktuális branchen lévő tartalmát tartalmazza; a `REMOTE` egy olyan
+ideiglenes fájl nevére, amely a merge-elendő fájl tartalmát tartalmazza;
+a `MERGED` pedig annak a fájlnak a nevére, amelybe a merge-eszköznek a
+merge-feloldás eredményét kell írnia.
 +
-If the custom merge tool correctly indicates the success of a
-merge resolution with its exit code, then the configuration
-variable `mergetool.<tool>.trustExitCode` can be set to `true`.
-Otherwise, `git mergetool` will prompt the user to indicate the
-success of the resolution after the custom tool has exited.
+Ha az egyéni merge-eszköz a kilépési kódjával helyesen jelzi egy
+merge-feloldás sikerét, akkor a `mergetool.<tool>.trustExitCode`
+konfigurációs változó `true`-ra állítható.  Egyébként a `git mergetool`
+az egyéni eszköz kilépése után rákérdez a felhasználónál a feloldás
+sikerére.
 
 `--tool-help`::
-	Print a list of merge tools that may be used with `--tool`.
+	A `--tool`-lal használható merge-eszközök listájának kiírása.
 
 `-y`::
 `--no-prompt`::
-	Don't prompt before each invocation of the merge resolution
-	program.
-	This is the default if the merge resolution program is
-	explicitly specified with the `--tool` option or with the
-	`merge.tool` configuration variable.
+	Ne kérdezzen rá a merge-feloldó program minden meghívása előtt.
+	Ez az alapértelmezés, ha a merge-feloldó program explicit módon
+	meg van adva a `--tool` opcióval vagy a `merge.tool` konfigurációs
+	változóval.
 
 `--prompt`::
-	Prompt before each invocation of the merge resolution program
-	to give the user a chance to skip the path.
+	Rákérdezés a merge-feloldó program minden meghívása előtt, hogy a
+	felhasználó kihagyhassa az adott útvonalat.
 
 `-g`::
 `--gui`::
-	When `git-mergetool` is invoked with the `-g` or `--gui` option,
-	the default merge tool will be read from the configured
-	`merge.guitool` variable instead of `merge.tool`. If
-	`merge.guitool` is not set, we will fallback to the tool
-	configured under `merge.tool`. This may be autoselected using
-	the configuration variable `mergetool.guiDefault`.
+	Amikor a `git-mergetool` a `-g` vagy `--gui` opcióval indul, az
+	alapértelmezett merge-eszköz a `merge.tool` helyett a konfigurált
+	`merge.guitool` változóból olvasódik be. Ha a `merge.guitool` nincs
+	beállítva, a `merge.tool` alatt konfigurált eszközre esünk vissza.
+	Ez automatikusan is kiválasztható a `mergetool.guiDefault`
+	konfigurációs változóval.
 
 `--no-gui`::
-	This overrides a previous `-g` or `--gui` setting or
-	`mergetool.guiDefault` configuration and reads the default merge
-	tool from the configured `merge.tool` variable.
+	Ez felülbírálja a korábbi `-g` vagy `--gui` beállítást vagy a
+	`mergetool.guiDefault` konfigurációt, és az alapértelmezett
+	merge-eszközt a konfigurált `merge.tool` változóból olvassa be.
 
 `-O<orderfile>`::
-	Process files in the order specified in the
-	_<orderfile>_, which has one shell glob pattern per line.
-	This overrides the `diff.orderFile` configuration variable
-	(see linkgit:git-config[1]).  To cancel `diff.orderFile`,
-	use `-O/dev/null`.
+	A fájlok feldolgozása az _<orderfile>_-ban megadott sorrendben,
+	amely soronként egy shell glob mintát tartalmaz.
+	Ez felülbírálja a `diff.orderFile` konfigurációs változót
+	(l. linkgit:git-config[1]).  A `diff.orderFile` érvénytelenítéséhez
+	használd a `-O/dev/null`-t.
 
 CONFIGURATION
 -------------
@@ -110,13 +107,13 @@ include::config/mergetool.adoc[]
 
 TEMPORARY FILES
 ---------------
-`git mergetool` creates `*.orig` backup files while resolving merges.
-These are safe to remove once a file has been merged and its
-`git mergetool` session has completed.
+A `git mergetool` `*.orig` biztonságimentés-fájlokat hoz létre a merge-ek
+feloldása közben.  Ezek biztonságosan eltávolíthatók, miután egy fájl
+merge-elve lett, és a hozzá tartozó `git mergetool` munkamenet befejeződött.
 
-Setting the `mergetool.keepBackup` configuration variable to `false`
-causes `git mergetool` to automatically remove the backup files as files
-are successfully merged.
+Ha a `mergetool.keepBackup` konfigurációs változót `false`-ra állítod, a
+`git mergetool` automatikusan eltávolítja a biztonságimentés-fájlokat,
+ahogy a fájlok sikeresen merge-elődnek.
 
 BACKEND SPECIFIC HINTS
 ----------------------
@@ -127,4 +124,4 @@ include::mergetools/vimdiff.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

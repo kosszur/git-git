@@ -1,152 +1,155 @@
 MERGE STRATEGIES
 ----------------
 
-The merge mechanism (`git merge` and `git pull` commands) allows the
-backend 'merge strategies' to be chosen with `-s` option.  Some strategies
-can also take their own options, which can be passed by giving `-X<option>`
-arguments to `git merge` and/or `git pull`.
+A merge-mechanizmus (`git merge` és `git pull` parancsok) lehetővé teszi a
+háttérben lévő 'merge-stratégiák' kiválasztását a `-s` opcióval.  Egyes
+stratégiák saját opciókat is elfogadnak, amelyek `-X<option>`
+argumentumokként adhatók át a `git merge`-nek és/vagy a `git pull`-nak.
 
 `ort`::
-	This is the default merge strategy when pulling or merging one
-	branch.  This strategy can only resolve two heads using a
-	3-way merge algorithm.  When there is more than one common
-	ancestor that can be used for 3-way merge, it creates a merged
-	tree of the common ancestors and uses that as the reference
-	tree for the 3-way merge.  This has been reported to result in
-	fewer merge conflicts without causing mismerges by tests done
-	on actual merge commits taken from Linux 2.6 kernel
-	development history.  Additionally this strategy can detect
-	and handle merges involving renames.  It does not make use of
-	detected copies.  The name for this algorithm is an acronym
-	("Ostensibly Recursive's Twin") and came from the fact that it
-	was written as a replacement for the previous default
-	algorithm, `recursive`.
+	Ez az alapértelmezett merge-stratégia egyetlen branch pull-olásakor
+	vagy merge-elésekor.  Ez a stratégia csak két headet tud feloldani
+	háromutas merge-algoritmussal.  Ha egynél több közös ős van, amely
+	használható háromutas merge-hez, létrehozza a közös ősök merge-elt
+	tree-jét, és azt használja referencia-tree-ként a háromutas merge-hez.
+	A Linux 2.6 kernelfejlesztési előzményeiből vett valódi
+	merge-commitokon végzett tesztek szerint ez kevesebb
+	merge-konfliktust eredményez anélkül, hogy hibás merge-eket okozna.
+	Ezenkívül ez a stratégia képes az átnevezéseket érintő merge-ek
+	észlelésére és kezelésére.  Nem használja fel az észlelt másolatokat.
+	Az algoritmus neve egy betűszó ("Ostensibly Recursive's Twin"), és
+	abból ered, hogy a korábbi alapértelmezett algoritmus, a `recursive`
+	helyettesítésére íródott.
 +
-In the case where the path is a submodule, if the submodule commit used on
-one side of the merge is a descendant of the submodule commit used on the
-other side of the merge, Git attempts to fast-forward to the
-descendant. Otherwise, Git will treat this case as a conflict, suggesting
-as a resolution a submodule commit that is descendant of the conflicting
-ones, if one exists.
+Abban az esetben, ha az útvonal egy submodule, és a merge egyik oldalán
+használt submodule-commit a merge másik oldalán használt submodule-commit
+leszármazottja, a Git megpróbál fast-forwardolni a leszármazottra.
+Egyébként a Git ezt az esetet konfliktusként kezeli, feloldásként egy
+olyan submodule-commitot javasolva, amely a konfliktusban lévők
+leszármazottja, ha van ilyen.
 +
-The `ort` strategy can take the following options:
+Az `ort` stratégia a következő opciókat fogadja el:
 
 `ours`;;
-	This option forces conflicting hunks to be auto-resolved cleanly by
-	favoring 'our' version.  Changes from the other tree that do not
-	conflict with our side are reflected in the merge result.
-	For a binary file, the entire contents are taken from our side.
+	Ez az opció kikényszeríti a konfliktusos hunkok tiszta automatikus
+	feloldását a 'mi' verziónk előnyben részesítésével.  A másik tree azon
+	változtatásai, amelyek nem konfliktálnak a mi oldalunkkal, megjelennek
+	a merge eredményében.  Bináris fájl esetén a teljes tartalom a mi
+	oldalunkról származik.
 +
-This should not be confused with the `ours` merge strategy, which does not
-even look at what the other tree contains at all.  It discards everything
-the other tree did, declaring 'our' history contains all that happened in it.
+Ezt nem szabad összekeverni az `ours` merge-stratégiával, amely egyáltalán
+meg sem nézi, hogy a másik tree mit tartalmaz.  Eldob mindent, amit a másik
+tree tett, kijelentve, hogy a 'mi' előzményünk mindent tartalmaz, ami benne
+történt.
 
 `theirs`;;
-	This is the opposite of `ours`; note that, unlike `ours`, there is
-	no `theirs` merge strategy to confuse this merge option with.
+	Ez az `ours` ellentéte; vedd figyelembe, hogy az `ours`-szal
+	ellentétben nincs `theirs` merge-stratégia, amellyel össze lehetne
+	keverni ezt a merge-opciót.
 
 `ignore-space-change`;;
 `ignore-all-space`;;
 `ignore-space-at-eol`;;
 `ignore-cr-at-eol`;;
-	Treats lines with the indicated type of whitespace change as
-	unchanged for the sake of a three-way merge.  Whitespace
-	changes mixed with other changes to a line are not ignored.
-	See also linkgit:git-diff[1] `-b`, `-w`,
-	`--ignore-space-at-eol`, and `--ignore-cr-at-eol`.
+	A jelzett típusú whitespace-változtatást tartalmazó sorokat
+	változatlannak tekinti a háromutas merge szempontjából.  A sorok más
+	változtatásaival keveredő whitespace-változtatások nem maradnak
+	figyelmen kívül.  Lásd még a linkgit:git-diff[1] `-b`, `-w`,
+	`--ignore-space-at-eol` és `--ignore-cr-at-eol` opcióit.
 +
-* If 'their' version only introduces whitespace changes to a line,
-  'our' version is used;
-* If 'our' version introduces whitespace changes but 'their'
-  version includes a substantial change, 'their' version is used;
-* Otherwise, the merge proceeds in the usual way.
+* Ha az 'ő' verziójuk csak whitespace-változtatásokat vezet be egy
+  sorba, a 'mi' verziónk használatos;
+* Ha a 'mi' verziónk whitespace-változtatásokat vezet be, de az 'ő'
+  verziójuk lényegi változtatást tartalmaz, az 'ő' verziójuk használatos;
+* Egyébként a merge a szokásos módon folytatódik.
 
 `renormalize`;;
-	This runs a virtual check-out and check-in of all three stages
-	of any file which needs a three-way merge.  This option is
-	meant to be used when merging branches with different clean
-	filters or end-of-line normalization rules.  See "Merging
-	branches with differing checkin/checkout attributes" in
-	linkgit:gitattributes[5] for details.
+	Ez virtuális check-outot és check-int futtat minden olyan fájl
+	mindhárom fázisára, amely háromutas merge-t igényel.  Ezt az opciót
+	akkor érdemes használni, amikor eltérő clean filterekkel vagy
+	sorvég-normalizálási szabályokkal rendelkező brancheket merge-elsz.
+	A részletekért l. a "Merging branches with differing checkin/checkout
+	attributes" szakaszt a linkgit:gitattributes[5]-ben.
 
 `no-renormalize`;;
-	Disables the `renormalize` option.  This overrides the
-	`merge.renormalize` configuration variable.
+	Kikapcsolja a `renormalize` opciót.  Ez felülbírálja a
+	`merge.renormalize` konfigurációs változót.
 
 `find-renames[=<n>]`;;
-	Turn on rename detection, optionally setting the similarity
-	threshold.  This is the default. This overrides the
-	`merge.renames` configuration variable.
-	See also linkgit:git-diff[1] `--find-renames`.
+	Bekapcsolja az átnevezés-észlelést, opcionálisan beállítva a
+	hasonlósági küszöböt.  Ez az alapértelmezett. Ez felülbírálja a
+	`merge.renames` konfigurációs változót.
+	Lásd még a linkgit:git-diff[1] `--find-renames` opcióját.
 
 `rename-threshold=<n>`;;
-	Deprecated synonym for `find-renames=<n>`.
+	Elavult szinonimája a `find-renames=<n>`-nek.
 
 `no-renames`;;
-	Turn off rename detection. This overrides the `merge.renames`
-	configuration variable.
-	See also linkgit:git-diff[1] `--no-renames`.
+	Kikapcsolja az átnevezés-észlelést. Ez felülbírálja a `merge.renames`
+	konfigurációs változót.
+	Lásd még a linkgit:git-diff[1] `--no-renames` opcióját.
 
 `histogram`;;
-	Deprecated synonym for `diff-algorithm=histogram`.
+	Elavult szinonimája a `diff-algorithm=histogram`-nak.
 
 `patience`;;
-	Deprecated synonym for `diff-algorithm=patience`.
+	Elavult szinonimája a `diff-algorithm=patience`-nek.
 
 `diff-algorithm=(histogram|minimal|myers|patience)`;;
-	Use a different diff algorithm while merging, which can help
-	avoid mismerges that occur due to unimportant matching lines
-	(such as braces from distinct functions).  See also
-	linkgit:git-diff[1] `--diff-algorithm`.  Note that `ort`
-	defaults to `diff-algorithm=histogram`, while regular diffs
-	currently default to the `diff.algorithm` config setting.
+	Eltérő diff-algoritmus használata a merge során, ami segíthet
+	elkerülni azokat a hibás merge-eket, amelyek lényegtelen illeszkedő
+	sorok (például különböző függvények kapcsos zárójelei) miatt
+	fordulnak elő.  Lásd még a linkgit:git-diff[1] `--diff-algorithm`
+	opcióját.  Vedd figyelembe, hogy az `ort` alapból
+	`diff-algorithm=histogram`-ot használ, míg a szokásos diffek jelenleg
+	alapból a `diff.algorithm` config-beállítást.
 
 `subtree[=<path>]`;;
-	This option is a more advanced form of 'subtree' strategy, where
-	the strategy makes a guess on how two trees must be shifted to
-	match with each other when merging.  Instead, the specified path
-	is prefixed (or stripped from the beginning) to make the shape of
-	two trees to match.
+	Ez az opció a 'subtree' stratégia fejlettebb formája, ahol a stratégia
+	tippet ad arra, hogy merge-eléskor hogyan kell a két tree-t
+	eltolni, hogy illeszkedjenek egymáshoz.  Ehelyett a megadott útvonal
+	kerül elő (vagy le az elejéről), hogy a két tree alakja illeszkedjen.
 
 `recursive`::
-	This is now a synonym for `ort`.  It was an alternative
-	implementation until v2.49.0, but was redirected to mean `ort`
-	in v2.50.0.  The previous recursive strategy was the default
-	strategy for resolving two heads from Git v0.99.9k until
-	v2.33.0.
+	Ez most az `ort` szinonimája.  A v2.49.0-ig alternatív
+	implementáció volt, de a v2.50.0-ban átirányításra került, hogy az
+	`ort`-ot jelentse.  A korábbi recursive stratégia volt az
+	alapértelmezett stratégia két head feloldásához a Git v0.99.9k-tól a
+	v2.33.0-ig.
 
 `resolve`::
-	This can only resolve two heads (i.e. the current branch
-	and another branch you pulled from) using a 3-way merge
-	algorithm.  It tries to carefully detect criss-cross
-	merge ambiguities.  It does not handle renames.
+	Ez csak két headet tud feloldani (azaz az aktuális branchet és egy
+	másik branchet, amelyből pull-oltál) háromutas merge-algoritmussal.
+	Gondosan megpróbálja észlelni a keresztirányú merge-kétértelműségeket.
+	Az átnevezéseket nem kezeli.
 
 `octopus`::
-	This resolves cases with more than two heads, but refuses to do
-	a complex merge that needs manual resolution.  It is
-	primarily meant to be used for bundling topic branch
-	heads together.  This is the default merge strategy when
-	pulling or merging more than one branch.
+	Ez a kettőnél több headet tartalmazó eseteket oldja fel, de
+	megtagadja az olyan összetett merge-et, amely kézi feloldást igényel.
+	Elsősorban topic branchek headjeinek összekötegelésére szolgál.  Ez az
+	alapértelmezett merge-stratégia egynél több branch pull-olásakor vagy
+	merge-elésekor.
 
 `ours`::
-	This resolves any number of heads, but the resulting tree of the
-	merge is always that of the current branch head, effectively
-	ignoring all changes from all other branches.  It is meant to
-	be used to supersede old development history of side
-	branches.  Note that this is different from the `-Xours` option to
-	the `ort` merge strategy.
+	Ez tetszőleges számú headet feloldja, de a merge eredményül kapott
+	tree-je mindig az aktuális branch headjéé, gyakorlatilag figyelmen
+	kívül hagyva minden más branch minden változtatását.  Az oldalági
+	branchek régi fejlesztési előzményeinek felváltására szolgál.  Vedd
+	figyelembe, hogy ez különbözik az `ort` merge-stratégia `-Xours`
+	opciójától.
 
 `subtree`::
-	This is a modified `ort` strategy. When merging trees A and
-	B, if B corresponds to a subtree of A, B is first adjusted to
-	match the tree structure of A, instead of reading the trees at
-	the same level. This adjustment is also done to the common
-	ancestor tree.
+	Ez egy módosított `ort` stratégia. Amikor az A és a B tree-t
+	merge-eled, ha B az A egy subtree-jének felel meg, B-t először
+	hozzáigazítja az A tree-szerkezetéhez, ahelyett, hogy a tree-ket
+	azonos szinten olvasná.  Ez az igazítás a közös ős tree-jén is
+	megtörténik.
 
-With the strategies that use 3-way merge (including the default, `ort`),
-if a change is made on both branches, but later reverted on one of the
-branches, that change will be present in the merged result; some people find
-this behavior confusing.  It occurs because only the heads and the merge base
-are considered when performing a merge, not the individual commits.  The merge
-algorithm therefore considers the reverted change as no change at all, and
-substitutes the changed version instead.
+A háromutas merge-t használó stratégiáknál (beleértve az alapértelmezett
+`ort`-ot is), ha mindkét branchen elvégeznek egy változtatást, de később az
+egyik branchen visszavonják, az a változtatás jelen lesz a merge-elt
+eredményben; egyesek zavarónak találják ezt a viselkedést.  Azért fordul
+elő, mert a merge végrehajtásakor csak a headeket és a merge-alapot veszik
+figyelembe, nem az egyes commitokat.  A merge-algoritmus ezért a visszavont
+változtatást egyáltalán nem tekinti változtatásnak, és helyette a
+megváltoztatott verziót teszi be.
