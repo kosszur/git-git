@@ -3,7 +3,7 @@ git-hook(1)
 
 NAME
 ----
-git-hook - Run Git hooks
+git-hook - Git hookok futtatása
 
 SYNOPSIS
 --------
@@ -15,22 +15,23 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-A command interface for running Git hooks (see linkgit:githooks[5]),
-for use by other scripted Git commands.
+Parancsfelület Git hookok futtatásához (lásd linkgit:githooks[5]), amelyet
+más szkriptelt Git-parancsok használhatnak.
 
-This command parses the default configuration files for sets of configs like
-so:
+Ez a parancs az alapértelmezett konfigurációs fájlokban ilyen
+config-halmazokat elemez:
 
   [hook "linter"]
     event = pre-commit
     command = ~/bin/linter --cpp20
 
-In this example, `[hook "linter"]` represents one script - `~/bin/linter
---cpp20` - which can be shared by many repos, and even by many hook events, if
-appropriate.
+Ebben a példában a `[hook "linter"]` egy szkriptet képvisel – `~/bin/linter
+--cpp20` –, amely megosztható sok repo, sőt sok hook-esemény között is, ha
+ez helyénvaló.
 
-To add an unrelated hook which runs on a different event, for example a
-spell-checker for your commit messages, you would write a configuration like so:
+Egy nem kapcsolódó hook hozzáadásához, amely egy másik eseményen fut,
+például egy helyesírás-ellenőrzőt a commit-üzeneteidhez, ilyen
+konfigurációt írnál:
 
   [hook "linter"]
     event = pre-commit
@@ -39,31 +40,33 @@ spell-checker for your commit messages, you would write a configuration like so:
     event = commit-msg
     command = ~/bin/spellchecker
 
-With this config, when you run 'git commit', first `~/bin/linter --cpp20` will
-have a chance to check your files to be committed (during the `pre-commit` hook
-event), and then `~/bin/spellchecker` will have a chance to check your commit
-message (during the `commit-msg` hook event).
+Ezzel a konfigurációval, amikor lefuttatod a 'git commit'-ot, először a
+`~/bin/linter --cpp20` kapja meg a lehetőséget, hogy ellenőrizze a
+commitolandó fájljaidat (a `pre-commit` hook-esemény során), majd a
+`~/bin/spellchecker` kapja meg a lehetőséget, hogy ellenőrizze a
+commit-üzenetedet (a `commit-msg` hook-esemény során).
 
-Commands are run in the order Git encounters their associated
-`hook.<friendly-name>.event` configs during the configuration parse (see
-linkgit:git-config[1]). Although multiple `hook.linter.event` configs can be
-added, only one `hook.linter.command` event is valid - Git uses "last-one-wins"
-to determine which command to run.
+A parancsok abban a sorrendben futnak, ahogy a Git a hozzájuk tartozó
+`hook.<friendly-name>.event` configokkal találkozik a konfiguráció
+elemzése során (lásd linkgit:git-config[1]). Bár több `hook.linter.event`
+config is hozzáadható, csak egy `hook.linter.command` esemény érvényes – a
+Git "az utolsó nyer" elvet használja annak eldöntésére, melyik parancsot
+futtassa.
 
-So if you wanted your linter to run when you commit as well as when you push,
-you would configure it like so:
+Tehát ha azt szeretnéd, hogy a lintered fusson commitoláskor és
+pusholáskor is, így konfigurálnád:
 
   [hook "linter"]
     event = pre-commit
     event = pre-push
     command = ~/bin/linter --cpp20
 
-With this config, `~/bin/linter --cpp20` would be run by Git before a commit is
-generated (during `pre-commit`) as well as before a push is performed (during
-`pre-push`).
+Ezzel a konfigurációval a `~/bin/linter --cpp20`-t a Git egy commit
+generálása előtt (a `pre-commit` során), valamint egy push végrehajtása
+előtt (a `pre-push` során) futtatná.
 
-And if you wanted to run your linter as well as a secret-leak detector during
-only the "pre-commit" hook event, you would configure it instead like so:
+És ha a lintered mellett egy titokszivárgás-detektort is futtatni akarnál
+csak a "pre-commit" hook-esemény során, ehelyett így konfigurálnád:
 
   [hook "linter"]
     event = pre-commit
@@ -72,28 +75,31 @@ only the "pre-commit" hook event, you would configure it instead like so:
     event = pre-commit
     command = ~/bin/leak-detector
 
-With this config, before a commit is generated (during `pre-commit`), Git would
-first start `~/bin/linter --cpp20` and second start `~/bin/leak-detector`. It
-would evaluate the output of each when deciding whether to proceed with the
-commit.
+Ezzel a konfigurációval, egy commit generálása előtt (a `pre-commit`
+során), a Git először a `~/bin/linter --cpp20`-t indítaná el, másodszor
+pedig a `~/bin/leak-detector`-t. Mindegyik kimenetét kiértékelné annak
+eldöntésekor, hogy folytassa-e a commitolást.
 
-For a full list of hook events which you can set your `hook.<friendly-name>.event` to,
-and how hooks are invoked during those events, see linkgit:githooks[5].
+A hook-események teljes listájáért, amelyekre a
+`hook.<friendly-name>.event`-et beállíthatod, és arról, hogyan hívódnak
+meg a hookok ezen események során, lásd a linkgit:githooks[5] oldalt.
 
-Git will ignore any `hook.<friendly-name>.event` that specifies an event it doesn't
-recognize. This is intended so that tools which wrap Git can use the hook
-infrastructure to run their own hooks; see "WRAPPERS" for more guidance.
+A Git figyelmen kívül hagy minden olyan `hook.<friendly-name>.event`-et,
+amely olyan eseményt ad meg, amelyet nem ismer fel. Ez szándékos, hogy a
+Gitet becsomagoló eszközök használhassák a hook-infrastruktúrát a saját
+hookjaik futtatására; további útmutatásért lásd a "WRAPPERS" szakaszt.
 
-In general, when instructions suggest adding a script to
-`.git/hooks/<hook-event>`, you can specify it in the config instead by running:
+Általánosságban, amikor az utasítások azt javasolják, hogy adj hozzá egy
+szkriptet a `.git/hooks/<hook-event>`-hez, ehelyett megadhatod a
+configban a következő futtatásával:
 
 ----
 git config set hook.<some-name>.command <path-to-script>
 git config set --append hook.<some-name>.event <hook-event>
 ----
 
-This way you can share the script between multiple repos. That is, `cp
-~/my-script.sh ~/project/.git/hooks/pre-commit` would become:
+Így megoszthatod a szkriptet több repo között. Azaz a `cp
+~/my-script.sh ~/project/.git/hooks/pre-commit` ezzé válna:
 
 ----
 git config set hook.my-script.command ~/my-script.sh
@@ -104,84 +110,87 @@ SUBCOMMANDS
 -----------
 
 run::
-	Runs hooks configured for `<hook-name>`, in the order they are
-	discovered during the config parse. The default `<hook-name>` from
-	the hookdir is run last. See linkgit:githooks[5] for supported
-	hook names.
+	Az `<hook-name>`-hez konfigurált hookokat futtatja, abban a
+	sorrendben, ahogy a config elemzése során felfedezi őket. A
+	hookdirből származó alapértelmezett `<hook-name>` fut utoljára. A
+	támogatott hook-nevekért lásd a linkgit:githooks[5] oldalt.
 +
 
-Any positional arguments to the hook should be passed after a
-mandatory `--` (or `--end-of-options`, see linkgit:gitcli[7]). See
-linkgit:githooks[5] for arguments hooks might expect (if any).
+A hook pozicionális argumentumait egy kötelező `--` (vagy
+`--end-of-options`, lásd linkgit:gitcli[7]) után kell átadni. Arról, hogy
+a hookok milyen argumentumokra számíthatnak (ha vannak ilyenek), lásd a
+linkgit:githooks[5] oldalt.
 
 list [-z] [--show-scope]::
-	Print a list of hooks which will be run on `<hook-name>` event. If no
-	hooks are configured for that event, print a warning and return 1.
-	Use `-z` to terminate output lines with NUL instead of newlines.
+	Kiírja azoknak a hookoknak a listáját, amelyek a `<hook-name>`
+	eseményen lefutnak. Ha ahhoz az eseményhez nincs hook konfigurálva,
+	figyelmeztetést ír ki, és 1-et ad vissza.
+	A `-z`-vel a kimeneti sorokat NUL-lal zárja le sortörés helyett.
 
 OPTIONS
 -------
 
 --allow-unknown-hook-name::
-	By default `git hook run` and `git hook list` will bail out when
-	`<hook-name>` is not a hook event known to Git (see linkgit:githooks[5]
-	for the list of known hooks). This is meant to help catch typos
-	such as `prereceive` when `pre-receive` was intended. Pass this
-	flag to allow unknown hook names.
+	Alapból a `git hook run` és a `git hook list` kilép, ha a
+	`<hook-name>` nem a Git által ismert hook-esemény (az ismert hookok
+	listájáért lásd linkgit:githooks[5]). Ez az olyan elgépelések
+	elkapásában segít, mint a `prereceive`, amikor a `pre-receive` volt a
+	szándék. Add meg ezt a kapcsolót az ismeretlen hook-nevek
+	engedélyezéséhez.
 
 --to-stdin::
-	For "run"; specify a file which will be streamed into the
-	hook's stdin. The hook will receive the entire file from
-	beginning to EOF.
+	A "run"-hoz; megad egy fájlt, amely a hook stdinjébe lesz
+	streamelve. A hook a teljes fájlt megkapja az elejétől az EOF-ig.
 
 --ignore-missing::
-	Ignore any missing hook by quietly returning zero. Used for
-	tools that want to do a blind one-shot run of a hook that may
-	or may not be present.
+	Minden hiányzó hook figyelmen kívül hagyása csendben nulla
+	visszaadásával. Olyan eszközökhöz, amelyek egy esetleg jelen lévő,
+	esetleg nem, hook vak, egyszeri futtatását akarják elvégezni.
 
 -z::
-	Terminate "list" output lines with NUL instead of newlines.
+	A "list" kimeneti sorainak lezárása NUL-lal sortörés helyett.
 
 --show-scope::
-	For "list"; prefix each configured hook's friendly name with a
-	tab-separated config scope (e.g. `local`, `global`, `system`),
-	mirroring the output style of `git config --show-scope`. Traditional
-	hooks from the hookdir are unaffected.
+	A "list"-hez; minden konfigurált hook felhasználóbarát neve elé egy
+	tabbal elválasztott config-hatókört tesz (pl. `local`, `global`,
+	`system`), a `git config --show-scope` kimeneti stílusát követve. A
+	hookdirből származó hagyományos hookokat ez nem érinti.
 
 -j::
 --jobs::
-	Only valid for `run`.
+	Csak a `run`-hoz érvényes.
 +
-Specify how many hooks to run simultaneously. If this flag is not specified,
-the value of the `hook.jobs` config is used, see linkgit:git-config[1]. If
-neither is specified, defaults to 1 (serial execution).
+Megadja, hány hook fusson egyidejűleg. Ha ez a kapcsoló nincs megadva, a
+`hook.jobs` config értéke lesz használva, lásd linkgit:git-config[1]. Ha
+egyik sincs megadva, az alapértelmezés 1 (soros végrehajtás).
 +
-When greater than 1, it overrides the per-hook `hook.<friendly-name>.parallel`
-setting, allowing all hooks for the event to run concurrently, even if they
-are not individually marked as parallel.
+Ha 1-nél nagyobb, felülírja a hookonkénti `hook.<friendly-name>.parallel`
+beállítást, lehetővé téve, hogy az esemény összes hookja egyszerre
+fusson, még akkor is, ha egyenként nincsenek párhuzamosként megjelölve.
 +
-Some hooks always run sequentially regardless of this flag or the
-`hook.jobs` config, because Git knows they cannot safely run in parallel:
-`applypatch-msg`, `pre-commit`, `prepare-commit-msg`, `commit-msg`,
-`post-commit`, `post-checkout`, and `push-to-checkout`.
+Néhány hook mindig sorban fut, függetlenül ettől a kapcsolótól vagy a
+`hook.jobs` configtól, mert a Git tudja, hogy nem tudnak biztonságosan
+párhuzamosan futni: `applypatch-msg`, `pre-commit`, `prepare-commit-msg`,
+`commit-msg`, `post-commit`, `post-checkout` és `push-to-checkout`.
 
 WRAPPERS
 --------
 
-`git hook run` has been designed to make it easy for tools which wrap Git to
-configure and execute hooks using the Git hook infrastructure. It is possible to
-provide arguments and stdin via the command line, as well as specifying parallel
-or series execution if the user has provided multiple hooks.
+A `git hook run`-t úgy tervezték, hogy a Gitet becsomagoló eszközök
+számára megkönnyítse a hookok konfigurálását és végrehajtását a Git
+hook-infrastruktúrájával. Lehetséges argumentumokat és stdint megadni a
+parancssoron keresztül, valamint párhuzamos vagy soros végrehajtást
+megadni, ha a felhasználó több hookot adott meg.
 
-Assuming your wrapper wants to support a hook named "mywrapper-start-tests", you
-can have your users specify their hooks like so:
+Feltételezve, hogy a csomagolód egy "mywrapper-start-tests" nevű hookot
+akar támogatni, a felhasználóiddal így adathatod meg a hookjaikat:
 
   [hook "setup-test-dashboard"]
     event = mywrapper-start-tests
     command = ~/mywrapper/setup-dashboard.py --tap
 
-Then, in your 'mywrapper' tool, you can invoke any users' configured hooks by
-running:
+Ezután a 'mywrapper' eszközödben bármely felhasználó konfigurált hookjait
+meghívhatod a következő futtatásával:
 
 ----
 git hook run --allow-unknown-hook-name mywrapper-start-tests \
@@ -195,12 +204,14 @@ git hook run --allow-unknown-hook-name mywrapper-start-tests \
   baz
 ----
 
-Take care to name your wrapper's hook events in a way which is unlikely to
-overlap with Git's native hooks (see linkgit:githooks[5]) - a hook event named
-`mywrappertool-validate-commit` is much less likely to be added to native Git
-than a hook event named `validate-commit`. If Git begins to use a hook event
-named the same thing as your wrapper hook, it may invoke your users' hooks in
-unintended and unsupported ways.
+Ügyelj arra, hogy a csomagolód hook-eseményeit úgy nevezd el, hogy
+valószínűtlenül fedjenek át a Git natív hookjaival (lásd
+linkgit:githooks[5]) – egy `mywrappertool-validate-commit` nevű
+hook-eseményt sokkal kevésbé valószínű, hogy hozzáadnak a natív Githez,
+mint egy `validate-commit` nevű hook-eseményt. Ha a Git elkezd egy olyan
+hook-eseményt használni, amelynek ugyanaz a neve, mint a csomagoló
+hookodnak, a felhasználóid hookjait nem szándékolt és nem támogatott
+módon hívhatja meg.
 
 CONFIGURATION
 -------------
@@ -213,4 +224,4 @@ linkgit:githooks[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

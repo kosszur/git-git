@@ -3,7 +3,7 @@ git-show-ref(1)
 
 NAME
 ----
-git-show-ref - List references in a local repository
+git-show-ref - Referenciák listázása egy helyi repository-ban
 
 SYNOPSIS
 --------
@@ -20,105 +20,107 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Displays references available in a local repository along with the associated
-commit IDs. Results can be filtered using a pattern and tags can be
-dereferenced into object IDs. Additionally, it can be used to test whether a
-particular ref exists.
+Megjeleníti egy helyi repository-ban elérhető referenciákat a hozzájuk
+tartozó commit-azonosítókkal együtt. Az eredmények mintával szűrhetők, a
+tagek pedig objektumazonosítókká oldhatók fel. Ezenfelül használható
+annak vizsgálatára, hogy egy adott ref létezik-e.
 
-By default, shows the tags, heads, and remote refs.
+Alapból a tageket, a fejeket és a remote refeket jeleníti meg.
 
-The `--exclude-existing` form is a filter that does the inverse. It reads
-refs from stdin, one ref per line, and shows those that don't exist in
-the local repository.
+Az `--exclude-existing` alak egy szűrő, amely az ellenkezőjét teszi. A
+stdinről olvas refeket, soronként egyet, és azokat jeleníti meg, amelyek
+nem léteznek a helyi repository-ban.
 
-The `--exists` form can be used to check for the existence of a single
-references. This form does not verify whether the reference resolves to an
-actual object.
+Az `--exists` alak egyetlen referencia létezésének ellenőrzésére
+használható. Ez az alak nem ellenőrzi, hogy a referencia egy tényleges
+objektumra oldódik-e fel.
 
-Use of this utility is encouraged in favor of directly accessing files under
-the `.git` directory.
+Ennek a segédeszköznek a használata ajánlott a `.git` könyvtár alatti
+fájlok közvetlen elérésével szemben.
 
 OPTIONS
 -------
 
 --head::
 
-	Show the HEAD reference, even if it would normally be filtered out.
+	A HEAD referencia megjelenítése, még akkor is, ha normál esetben kiszűrődne.
 
 --branches::
 --tags::
 
-	Limit to local branches and local tags, respectively.  These options
-	are not mutually exclusive; when given both, references stored in
-	"refs/heads" and "refs/tags" are displayed.  Note that `--heads`
-	is a deprecated synonym for `--branches` and may be removed
-	in the future.
+	Korlátozás a helyi branchekre, illetve a helyi tagekre.  Ezek az
+	opciók nem zárják ki egymást; mindkettő megadásakor a "refs/heads"
+	és a "refs/tags" alatt tárolt referenciák jelennek meg.  Vedd
+	figyelembe, hogy a `--heads` a `--branches` elavult szinonimája, és
+	a jövőben eltávolításra kerülhet.
 
 -d::
 --dereference::
 
-	Dereference tags into object IDs as well. They will be shown with `^{}`
-	appended.
+	A tagek objektumazonosítókká való feloldása is. `^{}` végződéssel
+	jelennek meg.
 
 -s::
 --hash[=<n>]::
 
-	Only show the OID, not the reference name. When combined with
-	`--dereference`, the dereferenced tag will still be shown after the OID.
+	Csak az OID-t jeleníti meg, a referencia nevét nem. A
+	`--dereference`-szel kombinálva a feloldott tag továbbra is
+	megjelenik az OID után.
 
 --verify::
 
-	Enable stricter reference checking by requiring an exact ref path.
-	Aside from returning an error code of 1, it will also print an error
-	message if `--quiet` was not specified.
+	Szigorúbb referenciaellenőrzés bekapcsolása pontos ref-útvonal
+	megkövetelésével.  Az 1-es hibakód visszaadásán túl hibaüzenetet is
+	kiír, ha a `--quiet` nem volt megadva.
 
 --exists::
 
-	Check whether the given reference exists. Returns an exit code of 0 if
-	it does, 2 if it is missing, and 1 in case looking up the reference
-	failed with an error other than the reference being missing.
+	Ellenőrzi, hogy a megadott referencia létezik-e. 0 kilépési kódot ad
+	vissza, ha igen, 2-t, ha hiányzik, és 1-et, ha a referencia
+	kikeresése a referencia hiányától eltérő hibával meghiúsult.
 
 --abbrev[=<n>]::
 
-	Abbreviate the object name.  When using `--hash`, you do
-	not have to say `--hash --abbrev`; `--hash=n` would do.
+	Az objektumnév rövidítése.  A `--hash` használatakor nem kell
+	`--hash --abbrev`-et mondanod; a `--hash=n` is megteszi.
 
 -q::
 --quiet::
 
-	Do not print any results to stdout. Can be used with `--verify` to
-	silently check if a reference exists.
+	Ne írjon eredményt a stdoutra. Használható a `--verify`-jal egy
+	referencia létezésének csendes ellenőrzésére.
 
 --exclude-existing[=<pattern>]::
 
-	Make `git show-ref` act as a filter that reads refs from stdin of the
-	form `^(?:<anything>\s)?<refname>(?:\^{})?$`
-	and performs the following actions on each:
-	(1) strip `^{}` at the end of line if any;
-	(2) ignore if pattern is provided and does not head-match refname;
-	(3) warn if refname is not a well-formed refname and skip;
-	(4) ignore if refname is a ref that exists in the local repository;
-	(5) otherwise output the line.
+	A `git show-ref` szűrőként való működése, amely a stdinről
+	`^(?:<anything>\s)?<refname>(?:\^{})?$` alakú refeket olvas,
+	és mindegyiken a következő műveleteket végzi:
+	(1) levágja a `^{}`-t a sor végéről, ha van;
+	(2) figyelmen kívül hagyja, ha meg van adva minta, és az nem
+	illeszkedik elölről a refname-re;
+	(3) figyelmeztet, ha a refname nem jól formált refname, és kihagyja;
+	(4) figyelmen kívül hagyja, ha a refname a helyi repository-ban létező ref;
+	(5) egyébként kiírja a sort.
 
 
 <pattern>...::
 
-	Show references matching one or more patterns. Patterns are matched from
-	the end of the full name, and only complete parts are matched, e.g.
-	'master' matches 'refs/heads/master', 'refs/remotes/origin/master',
-	'refs/tags/jedi/master' but not 'refs/heads/mymaster' or
-	'refs/remotes/master/jedi'.
+	Egy vagy több mintára illeszkedő referenciák megjelenítése. A minták
+	a teljes név végétől illeszkednek, és csak teljes részek illeszkednek,
+	pl. a 'master' illeszkedik a 'refs/heads/master',
+	'refs/remotes/origin/master', 'refs/tags/jedi/master' nevekre, de nem
+	a 'refs/heads/mymaster' vagy 'refs/remotes/master/jedi' nevekre.
 
 OUTPUT
 ------
 
-The output is in the format:
+A kimenet formátuma:
 
 ------------
 <oid> SP <ref> LF
 ------------
 
-For example,
+Például,
 
 -----------------------------------------------------------------------------
 $ git show-ref --head --dereference
@@ -132,13 +134,13 @@ $ git show-ref --head --dereference
 ...
 -----------------------------------------------------------------------------
 
-When using `--hash` (and not `--dereference`), the output is in the format:
+A `--hash` használatakor (és nem a `--dereference`-szel) a kimenet formátuma:
 
 ------------
 <oid> LF
 ------------
 
-For example,
+Például,
 
 -----------------------------------------------------------------------------
 $ git show-ref --branches --hash
@@ -151,52 +153,54 @@ $ git show-ref --branches --hash
 EXAMPLES
 --------
 
-To show all references called "master", whether tags or heads or anything
-else, and regardless of how deep in the reference naming hierarchy they are,
-use:
+Az összes "master" nevű referencia megjelenítéséhez, legyenek azok tagek,
+fejek vagy bármi más, és attól függetlenül, hogy milyen mélyen vannak a
+referencia-elnevezési hierarchiában, használd:
 
 -----------------------------------------------------------------------------
 	git show-ref master
 -----------------------------------------------------------------------------
 
-This will show "refs/heads/master" but also "refs/remote/other-repo/master",
-if such references exist.
+Ez megjeleníti a "refs/heads/master"-t, de a
+"refs/remote/other-repo/master"-t is, ha ilyen referenciák léteznek.
 
-When using the `--verify` flag, the command requires an exact path:
+A `--verify` kapcsoló használatakor a parancs pontos útvonalat követel:
 
 -----------------------------------------------------------------------------
 	git show-ref --verify refs/heads/master
 -----------------------------------------------------------------------------
 
-will only match the exact branch called "master".
+csak a pontosan "master" nevű branchre fog illeszkedni.
 
-If nothing matches, `git show-ref` will return an error code of 1,
-and in the case of verification, it will show an error message.
+Ha semmi sem illeszkedik, a `git show-ref` 1-es hibakódot ad vissza,
+ellenőrzés esetén pedig hibaüzenetet jelenít meg.
 
-For scripting, you can ask it to be quiet with the `--quiet` flag, which
-allows you to do things like
+Szkripteléshez megkérheted, hogy csendes legyen a `--quiet` kapcsolóval,
+ami lehetővé teszi az ilyesmit:
 
 -----------------------------------------------------------------------------
 	git show-ref --quiet --verify -- "refs/heads/$headname" ||
 		echo "$headname is not a valid branch"
 -----------------------------------------------------------------------------
 
-to check whether a particular branch exists or not (notice how we don't
-actually want to show any results, and we want to use the full refname for it
-in order to not trigger the problem with ambiguous partial matches).
+annak ellenőrzésére, hogy egy adott branch létezik-e vagy sem (figyeld
+meg, hogy valójában nem akarunk eredményt megjeleníteni, és a teljes
+refname-et akarjuk használni hozzá, hogy ne váltsuk ki a kétértelmű
+részleges illeszkedések problémáját).
 
-To show only tags, or only proper branch heads, use `--tags` and/or `--branches`
-respectively (using both means that it shows tags and branches, but not other
-random references under the refs/ subdirectory).
+Csak a tagek, vagy csak a valódi branch-fejek megjelenítéséhez használd a
+`--tags`, illetve a `--branches` opciót (mindkettő használata azt
+jelenti, hogy tageket és brancheket jelenít meg, de a refs/
+alkönyvtár alatti más, véletlenszerű referenciákat nem).
 
-To do automatic tag object dereferencing, use the `-d` or `--dereference`
-flag, so you can do
+Automatikus tagobjektum-feloldáshoz használd a `-d` vagy `--dereference`
+kapcsolót, így ezt teheted:
 
 -----------------------------------------------------------------------------
 	git show-ref --tags --dereference
 -----------------------------------------------------------------------------
 
-to get a listing of all tags together with what they dereference.
+hogy megkapd az összes tag listáját azzal együtt, amire feloldódnak.
 
 FILES
 -----
@@ -211,4 +215,4 @@ linkgit:gitrepository-layout[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

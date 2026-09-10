@@ -92,7 +92,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-for-each-ref.adoc | [ ] |  |  |
 | git-for-each-repo.adoc | [x] |  | 2026-09-10 |
 | git-format-patch.adoc | [ ] |  |  |
-| git-format-rev.adoc | [ ] |  |  |
+| git-format-rev.adoc | [x] |  | 2026-09-10 |
 | git-fsck-objects.adoc | [x] |  | 2026-09-10 |
 | git-fsck.adoc | [x] |  | 2026-09-10 |
 | git-fsmonitor--daemon.adoc | [x] |  | 2026-09-10 |
@@ -103,7 +103,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-hash-object.adoc | [x] |  | 2026-09-10 |
 | git-help.adoc | [ ] |  |  |
 | git-history.adoc | [ ] |  |  |
-| git-hook.adoc | [ ] |  |  |
+| git-hook.adoc | [x] |  | 2026-09-10 |
 | git-http-backend.adoc | [ ] |  |  |
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
 | git-http-push.adoc | [x] |  | 2026-09-10 |
@@ -173,9 +173,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-sh-setup.adoc | [x] |  | 2026-09-10 |
 | git-shell.adoc | [x] |  | 2026-09-10 |
 | git-shortlog.adoc | [x] |  | 2026-09-10 |
-| git-show-branch.adoc | [ ] |  |  |
+| git-show-branch.adoc | [x] |  | 2026-09-10 |
 | git-show-index.adoc | [x] |  | 2026-09-10 |
-| git-show-ref.adoc | [ ] |  |  |
+| git-show-ref.adoc | [x] |  | 2026-09-10 |
 | git-show.adoc | [x] |  | 2026-09-10 |
 | git-sparse-checkout.adoc | [ ] |  |  |
 | git-stage.adoc | [x] |  | 2026-09-10 |
@@ -272,7 +272,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | i18n.adoc | [x] |  | 2026-09-10 |
 | line-range-format.adoc | [x] |  | 2026-09-10 |
 | line-range-options.adoc | [x] |  | 2026-09-10 |
-| merge-options.adoc | [ ] |  |  |
+| merge-options.adoc | [x] |  | 2026-09-10 |
 | merge-strategies.adoc | [x] |  | 2026-09-10 |
 | object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
 | pack-refs-options.adoc | [x] |  | 2026-09-10 |
@@ -694,3 +694,17 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   (`git-fsck.adoc`), `TEMPLATE DIRECTORY` (`git-init.adoc`), `REMOVING FILES THAT HAVE DISAPPEARED
   FROM THE FILESYSTEM` / `SUBMODULES` (`git-rm.adoc`), `LOGGING UPDATES` (`git-update-ref.adoc`).
   Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „28. blokk".
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; ugyanaz a módszer, mint a 28. blokkban): `git-show-branch.adoc`,
+  `git-show-ref.adoc`, `merge-options.adoc`, `git-format-rev.adoc`, `git-hook.adoc`. Anchor-kezelés:
+  csak a `git-format-rev.adoc` érintett — a meglévő `[[io]]` és `[[examples]]` anchorok, valamint a
+  rájuk mutató `<<io,INPUT AND OUTPUT FORMATS>>` és `<<examples,EXAMPLES>>` xref-ek (linkszöveggel
+  együtt) **bájtazonosan** megmaradtak, mert a hozzájuk tartozó csupa nagybetűs címek angolul
+  maradnak (a `<<REMOTES,REMOTES>>` 25. blokk precedense). A `merge-options.adoc` include-fragmens,
+  csupa `ifdef::git-merge[]` / `ifdef::git-pull[]` / `ifndef::git-pull[]` / `endif::…` guard +
+  `include::signoff-option.adoc[]` — mind bájtazonos, csak a `::` leírás-törzsek fordultak. Csupa
+  nagybetűs, kanonikus listán kívüli alcímek angolul: `SUBCOMMANDS` / `WRAPPERS` (`git-hook.adoc`),
+  `INPUT AND OUTPUT FORMAT` (`git-format-rev.adoc`). `git-format-rev.adoc` NAME `EXPERIMENTAL:`
+  előtag → „KÍSÉRLETI:", a `(EXPERIMENTAL!)` synopsis-előtag → „(KÍSÉRLETI!)", a `THIS COMMAND IS
+  EXPERIMENTAL…` csupa nagybetűs mondat lefordítva a nagybetűs formázás megtartásával (3. blokk
+  precedens). Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „29. blokk".

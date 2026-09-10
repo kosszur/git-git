@@ -2241,3 +2241,91 @@ Fájlok: `git-gc.adoc`, `gitk.adoc`, `git-fsck.adoc`, `git-init.adoc`, `gitpacki
   `----`/`....`/`====`/`++++` határolók párban; a setext-aláhúzások a fordított cím pontos
   karakterhosszával egyeznek (menet közben 6 db ±1–2 elütés javítva: `gitcvs-migration.adoc` 3,
   `gitk.adoc` 1, `git-rm.adoc` 2, `diff-generate-patch.adoc` 1).
+
+## 29. blokk — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 28. blokkban (a felhasználó ezúttal 5-ös bontást kért). Orchestrátor
+fordította közvetlenül. Fájlok: `git-show-branch.adoc`, `git-show-ref.adoc`, `merge-options.adoc`,
+`git-format-rev.adoc`, `git-hook.adoc`.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| commit ancestry graph | **„commit-leszármazási gráf"** | `git-show-branch.adoc` |
+| naming string (git-show-branch) | **„elnevező sztring"** | `git-show-branch.adoc` |
+| status sign (`*` `!` `+` `-`) | **„állapotjel"** | `git-show-branch.adoc` |
+| always / never / auto (`--color` értékek) | **változatlanul angolul** (a program tényleges argumentumértékei) | `git-show-branch.adoc` |
+| dereference (tag → object ID) | **„feloldás"** / „objektumazonosítókká oldható fel"; `--dereference`/`-d` opciónév angol | `git-show-ref.adoc` (a `git-update-ref.adoc` 28. blokk „feloldás" döntésével konzisztens) |
+| OID | **marad „OID"** angolul | `git-show-ref.adoc` |
+| head-match (refname) | **„elölről illeszkedik"** | `git-show-ref.adoc` `--exclude-existing` |
+| octopus (merge kontextusban, merge-options) | **marad „octopus"** angolul (28. blokk `gitpacking.adoc` „octopus merge" döntése; itt „egy octopus esetén") | `merge-options.adoc` |
+| diffstat / compact-summary (merge-options) | **változatlanul angolul** (a `--stat` / `--compact-summary` kimenet neve) | `merge-options.adoc` |
+| side branch (merge) | **„oldalág"** | `merge-options.adoc` `--verify-signatures` |
+| trust model | **„bizalmi modell"** | `merge-options.adoc` |
+| EXPERIMENTAL: (NAME-előtag) / (EXPERIMENTAL!) (synopsis-előtag) | **„KÍSÉRLETI:" / „(KÍSÉRLETI!)"** (fordítva); a `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` csupa nagybetűs mondat → „EZ A PARANCS KÍSÉRLETI. A VISELKEDÉS MEGVÁLTOZHAT." (nagybetűs formázás megtartva) | `git-format-rev.adoc` — a 3. blokk `git-backfill.adoc` `THIS COMMAND IS EXPERIMENTAL…` precedense |
+| record / line (git-format-rev terminátor-kontextus) | **„rekord" / „sor"**; `_line_` / `_record_` emphasis-jelölés megtartva a fordított szón | `git-format-rev.adoc` |
+| terminator / separator | **„lezáró" / „elválasztó"** | `git-format-rev.adoc` |
+| flush (I/O) | **„ürítés"** ("azonnal ürítésre kerül") | `git-format-rev.adoc` |
+| peel / peeled (annotated tag) | **„lehánt" / „le van hántva"** (2009-es `git-check-ref-format.adoc` „hagymahámozó" a `^{}` operátorra vonatkozott, ez itt a tag→commit lehántás — külön jelentés) | `git-format-rev.adoc` |
+| atom (pretty-format `%N`, `%n`, `%s`) | **marad „atom"** angolul | `git-format-rev.adoc` |
+| notes ref | **„notes-ref"** (a `git notes` `note`/`jegyzet` 0. blokk mintája; itt a ref neve) | `git-format-rev.adoc` |
+| hook event | **„hook-esemény"** | `git-hook.adoc` |
+| friendly name (`hook.<friendly-name>`) | **„felhasználóbarát név"**; a `<friendly-name>` placeholder változatlan | `git-hook.adoc` |
+| wrap Git / wrapper (tool) | **„becsomagol" / „csomagoló"** ("a Gitet becsomagoló eszközök") | `git-hook.adoc` |
+| "last-one-wins" | **„az utolsó nyer"** (idézőjelben, fordítva) | `git-hook.adoc` |
+| hookdir | **marad „hookdir"** angolul | `git-hook.adoc` |
+| config scope (`local`/`global`/`system`) | **„config-hatókör"**; az értéknevek angolul, backtick között | `git-hook.adoc` |
+| stream into (stdin) | **„streamel"** ("a hook stdinjébe lesz streamelve") | `git-hook.adoc` |
+| bail out | **„kilép"** | `git-hook.adoc` |
+| serial / concurrent / parallel execution | **„soros / egyidejű / párhuzamos végrehajtás"** | `git-hook.adoc` |
+
+### Címsor-anchorok
+
+- **`git-show-branch.adoc`**: nincs `[[...]]`, nincs `<<...>>`. `OUTPUT` / `EXAMPLES` / `CONFIGURATION`
+  a kanonikus listán. A `--topo-order` és a `-r` opció leírása a forrásban **8 szóközzel** (nem
+  tabbal) behúzott — az eltérő behúzás megtartva.
+- **`git-show-ref.adoc`**: nincs `[[...]]`, nincs `<<...>>`. `OUTPUT` / `EXAMPLES` / `FILES` /
+  `SEE ALSO` a kanonikus listán. A `<oid> SP <ref> LF` / `<oid> LF` sablonok a `----` blokkokban
+  bájtazonosak; a `------…` (75 kötőjeles) parancspélda-blokkok és a `$ git show-ref …` kimenetek is.
+- **`merge-options.adoc`**: **include-fragmens, NINCS szekciócím**. 11 db `ifdef::git-merge[]` /
+  `ifdef::git-pull[]` / `ifndef::git-pull[]` + 11 db `endif::…` guard, valamint az
+  `include::signoff-option.adoc[]` sor **bájtazonos**; a `+` folytatásjelölők és a `` `--option`:: ``
+  címkék változatlanok. A „Only useful when merging." 5× ismétlődő sor (3× `\t`-indentált, 2×
+  0. oszlopból `+` után) → „Csak merge-eléskor hasznos."
+- **`git-format-rev.adoc`**: a meglévő `[[io]]` és `[[examples]]` anchorok **érintetlenek**; a rájuk
+  mutató `<<io,INPUT AND OUTPUT FORMATS>>` (2×) és `<<examples,EXAMPLES>>` (2×) xref-ek a **linkszöveggel
+  együtt bájtazonosan angolul** maradtak, mert az `INPUT AND OUTPUT FORMAT` cím csupa nagybetűs,
+  kanonikus listán kívüli → angol (a `<<REMOTES,REMOTES>>` 25. blokk precedense; a linkszöveg
+  fordítása inkonzisztenciát okozna a címmel). `EXAMPLES` a kanonikus listán. A `[synopsis]` `--` …
+  `--` blokk (`Did we not fix this in "<subject>"?` és a `(EXPERIMENTAL!) git format-rev …`
+  synopsis-sor a command-résztől eltekintve) és a `----` shell-példablokkok (`git last-modified`
+  kimenet, `#/bin/sh` szkript, commit-üzenet-példák) **bájtazonosak**. A `revs`;; / `text`;; `;;`
+  másodszintű def-lista-címkék változatlanok, csak a törzs fordult.
+- **`git-hook.adoc`**: nincs `[[...]]`, nincs `<<...>>`. `SUBCOMMANDS` és `WRAPPERS` csupa nagybetűs,
+  kanonikus listán kívüli → **angolul** (a `WRAPPERS` a prózában is `"WRAPPERS"` idézőjeles,
+  címszövegre feloldódó hivatkozásként). A `run::` alatt a forrásbeli `+` majd üres sor sorrend
+  megtartva. A `  [hook "linter"]` 2-szóközzel behúzott config-példa-bekezdések (AsciiDoc
+  literál-bekezdés) és a `----` blokkok (`git config set …`, a `#` kommentes `git hook run …` hívás)
+  **bájtazonosak**.
+
+### Man-page címként angolul hagyott kétes címsorok
+
+- `SUBCOMMANDS`, `WRAPPERS` (`git-hook.adoc`), `INPUT AND OUTPUT FORMAT` (`git-format-rev.adoc`) —
+  csupa nagybetűs, a kanonikus man-page-szekció listán kívül, VÉGLEGES DÖNTÉS szerint bájtazonosan
+  angolul.
+
+### Megőrzött markup / megjegyzések
+
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- `git-show-branch.adoc` / `git-show-ref.adoc` / `git-hook.adoc`: `include::…` sorok bájtazonosak;
+  `git-hook.adoc` `:git-hook: 1` attribútum-sor változatlan.
+- `git-show-branch.adoc`: a `------…` (48 kötőjeles) `git show-branch` kimeneti példa és a
+  `[showbranch]` config-blokk, benne a `\'git show-branch'` escape-elt aposztróf és a beágyazott
+  idézőjeles commit-tárgysorok (`"reset type" flag to "git reset"`) **bájtazonosak**.
+- `git-format-rev.adoc`: a `par(1)` / `git-config[1]` / `getpwnam`-szerű hívásnevek és a
+  `e83c5163316f89bfbde7d9ab23ca2e25604af290` teljes objektumnevek a `----` blokkokban változatlanok.
+- Szintaxis-ellenőrzés (Python `len()` char-count + `cat -A`): egyik fájlban sincs valódi
+  setext-aláhúzás-eltérés (a script által jelzett esetek mind `----` listing-blokk-határolók);
+  `ifdef`/`endif` páros a `merge-options.adoc`-ban (11/11); az anchorok és xref-ek a
+  `git-format-rev.adoc`-ban változatlanok.

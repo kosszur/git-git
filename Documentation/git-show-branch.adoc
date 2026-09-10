@@ -3,7 +3,7 @@ git-show-branch(1)
 
 NAME
 ----
-git-show-branch - Show branches and their commits
+git-show-branch - Branchek és commitjaik megjelenítése
 
 SYNOPSIS
 --------
@@ -18,134 +18,130 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Shows the commit ancestry graph starting from the commits named
-with <rev>s or <glob>s (or all refs under refs/heads
-and/or refs/tags) semi-visually.
+Félig vizuálisan megjeleníti a commit-leszármazási gráfot a <rev>-ekkel
+vagy <glob>-okkal megnevezett commitoktól (vagy a refs/heads és/vagy a
+refs/tags alatti összes reftől) kezdve.
 
-It cannot show more than 26 branches and commits at a time.
+Egyszerre nem tud 26-nál több branchet és commitot megjeleníteni.
 
-It uses `showbranch.default` multi-valued configuration items if
-no <rev> or <glob> is given on the command line.
+A `showbranch.default` többértékű konfigurációs tételeket használja, ha
+nincs <rev> vagy <glob> megadva a parancssorban.
 
 
 OPTIONS
 -------
 <rev>::
-	Arbitrary extended SHA-1 expression (see linkgit:gitrevisions[7])
-	that typically names a branch head or a tag.
+	Tetszőleges kiterjesztett SHA-1 kifejezés (lásd linkgit:gitrevisions[7]),
+	amely jellemzően egy branch fejét vagy egy taget nevez meg.
 
 <glob>::
-	A glob pattern that matches branch or tag names under
-	refs/.  For example, if you have many topic
-	branches under refs/heads/topic, giving
-	`topic/*` would show all of them.
+	Egy glob minta, amely a refs/ alatti branch- vagy tagnevekre
+	illeszkedik.  Például, ha sok topic branched van a
+	refs/heads/topic alatt, a `topic/*` megadása
+	mindet megjelenítené.
 
 -r::
 --remotes::
-	Show the remote-tracking branches.
+	A remote-tracking branchek megjelenítése.
 
 -a::
 --all::
-	Show both remote-tracking branches and local branches.
+	A remote-tracking branchek és a helyi branchek megjelenítése is.
 
 --current::
-	With this option, the command includes the current
-	branch in the list of revs to be shown when it is not
-	given on the command line.
+	Ezzel az opcióval a parancs a jelenlegi branchet is felveszi a
+	megjelenítendő revek listájába, amikor az nincs megadva a
+	parancssorban.
 
 --topo-order::
-        By default, the branches and their commits are shown in
-        reverse chronological order.  This option makes them
-        appear in topological order (i.e., descendant commits
-        are shown before their parents).
+        Alapból a branchek és commitjaik fordított időrendben jelennek
+        meg.  Ez az opció topologikus sorrendben jeleníti meg őket (azaz
+        a leszármazott commitok a szüleik előtt jelennek meg).
 
 --date-order::
-	This option is similar to `--topo-order` in the sense that no
-	parent comes before all of its children, but otherwise commits
-	are ordered according to their commit date.
+	Ez az opció hasonló a `--topo-order`-hoz abban az értelemben, hogy
+	egyetlen szülő sem kerül az összes gyermeke elé, de egyébként a
+	commitok a commit-dátumuk szerint vannak rendezve.
 
 --sparse::
-	By default, the output omits merges that are reachable
-	from only one tip being shown.  This option makes them
-	visible.
+	Alapból a kimenet kihagyja azokat a merge-eket, amelyek csak egy
+	megjelenített csúcsból érhetők el.  Ez az opció láthatóvá teszi
+	őket.
 
 --more=<n>::
-	Usually the command stops output upon showing the commit
-	that is the common ancestor of all the branches.  This
-	flag tells the command to go <n> more common commits
-	beyond that.  When <n> is negative, display only the
-	<ref>s given, without showing the commit ancestry tree.
+	A parancs általában leállítja a kimenetet, amikor megjeleníti azt a
+	commitot, amely az összes branch közös őse.  Ez a kapcsoló azt
+	mondja a parancsnak, hogy menjen <n> további közös committal azon
+	túl.  Ha az <n> negatív, csak a megadott <ref>-eket jeleníti meg, a
+	commit-leszármazási fa megjelenítése nélkül.
 
 --list::
-	Synonym to `--more=-1`
+	A `--more=-1` szinonimája
 
 --merge-base::
-	Instead of showing the commit list, determine possible
-	merge bases for the specified commits. All merge bases
-	will be contained in all specified commits. This is
-	different from how linkgit:git-merge-base[1] handles
-	the case of three or more commits.
+	A commitlista megjelenítése helyett meghatározza a megadott
+	commitok lehetséges merge-alapjait. Minden merge-alap benne lesz az
+	összes megadott commitban. Ez eltér attól, ahogy a
+	linkgit:git-merge-base[1] kezeli a három vagy több commit esetét.
 
 --independent::
-	Among the <ref>s given, display only the ones that cannot be
-	reached from any other <ref>.
+	A megadott <ref>-ek közül csak azokat jeleníti meg, amelyek egyetlen
+	másik <ref>-ből sem érhetők el.
 
 --no-name::
-	Do not show naming strings for each commit.
+	Ne jelenítsen meg elnevező sztringeket az egyes commitokhoz.
 
 --sha1-name::
-	Instead of naming the commits using the path to reach
-	them from heads (e.g. "master~2" to mean the grandparent
-	of "master"), name them with the unique prefix of their
-	object names.
+	A commitok elnevezése helyett azzal az útvonallal, amellyel a
+	fejektől elérhetők (pl. "master~2" a "master" nagyszülőjének
+	jelölésére), az objektumnevük egyedi előtagjával nevezi el őket.
 
 --topics::
-	Shows only commits that are NOT on the first branch given.
-	This helps track topic branches by hiding any commit that
-	is already in the main line of development.  When given
-	"git show-branch --topics master topic1 topic2", this
-	will show the revisions given by "git rev-list {caret}master
-	topic1 topic2"
+	Csak azokat a commitokat jeleníti meg, amelyek NEM az elsőként
+	megadott branchen vannak.  Ez segít a topic branchek követésében
+	azzal, hogy elrejt minden olyan commitot, amely már a fejlesztés fő
+	vonalában van.  A "git show-branch --topics master topic1 topic2"
+	megadásakor ez a "git rev-list {caret}master topic1 topic2" által
+	adott revíziókat jeleníti meg
 
 -g::
 --reflog[=<n>[,<base>]] [<ref>]::
-	Shows <n> most recent ref-log entries for the given
-	ref.  If <base> is given, <n> entries going back from
-	that entry.  <base> can be specified as count or date.
-	When no explicit <ref> parameter is given, it defaults to the
-	current branch (or `HEAD` if it is detached).
+	A megadott ref <n> legutóbbi ref-log bejegyzését jeleníti meg.  Ha
+	a <base> meg van adva, <n> bejegyzést visszafelé attól a
+	bejegyzéstől.  A <base> megadható darabszámként vagy dátumként.
+	Ha nincs explicit <ref> paraméter megadva, az alapértelmezés a
+	jelenlegi branch (vagy a `HEAD`, ha leválasztott).
 
 --color[=<when>]::
-	Color the status sign (one of these: `*` `!` `+` `-`) of each commit
-	corresponding to the branch it's in.
-	The value must be always (the default), never, or auto.
+	Az egyes commitok állapotjelének (ezek egyike: `*` `!` `+` `-`)
+	színezése annak megfelelően, hogy melyik branchen van.
+	Az érték always (az alapértelmezés), never vagy auto lehet.
 
 --no-color::
-	Turn off colored output, even when the configuration file gives the
-	default to color output.
-	Same as `--color=never`.
+	A színes kimenet kikapcsolása akkor is, ha a konfigurációs fájl
+	alapértelmezésként a színes kimenetet adja.
+	Ugyanaz, mint a `--color=never`.
 
-Note that --more, --list, --independent, and --merge-base options
-are mutually exclusive.
+Vedd figyelembe, hogy a --more, --list, --independent és --merge-base
+opciók kölcsönösen kizárják egymást.
 
 
 OUTPUT
 ------
 
-Given N <ref>s, the first N lines are the one-line description from
-their commit message. The branch head that is pointed at by
-$GIT_DIR/HEAD is prefixed with an asterisk `*` character while other
-heads are prefixed with a `!` character.
+N darab <ref> esetén az első N sor a commit-üzenetükből vett egysoros
+leírás. Azt a branch-fejet, amelyre a $GIT_DIR/HEAD mutat, egy csillag
+`*` karakter előzi meg, míg a többi fejet egy `!` karakter előzi meg.
 
-Following these N lines, a one-line log for each commit is
-displayed, indented N places.  If a commit is on the I-th
-branch, the I-th indentation character shows a `+` sign;
-otherwise it shows a space.  Merge commits are denoted by
-a `-` sign.  Each commit shows a short name that
-can be used as an extended SHA-1 to name that commit.
+Ezt az N sort követően minden commithoz egy egysoros napló jelenik meg,
+N hellyel behúzva.  Ha egy commit az I-edik branchen van, az I-edik
+behúzáskarakter `+` jelet mutat; egyébként szóközt mutat.  A
+merge-commitokat `-` jel jelöli.  Minden commit egy rövid nevet mutat,
+amely kiterjesztett SHA-1-ként használható az adott commit
+megnevezésére.
 
-The following example shows three branches, "master", "fixes",
-and "mhf":
+A következő példa három branchet mutat: "master", "fixes" és
+"mhf":
 
 ------------------------------------------------
 $ git show-branch master fixes mhf
@@ -166,19 +162,19 @@ $ git show-branch master fixes mhf
 *++ [master] Add 'git show-branch'.
 ------------------------------------------------
 
-These three branches all forked from a common commit, [master],
-whose commit message is "Add \'git show-branch'".
-The "fixes" branch adds one commit "Introduce "reset type" flag to
-"git reset"". The "mhf" branch adds many other commits.
-The current branch is "master".
+Ez a három branch mind egy közös commitból ágazott le, [master],
+amelynek commit-üzenete "Add \'git show-branch'".
+A "fixes" branch egy commitot ad hozzá: "Introduce "reset type" flag to
+"git reset"". Az "mhf" branch sok más commitot ad hozzá.
+A jelenlegi branch a "master".
 
 
 EXAMPLES
 --------
 
-If you keep your primary branches immediately under
-`refs/heads`, and topic branches in subdirectories of
-it, having the following in the configuration file may help:
+Ha az elsődleges branchjeidet közvetlenül a `refs/heads` alatt tartod, a
+topic brancheket pedig annak alkönyvtáraiban, a következő a konfigurációs
+fájlban segíthet:
 
 ------------
 [showbranch]
@@ -187,17 +183,17 @@ it, having the following in the configuration file may help:
 
 ------------
 
-With this, `git show-branch` without extra parameters would show
-only the primary branches.  In addition, if you happen to be on
-your topic branch, it is shown as well.
+Ezzel a `git show-branch` extra paraméterek nélkül csak az elsődleges
+brancheket jelenítené meg.  Ezenfelül, ha éppen a topic branchen vagy,
+az is megjelenik.
 
 ------------
 $ git show-branch --reflog="10,1 hour ago" --list master
 ------------
 
-shows 10 reflog entries going back from the tip as of 1 hour ago.
-Without `--list`, the output also shows how these tips are
-topologically related to each other.
+10 reflog bejegyzést jelenít meg visszafelé a csúcstól, 1 órával ezelőtti
+állapot szerint.  A `--list` nélkül a kimenet azt is megmutatja, hogyan
+kapcsolódnak ezek a csúcsok topologikusan egymáshoz.
 
 CONFIGURATION
 -------------
@@ -208,4 +204,4 @@ include::config/showbranch.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

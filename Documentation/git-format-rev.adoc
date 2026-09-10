@@ -3,113 +3,115 @@ git-format-rev(1)
 
 NAME
 ----
-git-format-rev - EXPERIMENTAL: Pretty format revisions on demand
+git-format-rev - KÍSÉRLETI: Revíziók szép formázása igény szerint
 
 
 SYNOPSIS
 --------
 [synopsis]
-(EXPERIMENTAL!) git format-rev --stdin-mode=<mode> --format=<pretty> [--[no-]notes=<ref>] [-z] [--[no-]null-output] [--[no-]null-input]
+(KÍSÉRLETI!) git format-rev --stdin-mode=<mode> --format=<pretty> [--[no-]notes=<ref>] [-z] [--[no-]null-output] [--[no-]null-input]
 
 DESCRIPTION
 -----------
 
-Pretty format revisions from standard input.
+Revíziók szép formázása a standard bemenetről.
 
-THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.
+EZ A PARANCS KÍSÉRLETI. A VISELKEDÉS MEGVÁLTOZHAT.
 
 OPTIONS
 -------
 
 `--stdin-mode=<mode>`::
-	How to interpret standard input data:
+	Hogyan értelmezze a standard bemenet adatait:
 +
 --
-`revs`;; Each line or record (see the <<io,INPUT AND OUTPUT FORMATS>>
-	section) is interpreted as a commit. Any kind of revision
-	expression can be used (see linkgit:gitrevisions[7]). Annotated
-	tags are peeled (see linkgit:gitglossary[7]).
+`revs`;; Minden sor vagy rekord (lásd a <<io,INPUT AND OUTPUT FORMATS>>
+	szakaszt) commitként értelmeződik. Bármilyen revíziókifejezés
+	használható (lásd linkgit:gitrevisions[7]). Az annotált tagek le
+	vannak hántva (lásd linkgit:gitglossary[7]).
 +
-The argument `rev` is also accepted.
+A `rev` argumentum is elfogadott.
 
-`text`;; Formats all commit object names found in freeform text. These
-	must be full object names, i.e. abbreviated hexadecimal object
-	names will not be interpreted.
+`text`;; A szabad szövegben található összes commit-objektumnevet
+	formázza. Ezeknek teljes objektumneveknek kell lenniük, azaz a
+	rövidített hexadecimális objektumneveket nem értelmezi.
 +
-Anything that is parsed as an object name but that is not found to be a
-commit object name is left alone (echoed).
+Bármi, amit objektumnévként értelmez, de nem talál commit-objektumnévnek,
+érintetlen marad (visszhangzik).
 --
 
 `--format=<pretty>`::
-	Pretty format string.
+	Szép formázó sztring.
 
 `--notes=<ref>`::
 `--no-notes`::
-	Custom notes ref. Notes are displayed when using the `%N`
-	atom. See linkgit:git-notes[1].
+	Egyéni notes-ref. A jegyzetek a `%N` atom használatakor jelennek
+	meg. Lásd linkgit:git-notes[1].
 
 `-z`::
 `--null`::
-	Use _NUL_ character to terminate both input and output instead
-	of newline. This option cannot be negated.
+	_NUL_ karakter használata a bemenet és a kimenet lezárására is,
+	sortörés helyett. Ez az opció nem negálható.
 +
-This is useful if both the input and output could contain newlines or if
-the input to this command also uses _NUL_ character termination; see the
-<<io,INPUT AND OUTPUT FORMATS>> section below.
+Ez akkor hasznos, ha a bemenet és a kimenet is tartalmazhat
+sortöréseket, vagy ha ennek a parancsnak a bemenete szintén _NUL_
+karakteres lezárást használ; lásd lentebb a <<io,INPUT AND OUTPUT
+FORMATS>> szakaszt.
 +
-The mode `--stdin-mode=text` can have use for this option when it needs
-to process input like for example `git last-modified -z`; see the
-<<examples,EXAMPLES>> section below.
+A `--stdin-mode=text` mód akkor veheti hasznát ennek az opciónak, amikor
+olyan bemenetet kell feldolgoznia, mint például a `git last-modified -z`;
+lásd lentebb a <<examples,EXAMPLES>> szakaszt.
 
 `--null-output`::
 `--no-null-output`::
-	Use _NUL_ character to terminate output instead of newline. The
-	default is `--no-null-output`.
+	_NUL_ karakter használata a kimenet lezárására sortörés helyett. Az
+	alapértelmezés a `--no-null-output`.
 +
-This is useful if the output could contain newlines, for example if the
-`%n` (newline) atom is used.
+Ez akkor hasznos, ha a kimenet tartalmazhat sortöréseket, például ha a
+`%n` (sortörés) atomot használják.
 
 `--null-input`::
 `--no-null-input`::
-	Use _NUL_ character to terminate input instead of newline. The
-	default is `--no-null-input`.
+	_NUL_ karakter használata a bemenet lezárására sortörés helyett. Az
+	alapértelmezés a `--no-null-input`.
 +
-This is useful if the input revision expressions could contain newlines.
+Ez akkor hasznos, ha a bemeneti revíziókifejezések tartalmazhatnak
+sortöréseket.
 
 [[io]]
 INPUT AND OUTPUT FORMAT
 -----------------------
 
-The command uses newlines for both input and output termination by
-default. See the `-z`, `--null-output`, and `--null-input` options for
-using _NUL_ character as the terminator.
+A parancs alapból sortöréseket használ a bemenet és a kimenet
+lezárására is. A _NUL_ karakter lezáróként való használatához lásd a
+`-z`, `--null-output` és `--null-input` opciókat.
 
-The mode `--stdin-mode=revs` outputs one formatted commit followed by
-the terminator. This could either be called a _line_ or a _record_ in
-case "line" is too suggestive of newline termination.
+A `--stdin-mode=revs` mód egy formázott commitot ír ki, amelyet a
+lezáró követ. Ezt _sornak_ vagy _rekordnak_ is nevezhetjük, arra az
+esetre, ha a "sor" túlságosan sortöréssel való lezárásra utalna.
 
-Note that this means that the terminator character (newline or _NUL_)
-acts as a _terminator_, not a _separator_. In other words, the final
-line or record is also terminated by the terminator character.
+Vedd figyelembe, hogy ez azt jelenti, hogy a lezáró karakter (sortörés
+vagy _NUL_) _lezáróként_, nem _elválasztóként_ működik. Más szóval az
+utolsó sort vagy rekordot is lezárja a lezáró karakter.
 
-The mode `--stdin-mode=text` replaces each object name with the
-formatted commit, i.e. the format `"%s"` would transform some commit
-object name to `"<subject>"` without any termination. Like this:
+A `--stdin-mode=text` mód minden objektumnevet a formázott committal
+helyettesít, azaz a `"%s"` formátum valamely commit-objektumnevet
+`"<subject>"`-re alakítana, bármilyen lezárás nélkül. Így:
 
 [synopsis]
 --
 Did we not fix this in "<subject>"?
 --
 
-It is safe to interactively read and write from this command since each
-record is immediately flushed.
+Biztonságos interaktívan olvasni és írni erről a parancsról, mivel
+minden rekord azonnal ürítésre kerül.
 
 [[examples]]
 EXAMPLES
 --------
 
-The command linkgit:git-last-modified[1] shows the commit that each file
-was last modified in.
+A linkgit:git-last-modified[1] parancs azt a commitot mutatja meg,
+amelyben az egyes fájlokat utoljára módosították.
 
 ----
 $ git last-modified -- README.md Makefile
@@ -117,8 +119,8 @@ $ git last-modified -- README.md Makefile
 c50fbb2dd225e7e82abba4380423ae105089f4d7	README.md
 ----
 
-We can pipe the result to this command in order to replace the object
-name with the commit author.
+Az eredményt átvezethetjük ezen a parancson, hogy az objektumnevet a
+commit szerzőjével helyettesítsük.
 
 ----
 $ git last-modified -- README.md Makefile |
@@ -127,7 +129,7 @@ Junio C Hamano	Makefile
 Todd Zullinger	README.md
 ----
 
-Another example is _formatting commits in commit messages_. Given this commit message:
+Egy másik példa a _commitok formázása a commit-üzenetekben_. Adott ez a commit-üzenet:
 
 ----
 Fix off-by-one error
@@ -139,8 +141,8 @@ We thought we fixed this in 5569bf9bbedd63a00780fc5c110e0cfab3aa97b9 but
 that only covered 1/3 of the faulty cases.
 ----
 
-We can format the commits and use par(1) to reflow the text, say in a
-`commit-msg` hook:
+Formázhatjuk a commitokat, és a par(1)-gyel újratördelhetjük a szöveget,
+mondjuk egy `commit-msg` hookban:
 
 ----
 $ git config set hook.reference-commits.event commit-msg
@@ -155,7 +157,7 @@ git format-rev --stdin-mode=text --format=reference <"$msg" |
 mv "$rewritten" "$msg"
 ----
 
-Which will produce something like this:
+Ami valami ilyesmit fog előállítani:
 
 ----
 Fix off-by-one error
@@ -170,41 +172,41 @@ We thought we fixed this in 5569bf9bbed (Fix memory allocator,
 DISCUSSION
 ----------
 
-This command lets you format any number of revisions in any order
-through one command invocation. Consider the
-linkgit:git-last-modified[1] case from the <<examples,EXAMPLES>> section
-above:
+Ez a parancs lehetővé teszi, hogy tetszőleges számú revíziót
+tetszőleges sorrendben formázz egyetlen parancshívással. Vedd a fenti
+<<examples,EXAMPLES>> szakaszból a linkgit:git-last-modified[1] esetét:
 
-1. There might be hundreds of files
-2. Commits can be repeated, i.e. two or more files were last modified in
-   the same commit
+1. Több száz fájl is lehet
+2. A commitok ismétlődhetnek, azaz két vagy több fájlt ugyanabban a
+   commitban módosítottak utoljára
 
-Two widely-used commands which pretty formats commits are
-linkgit:git-log[1] and linkgit:git-show[1]. It turns out that they are
-not a good fit for the above use case.
+Két széles körben használt parancs, amely szépen formázza a commitokat,
+a linkgit:git-log[1] és a linkgit:git-show[1]. Kiderül, hogy nem
+illenek jól a fenti felhasználási esethez.
 
-- The output of linkgit:git-last-modified[1] would have to be processed
-  in stages since you need to transform the first column separately and
-  then link the author to the filename. But this is surmountable.
-- You can feed each commit to `git show` or `git log --no-walk -1`. But
-  that means that you need to create a process for each line.
-- Let’s say that you want to use one process, not one per line. So you
-  want to feed all the commits to the command. Now you face the problem
-  that you have to feed all the commits to the commands before you get
-  any output (this is also the case for the `--stdin` modes). In other
-  words, you cannot loop through each line, get the author for the
-  commit, and output the author and the filename. You need to feed all
-  the commits, get back all the output, and match the output with the
-  filename.
-- But the next problem is that commands will deduplicate the input and
-  only output one commit one single time only. Thus you cannot make the
-  output order match the input order, since a commit could have been
-  repeated in the original input.
+- A linkgit:git-last-modified[1] kimenetét szakaszokban kellene
+  feldolgozni, mivel az első oszlopot külön kell átalakítani, majd a
+  szerzőt a fájlnévhez kell kapcsolni. De ez leküzdhető.
+- Minden commitot átadhatsz a `git show`-nak vagy a `git log --no-walk
+  -1`-nek. De ez azt jelenti, hogy minden sorhoz létre kell hoznod egy
+  folyamatot.
+- Tegyük fel, hogy egy folyamatot akarsz használni, nem soronként
+  egyet. Tehát az összes commitot át akarod adni a parancsnak. Most
+  szembekerülsz azzal a problémával, hogy az összes commitot át kell
+  adnod a parancsoknak, mielőtt bármilyen kimenetet kapnál (ez a
+  `--stdin` módoknál is így van). Más szóval nem tudsz végigmenni minden
+  soron, megszerezni a commit szerzőjét, és kiírni a szerzőt és a
+  fájlnevet. Át kell adnod az összes commitot, vissza kell kapnod az
+  összes kimenetet, és a kimenetet a fájlnévvel kell párosítanod.
+- De a következő probléma az, hogy a parancsok deduplikálják a bemenetet,
+  és minden commitot csak egyetlen egyszer írnak ki. Így nem tudod
+  elérni, hogy a kimeneti sorrend egyezzen a bemeneti sorrenddel, mivel
+  egy commit ismétlődhetett az eredeti bemenetben.
 
-In short, it is straightforward to use these two commands if you use one
-process per line. It is much more work if you just want to use one
-process, but still doable. In contrast, this problem is solved with just
-another shell pipeline with this command.
+Röviden: egyszerű ezt a két parancsot használni, ha soronként egy
+folyamatot használsz. Sokkal több munka, ha csak egy folyamatot akarsz
+használni, de még mindig megvalósítható. Ezzel szemben ez a probléma
+ezzel a paranccsal csak egy újabb shell-folyamatvezetékkel megoldható.
 
 SEE ALSO
 --------
@@ -213,4 +215,4 @@ linkgit:git-log[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
