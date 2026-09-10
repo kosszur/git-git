@@ -2115,3 +2115,129 @@ került be. Nyolc man page (`git-ls-remote`, `git-send-pack`, `git-reflog`, `git
 - Szintaxis-ellenőrzés: egyik fájlban sincs `ifdef::`/`ifndef::`/`endif::`; a `----`/`------------`/
   `~~~~`/`====` határolók és man-page-aláhúzások párban/pontos hosszal (Python `len()` +
   `cat -A` ellenőrzés), a bekezdéshatárok megtartva.
+
+## 28. blokk — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-10
+
+**Módszer:** ugyanaz, mint a 15–27. blokkban: a két gyökér-tábla együttes, sorméret szerint növekvő
+listája, a `gitglossary.adoc` / `git.adoc` / `config.adoc` / `git-fast-import.adoc` /
+`glossary-content.adoc` kihagyva. Orchestrátor fordította közvetlenül, subagent nélkül.
+Fájlok: `git-gc.adoc`, `gitk.adoc`, `git-fsck.adoc`, `git-init.adoc`, `gitpacking.adoc`,
+`git-rm.adoc`, `git-multi-pack-index.adoc`, `gitcvs-migration.adoc`, `git-update-ref.adoc`,
+`diff-generate-patch.adoc`.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| bitmap / reachability bitmap | **marad „bitmap" / „elérhetőségi bitmap"**; toldalék magas hangrend: `bitmapek`, `bitmapet`, `bitmapbe` | `gitpacking.adoc`, `git-multi-pack-index.adoc` — a `packfile` (0. blokk) mintájára angol kölcsönszó |
+| pseudo-merge bitmap | **„pszeudo-merge bitmap"** (a `merge` a 0. blokk szerint angol); a `gitpacking.adoc` `== Pseudo-merge bitmaps` címe → „Pszeudo-merge bitmapek" | a `"pseudo-merge bitmap"` idézőjeles definíció-előfordulást is `„pszeudo-merge bitmap"`-re fordítottuk a fájlon belüli konzisztenciáért |
+| reachability / reachability closure | **„elérhetőség" / „elérhetőségi lezárt"** | `gitpacking.adoc` |
+| traversal / bitmap traversal / fill-in traversal | **„bejárás" / „bitmap-bejárás" / „kitöltő bejárás"** | `gitpacking.adoc` |
+| ref tip / reference tip | **„ref-csúcs" / „referencia-csúcs"** | `gitpacking.adoc`, `git-multi-pack-index.adoc` |
+| capture group (regex) | **marad „capture group"** angolul | `gitpacking.adoc` — regex-terminus, nincs bevett magyar |
+| octopus merge | **marad „octopus merge"** angolul | `gitpacking.adoc` |
+| cruft pack | **marad „cruft pack"** angolul; `--cruft` opció változatlan | `git-gc.adoc` — a `thin pack` (1. blokk) mintájára |
+| housekeeping (git gc) | **„karbantartás" / „karbantartási feladat"** | `git-gc.adoc` |
+| unreachable objects | **„elérhetetlen objektumok"** | `git-gc.adoc`, `git-fsck.adoc` |
+| dangling (git-fsck) | a `dangling`/`--dangling`/`--no-dangling` opciónév és a `dangling <type> <object>::` literál diagnosztika-címke **változatlan**; prózában „lógó" (lógó objektum/commit/előzményszegmens) | `git-fsck.adoc` — a program tényleges kimeneti szövegei bájtazonosak (5. blokk `git-clean.adoc` minta), csak a leírás-törzs fordul |
+| connectivity / validity (git-fsck) | **„összekapcsoltság" / „érvényesség"** | `git-fsck.adoc` |
+| unreachability trace / head node / root node | **„elérhetetlenség-nyomkövetés" / „fejcsomópont" / „gyökércsomópont"** | `git-fsck.adoc` |
+| MIDX / multi-pack-index / MIDX layer / MIDX chain | **marad „MIDX" / „multi-pack-index"**; „MIDX-réteg" / „MIDX-lánc"; `multi-pack-index-chain` fájlnév változatlan | `git-multi-pack-index.adoc` |
+| root layer / base (layer) | **„gyökérréteg" / „alap"** | `git-multi-pack-index.adoc` |
+| break ties / tie | **„holtverseny eldöntése" / „holtverseny"** | `git-multi-pack-index.adoc` `--preferred-pack` |
+| batch / batch size | **„köteg" / „kötegméret"**; `--batch-size` / `--batch-updates` opciónév változatlan; ige: „kötegben hajt végre", „kötegelt frissítés" | `git-multi-pack-index.adoc`, `git-update-ref.adoc` |
+| expected size (MIDX repack) | **„várható méret"** | `git-multi-pack-index.adoc` |
+| "refs snapshot" / reference snapshot | **változatlanul angolul** (`"refs snapshot"` / „reference snapshot"), a leírás-törzs körülötte fordul | `git-multi-pack-index.adoc` — a doksi maga idézőjelezi |
+| alternate (object store / repository) | **marad „alternate"** angolul; „alternatív objektumkészletek" a `git-fsck.adoc` `--full` prózájában, ahol a forrás is „alternate object pools"-t mond | `git rm` / `git-fsck` / `git-multi-pack-index` — a `bare repository` mintájára |
+| transaction / prepared state (update-ref) | **„tranzakció"**; a `prepared` állapotnév a `git update-ref` `prepare` parancsához kötve **angolul** (`prepared állapot`) | `git-update-ref.adoc` |
+| dereference (symbolic ref) | **„feloldás"** ("feloldva a szimbolikus refeket") | `git-update-ref.adoc` |
+| pseudoref | **„pszeudoref"** (25. blokk precedens) | `git-update-ref.adoc` |
+| `update`/`create`/`delete`/`verify`/`symref-*`/`option`/`start`/`prepare`/`commit`/`abort` (update-ref `::` lista-címkék) | **bájtazonosan angolul** (a ténylegesen begépelt parancsszavak); csak a leírás-törzs fordul | `git-update-ref.adoc` — a `config.kulcs::` szabály analógiája |
+| patch text | **„patch-szöveg"** | `diff-generate-patch.adoc` |
+| combined diff / combined diff format | **„kombinált diff" / „kombinált diff-formátum"** | `diff-generate-patch.adoc` |
+| hunk header / chunk header (diff-generate-patch) | „hunk-fejléc", ill. ahol a forrás „Chunk header"-t mond, ott **„chunk-fejléc"** (a forrás saját inkonzisztenciáját tükrözve; `hunk` és `chunk` is angol — 0./27. blokk) | `diff-generate-patch.adoc` |
+| similarity / dissimilarity index | **„hasonlósági / különbözőségi index"** | `diff-generate-patch.adoc` |
+| shared repository (gitcvs-migration) | **„megosztott repository"** | `gitcvs-migration.adoc` |
+| main trunk (CVS) | **„fő trunk"** | `gitcvs-migration.adoc` |
+| development clone | **„fejlesztői klón"** | `gitcvs-migration.adoc` |
+| committer (szerepkör, gitcvs-migration) | **marad „committer"** (a `maintainer` mintájára); „egyéni committerként" | `gitcvs-migration.adoc` |
+
+### Címsor-anchorok
+
+- **`git-gc.adoc`**: nincs `[[...]]`, nincs `<<...>>`. `AGGRESSIVE` csupa nagybetűs, a kanonikus
+  listán kívüli → a VÉGLEGES DÖNTÉS szerint **angolul** (a prózában is `"AGGRESSIVE"` /
+  `"CONFIGURATION"` / `"NOTES"` / `"PACKFILE OPTIMIZATION"` címszövegre feloldódó, idézőjeles
+  hivatkozásokként, ezek is angolul).
+- **`gitk.adoc`**: 5 defenzív anchor — mind **vegyes kis-/nagybetűs vagy Title Case** alcím, tehát
+  a VÉGLEGES DÖNTÉS (csak csupa nagybetűs) nem vonatkozik rájuk, a 18./23./27. blokk (`Examples` →
+  „Példák" stb.) precedensét követik: `[[_rev_list_options_and_arguments]]` „rev-list opciók és
+  argumentumok" (`~~~~`), `[[_gitk_specific_options]]` „gitk-specifikus opciók" (`~~~~`),
+  `[[_examples]]` „Példák", `[[_files]]` „Fájlok", `[[_history]]` „Történet" (`----`). Aláhúzások
+  a fordított cím pontos karakterhosszához igazítva. A „History simplification" idézőjeles,
+  `linkgit:git-log[1]`-re mutató szakasznév-hivatkozás **angolul maradt**.
+- **`git-fsck.adoc`**: 2 defenzív anchor — `[[_extracted_diagnostics]]` „Kinyert diagnosztika",
+  `[[_environment_variables]]` „Környezeti változók". Mindkettő **Title Case**, NEM a csupa
+  nagybetűs kanonikus alak, ezért fordítva (27. blokk `Terminology` precedens). `FSCK MESSAGES`
+  csupa nagybetűs, listán kívüli → **angolul**.
+- **`git-init.adoc`**: nincs anchor/xref. `TEMPLATE DIRECTORY` csupa nagybetűs, listán kívüli →
+  **angolul** (prózában is `"TEMPLATE DIRECTORY"` hivatkozás). `ifndef::with-breaking-changes[]` /
+  `ifdef::…[]` / `endif::…[]` bájtazonos, a közéjük ékelt próza fordult.
+- **`gitpacking.adoc`**: 6 defenzív anchor a `==`/`===` **Title Case** szakaszcímek fölé
+  (`_pseudo_merge_bitmaps`, `_background`, `_overview`, `_use_cases`, `_configuration`, `_examples`).
+  A `=== Configuration` Title Case (nem `CONFIGURATION`), ezért fordítva. Nincs `<<...>>` xref sehol
+  a fában (grep-pel ellenőrizve).
+- **`git-rm.adoc`**: 3 defenzív anchor a `~~~~` **Title Case** alcímek fölé (`_using_git_commit_a`
+  „A ``git commit -a'' használata", `_using_git_add_a` „A ``git add -A'' használata",
+  `_other_ways` „Egyéb módok"). A `` ``…'' `` compat-mode markup és a `git commit -a` parancs
+  bájtazonos, csak az „Using X" → „X használata" keret fordult. `REMOVING FILES THAT HAVE
+  DISAPPEARED FROM THE FILESYSTEM` és `SUBMODULES` csupa nagybetűs, listán kívüli → **angolul**.
+- **`git-multi-pack-index.adoc`**: nincs anchor/xref. Az alparancsnevek (`write`/`compact`/…) és a
+  beágyazott `--…::` opciócímkék bájtazonosak. `link:technical/multi-pack-index.html[…]` **célja
+  változatlan**, a `[The Multi-Pack-Index Design Document]` látható szöveg → „[A Multi-Pack-Index
+  tervezési dokumentum]".
+- **`gitcvs-migration.adoc`**: **NEM man page** (section 7 guide) — mind a 6 `----` szekciócím
+  fordult, fölöttük defenzív anchorral (`_developing_against_a_shared_repository`,
+  `_setting_up_a_shared_repository`, `_importing_a_cvs_archive`,
+  `_advanced_shared_repository_management`, `_providing_cvs_access_to_a_git_repository`,
+  `_alternative_development_models`), aláhúzások pontos karakterhosszra igazítva. A
+  `link:user-manual.html[The Git User's Manual]` → „[A Git felhasználói kézikönyve]", a
+  `link:howto/update-hook-example.html[…]` látható szöveg is fordult (a 22./24. blokk how-to
+  döntése a howto/-fájlok saját CÍMÉRE vonatkozott; ez link-látszószöveg).
+- **`diff-generate-patch.adoc`**: a meglévő `[[generate_patch_text_with_p]]` anchor **érintetlen**,
+  a hozzá tartozó cím szövege fordult („Patch-szöveg előállítása a -p opcióval"). A `diff-options.adoc`
+  (még `[ ]`) `<<generate_patch_text_with_p>>` bare xref-je emiatt a jövőben a fordított
+  címszöveget jeleníti majd meg — **kívánt** viselkedés, az azonosító nem változott. Új defenzív
+  anchor: `[[_combined_diff_format]]` „Kombinált diff-formátum" (Title Case `----`, nincs rá xref).
+  A `[synopsis]` blokkok, a `------------` combined-diff példa és a `       diff --git …` szóközzel
+  behúzott literál sorok bájtazonosak. A „Defining a custom hunk-header" idézőjeles,
+  `linkgit:gitattributes[5]`-re mutató szakasznév **angolul maradt**.
+
+### Man-page címként angolul hagyott kétes címsorok
+
+- `AGGRESSIVE` (`git-gc.adoc`), `FSCK MESSAGES` (`git-fsck.adoc`), `TEMPLATE DIRECTORY`
+  (`git-init.adoc`), `REMOVING FILES THAT HAVE DISAPPEARED FROM THE FILESYSTEM` + `SUBMODULES`
+  (`git-rm.adoc`), `LOGGING UPDATES` (`git-update-ref.adoc`) — mind csupa nagybetűs, a kanonikus
+  man-page-szekció listán kívül, VÉGLEGES DÖNTÉS szerint bájtazonosan angolul.
+
+### Megőrzött markup / megjegyzések
+
+- Mindegyik man page GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- `include::…` sorok bájtazonosak; `git-init.adoc` `:git-init:` attribútum-sor változatlan.
+- `git-fsck.adoc`: a diagnosztika-címkék (`unreachable`/`missing`/`dangling`/`hash mismatch …::`)
+  és a `GIT_OBJECT_DIRECTORY` stb. env-változónevek bájtazonosak.
+- `git-init.adoc`: a `----------------` EXAMPLES-blokk + `<1>`/`<2>`/`<3>` callout-jelölők
+  változatlanok, a callout-szövegek fordultak; a `--shared` értéktáblázat `--` … `--` határolói és
+  `` `umask` ``/`` `group` ``/`` `all` ``/`_<perm>_` címkéi bájtazonosak.
+- `git-rm.adoc`: a `-r` opció leírása a forrásban **8 szóközzel** (nem tabbal) behúzott — megtartva.
+- `git-multi-pack-index.adoc`: a `write::`/`compact::` `--` … `--` blokkok 1-tab opciócímkéi +
+  2-tab leírás-törzse — a behúzási szintek pontosan megtartva (`cat -A`). `NOTE:` angolul.
+- `git-update-ref.adoc`: a `--stdin` és a `-z` tabbal behúzott parancs-nyelvtan blokkok
+  (`update SP <ref> …` / `… NUL …`), a `rejected SP (…)` sor és a `    oldsha1 SP newsha1 …`
+  naplósor-sablonok **bájtazonosak**.
+- `gitpacking.adoc`: a 3 `----` `[bitmapPseudoMerge "all"]` config-példablokk bájtazonos; `NOTE:` angolul.
+- `gitcvs-migration.adoc`: az összes `------…` shell-session példablokk és a `[NOTE]` `====…`
+  blokk határolói bájtazonosak, a `[NOTE]` törzse fordult.
+- Szintaxis-ellenőrzés (Python `len()` + `cat -A`): nincs beszúrt/eltűnt bekezdéshatár; a
+  `----`/`....`/`====`/`++++` határolók párban; a setext-aláhúzások a fordított cím pontos
+  karakterhosszával egyeznek (menet közben 6 db ±1–2 elütés javítva: `gitcvs-migration.adoc` 3,
+  `gitk.adoc` 1, `git-rm.adoc` 2, `diff-generate-patch.adoc` 1).

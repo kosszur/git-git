@@ -3,7 +3,7 @@ git-multi-pack-index(1)
 
 NAME
 ----
-git-multi-pack-index - Write and verify multi-pack-indexes
+git-multi-pack-index - Multi-pack-indexek írása és ellenőrzése
 
 
 SYNOPSIS
@@ -22,171 +22,173 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Write or verify a multi-pack-index (MIDX) file.
+Multi-pack-index (MIDX) fájl írása vagy ellenőrzése.
 
 OPTIONS
 -------
 
-The following command-line options are applicable to all sub-commands:
+A következő parancssori opciók minden alparancsra alkalmazhatók:
 
 --object-dir=<dir>::
-	Use given directory for the location of Git objects. We check
-	`<dir>/packs/multi-pack-index` for the current MIDX file, and
-	`<dir>/packs` for the pack-files to index.
+	A megadott könyvtár használata a Git-objektumok helyeként. A
+	`<dir>/packs/multi-pack-index`-et nézzük a jelenlegi MIDX-fájlért, és
+	a `<dir>/packs`-et az indexelendő pack-fájlokért.
 +
-`<dir>` must be an alternate of the current repository.
+A `<dir>`-nek a jelenlegi repository egy alternate-jének kell lennie.
 
 --progress::
 --no-progress::
-	Turn progress on/off explicitly. If neither is specified, progress is
-	shown if standard error is connected to a terminal. Supported by
-	sub-commands `write`, `verify`, `expire`, and `repack`.
+	A folyamatjelzés explicit be-/kikapcsolása. Ha egyik sincs megadva, a
+	folyamatjelzés akkor jelenik meg, ha a standard hibakimenet terminálhoz
+	van kapcsolva. A `write`, `verify`, `expire` és `repack` alparancs támogatja.
 
-The following subcommands are available:
+A következő alparancsok érhetők el:
 
 write::
-	Write a new MIDX file. The following options are available for
-	the `write` sub-command:
+	Új MIDX-fájl írása. A következő opciók érhetők el a `write`
+	alparancshoz:
 +
 --
 	--preferred-pack=<pack>::
-		When specified, break ties in favor of this pack when
-		there are additional copies of its objects in other
-		packs. Ties for objects not found in the preferred
-		pack are always resolved in favor of the copy in the
-		pack with the highest mtime. If unspecified, the pack
-		with the lowest mtime is used by default. The
-		preferred pack must have at least one object.
+		Ha meg van adva, ennek a packnek a javára dönti el a
+		holtversenyt, amikor az objektumainak további másolatai
+		vannak más packekben. A preferált packben nem található
+		objektumok holtversenye mindig a legmagasabb mtime-ú
+		packben lévő másolat javára dől el. Ha nincs megadva,
+		alapból a legalacsonyabb mtime-ú pack lesz használva. A
+		preferált packnek legalább egy objektumot tartalmaznia kell.
 
 	--[no-]bitmap::
-		Control whether or not a multi-pack bitmap is written.
+		Szabályozza, hogy íródjon-e multi-pack bitmap.
 
 	--stdin-packs::
-		Write a multi-pack index containing only the set of
-		line-delimited pack index basenames provided over stdin.
+		Olyan multi-pack index írása, amely csak a stdinen megadott,
+		sortöréssel elválasztott pack-index-basename-ek halmazát tartalmazza.
 
 	--refs-snapshot=<path>::
-		With `--bitmap`, optionally specify a file which
-		contains a "refs snapshot" taken prior to repacking.
+		A `--bitmap`-pel opcionálisan megadható egy fájl, amely az
+		újracsomagolás előtt készített "refs snapshot"-ot tartalmaz.
 +
-A reference snapshot is composed of line-delimited OIDs corresponding to
-the reference tips, usually taken by `git repack` prior to generating a
-new pack. A line may optionally start with a `+` character to indicate
-that the reference which corresponds to that OID is "preferred" (see
-linkgit:git-config[1]'s `pack.preferBitmapTips`.)
+A reference snapshot a referencia-csúcsoknak megfelelő, sortöréssel
+elválasztott OID-kból áll, amelyet általában a `git repack` készít egy új
+pack generálása előtt. Egy sor opcionálisan kezdődhet `+` karakterrel,
+jelezve, hogy az adott OID-nak megfelelő referencia "preferált" (lásd a
+linkgit:git-config[1] `pack.preferBitmapTips` beállítását).
 +
-The file given at `<path>` is expected to be readable, and can contain
-duplicates. (If a given OID is given more than once, it is marked as
-preferred if at least one instance of it begins with the special `+`
-marker).
+A `<path>`-nál megadott fájltól elvárt, hogy olvasható legyen, és
+tartalmazhat duplikátumokat. (Ha egy adott OID többször is meg van adva,
+akkor preferáltként lesz megjelölve, ha legalább egy előfordulása a
+speciális `+` jelölővel kezdődik.)
 
 	--incremental::
-		Write an incremental MIDX file containing only objects
-		and packs not present in an existing MIDX layer.
-		Migrates non-incremental MIDXs to incremental ones when
-		necessary.
+		Olyan inkrementális MIDX-fájl írása, amely csak egy
+		meglévő MIDX-rétegben nem szereplő objektumokat és
+		packeket tartalmaz. Szükség esetén a nem inkrementális
+		MIDX-eket inkrementálisra migrálja.
 
 	--[no-]write-chain-file::
-		When used with `--incremental`, write a new MIDX layer
-		but do not update the multi-pack-index-chain file.
-		The checksum of the new layer is printed to standard
-		output, allowing the caller to assemble and write the
-		chain itself. Requires `--incremental`.
+		A `--incremental`-lal használva új MIDX-réteget ír, de
+		nem frissíti a multi-pack-index-chain fájlt. Az új réteg
+		ellenőrzőösszege a standard kimenetre kerül, így a hívó
+		maga állíthatja össze és írhatja a láncot. `--incremental`
+		szükséges hozzá.
 
 	--base=<checksum>::
-		Specify the checksum of an existing MIDX layer to use
-		as the base when writing a new incremental layer.
-		The special value `none` indicates that the new layer
-		should have no base (i.e., it becomes a root layer).
-		Requires `--no-write-chain-file`.
+		Egy meglévő MIDX-réteg ellenőrzőösszegének megadása,
+		amelyet alapként kell használni egy új inkrementális
+		réteg írásakor. A speciális `none` érték azt jelzi, hogy
+		az új rétegnek ne legyen alapja (azaz gyökérréteg lesz).
+		`--no-write-chain-file` szükséges hozzá.
 --
 
 compact::
-	Write a new MIDX layer containing only objects and packs present
-	in the range `<from>` to `<to>`, where both arguments are
-	checksums of existing layers in the MIDX chain.
+	Olyan új MIDX-réteg írása, amely csak a `<from>`-tól `<to>`-ig
+	terjedő tartományban lévő objektumokat és packeket tartalmazza,
+	ahol mindkét argumentum a MIDX-lánc meglévő rétegeinek ellenőrzőösszege.
 +
 --
 	--incremental::
-		Write the result to a MIDX chain instead of writing a
-		stand-alone MIDX.
+		Az eredmény MIDX-láncba írása, önálló MIDX írása helyett.
 
 	--[no-]bitmap::
-		Control whether or not a multi-pack bitmap is written.
+		Szabályozza, hogy íródjon-e multi-pack bitmap.
 
 	--[no-]write-chain-file::
-		When used with `--incremental`, write a new compacted
-		MIDX layer but do not update the multi-pack-index-chain
-		file. The checksum of the new layer is printed to
-		standard output. Requires `--incremental`.
+		A `--incremental`-lal használva új tömörített MIDX-réteget
+		ír, de nem frissíti a multi-pack-index-chain fájlt. Az új
+		réteg ellenőrzőösszege a standard kimenetre kerül.
+		`--incremental` szükséges hozzá.
 
 	--base=<checksum>::
-		Specify the checksum of an existing MIDX layer to use
-		as the base for the compacted result, instead of using
-		the immediate parent of `<from>`. The special value
-		`none` indicates that the result should have no base.
+		Egy meglévő MIDX-réteg ellenőrzőösszegének megadása,
+		amelyet a tömörített eredmény alapjaként kell használni, a
+		`<from>` közvetlen szülője helyett. A speciális `none`
+		érték azt jelzi, hogy az eredménynek ne legyen alapja.
 --
 +
-Note that the compact command requires writing a version-2 midx that
-cannot be read by versions of Git prior to v2.54.
+Vedd figyelembe, hogy a compact parancs egy 2-es verziójú midx írását
+igényli, amelyet a v2.54 előtti Git-verziók nem tudnak olvasni.
 
 verify::
-	Verify the contents of the MIDX file.
+	A MIDX-fájl tartalmának ellenőrzése.
 
 expire::
-	Delete the pack-files that are tracked by the MIDX file, but
-	have no objects referenced by the MIDX (with the exception of
-	`.keep` packs and cruft packs). Rewrite the MIDX file afterward
-	to remove all references to these pack-files.
+	Azon pack-fájlok törlése, amelyeket a MIDX-fájl követ, de
+	amelyeknek nincs a MIDX által hivatkozott objektuma (a `.keep`
+	packek és a cruft packek kivételével). Utána a MIDX-fájl
+	újraírása, hogy eltávolítson minden hivatkozást ezekre a pack-fájlokra.
 +
-NOTE: this mode is incompatible with incremental MIDX files.
+NOTE: ez a mód nem kompatibilis az inkrementális MIDX-fájlokkal.
 
 repack::
-	Create a new pack-file containing objects in small pack-files
-	referenced by the multi-pack-index. If the size given by the
-	`--batch-size=<size>` argument is zero, then create a pack
-	containing all objects referenced by the multi-pack-index. For
-	a non-zero batch size, Select the pack-files by examining packs
-	from oldest-to-newest, computing the "expected size" by counting
-	the number of objects in the pack referenced by the
-	multi-pack-index, then divide by the total number of objects in
-	the pack and multiply by the pack size. We select packs with
-	expected size below the batch size until the set of packs have
-	total expected size at least the batch size, or all pack-files
-	are considered. If only one pack-file is selected, then do
-	nothing. If a new pack-file is created, rewrite the
-	multi-pack-index to reference the new pack-file. A later run of
-	'git multi-pack-index expire' will delete the pack-files that
-	were part of this batch.
+	Új pack-fájl létrehozása, amely a multi-pack-index által
+	hivatkozott kis pack-fájlok objektumait tartalmazza. Ha a
+	`--batch-size=<size>` argumentummal megadott méret nulla, akkor
+	egy olyan packet hoz létre, amely a multi-pack-index által
+	hivatkozott összes objektumot tartalmazza. Nem nulla
+	kötegméretnél a pack-fájlokat úgy választja ki, hogy a packeket
+	a legrégebbitől a legújabbig vizsgálja, kiszámítja a "várható
+	méretet" a multi-pack-index által hivatkozott packben lévő
+	objektumok számának megszámolásával, majd elosztja a packben
+	lévő objektumok teljes számával, és megszorozza a pack
+	méretével. Azokat a packeket választjuk, amelyek várható mérete
+	a kötegméret alatt van, amíg a packek halmazának teljes várható
+	mérete el nem éri legalább a kötegméretet, vagy amíg az összes
+	pack-fájlt figyelembe nem vettük. Ha csak egy pack-fájl van
+	kiválasztva, akkor nem csinál semmit. Ha új pack-fájl jön létre,
+	újraírja a multi-pack-indexet, hogy az az új pack-fájlra
+	hivatkozzon. A 'git multi-pack-index expire' egy későbbi futása
+	törli azokat a pack-fájlokat, amelyek ennek a kötegnek a részei voltak.
 +
-If `repack.packKeptObjects` is `false`, then any pack-files with an
-associated `.keep` file will not be selected for the batch to repack.
+Ha a `repack.packKeptObjects` értéke `false`, akkor a hozzájuk tartozó
+`.keep` fájllal rendelkező pack-fájlok nem lesznek kiválasztva az
+újracsomagolandó kötegbe.
 +
-NOTE: this mode is incompatible with incremental MIDX files.
+NOTE: ez a mód nem kompatibilis az inkrementális MIDX-fájlokkal.
 
 EXAMPLES
 --------
 
-* Write a MIDX file for the packfiles in the current `.git` directory.
+* MIDX-fájl írása a jelenlegi `.git` könyvtárban lévő packfile-okhoz.
 +
 -----------------------------------------------
 $ git multi-pack-index write
 -----------------------------------------------
 
-* Write a MIDX file for the packfiles in the current `.git` directory with a
-corresponding bitmap.
+* MIDX-fájl írása a jelenlegi `.git` könyvtárban lévő packfile-okhoz egy
+megfelelő bitmappel.
 +
 -------------------------------------------------------------
 $ git multi-pack-index write --preferred-pack=<pack> --bitmap
 -------------------------------------------------------------
 
-* Write a MIDX file for the packfiles in an alternate object store.
+* MIDX-fájl írása egy alternate objektumtárban lévő packfile-okhoz.
 +
 -----------------------------------------------
 $ git multi-pack-index --object-dir <alt> write
 -----------------------------------------------
 
-* Verify the MIDX file for the packfiles in the current `.git` directory.
+* A jelenlegi `.git` könyvtárban lévő packfile-ok MIDX-fájljának ellenőrzése.
 +
 -----------------------------------------------
 $ git multi-pack-index verify
@@ -195,11 +197,11 @@ $ git multi-pack-index verify
 
 SEE ALSO
 --------
-See link:technical/multi-pack-index.html[The Multi-Pack-Index Design
-Document] and linkgit:gitformat-pack[5] for more information on the
-multi-pack-index feature and its file format.
+A multi-pack-index funkcióról és fájlformátumáról bővebb információért
+lásd a link:technical/multi-pack-index.html[A Multi-Pack-Index tervezési
+dokumentum] leírást és a linkgit:gitformat-pack[5] oldalt.
 
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

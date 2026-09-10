@@ -3,7 +3,7 @@ git-gc(1)
 
 NAME
 ----
-git-gc - Cleanup unnecessary files and optimize the local repository
+git-gc - Szükségtelen fájlok kitakarítása és a helyi repository optimalizálása
 
 
 SYNOPSIS
@@ -13,120 +13,120 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Runs a number of housekeeping tasks within the current repository,
-such as compressing file revisions (to reduce disk space and increase
-performance), removing unreachable objects which may have been
-created from prior invocations of 'git add', packing refs, pruning
-reflog, rerere metadata or stale working trees. May also update ancillary
-indexes such as the commit-graph.
+Számos karbantartási feladatot végez a jelenlegi repository-n belül,
+például fájlrevíziók tömörítését (a lemezterület csökkentése és a
+teljesítmény növelése érdekében), a 'git add' korábbi hívásai során
+esetleg létrejött elérhetetlen objektumok eltávolítását, a refek
+csomagolását, a reflog, a rerere-metaadatok vagy az elavult munkakönyvtárak
+nyesését. Frissíthet kiegészítő indexeket is, például a commit-graphot.
 
-When common porcelain operations that create objects are run, they
-will check whether the repository has grown substantially since the
-last maintenance, and if so run `git gc` automatically. See `gc.auto`
-below for how to disable this behavior.
+Amikor objektumokat létrehozó, gyakori porcelain műveletek futnak,
+ellenőrzik, hogy a repository jelentősen megnőtt-e az utolsó
+karbantartás óta, és ha igen, automatikusan lefuttatják a `git gc`-t.
+A viselkedés kikapcsolásához lásd lentebb a `gc.auto` beállítást.
 
-Running `git gc` manually should only be needed when adding objects to
-a repository without regularly running such porcelain commands, to do
-a one-off repository optimization, or e.g. to clean up a suboptimal
-mass-import. See the "PACKFILE OPTIMIZATION" section in
-linkgit:git-fast-import[1] for more details on the import case.
+A `git gc` kézi futtatására csak akkor lehet szükség, ha úgy adsz
+objektumokat egy repository-hoz, hogy nem futtatsz rendszeresen ilyen
+porcelain parancsokat, ha egyszeri repository-optimalizálást végzel,
+vagy pl. egy nem optimális tömeges import kitakarításához. Az import
+esetéről lásd a "PACKFILE OPTIMIZATION" szakaszt a linkgit:git-fast-import[1] oldalon.
 
 OPTIONS
 -------
 
 --aggressive::
-	Usually 'git gc' runs very quickly while providing good disk
-	space utilization and performance.  This option will cause
-	'git gc' to more aggressively optimize the repository at the expense
-	of taking much more time.  The effects of this optimization are
-	mostly persistent. See the "AGGRESSIVE" section below for details.
+	A 'git gc' általában nagyon gyorsan lefut, miközben jó
+	lemezterület-kihasználtságot és teljesítményt nyújt.  Ez az opció
+	ráveszi a 'git gc'-t, hogy agresszívebben optimalizálja a repository-t,
+	cserébe sokkal több időt vesz igénybe.  Ennek az optimalizálásnak a
+	hatásai többnyire tartósak. Részletekért lásd lentebb az "AGGRESSIVE" szakaszt.
 
 --auto::
-	With this option, 'git gc' checks whether any housekeeping is
-	required; if not, it exits without performing any work.
+	Ezzel az opcióval a 'git gc' ellenőrzi, hogy szükség van-e
+	bármilyen karbantartásra; ha nincs, munka végzése nélkül kilép.
 +
-See the `gc.auto` option in the "CONFIGURATION" section below for how
-this heuristic works.
+Arról, hogy ez a heurisztika hogyan működik, lásd a `gc.auto` opciót
+lentebb a "CONFIGURATION" szakaszban.
 +
-Once housekeeping is triggered by exceeding the limits of
-configuration options such as `gc.auto` and `gc.autoPackLimit`, all
-other housekeeping tasks (e.g. rerere, working trees, reflog...) will
-be performed as well.
+Amint a karbantartást olyan konfigurációs opciók korlátainak túllépése
+váltja ki, mint a `gc.auto` és a `gc.autoPackLimit`, az összes többi
+karbantartási feladat (pl. rerere, munkakönyvtárak, reflog...) is
+végrehajtódik.
 
 --detach::
 --no-detach::
-	Run in the background if the system supports it. This option overrides
-	the `gc.autoDetach` config.
+	Futás a háttérben, ha a rendszer támogatja. Ez az opció felülírja
+	a `gc.autoDetach` konfigurációt.
 
 --cruft::
 --no-cruft::
-	When expiring unreachable objects, pack them separately into a
-	cruft pack instead of storing them as loose objects. `--cruft`
-	is on by default.
+	Az elérhetetlen objektumok lejáratásakor egy külön cruft packbe
+	csomagolja őket, ahelyett, hogy laza objektumként tárolná. A `--cruft`
+	alapból be van kapcsolva.
 
 --max-cruft-size=<n>::
-	When packing unreachable objects into a cruft pack, limit the
-	size of new cruft packs to be at most `<n>` bytes. Overrides any
-	value specified via the `gc.maxCruftSize` configuration. See
-	the `--max-cruft-size` option of linkgit:git-repack[1] for
-	more.
+	Az elérhetetlen objektumok cruft packbe csomagolásakor korlátozza
+	az új cruft packek méretét legfeljebb `<n>` bájtra. Felülír minden,
+	a `gc.maxCruftSize` konfiguráción keresztül megadott értéket.
+	Bővebben lásd a linkgit:git-repack[1] `--max-cruft-size`
+	opcióját.
 
 --expire-to=<dir>::
-	When packing unreachable objects into a cruft pack, write a cruft
-	pack containing pruned objects (if any) to the directory `<dir>`.
-	This option only has an effect when used together with `--cruft`.
-	See the `--expire-to` option of linkgit:git-repack[1] for
-	more information.
+	Az elérhetetlen objektumok cruft packbe csomagolásakor a nyesett
+	objektumokat (ha vannak) tartalmazó cruft packet a `<dir>` könyvtárba
+	írja. Ennek az opciónak csak a `--cruft` opcióval együtt használva
+	van hatása. Bővebb információért lásd a linkgit:git-repack[1]
+	`--expire-to` opcióját.
 
 --prune=<date>::
-	Prune loose objects older than date (default is 2 weeks ago,
-	overridable by the config variable `gc.pruneExpire`).
-	--prune=now prunes loose objects regardless of their age and
-	increases the risk of corruption if another process is writing to
-	the repository concurrently; see "NOTES" below. --prune is on by
-	default.
+	A dátumnál régebbi laza objektumok nyesése (az alapértelmezés 2 hete,
+	felülírható a `gc.pruneExpire` konfigurációs változóval).
+	A --prune=now a laza objektumokat koruktól függetlenül nyesi, és
+	növeli a sérülés kockázatát, ha egy másik folyamat egyidejűleg ír a
+	repository-ba; lásd lentebb a "NOTES" szakaszt. A --prune alapból be
+	van kapcsolva.
 
 --no-prune::
-	Do not prune any loose objects.
+	Ne nyessen egyetlen laza objektumot sem.
 
 --quiet::
-	Suppress all progress reports.
+	Minden folyamatjelzés elnyomása.
 
 --force::
-	Force `git gc` to run even if there may be another `git gc`
-	instance running on this repository.
+	A `git gc` futásának kikényszerítése akkor is, ha esetleg egy másik
+	`git gc` példány fut ezen a repository-n.
 
 --keep-largest-pack::
-	All packs except the largest non-cruft pack, any packs marked
-	with a `.keep` file, and any cruft pack(s) are consolidated into
-	a single pack. When this option is used, `gc.bigPackThreshold`
-	is ignored.
+	A legnagyobb nem cruft pack, a `.keep` fájllal megjelölt packek és
+	a cruft pack(ek) kivételével minden pack egyetlen packbe lesz
+	összevonva. Ha ezt az opciót használod, a `gc.bigPackThreshold`
+	figyelmen kívül marad.
 
 AGGRESSIVE
 ----------
 
-When the `--aggressive` option is supplied, linkgit:git-repack[1] will
-be invoked with the `-f` flag, which in turn will pass
-`--no-reuse-delta` to linkgit:git-pack-objects[1]. This will throw
-away any existing deltas and re-compute them, at the expense of
-spending much more time on the repacking.
+Ha a `--aggressive` opció meg van adva, a linkgit:git-repack[1] a `-f`
+kapcsolóval hívódik meg, ami viszont átadja a `--no-reuse-delta`-t a
+linkgit:git-pack-objects[1]-nek. Ez eldobja a meglévő deltákat, és
+újraszámolja őket, cserébe sokkal több időt fordítva az
+újracsomagolásra.
 
-The effects of this are mostly persistent, e.g. when packs and loose
-objects are coalesced into one another pack the existing deltas in
-that pack might get re-used, but there are also various cases where we
-might pick a sub-optimal delta from a newer pack instead.
+Ennek a hatásai többnyire tartósak, pl. amikor packeket és laza
+objektumokat egy másik packbe vonnak össze, az abban a packben lévő
+meglévő delták újrahasználódhatnak, de számos olyan eset is van, amikor
+inkább egy újabb pack nem optimális deltáját választjuk.
 
-Furthermore, supplying `--aggressive` will tweak the `--depth` and
-`--window` options passed to linkgit:git-repack[1]. See the
-`gc.aggressiveDepth` and `gc.aggressiveWindow` settings below. By
-using a larger window size we're more likely to find more optimal
-deltas.
+Ezenfelül a `--aggressive` megadása módosítja a linkgit:git-repack[1]-nek
+átadott `--depth` és `--window` opciókat. Lásd lentebb a
+`gc.aggressiveDepth` és `gc.aggressiveWindow` beállításokat. Nagyobb
+ablakméret használatával nagyobb eséllyel találunk optimálisabb
+deltákat.
 
-It's probably not worth it to use this option on a given repository
-without running tailored performance benchmarks on it. It takes a lot
-more time, and the resulting space/delta optimization may or may not
-be worth it. Not using this at all is the right trade-off for most
-users and their repositories.
+Valószínűleg nem éri meg ezt az opciót egy adott repository-n használni
+anélkül, hogy testre szabott teljesítmény-benchmarkokat futtatnál rajta.
+Sokkal több időt vesz igénybe, és az eredményül kapott hely-/delta-
+optimalizálás megérheti vagy sem. A legtöbb felhasználó és repository-juk
+számára az a helyes kompromisszum, ha egyáltalán nem használják.
 
 CONFIGURATION
 -------------
@@ -138,41 +138,42 @@ include::config/gc.adoc[]
 NOTES
 -----
 
-'git gc' tries very hard not to delete objects that are referenced
-anywhere in your repository. In particular, it will keep not only
-objects referenced by your current set of branches and tags, but also
-objects referenced by the index, remote-tracking branches, reflogs
-(which may reference commits in branches that were later amended or
-rewound), and anything else in the refs/* namespace. Note that a note
-(of the kind created by 'git notes') attached to an object does not
-contribute in keeping the object alive. If you are expecting some
-objects to be deleted and they aren't, check all of those locations
-and decide whether it makes sense in your case to remove those
-references.
+A 'git gc' nagyon igyekszik nem törölni olyan objektumokat, amelyekre
+bárhol hivatkoznak a repository-dban. Konkrétan nemcsak a branchek és
+tagek jelenlegi halmaza által hivatkozott objektumokat tartja meg, hanem
+az index, a remote-tracking branchek, a reflogok (amelyek olyan branchek
+commitjaira hivatkozhatnak, amelyeket később amendeltek vagy
+visszatekertek) és bármi más által hivatkozottakat is a refs/* névtérben.
+Vedd figyelembe, hogy egy objektumhoz csatolt jegyzet (amilyet a 'git
+notes' hoz létre) nem járul hozzá az objektum életben tartásához. Ha arra
+számítasz, hogy bizonyos objektumok törlődnek, de nem törlődnek,
+ellenőrizd mindezeket a helyeket, és döntsd el, van-e értelme a te
+esetedben eltávolítani azokat a hivatkozásokat.
 
-On the other hand, when 'git gc' runs concurrently with another process,
-there is a risk of it deleting an object that the other process is using
-but hasn't created a reference to. This may just cause the other process
-to fail or may corrupt the repository if the other process later adds a
-reference to the deleted object. Git has two features that significantly
-mitigate this problem:
+Másrészről, amikor a 'git gc' egy másik folyamattal egyidejűleg fut,
+fennáll a kockázata annak, hogy töröl egy olyan objektumot, amelyet a
+másik folyamat használ, de még nem hozott rá létre hivatkozást. Ez
+egyszerűen a másik folyamat hibáját okozhatja, vagy megsértheti a
+repository-t, ha a másik folyamat később hivatkozást ad a törölt
+objektumra. A Gitnek két olyan funkciója van, amely jelentősen enyhíti
+ezt a problémát:
 
-. Any object with modification time newer than the `--prune` date is kept,
-  along with everything reachable from it.
+. Minden olyan objektum megmarad, amelynek módosítási ideje újabb a
+  `--prune` dátumnál, mindennel együtt, ami elérhető belőle.
 
-. Most operations that add an object to the database update the
-  modification time of the object if it is already present so that #1
-  applies.
+. A legtöbb művelet, amely objektumot ad az adatbázishoz, frissíti az
+  objektum módosítási idejét, ha az már jelen van, hogy az #1 pont
+  érvényes legyen.
 
-However, these features fall short of a complete solution, so users who
-run commands concurrently have to live with some risk of corruption (which
-seems to be low in practice).
+Ezek a funkciók azonban nem érnek fel egy teljes megoldással, így azoknak
+a felhasználóknak, akik egyidejűleg futtatnak parancsokat, együtt kell
+élniük a sérülés némi kockázatával (ami a gyakorlatban alacsonynak tűnik).
 
 HOOKS
 -----
 
-The 'git gc --auto' command will run the 'pre-auto-gc' hook.  See
-linkgit:githooks[5] for more information.
+A 'git gc --auto' parancs lefuttatja a 'pre-auto-gc' hookot.  Bővebb
+információért lásd a linkgit:githooks[5] oldalt.
 
 
 SEE ALSO
@@ -184,4 +185,4 @@ linkgit:git-rerere[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

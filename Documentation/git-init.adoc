@@ -3,7 +3,7 @@ git-init(1)
 
 NAME
 ----
-git-init - Create an empty Git repository or reinitialize an existing one
+git-init - Üres Git repository létrehozása vagy egy meglévő újrainicializálása
 
 
 SYNOPSIS
@@ -19,24 +19,24 @@ git init [-q | --quiet] [--bare] [--template=<template-directory>]
 DESCRIPTION
 -----------
 
-This command creates an empty Git repository - basically a `.git`
-directory with subdirectories for `objects`, `refs/heads`,
-`refs/tags`, and template files.  An initial branch without any
-commits will be created (see the `--initial-branch` option below
-for its name).
+Ez a parancs egy üres Git repository-t hoz létre – alapvetően egy `.git`
+könyvtárat, amelyben alkönyvtárak vannak az `objects`, `refs/heads`,
+`refs/tags` számára, valamint sablonfájlok.  Létrejön egy kezdő branch
+commitok nélkül (a nevéhez lásd lentebb a `--initial-branch`
+opciót).
 
-If the `GIT_DIR` environment variable is set then it specifies a path
-to use instead of `./.git` for the base of the repository.
+Ha a `GIT_DIR` környezeti változó be van állítva, akkor az a `./.git`
+helyett használandó elérési utat adja meg a repository alapjaként.
 
-If the object storage directory is specified via the
-`GIT_OBJECT_DIRECTORY` environment variable then the sha1 directories
-are created underneath; otherwise, the default `$GIT_DIR/objects`
-directory is used.
+Ha az objektumtároló könyvtár a `GIT_OBJECT_DIRECTORY` környezeti
+változón keresztül van megadva, akkor a sha1 könyvtárak az alatt jönnek
+létre; egyébként az alapértelmezett `$GIT_DIR/objects` könyvtár lesz
+használva.
 
-Running `git init` in an existing repository is safe. It will not
-overwrite things that are already there. The primary reason for
-rerunning `git init` is to pick up newly added templates (or to move
-the repository to another place if `--separate-git-dir` is given).
+A `git init` futtatása egy meglévő repository-ban biztonságos. Nem írja
+felül azt, ami már ott van. A `git init` újrafuttatásának elsődleges oka
+az újonnan hozzáadott sablonok átvétele (vagy a repository áthelyezése
+máshová, ha a `--separate-git-dir` meg van adva).
 
 OPTIONS
 -------
@@ -44,131 +44,136 @@ OPTIONS
 `-q`::
 `--quiet`::
 
-Only print error and warning messages; all other output will be suppressed.
+Csak hiba- és figyelmeztető üzenetek kiírása; minden más kimenet el lesz nyomva.
 
 `--bare`::
 
-Create a bare repository. If `GIT_DIR` environment is not set, it is set to the
-current working directory.
+Bare repository létrehozása. Ha a `GIT_DIR` környezeti változó nincs
+beállítva, akkor a jelenlegi munkakönyvtárra lesz beállítva.
 
 `--object-format=<format>`::
-Specify the given object _<format>_ (hash algorithm) for the repository.  The valid
-values are `sha1` and (if enabled) `sha256`.  `sha1` is the default.
+A megadott objektum-_<format>_ (hash algoritmus) beállítása a
+repository-hoz.  Az érvényes értékek: `sha1` és (ha engedélyezve van)
+`sha256`.  A `sha1` az alapértelmezés.
 +
 include::object-format-disclaimer.adoc[]
 
 `--ref-format=<format>`::
-Specify the given ref storage _<format>_ for the repository. The valid values are:
+A megadott ref-tároló _<format>_ beállítása a repository-hoz. Az érvényes értékek:
 +
 include::ref-storage-format.adoc[]
 
 `--template=<template-directory>`::
-Specify the directory from which templates will be used.  (See the "TEMPLATE
-DIRECTORY" section below.)
+Annak a könyvtárnak a megadása, amelyből a sablonok használva lesznek.
+(Lásd lentebb a "TEMPLATE DIRECTORY" szakaszt.)
 
 `--separate-git-dir=<git-dir>`::
-Instead of initializing the repository as a directory to either `$GIT_DIR` or
-`./.git/`, create a text file there containing the path to the actual
-repository.  This file acts as a filesystem-agnostic Git symbolic link to the
-repository.
+Ahelyett, hogy a repository-t könyvtárként inicializálná a `$GIT_DIR`
+vagy a `./.git/` alatt, létrehoz ott egy szövegfájlt, amely a tényleges
+repository elérési útját tartalmazza.  Ez a fájl fájlrendszertől független
+Git szimbolikus linkként működik a repository-hoz.
 +
-If this is a reinitialization, the repository will be moved to the specified path.
+Ha ez újrainicializálás, a repository a megadott elérési útra lesz áthelyezve.
 
 `-b <branch-name>`::
 `--initial-branch=<branch-name>`::
-Use _<branch-name>_ for the initial branch in the newly created
-repository.  If not specified, fall back to the default name
+A _<branch-name>_ használata a kezdő branchhez az újonnan létrehozott
+repository-ban.  Ha nincs megadva, az alapértelmezett névre esik vissza
 ifndef::with-breaking-changes[]
-(currently `master`, but this will change to `main` when Git 3.0 is released).
+(jelenleg `master`, de ez `main`-re változik, amikor a Git 3.0 megjelenik).
 endif::with-breaking-changes[]
 ifdef::with-breaking-changes[]
 `main`.
 endif::with-breaking-changes[]
-The default name can be customized via the `init.defaultBranch` configuration
-variable.
+Az alapértelmezett név a `init.defaultBranch` konfigurációs változóval
+szabható testre.
 
 `--shared[=(false|true|umask|group|all|world|everybody|<perm>)]`::
 
-Specify that the Git repository is to be shared amongst several users.  This
-allows users belonging to the same group to push into that
-repository.  When specified, the config variable `core.sharedRepository` is
-set so that files and directories under `$GIT_DIR` are created with the
-requested permissions.  When not specified, Git will use permissions reported
-by `umask`(2).
+Annak megadása, hogy a Git repository több felhasználó között legyen
+megosztva.  Ez lehetővé teszi, hogy az azonos csoportba tartozó
+felhasználók pusholjanak abba a repository-ba.  Megadásakor a
+`core.sharedRepository` konfigurációs változó úgy lesz beállítva, hogy a
+`$GIT_DIR` alatti fájlok és könyvtárak a kért jogosultságokkal jöjjenek
+létre.  Ha nincs megadva, a Git a `umask`(2) által jelentett
+jogosultságokat használja.
 +
-The option can have the following values, defaulting to `group` if no value
-is given:
+Az opció a következő értékeket veheti fel, `group`-ra alapértelmezve, ha
+nincs érték megadva:
 +
 --
 `umask`::
 `false`::
 
-Use permissions reported by `umask`(2). The default, when `--shared` is not
-specified.
+A `umask`(2) által jelentett jogosultságok használata. Az alapértelmezés,
+amikor a `--shared` nincs megadva.
 
 `group`::
 `true`::
 
-Make the repository group-writable, (and `g+sx`, since the git group may not be
-the primary group of all users). This is used to loosen the permissions of an
-otherwise safe `umask`(2) value. Note that the umask still applies to the other
-permission bits (e.g. if umask is `0022`, using `group` will not remove read
-privileges from other (non-group) users). See `0xxx` for how to exactly specify
-the repository permissions.
+A repository csoport számára írhatóvá tétele (és `g+sx`, mivel a git
+csoport nem feltétlenül az összes felhasználó elsődleges csoportja). Ez
+egy egyébként biztonságos `umask`(2) érték jogosultságainak lazítására
+szolgál. Vedd figyelembe, hogy az umask továbbra is érvényes a többi
+jogosultsági bitre (pl. ha az umask `0022`, a `group` használata nem
+vesz el olvasási jogot a többi (nem csoportbeli) felhasználótól). A
+repository jogosultságainak pontos megadásához lásd a `0xxx`-t.
 
 `all`::
 `world`::
 `everybody`::
 
-Same as `group`, but make the repository readable by all users.
+Ugyanaz, mint a `group`, de a repository minden felhasználó számára olvashatóvá válik.
 
 _<perm>_::
 
-_<perm>_ is a 3-digit octal number prefixed with `0` and each file
-will have mode _<perm>_. _<perm>_ will override users' `umask`(2)
-value (and not only loosen permissions as `group` and `all`
-do). `0640` will create a repository which is group-readable, but
-not group-writable or accessible to others. `0660` will create a repo
-that is readable and writable to the current user and group, but
-inaccessible to others (directories and executable files get their
-`x` bit from the `r` bit for corresponding classes of users).
+A _<perm>_ egy `0`-val kezdődő, 3 számjegyű oktális szám, és minden fájl
+_<perm>_ módú lesz. A _<perm>_ felülírja a felhasználók `umask`(2)
+értékét (és nem csak lazítja a jogosultságokat, ahogy a `group` és az
+`all` teszi). A `0640` olyan repository-t hoz létre, amely csoport
+számára olvasható, de nem csoport számára írható, és mások számára sem
+elérhető. A `0660` olyan repót hoz létre, amely a jelenlegi felhasználó
+és csoport számára olvasható és írható, de mások számára nem elérhető
+(a könyvtárak és a végrehajtható fájlok az `x` bitjüket az `r` bitből
+kapják a felhasználók megfelelő osztályaira).
 --
 
-By default, the configuration flag `receive.denyNonFastForwards` is enabled
-in shared repositories, so that you cannot force a non fast-forwarding push
-into it.
+Alapból a `receive.denyNonFastForwards` konfigurációs kapcsoló engedélyezve
+van a megosztott repository-kban, így nem tudsz non-fast-forward pusht
+kikényszeríteni bele.
 
-If you provide a _<directory>_, the command is run inside it. If this directory
-does not exist, it will be created.
+Ha megadsz egy _<directory>_-t, a parancs azon belül fut. Ha ez a könyvtár
+nem létezik, létrejön.
 
 TEMPLATE DIRECTORY
 ------------------
 
-Files and directories in the template directory whose name do not start with a
-dot will be copied to the `$GIT_DIR` after it is created.
+A sablonkönyvtárban lévő azon fájlok és könyvtárak, amelyek neve nem
+ponttal kezdődik, a `$GIT_DIR` létrehozása után oda lesznek másolva.
 
-The template directory will be one of the following (in order):
+A sablonkönyvtár a következők egyike lesz (sorrendben):
 
- - the argument given with the `--template` option;
+ - a `--template` opcióval megadott argumentum;
 
- - the contents of the `$GIT_TEMPLATE_DIR` environment variable;
+ - a `$GIT_TEMPLATE_DIR` környezeti változó tartalma;
 
- - the `init.templateDir` configuration variable; or
+ - az `init.templateDir` konfigurációs változó; vagy
 
- - the default template directory: `/usr/share/git-core/templates`.
+ - az alapértelmezett sablonkönyvtár: `/usr/share/git-core/templates`.
 
-The default template directory includes some directory structure, suggested
-"exclude patterns" (see linkgit:gitignore[5]), and sample hook files.
+Az alapértelmezett sablonkönyvtár tartalmaz némi könyvtárstruktúrát,
+javasolt „kizárási mintákat" (lásd linkgit:gitignore[5]) és minta
+hook-fájlokat.
 
-The sample hooks are all disabled by default. To enable one of the
-sample hooks rename it by removing its `.sample` suffix.
+A minta hookok alapból mind le vannak tiltva. Egy minta hook
+engedélyezéséhez nevezd át úgy, hogy eltávolítod a `.sample` utótagját.
 
-See linkgit:githooks[5] for more general info on hook execution.
+A hook-végrehajtásról szóló általánosabb információért lásd a linkgit:githooks[5] oldalt.
 
 EXAMPLES
 --------
 
-Start a new Git repository for an existing code base::
+Új Git repository indítása egy meglévő kódbázishoz::
 +
 ----------------
 $ cd /path/to/my/codebase
@@ -177,9 +182,9 @@ $ git add .     <2>
 $ git commit    <3>
 ----------------
 +
-<1> Create a `/path/to/my/codebase/.git` directory.
-<2> Add all existing files to the index.
-<3> Record the pristine state as the first commit in the history.
+<1> Létrehoz egy `/path/to/my/codebase/.git` könyvtárat.
+<2> Hozzáadja az összes meglévő fájlt az indexhez.
+<3> Rögzíti a szűz állapotot az előzmény első commitjaként.
 
 CONFIGURATION
 -------------
@@ -192,4 +197,4 @@ include::config/init.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

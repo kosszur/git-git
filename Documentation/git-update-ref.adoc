@@ -3,7 +3,7 @@ git-update-ref(1)
 
 NAME
 ----
-git-update-ref - Update the object name stored in a ref safely
+git-update-ref - Egy refben tárolt objektumnév biztonságos frissítése
 
 SYNOPSIS
 --------
@@ -14,33 +14,34 @@ git update-ref [-m <reason>] [--no-deref] --stdin [-z] [--batch-updates]
 
 DESCRIPTION
 -----------
-Given two arguments, stores the <new-oid> in the <ref>, possibly
-dereferencing the symbolic refs.  E.g. `git update-ref HEAD
-<new-oid>` updates the current branch head to the new object.
+Két argumentum esetén a <new-oid>-t tárolja a <ref>-ben, esetleg
+feloldva a szimbolikus refeket.  Pl. a `git update-ref HEAD
+<new-oid>` a jelenlegi branch fejét az új objektumra frissíti.
 
-Given three arguments, stores the <new-oid> in the <ref>,
-possibly dereferencing the symbolic refs, after verifying that
-the current value of the <ref> matches <old-oid>.
-E.g. `git update-ref refs/heads/master <new-oid> <old-oid>`
-updates the master branch head to <new-oid> only if its current
-value is <old-oid>.  You can specify 40 "0" or an empty string
-as <old-oid> to make sure that the ref you are creating does
-not exist.
+Három argumentum esetén a <new-oid>-t tárolja a <ref>-ben,
+esetleg feloldva a szimbolikus refeket, miután ellenőrizte, hogy
+a <ref> jelenlegi értéke megegyezik a <old-oid>-val.
+Pl. a `git update-ref refs/heads/master <new-oid> <old-oid>`
+csak akkor frissíti a master branch fejét a <new-oid>-ra, ha a
+jelenlegi értéke <old-oid>.  Megadhatsz 40 "0"-t vagy üres
+sztringet <old-oid>-ként annak biztosítására, hogy a létrehozandó
+ref ne létezzen.
 
-The final arguments are object names; this command without any options
-does not support updating a symbolic ref to point to another ref (see
-linkgit:git-symbolic-ref[1]).  But `git update-ref --stdin` does have
-the `symref-*` commands so that regular refs and symbolic refs can be
-committed in the same transaction.
+Az utolsó argumentumok objektumnevek; ez a parancs opciók nélkül nem
+támogatja egy szimbolikus ref frissítését úgy, hogy az egy másik refre
+mutasson (lásd linkgit:git-symbolic-ref[1]).  A `git update-ref --stdin`
+viszont rendelkezik a `symref-*` parancsokkal, így a hagyományos refek és
+a szimbolikus refek ugyanabban a tranzakcióban commitolhatók.
 
-If --no-deref is given, <ref> itself is overwritten, rather than
-the result of following the symbolic pointers.
+Ha a --no-deref meg van adva, maga a <ref> íródik felül, nem pedig a
+szimbolikus mutatók követésének eredménye.
 
-With `-d`, it deletes the named <ref> after verifying that it
-still contains <old-oid>.
+A `-d`-vel törli a megnevezett <ref>-et, miután ellenőrizte, hogy még
+mindig a <old-oid>-t tartalmazza.
 
-With `--stdin`, update-ref reads instructions from standard input and
-performs all modifications together.  Specify commands of the form:
+A `--stdin`-nel az update-ref a standard bemenetről olvassa az
+utasításokat, és az összes módosítást együtt hajtja végre.  Add meg a
+parancsokat a következő alakban:
 
 	update SP <ref> SP <new-oid> [SP <old-oid>] LF
 	create SP <ref> SP <new-oid> LF
@@ -56,24 +57,27 @@ performs all modifications together.  Specify commands of the form:
 	commit LF
 	abort LF
 
-With `--create-reflog`, update-ref will create a reflog for each ref
-even if one would not ordinarily be created.
+A `--create-reflog`-gal az update-ref minden refhez létrehoz egy
+reflogot, akkor is, ha egyébként nem jönne létre.
 
-With `--batch-updates`, update-ref executes the updates in a batch but allows
-individual updates to fail due to invalid or incorrect user input, applying only
-the successful updates. However, system-related errors—such as I/O failures or
-memory issues—will result in a full failure of all batched updates. Any failed
-updates will be reported in the following format:
+A `--batch-updates`-szel az update-ref kötegben hajtja végre a
+frissítéseket, de megengedi, hogy az egyes frissítések érvénytelen vagy
+helytelen felhasználói bemenet miatt meghiúsuljanak, és csak a sikeres
+frissítéseket alkalmazza. A rendszerrel kapcsolatos hibák azonban – mint
+az I/O-hibák vagy memóriaproblémák – az összes kötegelt frissítés teljes
+meghiúsulását okozzák. A meghiúsult frissítések a következő formátumban
+jelennek meg:
 
 	rejected SP (<old-oid> | <old-target>) SP (<new-oid> | <new-target>) SP <rejection-reason> LF
 
-Quote fields containing whitespace as if they were strings in C source
-code; i.e., surrounded by double-quotes and with backslash escapes.
-Use 40 "0" characters or the empty string to specify a zero value.  To
-specify a missing value, omit the value and its preceding SP entirely.
+A whitespace-t tartalmazó mezőket úgy idézőjelezd, mintha C forráskódbeli
+sztringek lennének; azaz dupla idézőjelek közé zárva, backslash
+escape-ekkel.  Használj 40 "0" karaktert vagy az üres sztringet a nulla
+érték megadásához.  Hiányzó érték megadásához hagyd el teljesen az
+értéket és az előtte lévő SP-t.
 
-Alternatively, use `-z` to specify in NUL-terminated format, without
-quoting:
+Alternatívaként használd a `-z`-t NUL-lezárt formátumban való
+megadáshoz, idézőjelezés nélkül:
 
 	update SP <ref> NUL <new-oid> NUL [<old-oid>] NUL
 	create SP <ref> NUL <new-oid> NUL
@@ -89,116 +93,118 @@ quoting:
 	commit NUL
 	abort NUL
 
-In this format, use 40 "0" to specify a zero value, and use the empty
-string to specify a missing value.
+Ebben a formátumban használj 40 "0"-t a nulla érték megadásához, és az
+üres sztringet a hiányzó érték megadásához.
 
-In either format, values can be specified in any form that Git
-recognizes as an object name.  Commands in any other format or a
-repeated <ref> produce an error.  Command meanings are:
+Mindkét formátumban az értékek bármilyen olyan alakban megadhatók,
+amelyet a Git objektumnévként ismer fel.  A bármely más formátumú
+parancsok vagy egy ismételt <ref> hibát okoznak.  A parancsok jelentése:
 
 update::
-	Set <ref> to <new-oid> after verifying <old-oid>, if given.
-	Specify a zero <new-oid> to ensure the ref does not exist
-	after the update and/or a zero <old-oid> to make sure the
-	ref does not exist before the update.
+	A <ref> beállítása <new-oid>-ra a <old-oid> ellenőrzése után, ha
+	meg van adva.  Adj meg nulla <new-oid>-t annak biztosítására,
+	hogy a ref ne létezzen a frissítés után, és/vagy nulla
+	<old-oid>-t annak biztosítására, hogy a ref ne létezzen a
+	frissítés előtt.
 
 create::
-	Create <ref> with <new-oid> after verifying that it does not
-	exist.  The given <new-oid> may not be zero.
+	A <ref> létrehozása <new-oid>-val, miután ellenőrizte, hogy nem
+	létezik.  A megadott <new-oid> nem lehet nulla.
 
 delete::
-	Delete <ref> after verifying that it exists with <old-oid>, if
-	given.  If given, <old-oid> may not be zero.
+	A <ref> törlése, miután ellenőrizte, hogy létezik <old-oid>-val,
+	ha meg van adva.  Ha meg van adva, a <old-oid> nem lehet nulla.
 
 symref-update::
-	Set <ref> to <new-target> after verifying <old-target> or <old-oid>,
-	if given. Specify a zero <old-oid> to ensure that the ref does not
-	exist before the update.
+	A <ref> beállítása <new-target>-re a <old-target> vagy <old-oid>
+	ellenőrzése után, ha meg van adva. Adj meg nulla <old-oid>-t annak
+	biztosítására, hogy a ref ne létezzen a frissítés előtt.
 
 verify::
-	Verify <ref> against <old-oid> but do not change it.  If
-	<old-oid> is zero or missing, the ref must not exist.
+	A <ref> ellenőrzése <old-oid>-val szemben, de ne változtasd meg.
+	Ha a <old-oid> nulla vagy hiányzik, a ref nem létezhet.
 
 symref-create::
-	Create symbolic ref <ref> with <new-target> after verifying that
-	it does not exist.
+	A <ref> szimbolikus ref létrehozása <new-target>-rel, miután
+	ellenőrizte, hogy nem létezik.
 
 symref-delete::
-	Delete <ref> after verifying that it exists with <old-target>, if given.
+	A <ref> törlése, miután ellenőrizte, hogy létezik <old-target>-rel, ha meg van adva.
 
 symref-verify::
-	Verify symbolic <ref> against <old-target> but do not change it.
-	If <old-target> is missing, the ref must not exist.  Can only be
-	used in `no-deref` mode.
+	A szimbolikus <ref> ellenőrzése <old-target>-rel szemben, de ne
+	változtasd meg.  Ha a <old-target> hiányzik, a ref nem létezhet.
+	Csak `no-deref` módban használható.
 
 option::
-	Modify the behavior of the next command naming a <ref>.
-	The only valid option is `no-deref` to avoid dereferencing
-	a symbolic ref.
+	A következő, <ref>-et megnevező parancs viselkedésének
+	módosítása.  Az egyetlen érvényes opció a `no-deref`, amely
+	elkerüli egy szimbolikus ref feloldását.
 
 start::
-	Start a transaction. In contrast to a non-transactional session, a
-	transaction will automatically abort if the session ends without an
-	explicit commit. This command may create a new empty transaction when
-	the current one has been committed or aborted already.
+	Tranzakció indítása. A nem tranzakciós munkamenettel szemben egy
+	tranzakció automatikusan megszakad, ha a munkamenet explicit commit
+	nélkül ér véget. Ez a parancs új üres tranzakciót hozhat létre,
+	amikor a jelenlegit már commitolták vagy megszakították.
 
 prepare::
-	Prepare to commit the transaction. This will create lock files for all
-	queued reference updates. If one reference could not be locked, the
-	transaction will be aborted.
+	Felkészülés a tranzakció commitolására. Ez zárolófájlokat hoz létre
+	az összes sorba állított referenciafrissítéshez. Ha egy referenciát
+	nem sikerült zárolni, a tranzakció megszakad.
 
 commit::
-	Commit all reference updates queued for the transaction, ending the
-	transaction.
+	Az összes, a tranzakcióhoz sorba állított referenciafrissítés
+	commitolása, a tranzakció lezárása.
 
 abort::
-	Abort the transaction, releasing all locks if the transaction is in
-	prepared state.
+	A tranzakció megszakítása, az összes zárolás feloldása, ha a
+	tranzakció prepared állapotban van.
 
-If all <ref>s can be locked with matching <old-oid>s
-simultaneously, all modifications are performed.  Otherwise, no
-modifications are performed.  Note that while each individual
-<ref> is updated or deleted atomically, a concurrent reader may
-still see a subset of the modifications.
+Ha az összes <ref> egyidejűleg zárolható az egyező <old-oid>-kkal,
+minden módosítás végrehajtódik.  Egyébként semmilyen módosítás nem
+hajtódik végre.  Vedd figyelembe, hogy bár minden egyes <ref>
+atomi módon frissül vagy törlődik, egy egyidejű olvasó még mindig
+láthatja a módosítások egy részhalmazát.
 
 LOGGING UPDATES
 ---------------
-If config parameter "core.logAllRefUpdates" is true and the ref is one
-under "refs/heads/", "refs/remotes/", "refs/notes/", or a pseudoref
-like HEAD or ORIG_HEAD; or the file "$GIT_DIR/logs/<ref>" exists then
-`git update-ref` will append a line to the log file
-"$GIT_DIR/logs/<ref>" (dereferencing all symbolic refs before creating
-the log name) describing the change in ref value.  Log lines are
-formatted as:
+Ha a "core.logAllRefUpdates" konfigurációs paraméter true, és a ref a
+"refs/heads/", "refs/remotes/", "refs/notes/" alattiak egyike, vagy egy
+pszeudoref, mint a HEAD vagy az ORIG_HEAD; vagy létezik a
+"$GIT_DIR/logs/<ref>" fájl, akkor a `git update-ref` hozzáfűz egy sort a
+"$GIT_DIR/logs/<ref>" naplófájlhoz (a naplónév létrehozása előtt feloldva
+az összes szimbolikus refet), amely leírja a ref értékének változását.  A
+naplósorok formátuma:
 
     oldsha1 SP newsha1 SP committer LF
 
-Where "oldsha1" is the 40 character hexadecimal value previously
-stored in <ref>, "newsha1" is the 40 character hexadecimal value of
-<new-oid> and "committer" is the committer's name, email address
-and date in the standard Git committer ident format.
+Ahol az "oldsha1" a <ref>-ben korábban tárolt 40 karakteres
+hexadecimális érték, a "newsha1" a <new-oid> 40 karakteres
+hexadecimális értéke, a "committer" pedig a committer neve, e-mail-címe
+és dátuma a szabványos Git committer-ident formátumban.
 
-Optionally with -m:
+Opcionálisan a -m opcióval:
 
     oldsha1 SP newsha1 SP committer TAB message LF
 
-Where all fields are as described above and "message" is the
-value supplied to the -m option.
+Ahol minden mező a fent leírtak szerinti, a "message" pedig a -m
+opciónak átadott érték.
 
-An update will fail (without changing <ref>) if the current user is
-unable to create a new log file, append to the existing log file
-or does not have committer information available.
+Egy frissítés meghiúsul (a <ref> megváltoztatása nélkül), ha a jelenlegi
+felhasználó nem tud új naplófájlt létrehozni, hozzáfűzni a meglévő
+naplófájlhoz, vagy nincs elérhető committer-információ.
 
 NOTES
 -----
 
-Symbolic refs were initially implemented using symbolic links.  This is
-now deprecated since not all filesystems support symbolic links.
+A szimbolikus refeket eredetileg szimbolikus linkekkel valósították meg.
+Ez most már elavult, mivel nem minden fájlrendszer támogatja a
+szimbolikus linkeket.
 
-This command follows *real* symlinks only if they start with "refs/":
-otherwise it will just try to read them and update them as a regular
-file (i.e. it will allow the filesystem to follow them, but will
-overwrite such a symlink to somewhere else with a regular filename).
+Ez a parancs csak akkor követi a *valódi* symlinkeket, ha "refs/"-fel
+kezdődnek: egyébként csak megpróbálja olvasni és hagyományos fájlként
+frissíteni őket (azaz hagyja, hogy a fájlrendszer kövesse őket, de egy
+ilyen, máshová mutató symlinket egy hagyományos fájlnévvel ír felül).
 
 SEE ALSO
 --------
@@ -206,4 +212,4 @@ linkgit:git-symbolic-ref[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

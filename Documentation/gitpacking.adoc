@@ -3,7 +3,7 @@ gitpacking(7)
 
 NAME
 ----
-gitpacking - Advanced concepts related to packing in Git
+gitpacking - A Git-beli csomagolással kapcsolatos haladó fogalmak
 
 SYNOPSIS
 --------
@@ -12,138 +12,146 @@ gitpacking
 DESCRIPTION
 -----------
 
-This document aims to describe some advanced concepts related to packing
-in Git.
+Ez a dokumentum a Git-beli csomagolással kapcsolatos néhány haladó
+fogalmat kíván leírni.
 
-Many concepts are currently described scattered between manual pages of
-various Git commands, including linkgit:git-pack-objects[1],
-linkgit:git-repack[1], and others, as well as linkgit:gitformat-pack[5],
-and parts of the `Documentation/technical` tree.
+Sok fogalom jelenleg szétszórtan van leírva különféle Git-parancsok
+kézikönyvoldalai között, köztük a linkgit:git-pack-objects[1], a
+linkgit:git-repack[1] és mások, valamint a linkgit:gitformat-pack[5]
+és a `Documentation/technical` fa részei között.
 
-There are many aspects of packing in Git that are not covered in this
-document that instead live in the aforementioned areas. Over time, those
-scattered bits may coalesce into this document.
+A Git-beli csomagolásnak sok olyan aspektusa van, amelyet ez a dokumentum
+nem tárgyal, hanem a fent említett területeken él. Idővel ezek a
+szétszórt darabok beolvadhatnak ebbe a dokumentumba.
 
-== Pseudo-merge bitmaps
+[[_pseudo_merge_bitmaps]]
+== Pszeudo-merge bitmapek
 
-NOTE: Pseudo-merge bitmaps are considered an experimental feature, so
-the configuration and many of the ideas are subject to change.
+NOTE: A pszeudo-merge bitmapek kísérleti funkciónak számítanak, így a
+konfiguráció és sok ötlet változhat.
 
-=== Background
+[[_background]]
+=== Háttér
 
-Reachability bitmaps are most efficient when we have on-disk stored
-bitmaps for one or more of the starting points of a traversal. For this
-reason, Git prefers storing bitmaps for commits at the tips of refs,
-because traversals tend to start with those points.
+Az elérhetőségi bitmapek akkor a leghatékonyabbak, amikor egy bejárás egy
+vagy több kiindulópontjához lemezen tárolt bitmapjeink vannak. Emiatt a
+Git szívesebben tárol bitmapeket a refek csúcsain lévő commitokhoz, mivel
+a bejárások általában ezekből a pontokból indulnak.
 
-But if you have a large number of refs, it's not feasible to store a
-bitmap for _every_ ref tip. It takes up space, and just OR-ing all of
-those bitmaps together is expensive.
+De ha sok refed van, nem kivitelezhető, hogy _minden_ ref-csúcshoz
+bitmapet tárolj. Helyet foglal, és önmagában az összes ilyen bitmap
+OR-olása is költséges.
 
-One way we can deal with that is to create bitmaps that represent
-_groups_ of refs. When a traversal asks about the entire group, then we
-can use this single bitmap instead of considering each ref individually.
-Because these bitmaps represent the set of objects which would be
-reachable in a hypothetical merge of all of the commits, we call them
-pseudo-merge bitmaps.
+Ennek egyik kezelési módja, hogy refek _csoportjait_ reprezentáló
+bitmapeket hozunk létre. Amikor egy bejárás a teljes csoportról kérdez,
+akkor ezt az egyetlen bitmapet használhatjuk ahelyett, hogy minden refet
+egyenként vennénk figyelembe. Mivel ezek a bitmapek azon objektumok
+halmazát reprezentálják, amelyek az összes commit egy hipotetikus
+merge-ében elérhetők lennének, pszeudo-merge bitmapeknek nevezzük őket.
 
-=== Overview
+[[_overview]]
+=== Áttekintés
 
-A "pseudo-merge bitmap" is used to refer to a pair of bitmaps, as
-follows:
+A „pszeudo-merge bitmap" kifejezés egy bitmappárra utal, a
+következőképpen:
 
-Commit bitmap::
+Commit-bitmap::
 
-  A bitmap whose set bits describe the set of commits included in the
-  pseudo-merge's "merge" bitmap (as below).
+  Olyan bitmap, amelynek beállított bitjei a pszeudo-merge „merge"
+  bitmapjében (lásd lent) szereplő commitok halmazát írják le.
 
-Merge bitmap::
+Merge-bitmap::
 
-  A bitmap whose set bits describe the reachability closure over the set
-  of commits in the pseudo-merge's "commits" bitmap (as above). An
-  identical bitmap would be generated for an octopus merge with the same
-  set of parents as described in the commits bitmap.
+  Olyan bitmap, amelynek beállított bitjei a pszeudo-merge „commits"
+  bitmapjében (lásd fent) lévő commitok halmaza feletti elérhetőségi
+  lezártat írják le. Azonos bitmap jönne létre egy octopus merge-hez,
+  amelynek szülőhalmaza megegyezik a commits bitmapben leírttal.
 
-Pseudo-merge bitmaps can accelerate bitmap traversals when all commits
-for a given pseudo-merge are listed on either side of the traversal,
-either directly (by explicitly asking for them as part of the `HAVES`
-or `WANTS`) or indirectly (by encountering them during a fill-in
-traversal).
+A pszeudo-merge bitmapek felgyorsíthatják a bitmap-bejárásokat, amikor
+egy adott pszeudo-merge összes commitja fel van sorolva a bejárás
+valamelyik oldalán, akár közvetlenül (a `HAVES` vagy a `WANTS` részeként
+explicit módon kérve őket), akár közvetve (egy kitöltő bejárás során
+találkozva velük).
 
-=== Use-cases
+[[_use_cases]]
+=== Használati esetek
 
-For example, suppose there exists a pseudo-merge bitmap with a large
-number of commits, all of which are listed in the `WANTS` section of
-some bitmap traversal query. When pseudo-merge bitmaps are enabled, the
-bitmap machinery can quickly determine there is a pseudo-merge which
-satisfies some subset of the wanted objects on either side of the query.
-Then, we can inflate the EWAH-compressed bitmap, and `OR` it in to the
-resulting bitmap. By contrast, without pseudo-merge bitmaps, we would
-have to repeat the decompression and `OR`-ing step over a potentially
-large number of individual bitmaps, which can take proportionally more
-time.
+Tegyük fel például, hogy létezik egy nagyszámú commitot tartalmazó
+pszeudo-merge bitmap, amelyek mindegyike fel van sorolva valamilyen
+bitmap-bejárási lekérdezés `WANTS` szakaszában. Amikor a pszeudo-merge
+bitmapek engedélyezve vannak, a bitmap-gépezet gyorsan meg tudja
+állapítani, hogy van olyan pszeudo-merge, amely a lekérdezés valamelyik
+oldalán kielégíti a kívánt objektumok egy részhalmazát. Ekkor
+kitömöríthetjük az EWAH-tömörített bitmapet, és `OR`-olhatjuk az
+eredményül kapott bitmapbe. Ezzel szemben pszeudo-merge bitmapek nélkül
+a kitömörítési és `OR`-olási lépést potenciálisan sok különálló bitmapen
+kellene megismételni, ami arányosan több időt vehet igénybe.
 
-Another benefit of pseudo-merges arises when there is some combination
-of (a) a large number of references, with (b) poor bitmap coverage, and
-(c) deep, nested trees, making fill-in traversal relatively expensive.
-For example, suppose that there are a large enough number of tags where
-bitmapping each of the tags individually is infeasible. Without
-pseudo-merge bitmaps, computing the result of, say, `git rev-list
---use-bitmap-index --count --objects --tags` would likely require a
-large amount of fill-in traversal. But when a large quantity of those
-tags are stored together in a pseudo-merge bitmap, the bitmap machinery
-can take advantage of the fact that we only care about the union of
-objects reachable from all of those tags, and answer the query much
-faster.
+A pszeudo-merge-ek másik előnye akkor jelentkezik, amikor együtt van jelen
+(a) sok referencia, (b) gyenge bitmap-lefedettség és (c) mély, egymásba
+ágyazott fák, amelyek viszonylag költségessé teszik a kitöltő bejárást.
+Tegyük fel például, hogy elég sok tag van ahhoz, hogy az egyes tagek
+egyenkénti bitmapelése kivitelezhetetlen. Pszeudo-merge bitmapek nélkül
+mondjuk a `git rev-list --use-bitmap-index --count --objects --tags`
+eredményének kiszámítása valószínűleg sok kitöltő bejárást igényelne. De
+amikor ezeknek a tageknek nagy mennyisége együtt van tárolva egy
+pszeudo-merge bitmapben, a bitmap-gépezet kihasználhatja azt, hogy csak
+az összes ilyen tagből elérhető objektumok uniója érdekel minket, és
+sokkal gyorsabban megválaszolja a lekérdezést.
 
-=== Configuration
+[[_configuration]]
+=== Konfiguráció
 
-Reference tips are grouped into different pseudo-merge groups according
-to two criteria. A reference name matches one or more of the defined
-pseudo-merge patterns, and optionally one or more capture groups within
-that pattern which further partition the group.
+A referencia-csúcsok két kritérium szerint különböző pszeudo-merge
+csoportokba vannak sorolva. Egy referencianév illeszkedik egy vagy több
+definiált pszeudo-merge mintára, és opcionálisan egy vagy több capture
+groupra azon a mintán belül, amely tovább particionálja a csoportot.
 
-Within a group, commits may be considered "stable", or "unstable"
-depending on their age. These are adjusted by setting the
-`bitmapPseudoMerge.<name>.stableThreshold` and
-`bitmapPseudoMerge.<name>.threshold` configuration values, respectively.
+Egy csoporton belül a commitok koruktól függően „stabilnak" vagy
+„instabilnak" számíthatnak. Ezeket a
+`bitmapPseudoMerge.<name>.stableThreshold`, illetve a
+`bitmapPseudoMerge.<name>.threshold` konfigurációs érték beállításával
+lehet szabályozni.
 
-All stable commits are grouped into pseudo-merges of equal size
-(`bitmapPseudoMerge.<name>.stableSize`). If the `stableSize`
-configuration is set to, say, 100, then the first 100 commits (ordered
-by committer date) which are older than the `stableThreshold` value will
-form one group, the next 100 commits will form another group, and so on.
+Az összes stabil commit egyenlő méretű pszeudo-merge-ekbe van csoportosítva
+(`bitmapPseudoMerge.<name>.stableSize`). Ha a `stableSize` konfiguráció
+mondjuk 100-ra van állítva, akkor az első 100 commit (committer-dátum
+szerint rendezve), amely régebbi a `stableThreshold` értéknél, egy
+csoportot alkot, a következő 100 commit egy másik csoportot, és így tovább.
 
-Among unstable commits, the pseudo-merge machinery will attempt to
-combine older commits into large groups as opposed to newer commits
-which will appear in smaller groups. This is based on the heuristic that
-references whose tip commit is older are less likely to be modified to
-point at a different commit than a reference whose tip commit is newer.
+Az instabil commitok közül a pszeudo-merge gépezet a régebbi commitokat
+nagy csoportokba próbálja összevonni, szemben az újabb commitokkal,
+amelyek kisebb csoportokban jelennek meg. Ez azon a heurisztikán alapul,
+hogy azokat a referenciákat, amelyek csúcs-commitja régebbi, kisebb
+valószínűséggel módosítják úgy, hogy másik commitra mutassanak, mint egy
+olyan referenciát, amelynek csúcs-commitja újabb.
 
-The size of groups is determined by a power-law decay function, and the
-decay parameter roughly corresponds to "k" in `f(n) = C*n^(-k/100)`,
-where `f(n)` describes the size of the `n`-th pseudo-merge group. The
-sample rate controls what percentage of eligible commits are considered
-as candidates. The threshold parameter indicates the minimum age (so as
-to avoid including too-recent commits in a pseudo-merge group, making it
-less likely to be valid). The "maxMerges" parameter sets an upper-bound
-on the number of pseudo-merge commits an individual group
+A csoportok méretét egy hatványfüggvény szerinti lecsengési függvény
+határozza meg, és a lecsengési paraméter nagyjából a `f(n) = C*n^(-k/100)`
+képletben szereplő "k"-nak felel meg, ahol az `f(n)` az `n`-edik
+pszeudo-merge csoport méretét írja le. A mintavételi ráta szabályozza,
+hogy a szóba jöhető commitok hány százalékát tekintjük jelöltnek. A
+küszöb paraméter a minimális kort jelzi (hogy elkerüljük a túl friss
+commitok pszeudo-merge csoportba kerülését, ami kevésbé valószínűvé
+tenné az érvényességét). A "maxMerges" paraméter felső korlátot szab az
+egy adott csoportban lévő pszeudo-merge commitok számára
 
-The "stable"-related parameters control "stable" pseudo-merge groups,
-comprised of a fixed number of commits which are older than the
-configured "stable threshold" value and may be grouped together in
-chunks of "stableSize" in order of age.
+A "stable"-hoz kapcsolódó paraméterek a "stabil" pszeudo-merge
+csoportokat szabályozzák, amelyek fix számú commitból állnak, amelyek
+régebbiek a beállított "stable threshold" értéknél, és kor szerinti
+sorrendben "stableSize" méretű darabokba csoportosíthatók.
 
-The exact configuration for pseudo-merges is as follows:
+A pszeudo-merge-ek pontos konfigurációja a következő:
 
 include::config/bitmap-pseudo-merge.adoc[]
 
-=== Examples
+[[_examples]]
+=== Példák
 
-Suppose that you have a repository with a large number of references,
-and you want a bare-bones configuration of pseudo-merge bitmaps that
-will enhance bitmap coverage of the `refs/` namespace. You may start
-with a configuration like so:
+Tegyük fel, hogy van egy repository-d sok referenciával, és a
+pszeudo-merge bitmapek egy csupasz konfigurációját szeretnéd, amely
+javítja a `refs/` névtér bitmap-lefedettségét. Kezdheted egy ilyen
+konfigurációval:
 
 ----
 [bitmapPseudoMerge "all"]
@@ -154,23 +162,23 @@ with a configuration like so:
 	maxMerges = 64
 ----
 
-This will create pseudo-merge bitmaps for all references, regardless of
-their age, and group them into 64 pseudo-merge commits.
+Ez pszeudo-merge bitmapeket hoz létre az összes referenciához, koruktól
+függetlenül, és 64 pszeudo-merge commitba csoportosítja őket.
 
-If you wanted to separate tags from branches when generating
-pseudo-merge commits, you would instead define the pattern with a
-capture group, like so:
+Ha a pszeudo-merge commitok generálásakor a tageket el akarnád
+különíteni a branchektől, akkor ehelyett a mintát egy capture
+grouppal definiálnád, így:
 
 ----
 [bitmapPseudoMerge "all"]
 	pattern = "refs/(heads/tags)/"
 ----
 
-Suppose instead that you are working in a fork-network repository, with
-each fork specified by some numeric ID, and whose refs reside in
-`refs/virtual/NNN/` (where `NNN` is the numeric ID corresponding to some
-fork) in the network. In this instance, you may instead write something
-like:
+Tegyük fel ehelyett, hogy egy fork-hálózatos repository-ban dolgozol,
+ahol minden forkot valamilyen numerikus azonosító határoz meg, és amelynek
+refjei a hálózatban a `refs/virtual/NNN/` alatt találhatók (ahol az `NNN`
+a valamely forknak megfelelő numerikus azonosító). Ebben az esetben
+ehelyett valami ilyesmit írhatsz:
 
 ----
 [bitmapPseudoMerge "all"]
@@ -181,9 +189,9 @@ like:
 	maxMerges = 64
 ----
 
-Which would generate pseudo-merge group identifiers like "1234-heads",
-and "5678-tags" (for branches in fork "1234", and tags in remote "5678",
-respectively).
+Ez olyan pszeudo-merge csoportazonosítókat generálna, mint "1234-heads"
+és "5678-tags" (a "1234" fork branchjeihez, illetve az "5678" remote
+tagjeihez).
 
 SEE ALSO
 --------
@@ -192,4 +200,4 @@ linkgit:git-repack[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

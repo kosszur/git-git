@@ -3,7 +3,7 @@ git-rm(1)
 
 NAME
 ----
-git-rm - Remove files from the working tree and from the index
+git-rm - Fájlok eltávolítása a munkakönyvtárból és az indexből
 
 SYNOPSIS
 --------
@@ -14,136 +14,140 @@ git rm [-f | --force] [-n] [-r] [--cached] [--ignore-unmatch]
 
 DESCRIPTION
 -----------
-Remove files matching pathspec from the index, or from the working tree
-and the index. `git rm` will not remove a file from just your working
-directory. (There is no option to remove a file only from the working
-tree and yet keep it in the index; use `/bin/rm` if you want to do
-that.) The files being removed have to be identical to the tip of the
-branch, and no updates to their contents can be staged in the index,
-though that default behavior can be overridden with the `-f` option.
-When `--cached` is given, the staged content has to
-match either the tip of the branch or the file on disk,
-allowing the file to be removed from just the index. When
-sparse-checkouts are in use (see linkgit:git-sparse-checkout[1]),
-`git rm` will only remove paths within the sparse-checkout patterns.
+Eltávolítja a pathspecre illeszkedő fájlokat az indexből, vagy a
+munkakönyvtárból és az indexből. A `git rm` nem távolít el fájlt csak a
+munkakönyvtáradból. (Nincs opció arra, hogy egy fájlt csak a
+munkakönyvtárból távolíts el, de az indexben megtarts; használd a
+`/bin/rm`-et, ha ezt szeretnéd.) Az eltávolítandó fájloknak azonosnak
+kell lenniük a branch csúcsával, és a tartalmukhoz nem lehet frissítés
+stage-elve az indexben, bár ez az alapértelmezett viselkedés
+felülbírálható a `-f` opcióval. Ha a `--cached` meg van adva, a
+stage-elt tartalomnak vagy a branch csúcsával, vagy a lemezen lévő
+fájllal kell egyeznie, lehetővé téve a fájl eltávolítását csak az
+indexből. Ha sparse-checkoutok vannak használatban (lásd
+linkgit:git-sparse-checkout[1]), a `git rm` csak a sparse-checkout
+mintákon belüli elérési utakat távolítja el.
 
 
 OPTIONS
 -------
 `<pathspec>...`::
-	Files to remove.  A leading directory name (e.g. `dir` to remove
-	`dir/file1` and `dir/file2`) can be given to remove all files in
-	the directory, and recursively all sub-directories, but this
-	requires the `-r` option to be explicitly given.
+	Az eltávolítandó fájlok.  Egy kezdő könyvtárnév (pl. `dir` a
+	`dir/file1` és a `dir/file2` eltávolításához) megadható a könyvtár
+	összes fájljának, és rekurzívan az összes alkönyvtárnak az
+	eltávolításához, de ehhez a `-r` opciót explicit módon meg kell adni.
 +
-The command removes only the paths that are known to Git.
+A parancs csak a Git által ismert elérési utakat távolítja el.
 +
-File globbing matches across directory boundaries.  Thus, given two
-directories `d` and `d2`, there is a difference between using
-`git rm 'd*'` and `git rm 'd/*'`, as the former will also remove all
-of directory `d2`.
+A fájl-globbing könyvtárhatárokon át illeszkedik.  Így, adott két
+könyvtár, `d` és `d2`, különbség van a `git rm 'd*'` és a `git rm 'd/*'`
+használata között, mivel az előbbi a `d2` könyvtár egészét is
+eltávolítja.
 +
-For more details, see the _<pathspec>_ entry in linkgit:gitglossary[7].
+Bővebben lásd a _<pathspec>_ bejegyzést a linkgit:gitglossary[7] oldalon.
 
 `-f`::
 `--force`::
-	Override the up-to-date check.
+	A naprakészség-ellenőrzés felülbírálása.
 
 `-n`::
 `--dry-run`::
-	Don't actually remove any file(s).  Instead, just show
-	if they exist in the index and would otherwise be removed
-	by the command.
+	Ne távolíts el ténylegesen egyetlen fájlt sem.  Ehelyett csak
+	mutasd meg, hogy léteznek-e az indexben, és egyébként a parancs
+	eltávolítaná-e őket.
 
 `-r`::
-        Allow recursive removal when a leading directory name is
-        given.
+        Rekurzív eltávolítás engedélyezése, amikor kezdő könyvtárnév
+        van megadva.
 
 `--`::
-	This option can be used to separate command-line options from
-	the list of files, (useful when filenames might be mistaken
-	for command-line options).
+	Ezzel az opcióval elválaszthatók a parancssori opciók a fájlok
+	listájától (hasznos, amikor a fájlneveket parancssori opciónak
+	lehet nézni).
 
 `--cached`::
-	Use this option to unstage and remove paths only from the index.
-	Working tree files, whether modified or not, will be
-	left alone.
+	Ezzel az opcióval unstage-elheted és eltávolíthatod az elérési
+	utakat csak az indexből.  A munkakönyvtárbeli fájlokat, akár
+	módosítottak, akár nem, békén hagyja.
 
 `--ignore-unmatch`::
-	Exit with a zero status even if no files matched.
+	Nulla státusszal lép ki akkor is, ha egyetlen fájl sem illeszkedett.
 
 `--sparse`::
-	Allow updating index entries outside of the sparse-checkout cone.
-	Normally, `git rm` refuses to update index entries whose paths do
-	not fit within the sparse-checkout cone. See
-	linkgit:git-sparse-checkout[1] for more.
+	Engedélyezi a sparse-checkout cone-on kívüli indexbejegyzések
+	frissítését.  Normál esetben a `git rm` megtagadja azon
+	indexbejegyzések frissítését, amelyek elérési útja nem fér bele a
+	sparse-checkout cone-ba. Bővebben lásd a linkgit:git-sparse-checkout[1] oldalt.
 
 `-q`::
 `--quiet`::
-	`git rm` normally outputs one line (in the form of an `rm` command)
-	for each file removed. This option suppresses that output.
+	A `git rm` normál esetben minden eltávolított fájlhoz egy sort ír ki
+	(egy `rm` parancs formájában). Ez az opció elnyomja ezt a kimenetet.
 
 `--pathspec-from-file=<file>`::
-	Pathspec is passed in _<file>_ instead of  args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR_/_LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec a _<file>_-ban van átadva argumentumok helyett. Ha a
+	_<file>_ pontosan `-`, akkor a standard bemenet lesz használva. A
+	pathspec-elemeket _LF_ vagy _CR_/_LF_ választja el. A pathspec-elemek
+	idézőjelezhetők a `core.quotePath` konfigurációs változónál leírtak
+	szerint (lásd linkgit:git-config[1]). Lásd még a `--pathspec-file-nul`
+	opciót és a globális `--literal-pathspecs` opciót.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file`-lal van értelme. A pathspec-elemeket
+	_NUL_ karakter választja el, és minden más karakter szó szerint
+	értendő (beleértve a sortöréseket és az idézőjeleket).
 
 
 REMOVING FILES THAT HAVE DISAPPEARED FROM THE FILESYSTEM
 --------------------------------------------------------
-There is no option for `git rm` to remove from the index only
-the paths that have disappeared from the filesystem. However,
-depending on the use case, there are several ways that can be
-done.
+A `git rm`-nek nincs opciója arra, hogy az indexből csak azokat az
+elérési utakat távolítsa el, amelyek eltűntek a fájlrendszerből.
+Azonban a felhasználási esettől függően több módon is megtehető
+ez.
 
-Using ``git commit -a''
-~~~~~~~~~~~~~~~~~~~~~~~
-If you intend that your next commit should record all modifications
-of tracked files in the working tree and record all removals of
-files that have been removed from the working tree with `rm`
-(as opposed to `git rm`), use `git commit -a`, as it will
-automatically notice and record all removals.  You can also have a
-similar effect without committing by using `git add -u`.
+[[_using_git_commit_a]]
+A ``git commit -a'' használata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ha azt szeretnéd, hogy a következő commitod rögzítse a munkakönyvtárban
+követett fájlok összes módosítását, és rögzítse azon fájlok összes
+eltávolítását, amelyeket a munkakönyvtárból `rm`-mel (nem `git rm`-mel)
+távolítottak el, használd a `git commit -a`-t, mivel az automatikusan
+észreveszi és rögzíti az összes eltávolítást.  Hasonló hatást commitolás
+nélkül is elérhetsz a `git add -u` használatával.
 
-Using ``git add -A''
-~~~~~~~~~~~~~~~~~~~~
-When accepting a new code drop for a vendor branch, you probably
-want to record both the removal of paths and additions of new paths
-as well as modifications of existing paths.
+[[_using_git_add_a]]
+A ``git add -A'' használata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Amikor egy vendor branchhez új kódcsomagot fogadsz el, valószínűleg
+rögzíteni akarod az elérési utak eltávolítását és az új elérési utak
+hozzáadását is, valamint a meglévő elérési utak módosításait.
 
-Typically you would first remove all tracked files from the working
-tree using this command:
+Jellemzően először eltávolítanád az összes követett fájlt a
+munkakönyvtárból ezzel a paranccsal:
 
 ----------------
 git ls-files -z | xargs -0 rm -f
 ----------------
 
-and then untar the new code in the working tree. Alternately
-you could 'rsync' the changes into the working tree.
+majd kitömörítenéd az új kódot a munkakönyvtárba. Alternatívaként
+'rsync'-elhetnéd a változásokat a munkakönyvtárba.
 
-After that, the easiest way to record all removals, additions, and
-modifications in the working tree is:
+Ezután a legegyszerűbb módja annak, hogy rögzítsd a munkakönyvtárban
+lévő összes eltávolítást, hozzáadást és módosítást:
 
 ----------------
 git add -A
 ----------------
 
-See linkgit:git-add[1].
+Lásd a linkgit:git-add[1] oldalt.
 
-Other ways
-~~~~~~~~~~
-If all you really want to do is to remove from the index the files
-that are no longer present in the working tree (perhaps because
-your working tree is dirty so that you cannot use `git commit -a`),
-use the following command:
+[[_other_ways]]
+Egyéb módok
+~~~~~~~~~~~
+Ha csak annyit szeretnél, hogy az indexből eltávolítsd azokat a
+fájlokat, amelyek már nincsenek jelen a munkakönyvtárban (talán mert a
+munkakönyvtárad piszkos, így nem tudod használni a `git commit -a`-t),
+használd a következő parancsot:
 
 ----------------
 git diff --name-only --diff-filter=D -z | xargs -0 git rm --cached
@@ -151,49 +155,51 @@ git diff --name-only --diff-filter=D -z | xargs -0 git rm --cached
 
 SUBMODULES
 ----------
-Only submodules using a gitfile (which means they were cloned
-with a Git version 1.7.8 or newer) will be removed from the work
-tree, as their repository lives inside the `.git` directory of the
-superproject. If a submodule (or one of those nested inside it)
-still uses a `.git` directory, `git rm` moves the submodules
-git directory into the superprojects git directory to protect
-the submodule's history. If it exists the `submodule.<name>` section
-in the linkgit:gitmodules[5] file will also be removed and that file
-will be staged (unless `--cached` or `-n` are used).
+Csak a gitfile-t használó submodule-ok (ami azt jelenti, hogy 1.7.8-as
+vagy újabb Git-verzióval klónozták őket) lesznek eltávolítva a
+munkakönyvtárból, mivel a repository-juk a szuperprojekt `.git`
+könyvtárán belül él. Ha egy submodule (vagy egy benne egymásba ágyazott
+submodule) még mindig `.git` könyvtárat használ, a `git rm` áthelyezi a
+submodule git-könyvtárát a szuperprojekt git-könyvtárába, hogy megvédje a
+submodule előzményét. Ha létezik, a linkgit:gitmodules[5] fájlban lévő
+`submodule.<name>` szekció is eltávolításra kerül, és az a fájl
+stage-elve lesz (hacsak a `--cached` vagy a `-n` nincs használatban).
 
-A submodule is considered up to date when the `HEAD` is the same as
-recorded in the index, no tracked files are modified and no untracked
-files that aren't ignored are present in the submodule's work tree.
-Ignored files are deemed expendable and won't stop a submodule's work
-tree from being removed.
+Egy submodule akkor számít naprakésznek, ha a `HEAD` ugyanaz, mint ami
+az indexben rögzítve van, egyetlen követett fájl sincs módosítva, és
+nincs a submodule munkakönyvtárában olyan nem követett fájl, amely nincs
+figyelmen kívül hagyva.  A figyelmen kívül hagyott fájlok
+nélkülözhetőnek tekintendők, és nem akadályozzák meg a submodule
+munkakönyvtárának eltávolítását.
 
-If you only want to remove the local checkout of a submodule from your
-work tree without committing the removal, use linkgit:git-submodule[1] `deinit`
-instead. Also see linkgit:gitsubmodules[7] for details on submodule removal.
+Ha csak egy submodule helyi checkoutját szeretnéd eltávolítani a
+munkakönyvtáradból az eltávolítás commitolása nélkül, használd helyette a
+linkgit:git-submodule[1] `deinit`-et. A submodule-eltávolítás
+részleteiért lásd még a linkgit:gitsubmodules[7] oldalt.
 
 EXAMPLES
 --------
 `git rm Documentation/\*.txt`::
-	Removes all `*.txt` files from the index that are under the
-	`Documentation` directory and any of its subdirectories.
+	Eltávolítja az indexből az összes `*.txt` fájlt, amely a
+	`Documentation` könyvtár és bármely alkönyvtára alatt van.
 +
-Note that the asterisk `*` is quoted from the shell in this
-example; this lets Git, and not the shell, expand the pathnames
-of files and subdirectories under the `Documentation/` directory.
+Vedd figyelembe, hogy a csillag `*` ebben a példában a shell elől
+idézőjelezve van; ez lehetővé teszi, hogy a Git, és ne a shell, bontsa
+ki a `Documentation/` könyvtár alatti fájlok és alkönyvtárak elérési útjait.
 
 `git rm -f git-*.sh`::
-	Because this example lets the shell expand the asterisk
-	(i.e. you are listing the files explicitly), it
-	does not remove `subdir/git-foo.sh`.
+	Mivel ez a példa hagyja, hogy a shell bontsa ki a csillagot
+	(azaz explicit módon sorolod fel a fájlokat), nem távolítja el a
+	`subdir/git-foo.sh`-t.
 
 BUGS
 ----
-Each time a superproject update removes a populated submodule
-(e.g. when switching between commits before and after the removal) a
-stale submodule checkout will remain in the old location. Removing the
-old directory is only safe when it uses a gitfile, as otherwise the
-history of the submodule will be deleted too. This step will be
-obsolete when recursive submodule update has been implemented.
+Minden alkalommal, amikor egy szuperprojekt-frissítés eltávolít egy
+feltöltött submodule-t (pl. az eltávolítás előtti és utáni commitok
+közötti váltáskor), egy elavult submodule-checkout marad a régi helyen.
+A régi könyvtár eltávolítása csak akkor biztonságos, ha az gitfile-t
+használ, mivel egyébként a submodule előzménye is törlődik. Ez a lépés
+elavulttá válik, amikor a rekurzív submodule-frissítés megvalósul.
 
 SEE ALSO
 --------
@@ -201,4 +207,4 @@ linkgit:git-add[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

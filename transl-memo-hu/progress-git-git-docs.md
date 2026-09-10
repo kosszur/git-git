@@ -94,9 +94,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-format-patch.adoc | [ ] |  |  |
 | git-format-rev.adoc | [ ] |  |  |
 | git-fsck-objects.adoc | [x] |  | 2026-09-10 |
-| git-fsck.adoc | [ ] |  |  |
+| git-fsck.adoc | [x] |  | 2026-09-10 |
 | git-fsmonitor--daemon.adoc | [x] |  | 2026-09-10 |
-| git-gc.adoc | [ ] |  |  |
+| git-gc.adoc | [x] |  | 2026-09-10 |
 | git-get-tar-commit-id.adoc | [x] |  | 2026-09-10 |
 | git-grep.adoc | [ ] |  |  |
 | git-gui.adoc | [x] |  | 2026-09-10 |
@@ -110,7 +110,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-imap-send.adoc | [ ] |  |  |
 | git-index-pack.adoc | [x] |  | 2026-09-10 |
 | git-init-db.adoc | [x] |  | 2026-09-10 |
-| git-init.adoc | [ ] |  |  |
+| git-init.adoc | [x] |  | 2026-09-10 |
 | git-instaweb.adoc | [x] |  | 2026-09-10 |
 | git-interpret-trailers.adoc | [ ] |  |  |
 | git-last-modified.adoc | [x] |  | 2026-09-10 |
@@ -131,7 +131,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mergetool.adoc | [x] |  | 2026-09-10 |
 | git-mktag.adoc | [x] |  | 2026-09-10 |
 | git-mktree.adoc | [x] |  | 2026-09-10 |
-| git-multi-pack-index.adoc | [ ] |  |  |
+| git-multi-pack-index.adoc | [x] |  | 2026-09-10 |
 | git-mv.adoc | [x] |  | 2026-09-10 |
 | git-name-rev.adoc | [x] |  | 2026-09-10 |
 | git-notes.adoc | [ ] |  |  |
@@ -165,7 +165,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-rev-list.adoc | [x] |  | 2026-09-10 |
 | git-rev-parse.adoc | [ ] |  |  |
 | git-revert.adoc | [x] |  | 2026-09-10 |
-| git-rm.adoc | [ ] |  |  |
+| git-rm.adoc | [x] |  | 2026-09-10 |
 | git-send-email.adoc | [ ] |  |  |
 | git-send-pack.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
@@ -191,7 +191,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-unpack-file.adoc | [x] |  | 2026-09-10 |
 | git-unpack-objects.adoc | [x] |  | 2026-09-10 |
 | git-update-index.adoc | [ ] |  |  |
-| git-update-ref.adoc | [ ] |  |  |
+| git-update-ref.adoc | [x] |  | 2026-09-10 |
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
 | git-upload-archive.adoc | [x] |  | 2026-09-10 |
 | git-upload-pack.adoc | [x] |  | 2026-09-10 |
@@ -222,7 +222,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | diff-algorithm-option.adoc | [x] |  | 2026-09-10 |
 | diff-context-options.adoc | [x] |  | 2026-09-10 |
 | diff-format.adoc | [x] |  | 2026-09-10 |
-| diff-generate-patch.adoc | [ ] |  |  |
+| diff-generate-patch.adoc | [x] |  | 2026-09-10 |
 | diff-options.adoc | [ ] |  |  |
 | fetch-options.adoc | [ ] |  |  |
 | for-each-ref-options.adoc | [x] |  | 2026-09-10 |
@@ -234,7 +234,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitcli.adoc | [ ] |  |  |
 | gitcore-tutorial.adoc | [ ] |  |  |
 | gitcredentials.adoc | [ ] |  |  |
-| gitcvs-migration.adoc | [ ] |  |  |
+| gitcvs-migration.adoc | [x] |  | 2026-09-10 |
 | gitdatamodel.adoc | [ ] |  |  |
 | gitdiffcore.adoc | [ ] |  |  |
 | giteveryday.adoc | [ ] |  |  |
@@ -249,11 +249,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitglossary.adoc | [ ] |  |  |
 | githooks.adoc | [ ] |  |  |
 | gitignore.adoc | [ ] |  |  |
-| gitk.adoc | [ ] |  |  |
+| gitk.adoc | [x] |  | 2026-09-10 |
 | gitmailmap.adoc | [x] |  | 2026-09-10 |
 | gitmodules.adoc | [x] |  | 2026-09-10 |
 | gitnamespaces.adoc | [x] |  | 2026-09-10 |
-| gitpacking.adoc | [ ] |  |  |
+| gitpacking.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-capabilities.adoc | [ ] |  |  |
 | gitprotocol-common.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-http.adoc | [ ] |  |  |
@@ -675,3 +675,22 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   THE REFS` (`git-send-pack.adoc`), `MERGE STRATEGIES` (prózahivatkozás a `git-revert.adoc`-ban),
   `FIELD NAMES` (`git-ls-tree.adoc`) a VÉGLEGES DÖNTÉS szerint angolul. Orchestrátor végezte
   közvetlenül. Részletek: `glossary-git-git-docs.md` „27. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (ugyanazzal a
+  módszerrel: a két gyökér-tábla együttes, sorméret szerint növekvő listája, `gitglossary.adoc`/
+  `git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva): `git-gc.adoc`,
+  `gitk.adoc`, `git-fsck.adoc`, `git-init.adoc`, `gitpacking.adoc`, `git-rm.adoc`,
+  `git-multi-pack-index.adoc`, `gitcvs-migration.adoc`, `git-update-ref.adoc`,
+  `diff-generate-patch.adoc`. Defenzív `[[...]]` anchorok: `gitk.adoc` (5 — mind vegyes
+  kis-/nagybetűs vagy Title Case alcím: `_rev_list_options_and_arguments`, `_gitk_specific_options`,
+  `_examples`, `_files`, `_history`), `git-fsck.adoc` (2 — `_extracted_diagnostics`,
+  `_environment_variables`, mindkettő Title Case, NEM a csupa nagybetűs kanonikus alak),
+  `gitpacking.adoc` (6 — `==`/`===` Title Case szakaszcímek), `git-rm.adoc` (3 — `~~~~` Title Case
+  alcímek: `_using_git_commit_a`, `_using_git_add_a`, `_other_ways`), `gitcvs-migration.adoc` (6 —
+  ez NEM man page, minden `----` szekciócím fordult), `diff-generate-patch.adoc` (1 új:
+  `_combined_diff_format`; a meglévő `[[generate_patch_text_with_p]]` érintetlen, a hozzá tartozó
+  cím szövege fordult — a `diff-options.adoc`-beli `<<generate_patch_text_with_p>>` xref emiatt a
+  jövőben a fordított címszöveget jeleníti majd meg, ami kívánt). Csupa nagybetűs, kanonikus listán
+  kívüli alcímek a VÉGLEGES DÖNTÉS szerint angolul: `AGGRESSIVE` (`git-gc.adoc`), `FSCK MESSAGES`
+  (`git-fsck.adoc`), `TEMPLATE DIRECTORY` (`git-init.adoc`), `REMOVING FILES THAT HAVE DISAPPEARED
+  FROM THE FILESYSTEM` / `SUBMODULES` (`git-rm.adoc`), `LOGGING UPDATES` (`git-update-ref.adoc`).
+  Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „28. blokk".
