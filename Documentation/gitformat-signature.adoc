@@ -3,64 +3,64 @@ gitformat-signature(5)
 
 NAME
 ----
-gitformat-signature - Git cryptographic signature formats
+gitformat-signature - Git kriptográfiai aláírásformátumok
 
 SYNOPSIS
 --------
 [verse]
-<[tag|commit] object header(s)>
-<over-the-wire protocol>
+<[tag|commit] objektumfejléc(ek)>
+<vezetéken átvitt protokoll>
 
 DESCRIPTION
 -----------
 
-Git uses cryptographic signatures in various places, currently objects (tags,
-commits, mergetags) and transactions (pushes). In every case, the command which
-is about to create an object or transaction determines a payload from that,
-calls an external program to obtain a detached signature for the payload
-(`gpg -bsa` in the case of PGP signatures), and embeds the signature into the
-object or transaction.
+A Git különböző helyeken használ kriptográfiai aláírásokat, jelenleg
+objektumokon (tagek, commitok, mergetagek) és tranzakciókon (pushok). Minden
+esetben az objektumot vagy tranzakciót létrehozni készülő parancs ebből
+meghatároz egy hasznos adatot, meghív egy külső programot, hogy különálló
+aláírást szerezzen a hasznos adathoz (PGP-aláírások esetén `gpg -bsa`), és
+beágyazza az aláírást az objektumba vagy tranzakcióba.
 
-Signatures begin with an "ASCII Armor" header line and end with a tail line,
-which differ depending on signature type (as selected by `gpg.format`, see
-linkgit:git-config[1]). These are, for `gpg.format` values:
+Az aláírások egy "ASCII Armor" fejlécsorral kezdődnek és egy záró sorral
+végződnek, amelyek az aláírás típusától függően (amit a `gpg.format` választ
+ki, lásd linkgit:git-config[1]) különböznek. Ezek a `gpg.format` értékeihez:
 
 `gpg` (PGP)::
-	`-----BEGIN PGP SIGNATURE-----` and `-----END PGP SIGNATURE-----`.
-	Or, if gpg is told to produce RFC1991 signatures,
-	`-----BEGIN PGP MESSAGE-----` and `-----END PGP MESSAGE-----`
+	`-----BEGIN PGP SIGNATURE-----` és `-----END PGP SIGNATURE-----`.
+	Vagy, ha a gpg-t RFC1991-aláírások előállítására utasítják,
+	`-----BEGIN PGP MESSAGE-----` és `-----END PGP MESSAGE-----`
 
 `ssh` (SSH)::
-	`-----BEGIN SSH SIGNATURE-----` and `-----END SSH SIGNATURE-----`
+	`-----BEGIN SSH SIGNATURE-----` és `-----END SSH SIGNATURE-----`
 
 `x509` (X.509)::
-	`-----BEGIN SIGNED MESSAGE-----` and `-----END SIGNED MESSAGE-----`
+	`-----BEGIN SIGNED MESSAGE-----` és `-----END SIGNED MESSAGE-----`
 
-Signatures sometimes appear as a part of the normal payload
-(e.g. a signed tag has the signature block appended after the payload
-that the signature applies to), and sometimes appear in the value of
-an object header (e.g. a merge commit that merged a signed tag would
-have the entire tag contents on its "mergetag" header).  In the case
-of the latter, the usual multi-line formatting rule for object
-headers applies.  I.e. the second and subsequent lines are prefixed
-with a SP to signal that the line is continued from the previous
-line.
+Az aláírások néha a normál hasznos adat részeként jelennek meg (pl. egy
+aláírt tagnél az aláírásblokk az után a hasznos adat után van fűzve,
+amelyre az aláírás vonatkozik), néha pedig egy objektumfejléc értékében
+jelennek meg (pl. egy aláírt taget merge-elő merge-commit a teljes
+tagtartalmat a "mergetag" fejlécén tárolja).  Ez utóbbi esetben az
+objektumfejlécek szokásos többsoros formázási szabálya érvényes.  Azaz a
+második és az azt követő sorok elé egy SP kerül annak jelzésére, hogy a sor
+az előző sor folytatása.
 
-This is even true for an originally empty line.  In the following
-examples, the end of line that ends with a whitespace letter is
-highlighted with a `$` sign; if you are trying to recreate these
-example by hand, do not cut and paste them--they are there
-primarily to highlight extra whitespace at the end of some lines.
+Ez még egy eredetileg üres sorra is igaz.  A következő példákban a
+whitespace-karakterrel végződő sorok végét egy `$` jel emeli ki; ha kézzel
+próbálod újraalkotni ezeket a példákat, ne másold ki és illeszd be
+őket--elsősorban azért vannak ott, hogy kiemeljék a néhány sor végén lévő
+extra whitespace-t.
 
-The signed payload and the way the signature is embedded depends
-on the type of the object resp. transaction.
+Az aláírt hasznos adat és az aláírás beágyazásának módja az objektum,
+illetve a tranzakció típusától függ.
 
-== Tag signatures
+[[_tag_signatures]]
+== Tag-aláírások
 
-- created by: `git tag -s`
-- payload: annotated tag object
-- embedding: append the signature to the unsigned tag object
-- example: tag `signedtag` with subject `signed tag`
+- létrehozza: `git tag -s`
+- hasznos adat: annotált tag-objektum
+- beágyazás: az aláírás hozzáfűzése az aláíratlan tag-objektumhoz
+- példa: `signedtag` tag `signed tag` tárgysorral
 
 ----
 object 04b871796dc0420f8e7561a895b52484b701d51a
@@ -84,7 +84,7 @@ lZyI6HWixKJkWw8lE9aAOD9TmTW9sFJwcVAzmAuFX2kUreDUKMZduGcoRYGpD7E=
 -----END PGP SIGNATURE-----
 ----
 
-- verify with: `git verify-tag [-v]` or `git tag -v`
+- ellenőrzés: `git verify-tag [-v]` vagy `git tag -v`
 
 ----
 gpg: Signature made Wed Jun 15 10:56:46 2016 CEST using RSA key ID B7227189
@@ -102,13 +102,14 @@ signed tag
 signed tag message body
 ----
 
-== Commit signatures
+[[_commit_signatures]]
+== Commit-aláírások
 
-- created by: `git commit -S`
-- payload: commit object
-- embedding: header entry `gpgsig`
-  (content is preceded by a space)
-- example: commit with subject `signed commit`
+- létrehozza: `git commit -S`
+- hasznos adat: commit-objektum
+- beágyazás: `gpgsig` fejlécbejegyzés
+  (a tartalmat egy szóköz előzi meg)
+- példa: commit `signed commit` tárgysorral
 
 ----
 tree eebfed94e75e7760540d1485c740902590a00332
@@ -132,7 +133,7 @@ signed commit
 signed commit message body
 ----
 
-- verify with: `git verify-commit [-v]` (or `git show --show-signature`)
+- ellenőrzés: `git verify-commit [-v]` (vagy `git show --show-signature`)
 
 ----
 gpg: Signature made Wed Jun 15 10:58:57 2016 CEST using RSA key ID B7227189
@@ -150,12 +151,13 @@ signed commit
 signed commit message body
 ----
 
-== Mergetag signatures
+[[_mergetag_signatures]]
+== Mergetag-aláírások
 
-- created by: `git merge` on signed tag
-- payload/embedding: the whole signed tag object is embedded into
-  the (merge) commit object as header entry `mergetag`
-- example: merge of the signed tag `signedtag` as above
+- létrehozza: `git merge` aláírt tagen
+- hasznos adat/beágyazás: a teljes aláírt tag-objektum a (merge-)commit
+  objektumba van beágyazva `mergetag` fejlécbejegyzésként
+- példa: a fenti `signedtag` aláírt tag merge-elése
 
 ----
 tree c7b1cff039a93f3600a1d18b82d26688668c7dea
@@ -196,8 +198,8 @@ signed tag message body
 # Primary key fingerprint: D4BE 2231 1AD3 131E 5EDA  29A4 6109 2E85 B722 7189
 ----
 
-- verify with: verification is embedded in merge commit message by default,
-  alternatively with `git show --show-signature`:
+- ellenőrzés: az ellenőrzés alapértelmezés szerint be van ágyazva a
+  merge-commit üzenetébe, alternatívaként `git show --show-signature`:
 
 ----
 commit 9863f0c76ff78712b6800e199a46aa56afbcbd49
@@ -226,4 +228,4 @@ Date:   Wed Jun 15 09:13:29 2016 +0000
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

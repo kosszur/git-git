@@ -3,7 +3,7 @@ git-pull(1)
 
 NAME
 ----
-git-pull - Fetch from and integrate with another repository or a local branch
+git-pull - Fetchelés egy másik repositoryból vagy lokális branchből és integrálása
 
 
 SYNOPSIS
@@ -15,77 +15,83 @@ git pull [<options>] [<repository> [<refspec>...]]
 DESCRIPTION
 -----------
 
-Integrate changes from a remote repository into the current branch.
+Egy remote repositoryból származó változtatások integrálása az aktuális
+branchbe.
 
-First, `git pull` runs `git fetch` with the same arguments
-(excluding merge options) to fetch remote branch(es).
-Then it decides which remote branch to integrate: if you run `git pull`
-with no arguments this defaults to the <<UPSTREAM-BRANCHES,upstream>>
-for the current branch.
-Then it integrates that branch into the current branch.
+Először a `git pull` lefuttatja a `git fetch`-et ugyanazokkal az
+argumentumokkal (a merge-opciók kivételével), hogy fetchelje a remote
+branch(eke)t.
+Ezután eldönti, melyik remote branchet integrálja: ha argumentumok nélkül
+futtatod a `git pull`-t, ez alapból az aktuális branchhez tartozó
+<<UPSTREAM-BRANCHES,upstream>>-ra áll.
+Ezután integrálja azt a branchet az aktuális branchbe.
 
-There are 4 main options for integrating the remote branch:
+A remote branch integrálására 4 fő lehetőség van:
 
-1. `git pull --ff-only` will only do "fast-forward" updates: it
-   fails if your local branch has diverged from the remote branch.
-   This is the default.
-2. `git pull --rebase` runs `git rebase`
-3. `git pull --no-rebase` runs `git merge`.
-4. `git pull --squash` runs `git merge --squash`
+1. A `git pull --ff-only` csak "fast-forward" frissítéseket végez: sikertelen,
+   ha a lokális branched eltért a remote branchtől.
+   Ez az alapértelmezés.
+2. A `git pull --rebase` lefuttatja a `git rebase`-t
+3. A `git pull --no-rebase` lefuttatja a `git merge`-t.
+4. A `git pull --squash` lefuttatja a `git merge --squash`-t
 
-You can also set the configuration options `pull.rebase`, `pull.squash`,
-or `pull.ff` with your preferred behaviour.
+A kívánt viselkedést a `pull.rebase`, `pull.squash` vagy `pull.ff`
+konfigurációs opcióval is beállíthatod.
 
-If there's a merge conflict during the merge or rebase that you don't
-want to handle, you can safely abort it with `git merge --abort` or
-`git rebase --abort`.
+Ha a merge vagy rebase közben olyan merge-konfliktus lép fel, amelyet nem
+akarsz kezelni, biztonságosan megszakíthatod a `git merge --abort` vagy a
+`git rebase --abort` paranccsal.
 
 OPTIONS
 -------
 
 _<repository>_::
-	The "remote" repository to pull from.  This can be either
-	a URL (see the section <<URLS,GIT URLS>> below) or the name
-	of a remote (see the section <<REMOTES,REMOTES>> below).
+	A "remote" repository, amelyből pull-olni kell.  Ez lehet vagy egy
+	URL (lásd lent a <<URLS,GIT URL-ek>> szakaszt), vagy egy remote neve
+	(lásd lent a <<REMOTES,REMOTES>> szakaszt).
 +
-Defaults to the configured upstream for the current branch, or `origin`.
-See <<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>> below for more on how to
-configure upstreams.
+Alapból az aktuális branchhez beállított upstreamre, vagy az `origin`-ra áll.
+Az upstreamek beállításáról bővebben lásd lent a
+<<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>> szakaszt.
 
 _<refspec>_::
-	Which branch or other reference(s) to fetch and integrate into the
-	current branch, for example `main` in `git pull origin main`.
-	Defaults to the configured upstream for the current branch.
+	Melyik branchet vagy más referenciá(ka)t kell fetchelni és integrálni
+	az aktuális branchbe, például `main` a `git pull origin main`-ben.
+	Alapból az aktuális branchhez beállított upstreamre áll.
 +
-This can be a branch, tag, or other collection of reference(s).
-See <<fetch-refspec,_<refspec>_>> below under "Options related to fetching"
-for the full syntax, and <<DEFAULT-BEHAVIOUR,DEFAULT BEHAVIOUR>> below
-for how `git pull` uses this argument to determine which remote branch
-to integrate.
+Ez lehet egy branch, tag vagy más referenciák gyűjteménye.
+A teljes szintaxisért lásd lent a <<fetch-refspec,_<refspec>_>>-et a
+„Fetcheléssel kapcsolatos opciók" szakaszban, azt pedig, hogy a `git pull`
+hogyan használja ezt az argumentumot annak eldöntéséhez, melyik remote
+branchet integrálja, lásd lent a <<DEFAULT-BEHAVIOUR,DEFAULT BEHAVIOUR>>
+szakaszban.
 
 `-q`::
 `--quiet`::
-	This is passed to both underlying git-fetch to squelch reporting of
-	during transfer, and underlying git-merge to squelch output during
-	merging.
+	Ez átadódik mind a mögöttes git-fetchnek az átvitel közbeni jelentés
+	elnyomásához, mind a mögöttes git-merge-nek a merge-elés közbeni kimenet
+	elnyomásához.
 
 `-v`::
 `--verbose`::
-	Pass `--verbose` to git-fetch and git-merge.
+	A `--verbose` átadása a git-fetchnek és a git-merge-nek.
 
 `--recurse-submodules[=(yes|on-demand|no)]`::
 `--no-recurse-submodules`::
-	This option controls if new commits of populated submodules should
-	be fetched, and if the working trees of active submodules should be
-	updated, too (see linkgit:git-fetch[1], linkgit:git-config[1] and
+	Ez a kapcsoló szabályozza, hogy a feltöltött submodule-ok új commitjait
+	fetchelni kell-e, és hogy az aktív submodule-ok munkakönyvtárait is
+	frissíteni kell-e (lásd linkgit:git-fetch[1], linkgit:git-config[1] és
 	linkgit:gitmodules[5]).
 +
-If the checkout is done via rebase, local submodule commits are rebased as well.
+Ha a checkout rebase-en keresztül történik, a lokális submodule-commitok is
+rebase-elődnek.
 +
-If the update is done via merge, the submodule conflicts are resolved and checked out.
+Ha a frissítés merge-en keresztül történik, a submodule-konfliktusok
+feloldódnak és checkoutolódnak.
 
-Options related to merging
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_options_related_to_merging]]
+Merge-eléssel kapcsolatos opciók
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :git-pull: 1
 
@@ -93,34 +99,35 @@ include::merge-options.adoc[]
 
 `-r`::
 `--rebase[=(true|merges|false|interactive)]`::
-`true`;; rebase the current branch on top of the upstream
-	branch after fetching. If there is a remote-tracking branch
-	corresponding to the upstream branch and the upstream branch
-	was rebased since last fetched, the rebase uses that information
-	to avoid rebasing non-local changes. This is the default.
+`true`;; a fetchelés után az aktuális branch rebase-elése az upstream
+	branch tetejére. Ha van az upstream branchnek megfelelő
+	remote-tracking branch, és az upstream branchet az utolsó fetchelés
+	óta rebase-elték, a rebase ezt az információt használja, hogy elkerülje
+	a nem lokális változtatások rebase-elését. Ez az alapértelmezés.
 
-`merges`;; rebase using `git rebase --rebase-merges` so that
-the local merge commits are included in the rebase (see
-linkgit:git-rebase[1] for details).
-`false`;; merge the upstream branch into the current branch.
-`interactive`;; enable the interactive mode of rebase.
+`merges`;; rebase-elés `git rebase --rebase-merges`-dzsel, hogy a lokális
+merge-commitok is bekerüljenek a rebase-be (részletekért lásd
+linkgit:git-rebase[1]).
+`false`;; az upstream branch merge-elése az aktuális branchbe.
+`interactive`;; a rebase interaktív módjának engedélyezése.
 
 +
-See `pull.rebase`, `branch.<name>.rebase` and `branch.autoSetupRebase` in
-linkgit:git-config[1] if you want to make `git pull` always use
-`--rebase` instead of merging.
+Ha azt szeretnéd, hogy a `git pull` merge-elés helyett mindig a `--rebase`-t
+használja, lásd a `pull.rebase`, `branch.<name>.rebase` és
+`branch.autoSetupRebase` beállítást a linkgit:git-config[1]-ben.
 +
 [NOTE]
-This is a potentially _dangerous_ mode of operation.
-It rewrites history, which does not bode well when you
-published that history already.  Do *not* use this option
-unless you have read linkgit:git-rebase[1] carefully.
+Ez egy potenciálisan _veszélyes_ működési mód.
+Átírja az előzményt, ami nem sok jóval kecsegtet, ha az előzményt már
+publikáltad.  *Ne* használd ezt a kapcsolót, hacsak nem olvastad el
+figyelmesen a linkgit:git-rebase[1]-et.
 
 `--no-rebase`::
-	This is shorthand for `--rebase=false`.
+	Ez a `--rebase=false` rövidítése.
 
-Options related to fetching
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_options_related_to_fetching]]
+Fetcheléssel kapcsolatos opciók
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 include::fetch-options.adoc[]
 
@@ -134,82 +141,77 @@ include::merge-strategies.adoc[]
 DEFAULT BEHAVIOUR
 -----------------
 
-Often people use `git pull` without giving any parameter.
-Traditionally, this has been equivalent to saying `git pull
-origin`.  However, when configuration `branch.<name>.remote` is
-present while on branch `<name>`, that value is used instead of
-`origin`.
+Az emberek gyakran paraméter megadása nélkül használják a `git pull`-t.
+Hagyományosan ez egyenértékű volt a `git pull origin` kiadásával.  Ha
+azonban a `branch.<name>.remote` beállítás jelen van, miközben a `<name>`
+branchen vagy, az `origin` helyett azt az értéket használja.
 
-In order to determine what URL to use to fetch from, the value
-of the configuration `remote.<origin>.url` is consulted
-and if there is not any such variable, the value on the `URL:` line
-in `$GIT_DIR/remotes/<origin>` is used.
+Annak eldöntéséhez, milyen URL-t használjon a fetcheléshez, a
+`remote.<origin>.url` beállítás értékét nézi meg, és ha nincs ilyen
+változó, a `$GIT_DIR/remotes/<origin>` `URL:` sorában lévő értéket
+használja.
 
-In order to determine what remote branches to fetch (and
-optionally store in the remote-tracking branches) when the command is
-run without any refspec parameters on the command line, values
-of the configuration variable `remote.<origin>.fetch` are
-consulted, and if there aren't any, `$GIT_DIR/remotes/<origin>`
-is consulted and its `Pull:` lines are used.
-In addition to the refspec formats described in the OPTIONS
-section, you can have a globbing refspec that looks like this:
+Annak eldöntéséhez, mely remote brancheket fetchelje (és opcionálisan
+tárolja a remote-tracking branchekben), amikor a parancsot a parancssorban
+refspec-paraméterek nélkül futtatják, a `remote.<origin>.fetch`
+konfigurációs változó értékeit nézi meg, és ha nincsenek, a
+`$GIT_DIR/remotes/<origin>`-t nézi meg, és annak `Pull:` sorait használja.
+Az OPTIONS szakaszban leírt refspec-formátumokon túl olyan globbing
+refspecet is használhatsz, amely így néz ki:
 
 ------------
 refs/heads/*:refs/remotes/origin/*
 ------------
 
-A globbing refspec must have a non-empty RHS (i.e. must store
-what were fetched in remote-tracking branches), and its LHS and RHS
-must end with `/*`.  The above specifies that all remote
-branches are tracked using remote-tracking branches in
-`refs/remotes/origin/` hierarchy under the same name.
+Egy globbing refspecnek nem üres jobb oldallal (RHS) kell rendelkeznie
+(azaz tárolnia kell a fetchelteket a remote-tracking branchekben), és a bal
+(LHS) és jobb (RHS) oldalának `/*`-ra kell végződnie.  A fenti azt adja
+meg, hogy az összes remote branchet a `refs/remotes/origin/` hierarchiában
+lévő, azonos nevű remote-tracking branchek követik.
 
-The rule to determine which remote branch to merge after
-fetching is a bit involved, in order not to break backward
-compatibility.
+A szabály, amely eldönti, melyik remote branchet kell merge-elni a
+fetchelés után, kissé bonyolult, hogy ne törje meg a visszafelé
+kompatibilitást.
 
-If explicit refspecs were given on the command
-line of `git pull`, they are all merged.
+Ha explicit refspecek voltak megadva a `git pull` parancssorában, azok mind
+merge-elődnek.
 
-When no refspec was given on the command line, then `git pull`
-uses the refspec from the configuration or
-`$GIT_DIR/remotes/<origin>`.  In such cases, the following
-rules apply:
+Ha nem volt refspec megadva a parancssorban, akkor a `git pull` a
+konfigurációból vagy a `$GIT_DIR/remotes/<origin>`-ból származó refspecet
+használja.  Ilyen esetekben a következő szabályok érvényesek:
 
-. If `branch.<name>.merge` configuration for the current
-  branch _<name>_ exists, that is the name of the branch at the
-  remote site that is merged.
+. Ha létezik `branch.<name>.merge` beállítás az aktuális _<name>_ branchhez,
+  az a remote oldalon lévő azon branch neve, amelyet merge-el.
 
-. If the refspec is a globbing one, nothing is merged.
+. Ha a refspec globbing típusú, semmit sem merge-el.
 
-. Otherwise the remote branch of the first refspec is merged.
+. Egyébként az első refspec remote branchét merge-eli.
 
 
 EXAMPLES
 --------
 
-* Update the remote-tracking branches for the repository
-  you cloned from, then merge one of them into your
-  current branch:
+* Frissítsd a remote-tracking brancheket ahhoz a repositoryhoz, amelyből
+  klónoztál, majd merge-eld az egyiket az aktuális branchedbe:
 +
 ------------------------------------------------
 $ git pull
 $ git pull origin
 ------------------------------------------------
 +
-Normally the branch merged in is the `HEAD` of the remote repository,
-but the choice is determined by the `branch.<name>.remote` and
-`branch.<name>.merge` options; see linkgit:git-config[1] for details.
+Normál esetben a bemerge-elt branch a remote repository `HEAD`-je, de a
+választást a `branch.<name>.remote` és a `branch.<name>.merge` opció
+határozza meg; részletekért lásd linkgit:git-config[1].
 
-* Merge into the current branch the remote branch `next`:
+* Merge-eld az aktuális branchbe a `next` remote branchet:
 +
 ------------------------------------------------
 $ git pull origin next
 ------------------------------------------------
 +
-This leaves a copy of `next` temporarily in `FETCH_HEAD`, and
-updates the remote-tracking branch `origin/next`.
-The same can be done by invoking fetch and merge:
+Ez ideiglenesen a `FETCH_HEAD`-ben hagyja a `next` egy másolatát, és
+frissíti az `origin/next` remote-tracking branchet.
+Ugyanez elvégezhető a fetch és a merge meghívásával:
 +
 ------------------------------------------------
 $ git fetch origin
@@ -217,20 +219,20 @@ $ git merge origin/next
 ------------------------------------------------
 
 
-If you tried a pull which resulted in complex conflicts and
-would want to start over, you can recover with `git reset`.
+Ha megpróbáltál egy pull-t, amely bonyolult konfliktusokat eredményezett,
+és elölről kezdenéd, a `git reset`-tel állhatsz helyre.
 
 
 include::transfer-data-leaks.adoc[]
 
 BUGS
 ----
-Using `--recurse-submodules` can only fetch new commits in already checked
-out submodules right now. When e.g. upstream added a new submodule in the
-just fetched commits of the superproject the submodule itself cannot be
-fetched, making it impossible to check out that submodule later without
-having to do a fetch again. This is expected to be fixed in a future Git
-version.
+A `--recurse-submodules` használata jelenleg csak a már checkoutolt
+submodule-okban tud új commitokat fetchelni. Ha pl. az upstream egy új
+submodule-t adott hozzá a szuperprojekt éppen fetchelt commitjaiban, magát
+a submodule-t nem lehet fetchelni, ami lehetetlenné teszi az adott
+submodule későbbi checkoutolását anélkül, hogy újra fetchelni kellene. Ezt
+várhatóan egy jövőbeli Git-verzió javítja.
 
 SEE ALSO
 --------
@@ -238,4 +240,4 @@ linkgit:git-fetch[1], linkgit:git-merge[1], linkgit:git-config[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

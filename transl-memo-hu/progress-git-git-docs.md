@@ -101,8 +101,8 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-grep.adoc | [ ] |  |  |
 | git-gui.adoc | [x] |  | 2026-09-10 |
 | git-hash-object.adoc | [x] |  | 2026-09-10 |
-| git-help.adoc | [ ] |  |  |
-| git-history.adoc | [ ] |  |  |
+| git-help.adoc | [x] |  | 2026-09-10 |
+| git-history.adoc | [x] |  | 2026-09-10 |
 | git-hook.adoc | [x] |  | 2026-09-10 |
 | git-http-backend.adoc | [ ] |  |  |
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
@@ -121,7 +121,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mailinfo.adoc | [x] |  | 2026-09-10 |
 | git-mailsplit.adoc | [x] |  | 2026-09-10 |
 | git-maintenance.adoc | [ ] |  |  |
-| git-merge-base.adoc | [ ] |  |  |
+| git-merge-base.adoc | [x] |  | 2026-09-10 |
 | git-merge-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-index.adoc | [x] |  | 2026-09-10 |
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
@@ -142,7 +142,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-patch-id.adoc | [x] |  | 2026-09-10 |
 | git-prune-packed.adoc | [x] |  | 2026-09-10 |
 | git-prune.adoc | [x] |  | 2026-09-10 |
-| git-pull.adoc | [ ] |  |  |
+| git-pull.adoc | [x] |  | 2026-09-10 |
 | git-push.adoc | [ ] |  |  |
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
 | git-range-diff.adoc | [ ] |  |  |
@@ -245,7 +245,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitformat-index.adoc | [ ] |  |  |
 | gitformat-loose.adoc | [x] |  | 2026-09-10 |
 | gitformat-pack.adoc | [ ] |  |  |
-| gitformat-signature.adoc | [ ] |  |  |
+| gitformat-signature.adoc | [x] |  | 2026-09-10 |
 | gitglossary.adoc | [ ] |  |  |
 | githooks.adoc | [ ] |  |  |
 | gitignore.adoc | [ ] |  |  |
@@ -723,3 +723,27 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` csupa nagybetűs mondat lefordítva a
   nagybetűs formázás megtartásával (3./29. blokk precedens). Orchestrátor végezte közvetlenül.
   Részletek: `glossary-git-git-docs.md` „30. blokk".
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; ugyanaz a módszer): `gitformat-signature.adoc`, `git-help.adoc`, `git-pull.adoc`,
+  `git-merge-base.adoc`, `git-history.adoc`. Defenzív `[[...]]` anchorok: `gitformat-signature.adoc`
+  (3 — `==` Title Case szakaszcímek: `_tag_signatures`, `_commit_signatures`, `_mergetag_signatures`),
+  `git-pull.adoc` (2 — `~~~~` Title Case alcímek: `_options_related_to_merging`,
+  `_options_related_to_fetching`, mindkettő fordult; a rájuk mutató prózahivatkozás
+  `"Options related to fetching"` → `„Fetcheléssel kapcsolatos opciók"` konzisztensen átírva),
+  `git-merge-base.adoc` (1 — `_discussion_on_fork_point_mode`, „A fork-point mód tárgyalása"),
+  `git-history.adoc` (3 — EXAMPLES `~~~~` Title Case alcímek: `_fixup_a_commit`, `_drop_a_commit`,
+  `_split_a_commit`, mind fordult). `git-pull.adoc` xref-kezelés: `<<URLS,GIT URLS>>` →
+  `<<URLS,GIT URL-ek>>` (23./26. blokk precedens), `<<REMOTES,REMOTES>>`,
+  `<<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>>`, `<<UPSTREAM-BRANCHES,upstream>>`,
+  `<<DEFAULT-BEHAVIOUR,DEFAULT BEHAVIOUR>>` + `[[DEFAULT-BEHAVIOUR]]`, `<<fetch-refspec,_<refspec>_>>`
+  **bájtazonos** (csupa nagybetűs / glossary-term / placeholder linkszöveg). Csupa nagybetűs,
+  kanonikus listán kívüli alcímek a VÉGLEGES DÖNTÉS szerint angolul: `OPERATION MODES`
+  (`git-merge-base.adoc`), `DEFAULT BEHAVIOUR` (`git-pull.adoc`), `COMMANDS` (`git-history.adoc`),
+  `CONFIGURATION VARIABLES` + a `~~~~` config-kulcs-alcímek + `Note about konqueror` /
+  `Note about git config --global` (`git-help.adoc` — a `Note about konqueror` a már lefordított
+  `git-web--browse.adoc` `'Note about konqueror'` prózahivatkozásának precedense miatt marad angol);
+  `LIMITATIONS` (`git-history.adoc`, kanonikus). `git-merge-base.adoc` `See also` (kis-nagybetűs,
+  NEM a kanonikus `SEE ALSO`) — man page lévén bájtazonosan angolul hagyva (a `git-web--browse.adoc`
+  precedens ellenére, amely NEM man page volt). NAME `EXPERIMENTAL:` → „KÍSÉRLETI:" és a
+  `THIS COMMAND IS EXPERIMENTAL…` mondat nagybetűsen lefordítva (`git-history.adoc`, 3./29. blokk).
+  Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „31. blokk".

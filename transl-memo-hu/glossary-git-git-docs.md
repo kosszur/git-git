@@ -2420,3 +2420,115 @@ közvetlenül, célzott `Edit`-ekkel, a triviális méret miatt subagent nélkü
   parancsokkal) **bájtazonosak**. A `<<<<<<<` / `=======` / `>>>>>>>` konfliktusjelölő-literálok
   és a `[NOTE]` admonition-kulcsszavak változatlanok. A `"release"` / `"Merge from master"` /
   `"useless merges"` idézett kifejezések angolul maradtak (idézőjelben).
+
+## 31. blokk — `gitformat-signature.adoc`, `git-help.adoc`, `git-pull.adoc`, `git-merge-base.adoc`, `git-history.adoc` — 2026-09-10
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| payload (kriptográfiai aláírás kontextus) | **„hasznos adat"** | `gitformat-signature.adoc` — a 21. blokk `payload` (pkt-line) → „hasznos adat" döntésének kiterjesztése; „signed payload" → „aláírt hasznos adat" |
+| detached signature | **„különálló aláírás"** | `gitformat-signature.adoc` |
+| tail line / header line (ASCII Armor) | **„záró sor" / „fejlécsor"** | |
+| ASCII Armor | **marad „ASCII Armor"** (idézőjelben, ahogy a forrás) | |
+| embedding (aláírás objektumba) | **„beágyazás"** / „beágyazva" | `gitformat-signature.adoc` `- embedding:` listaelemek |
+| created by / verify with (listaelem-címkék) | **„létrehozza:" / „ellenőrzés:"** | `gitformat-signature.adoc` — a `- created by:` / `- verify with:` prózás felsoroláscímkék |
+| concept guide (git help) | **„fogalmi útmutató"** | `git-help.adoc` `--guides` |
+| user-interface / developer-interface (git help alszakaszok) | **„felhasználói felület" / „fejlesztői felület"** | |
+| man viewer | **„man-megjelenítő"** | `git-help.adoc` `man.viewer` szakaszok |
+| criss-cross merge | **„kereszteződő merge"** | `git-merge-base.adoc` |
+| fork point / forked from | **„elágazási pont" / „elágazott (vmiről)"** | `git-merge-base.adoc` `--fork-point` |
+| incarnation (of a branch) | **„megtestesülés"** | `git-merge-base.adoc` — „a branch egy korábbi megtestesüléséről ágazott el" |
+| fast-forward-ness | **„fast-forward-ság"** (idézőjelben, ahogy a forrás) | `git-merge-base.adoc` |
+| rewrite history / history rewrite | **„előzmény átírása" / „előzmény-átírás"** | `git-history.adoc` — a „history" → „előzmény" a `git-log`/`git-replay`/`git-rerere` (30. blokk) folytatása |
+| split out / split-out commit | **„leválaszt" / „leválasztott commit"** | `git-history.adoc` `split` alparancs |
+| stateful operation | **„állapottartó művelet"** | `git-history.adoc` LIMITATIONS |
+| first-class conflict | **„elsőrangú konfliktus"** | `git-history.adoc` LIMITATIONS |
+| opinionated (way) | **„határozott(abb) mód"** | `git-history.adoc` DESCRIPTION |
+| fixup (ige, git history) | **„fixupol" / „fixupolás"** | `git-history.adoc` — a `squashel`/`amendel` (0. blokk) mintája szerint |
+
+### Címsor-anchorok
+
+- **`gitformat-signature.adoc`** — 3 defenzív `[[...]]` a `==` (egysoros) Title Case szakaszcímek fölé:
+  `[[_tag_signatures]]` („Tag-aláírások"), `[[_commit_signatures]]` („Commit-aláírások"),
+  `[[_mergetag_signatures]]` („Mergetag-aláírások"). Egysorosak → nincs aláhúzás-igazítás. Nincs
+  `<<...>>` hivatkozás rájuk.
+- **`git-pull.adoc`** — 2 defenzív `[[...]]` a `~~~~` Title Case alcímek fölé:
+  `[[_options_related_to_merging]]` („Merge-eléssel kapcsolatos opciók", aláhúzás 32) és
+  `[[_options_related_to_fetching]]` („Fetcheléssel kapcsolatos opciók", aláhúzás 31). **Mindkét cím
+  fordult.** A `_<refspec>_::` leírásában lévő `... <<fetch-refspec,_<refspec>_>> below under
+  "Options related to fetching"` prózahivatkozásban a `"Options related to fetching"` idézett
+  szakasznevet a fordított címhez igazítottuk: `„Fetcheléssel kapcsolatos opciók"`. **Meglévő xref-ek
+  bájtazonosan:** `<<URLS,GIT URLS>>` → `<<URLS,GIT URL-ek>>` (23./26. blokk precedens);
+  `<<REMOTES,REMOTES>>`, `<<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>>`, `<<UPSTREAM-BRANCHES,upstream>>`
+  (a `upstream` glossary-term, angolul; toldalék a `>>` után: `<<UPSTREAM-BRANCHES,upstream>>-ra`),
+  `<<DEFAULT-BEHAVIOUR,DEFAULT BEHAVIOUR>>` + `[[DEFAULT-BEHAVIOUR]]`, `<<fetch-refspec,_<refspec>_>>`
+  (placeholder linkszöveg) — mind **változatlan**, mert a cél-címek csupa nagybetűsek (VÉGLEGES
+  DÖNTÉS → angol) vagy a linkszöveg glossary-term/placeholder.
+- **`git-merge-base.adoc`** — 1 defenzív `[[_discussion_on_fork_point_mode]]` a „A fork-point mód
+  tárgyalása" (`----`, aláhúzás 27) alcím fölé. Nincs rá `<<...>>` (a `--fork-point` leírásában
+  csak `(see discussion of this mode below)` prózás utalás van, `<<...>>` nélkül).
+- **`git-history.adoc`** — 3 defenzív `[[...]]` az EXAMPLES `~~~~` Title Case alcímek fölé:
+  `[[_fixup_a_commit]]` („Commit fixupolása", 17), `[[_drop_a_commit]]` („Commit eldobása", 15),
+  `[[_split_a_commit]]` („Commit szétvágása", 17). Mind fordult, aláhúzás pontos hosszra.
+- **`git-help.adoc`** — nincs `[[...]]`/`<<...>>`. A `~~~~` alcímek **mind angolul maradtak** (l. lent).
+
+### Man-page címként / kanonikus listán kívüli, csupa nagybetűs alcímként ANGOLUL hagyott címsorok
+
+- **`OPERATION MODES`** (`git-merge-base.adoc`), **`DEFAULT BEHAVIOUR`** (`git-pull.adoc`, explicit
+  `[[DEFAULT-BEHAVIOUR]]` anchorral + rá mutató xref-fel), **`COMMANDS`** (`git-history.adoc`),
+  **`CONFIGURATION VARIABLES`** (`git-help.adoc`) — csupa nagybetűs, kanonikus listán kívüli →
+  VÉGLEGES DÖNTÉS szerint bájtazonosan angolul (aláhúzás sem változott).
+- **`LIMITATIONS`** (`git-history.adoc`) — a skill kanonikus listáján van, angolul. A prózában lévő
+  `see LIMITATIONS.` utalások is angolul (`lásd LIMITATIONS`).
+- **`git-help.adoc` `~~~~` alcímek** (`help.format`, `help.browser, web.browser, and
+  browser.<tool>.path`, `man.viewer`, `man.<tool>.path`, `man.<tool>.cmd`) — config-kulcs-nevek,
+  **nem fordulnak** (a skill „config-kulcsok bájtazonosak" szabálya), aláhúzás változatlan.
+  **`Note about konqueror`** és **`Note about git config --global`** — kis-nagybetűs, NEM man-page
+  cím; **mégis angolul hagyva**, mert a már lefordított `git-web--browse.adoc` (18. blokk, `[x]`)
+  a `'Note about konqueror'` alakot **angolul** hivatkozza prózában, és a konzisztencia előbbre való.
+  A `man.viewer` leírásában lévő `(see 'Note about konqueror' below)` így szintén angolul maradt.
+- **`See also`** (`git-merge-base.adoc`) — kis-nagybetűs, NEM a kanonikus `SEE ALSO`, de **man page**
+  SEE ALSO-szakaszaként funkcionál (`linkgit:` hivatkozásokkal) → bájtazonosan angolul hagyva,
+  aláhúzással együtt. (A `ReviewingGuidelines.adoc` 27. blokkbeli `See also` → „Lásd még" fordítása
+  NEM man page volt; a man-page-elv itt előbbre való.) **Eldöntendő**, ha a felhasználó egységesen
+  fordítani szeretné a kis-nagybetűs `See also`-t man page-ekben is.
+
+### Megőrzött markup / megjegyzések
+
+- Mindegyik fájl GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- **`gitformat-signature.adoc`**: a fájl túlnyomó része `----` körülhatárolt blokk (tag-/commit-/
+  mergetag-objektumok nyers szövege, `gpg` kimenet, PGP-blokkok, `$`-jelölt sorvégi whitespace,
+  `# gpg:` kommentált sorok) — mind **bájtazonos**; a `-----BEGIN/END … SIGNATURE-----` literálok a
+  `::` leírás-törzsekben is változatlanok, csak az „and" → „és" kötőszó fordult. A `[verse]`
+  SYNOPSIS két pszeudo-token sora (`<[tag|commit] object header(s)>` / `<over-the-wire protocol>`)
+  lefordítva (`<[tag|commit] objektumfejléc(ek)>` / `<vezetéken átvitt protokoll>`) — nem valódi
+  AsciiDoc-szintaxis, csak leíró szöveg a verse-blokkban.
+- **`git-help.adoc`**: a `------…` (48 kötőjeles) `[man]` config-példablokkok és a `$ git config
+  --global …` blokkok **bájtazonosak**. A `{litdd}` attribútum-referencia (`git-web{litdd}browse`)
+  változatlan. Az `'-m|--man'` / `'-w|--web'` / `'info'` / `'man'` / `'web'` compat-mode `'...'`
+  jelölések és a `"man"` / `"info"` / `"web"` / `"html"` / `"woman"` / `"konqueror"` idézett
+  értékek megtartva.
+- **`git-pull.adoc`**: az `include::merge-options.adoc[]` / `fetch-options.adoc` /
+  `pull-fetch-param.adoc` / `urls-remotes.adoc` / `merge-strategies.adoc` sorok és a `:git-pull: 1`
+  attribútum-sor **bájtazonosak**. A `true`;;/`merges`;;/`false`;;/`interactive`;; másodszintű
+  def-lista-címkék változatlanok (csak a törzs fordult). A `[NOTE]` admonition-kulcsszó és a
+  `_dangerous_` / `*not*` inline-formázás megtartva. A `------------` (12) globbing-refspec példa és
+  a `------…` (48) EXAMPLES-blokkok bájtazonosak. A `. ` (AsciiDoc számozott lista) sorok
+  megtartva. Az elején lévő `<<UPSTREAM-BRANCHES,upstream>>` toldalékolása a `>>` után (`-ra`).
+- **`git-merge-base.adoc`**: a `....` (négy pont) körülhatárolt ASCII-art topológia-diagramok (7 db),
+  valamint a `    $ fork_point=…` / `    $ git rebase --onto …` szóközzel behúzott literál sorok és a
+  `A=$(git rev-parse …)` / `if test … fi` `....` shell-blokkok **bájtazonosak**. A commit-nevek
+  (`B0`, `B1`, `D0'`, stb.) a prózában is változatlanok.
+- **`git-history.adoc`**: NAME `EXPERIMENTAL:` → „KÍSÉRLETI:" (29. blokk); a
+  `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` csupa nagybetűs mondat lefordítva a
+  nagybetűs formázás megtartásával („EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT.", 3. blokk).
+  A `----------` (10 kötőjeles) EXAMPLES-blokkok (`$ git log --oneline --stat` kimenetek, `diff --git`
+  hunkok, `(1/1) Stage addition [y,n,q,a,d,p,?]? y` interaktív promptsorok) **bájtazonosak**. A
+  `--` … `--` nyílt blokk a `--empty` leírásában + a benne lévő `*` felsorolás prózája fordult, a
+  határolók változatlanok. `SYNOPSIS`-ban nincs `(EXPERIMENTAL!)` előtag (eltér a `git-replay.adoc`-tól).
