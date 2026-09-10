@@ -1,18 +1,18 @@
 Date: Fri, 19 Dec 2008 00:45:19 -0800
 From: Linus Torvalds <torvalds@linux-foundation.org>, Junio C Hamano <gitster@pobox.com>
 Subject: Re: Odd merge behaviour involving reverts
-Abstract: Sometimes a branch that was already merged to the mainline
- is later found to be faulty.  Linus and Junio give guidance on
- recovering from such a premature merge and continuing development
- after the offending branch is fixed.
+Abstract: Néha egy branchről, amelyet már merge-eltek a mainline-ba, később
+ kiderül, hogy hibás.  Linus és Junio útmutatást ad az ilyen elhamarkodott
+ merge utáni helyreállításhoz és a fejlesztés folytatásához, miután a hibás
+ branch javításra került.
 Message-ID: <7vocz8a6zk.fsf@gitster.siamese.dyndns.org>
 References: <alpine.LFD.2.00.0812181949450.14014@localhost.localdomain>
 Content-type: text/asciidoc
 
-How to revert a faulty merge
-============================
+Hogyan revertelj egy hibás merge-t
+==================================
 
-Alan <alan@clueserver.org> said:
+Alan <alan@clueserver.org> ezt mondta:
 
     I have a master branch.  We have a branch off of that that some
     developers are doing work on.  They claim it is ready. We merge it
@@ -24,40 +24,40 @@ Alan <alan@clueserver.org> said:
     not in the master branch, but code changes after are in the master
     branch.
 
-and asked for help recovering from this situation.
+és segítséget kért, hogyan álljon helyre ebből a helyzetből.
 
-The history immediately after the "revert of the merge" would look like
-this:
+A "merge visszavonása" utáni előzmény közvetlenül így nézne ki:
 
  ---o---o---o---M---x---x---W
                /
        ---A---B
 
-where A and B are on the side development that was not so good, M is the
-merge that brings these premature changes into the mainline, x are changes
-unrelated to what the side branch did and already made on the mainline,
-and W is the "revert of the merge M" (doesn't W look M upside down?).
-IOW, `"diff W^..W"` is similar to `"diff -R M^..M"`.
+ahol az A és a B a nem túl jól sikerült oldalági fejlesztésen van, az M az a
+merge, amely ezeket az elhamarkodott változtatásokat behozza a mainline-ba, az
+x-ek olyan változtatások, amelyek nem kapcsolódnak ahhoz, amit az oldalági
+branch csinált, és már a mainline-on készültek, a W pedig az "M merge
+visszavonása" (nem úgy néz ki a W, mint a fejjel lefelé fordított M?).
+Más szóval: a `"diff W^..W"` hasonló a `"diff -R M^..M"`-hez.
 
-Such a "revert" of a merge can be made with:
+Egy merge ilyen "visszavonása" a következővel végezhető el:
 
     $ git revert -m 1 M
 
-After the developers of the side branch fix their mistakes, the history
-may look like this:
+Miután az oldalági branch fejlesztői kijavítják a hibáikat, az előzmény így
+nézhet ki:
 
  ---o---o---o---M---x---x---W---x
                /
        ---A---B-------------------C---D
 
-where C and D are to fix what was broken in A and B, and you may already
-have some other changes on the mainline after W.
+ahol a C és a D azt javítja, ami az A-ban és a B-ben elromlott, és lehet, hogy
+a W után már van néhány más változtatásod a mainline-on.
 
-If you merge the updated side branch (with D at its tip), none of the
-changes made in A or B will be in the result, because they were reverted
-by W.  That is what Alan saw.
+Ha merge-eled a frissített oldalági branchet (a csúcsán a D-vel), az A-ban
+vagy a B-ben végzett változtatások egyike sem lesz benne az eredményben, mert
+azokat a W visszavonta.  Ezt látta Alan.
 
-Linus explains the situation:
+Linus elmagyarázza a helyzetet:
 
     Reverting a regular commit just effectively undoes what that commit
     did, and is fairly straightforward. But reverting a merge commit also
@@ -77,131 +77,133 @@ Linus explains the situation:
     miss this part of reverts. Yes, it undoes the data, but no, it doesn't
     undo history.
 
-In such a situation, you would want to first revert the previous revert,
-which would make the history look like this:
+Ilyen helyzetben először vissza akarnád vonni az előző visszavonást, ami így
+alakítaná az előzményt:
 
  ---o---o---o---M---x---x---W---x---Y
                /
        ---A---B-------------------C---D
 
-where Y is the revert of W.  Such a "revert of the revert" can be done
-with:
+ahol az Y a W visszavonása.  Egy ilyen "visszavonás visszavonása" a
+következővel végezhető el:
 
     $ git revert W
 
-This history would (ignoring possible conflicts between what W and W..Y
-changed) be equivalent to not having W or Y at all in the history:
+Ez az előzmény (figyelmen kívül hagyva a lehetséges konfliktusokat aközött,
+amit a W és a W..Y megváltoztatott) egyenértékű lenne azzal, mintha a W vagy az
+Y egyáltalán nem lenne az előzményben:
 
  ---o---o---o---M---x---x-------x----
                /
        ---A---B-------------------C---D
 
-and merging the side branch again will not have conflict arising from an
-earlier revert and revert of the revert.
+és az oldalági branch újbóli merge-elésénél nem lesz olyan konfliktus, amely
+egy korábbi visszavonásból és a visszavonás visszavonásából ered.
 
  ---o---o---o---M---x---x-------x-------*
                /                       /
        ---A---B-------------------C---D
 
-Of course the changes made in C and D still can conflict with what was
-done by any of the x, but that is just a normal merge conflict.
+Persze a C-ben és a D-ben végzett változtatások továbbra is ütközhetnek
+azzal, amit bármelyik x csinált, de ez csak egy normál merge-konfliktus.
 
-On the other hand, if the developers of the side branch discarded their
-faulty A and B, and redone the changes on top of the updated mainline
-after the revert, the history would have looked like this:
+Másrészt, ha az oldalági branch fejlesztői eldobták a hibás A-t és B-t, és a
+visszavonás után újra elvégezték a változtatásokat a frissített mainline
+tetején, az előzmény így nézett volna ki:
 
  ---o---o---o---M---x---x---W---x---x
                /                 \
        ---A---B                   A'--B'--C'
 
-If you reverted the revert in such a case as in the previous example:
+Ha ilyen esetben visszavonnád a visszavonást, mint az előző példában:
 
  ---o---o---o---M---x---x---W---x---x---Y---*
                /                 \         /
        ---A---B                   A'--B'--C'
 
-where Y is the revert of W, A' and B' are rerolled A and B, and there may
-also be a further fix-up C' on the side branch.  `"diff Y^..Y"` is similar
-to `"diff -R W^..W"` (which in turn means it is similar to `"diff M^..M"`),
-and `"diff A'^..C'"` by definition would be similar but different from that,
-because it is a rerolled series of the earlier change.  There will be a
-lot of overlapping changes that result in conflicts.  So do not do "revert
-of revert" blindly without thinking..
+ahol az Y a W visszavonása, az A' és a B' az újragöngyölt A és B, és lehet,
+hogy van még egy további C' javítás is az oldalági branchen.  A `"diff Y^..Y"`
+hasonló a `"diff -R W^..W"`-hez (ami viszont azt jelenti, hogy hasonló a
+`"diff M^..M"`-hez), az `"diff A'^..C'"` pedig definíció szerint ehhez hasonló
+lenne, de attól eltérő, mert ez a korábbi változtatás újragöngyölt sorozata.
+Sok egymást átfedő változtatás lesz, amelyek konfliktusokhoz vezetnek.  Ezért
+ne végezz "visszavonás-visszavonást" vakon, gondolkodás nélkül..
 
  ---o---o---o---M---x---x---W---x---x
                /                 \
        ---A---B                   A'--B'--C'
 
-In the history with rebased side branch, W (and M) are behind the merge
-base of the updated branch and the tip of the mainline, and they should
-merge without the past faulty merge and its revert getting in the way.
+A rebase-elt oldalági branchet tartalmazó előzményben a W (és az M) a
+frissített branch merge-alapja és a mainline csúcsa mögött van, és
+merge-elődniük kellene anélkül, hogy a múltbeli hibás merge és annak
+visszavonása útban lenne.
 
-To recap, these are two very different scenarios, and they want two very
-different resolution strategies:
+Összefoglalva: ez két nagyon különböző forgatókönyv, és két nagyon különböző
+feloldási stratégiát igényelnek:
 
- - If the faulty side branch was fixed by adding corrections on top, then
-   doing a revert of the previous revert would be the right thing to do.
+ - Ha a hibás oldalági branchet a tetejére adott javításokkal javították ki,
+   akkor az előző visszavonás visszavonása lenne a helyes teendő.
 
- - If the faulty side branch whose effects were discarded by an earlier
-   revert of a merge was rebuilt from scratch (i.e. rebasing and fixing,
-   as you seem to have interpreted), then re-merging the result without
-   doing anything else fancy would be the right thing to do.
-   (See the ADDENDUM below for how to rebuild a branch from scratch
-   without changing its original branching-off point.)
+ - Ha a hibás oldalági branchet, amelynek hatásait egy korábbi
+   merge-visszavonás eldobta, a nulláról építették újra (azaz rebase-elés és
+   javítás, ahogy te értelmezni látszol), akkor az eredmény újbóli
+   merge-elése bármi más trükközés nélkül lenne a helyes teendő.
+   (Lásd az alábbi ADDENDUM-ot arról, hogyan építs újra egy branchet a
+   nulláról az eredeti leágazási pontjának megváltoztatása nélkül.)
 
-However, there are things to keep in mind when reverting a merge (and
-reverting such a revert).
+Van azonban néhány dolog, amit szem előtt kell tartani egy merge
+visszavonásakor (és egy ilyen visszavonás visszavonásakor).
 
-For example, think about what reverting a merge (and then reverting the
-revert) does to bisectability. Ignore the fact that the revert of a revert
-is undoing it - just think of it as a "single commit that does a lot".
-Because that is what it does.
+Például gondolj arra, mit tesz egy merge visszavonása (majd a visszavonás
+visszavonása) a bisectelhetőséggel. Hagyd figyelmen kívül azt a tényt, hogy a
+visszavonás visszavonása visszacsinálja azt - csak gondolj rá úgy, mint "egy
+commitra, amely sok mindent csinál". Mert pontosan ezt teszi.
 
-When you have a problem you are chasing down, and you hit a "revert this
-merge", what you're hitting is essentially a single commit that contains
-all the changes (but obviously in reverse) of all the commits that got
-merged. So it's debugging hell, because now you don't have lots of small
-changes that you can try to pinpoint which _part_ of it changes.
+Amikor van egy problémád, amelyet üldözöl, és belefutsz egy "vond vissza ezt
+a merge-t"-be, akkor lényegében egy olyan commitba futsz bele, amely az összes
+merge-elt commit összes változtatását tartalmazza (de nyilván fordítva). Így
+ez hibakeresési pokol, mert most nincs sok apró változtatásod, amellyel
+megpróbálhatnád pontosan behatárolni, melyik _részük_ változtat valamin.
 
-But does it all work? Sure it does. You can revert a merge, and from a
-purely technical angle, Git did it very naturally and had no real
-troubles. It just considered it a change from "state before merge" to
-"state after merge", and that was it. Nothing complicated, nothing odd,
-nothing really dangerous. Git will do it without even thinking about it.
+De működik egyáltalán? Persze, hogy működik. Visszavonhatsz egy merge-t, és
+tisztán technikai szemszögből a Git nagyon természetesen csinálta, és nem volt
+vele igazi gond. Egyszerűen egy változtatásnak tekintette a "merge előtti
+állapotból" a "merge utáni állapotba", és ennyi. Semmi bonyolult, semmi
+furcsa, semmi igazán veszélyes. A Git gondolkodás nélkül elvégzi.
 
-So from a technical angle, there's nothing wrong with reverting a merge,
-but from a workflow angle it's something that you generally should try to
-avoid.
+Tehát technikai szemszögből nincs semmi baj egy merge visszavonásával, de
+munkafolyamat-szemszögből ez olyasmi, amit általában érdemes kerülni.
 
-If at all possible, for example, if you find a problem that got merged
-into the main tree, rather than revert the merge, try _really_ hard to
-bisect the problem down into the branch you merged, and just fix it, or
-try to revert the individual commit that caused it.
+Ha egyáltalán lehetséges, például ha találsz egy problémát, amely bekerült a
+fő fába, ahelyett hogy visszavonnád a merge-t, próbáld _nagyon_ erősen
+lebisectelni a problémát a merge-elt branchbe, és egyszerűen javítsd ki, vagy
+próbáld meg visszavonni azt az egyedi commitot, amely okozta.
 
-Yes, it's more complex, and no, it's not always going to work (sometimes
-the answer is: "oops, I really shouldn't have merged it, because it wasn't
-ready yet, and I really need to undo _all_ of the merge"). So then you
-really should revert the merge, but when you want to re-do the merge, you
-now need to do it by reverting the revert.
+Igen, bonyolultabb, és nem, nem mindig fog működni (néha a válasz az: "hoppá,
+tényleg nem lett volna szabad merge-elnem, mert még nem volt kész, és tényleg
+vissza kell csinálnom az _egész_ merge-t"). Szóval akkor tényleg vissza
+kellene vonnod a merge-t, de amikor újra el akarod végezni a merge-t, azt most
+a visszavonás visszavonásával kell megtenned.
 
 ADDENDUM
 
-Sometimes you have to rewrite one of a topic branch's commits *and* you can't
-change the topic's branching-off point.  Consider the following situation:
+Néha át kell írnod egy topic branch valamelyik commitját, *és* nem tudod
+megváltoztatni a topic leágazási pontját.  Vedd fontolóra a következő
+helyzetet:
 
  P---o---o---M---x---x---W---x
   \         /
    A---B---C
 
-where commit W reverted commit M because it turned out that commit B was wrong
-and needs to be rewritten, but you need the rewritten topic to still branch
-from commit P (perhaps P is a branching-off point for yet another branch, and
-you want be able to merge the topic into both branches).
+ahol a W commit visszavonta az M commitot, mert kiderült, hogy a B commit
+hibás volt, és át kell írni, de arra van szükséged, hogy az átírt topic
+továbbra is a P commitból ágazzon le (talán a P egy másik branch leágazási
+pontja is, és mindkét branchbe merge-elni akarod tudni a topicot).
 
-The natural thing to do in this case is to checkout the A-B-C branch and use
-"rebase -i P" to change commit B.  However this does not rewrite commit A,
-because "rebase -i" by default fast-forwards over any initial commits selected
-with the "pick" command.  So you end up with this:
+Ebben az esetben a természetes teendő az, hogy checkoutolod az A-B-C branchet,
+és a "rebase -i P"-vel megváltoztatod a B commitot.  Ez azonban nem írja át az
+A commitot, mert a "rebase -i" alapból fast-forwardol a "pick" paranccsal
+kiválasztott bármely kezdeti commiton.  Így ez lesz a végeredmény:
 
  P---o---o---M---x---x---W---x
   \         /
@@ -209,13 +211,13 @@ with the "pick" command.  So you end up with this:
     \
      B'---C'   <-- naively rewritten branch
 
-To merge A-B'-C' into the mainline branch you would still have to first revert
-commit W in order to pick up the changes in A, but then it's likely that the
-changes in B' will conflict with the original B changes re-introduced by the
-reversion of W.
+Ahhoz, hogy az A-B'-C'-t a mainline branchbe merge-eld, továbbra is először
+vissza kellene vonnod a W commitot, hogy felvedd az A-ban lévő változtatásokat,
+de akkor valószínű, hogy a B'-ben lévő változtatások ütközni fognak a W
+visszavonása által újra bevezetett eredeti B változtatásokkal.
 
-However, you can avoid these problems if you recreate the entire branch,
-including commit A:
+Ezeket a problémákat azonban elkerülheted, ha újra létrehozod az egész
+branchet, beleértve az A commitot is:
 
    A'---B'---C'  <-- completely rewritten branch
   /
@@ -223,8 +225,8 @@ including commit A:
   \         /
    A---B---C
 
-You can merge A'-B'-C' into the mainline branch without worrying about first
-reverting W.  Mainline's history would look like this:
+Az A'-B'-C'-t merge-elheted a mainline branchbe anélkül, hogy aggódnod
+kellene a W előzetes visszavonása miatt.  A mainline előzménye így nézne ki:
 
    A'---B'---C'------------------
   /                              \
@@ -232,30 +234,32 @@ reverting W.  Mainline's history would look like this:
   \         /
    A---B---C
 
-But if you don't actually need to change commit A, then you need some way to
-recreate it as a new commit with the same changes in it.  The rebase command's
---no-ff option provides a way to do this:
+De ha valójában nem kell megváltoztatnod az A commitot, akkor kell valamilyen
+mód, hogy újra létrehozd új commitként, ugyanazokkal a változtatásokkal benne.
+A rebase parancs --no-ff opciója erre ad módot:
 
     $ git rebase [-i] --no-ff P
 
-The --no-ff option creates a new branch A'-B'-C' with all-new commits (all the
-SHA IDs will be different) even if in the interactive case you only actually
-modify commit B.  You can then merge this new branch directly into the mainline
-branch and be sure you'll get all of the branch's changes.
+A --no-ff opció egy új A'-B'-C' branchet hoz létre teljesen új commitokkal
+(az összes SHA ID más lesz), még akkor is, ha az interaktív esetben valójában
+csak a B commitot módosítod.  Ezután ezt az új branchet közvetlenül a mainline
+branchbe merge-elheted, és biztos lehetsz benne, hogy megkapod a branch összes
+változtatását.
 
-You can also use --no-ff in cases where you just add extra commits to the topic
-to fix it up.  Let's revisit the situation discussed at the start of this howto:
+A --no-ff-et olyan esetekben is használhatod, amikor csak extra commitokat
+adsz a topichoz, hogy kijavítsd.  Térjünk vissza a howto elején tárgyalt
+helyzethez:
 
  P---o---o---M---x---x---W---x
   \         /
    A---B---C----------------D---E   <-- fixed-up topic branch
 
-At this point, you can use --no-ff to recreate the topic branch:
+Ezen a ponton a --no-ff-fel újra létrehozhatod a topic branchet:
 
     $ git checkout E
     $ git rebase --no-ff P
 
-yielding
+ami ezt adja
 
    A'---B'---C'------------D'---E'  <-- recreated topic branch
   /
@@ -263,8 +267,8 @@ yielding
   \         /
    A---B---C----------------D---E
 
-You can merge the recreated branch into the mainline without reverting commit W,
-and mainline's history will look like this:
+Az újra létrehozott branchet a W commit visszavonása nélkül merge-elheted a
+mainline-ba, és a mainline előzménye így fog kinézni:
 
    A'---B'---C'------------D'---E'
   /                              \

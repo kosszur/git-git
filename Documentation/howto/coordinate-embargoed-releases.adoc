@@ -1,186 +1,197 @@
 Content-type: text/asciidoc
-Abstract: When a vulnerability is reported, we follow these guidelines to
- assess the vulnerability, create and review a fix, and coordinate embargoed
- security releases.
+Abstract: Amikor egy sebezhetőséget jelentenek, ezeket az irányelveket
+ követjük a sebezhetőség felmérésére, egy javítás elkészítésére és
+ átnézésére, valamint az embargó alatti biztonsági kiadások koordinálására.
 
-How we coordinate embargoed releases
-------------------------------------
+Hogyan koordináljuk az embargó alatti kiadásokat
+------------------------------------------------
 
-To protect Git users from critical vulnerabilities, we do not just release
-fixed versions like regular maintenance releases. Instead, we coordinate
-releases with packagers, keeping the fixes under an embargo until the release
-date. That way, users will have a chance to upgrade on that date, no matter
-what Operating System or distribution they run.
+Hogy megvédjük a Git felhasználóit a kritikus sebezhetőségektől, nem csak
+kiadunk javított verziókat, mint a szokásos maintenance release-eknél. Ehelyett
+a csomagolókkal koordináljuk a kiadásokat, a javításokat a kiadás dátumáig
+embargó alatt tartva. Így a felhasználóknak lesz esélyük frissíteni azon a
+napon, függetlenül attól, milyen operációs rendszert vagy disztribúciót
+futtatnak.
 
-The `git-security` mailing list
--------------------------------
+A `git-security` levelezőlista
+------------------------------
 
-Responsible disclosures of vulnerabilities, analysis, proposed fixes as
-well as the orchestration of coordinated embargoed releases all happen on the
-`git-security` mailing list at <git-security@googlegroups.com>.
+A sebezhetőségek felelős közzététele, az elemzés, a javasolt javítások,
+valamint a koordinált embargós kiadások megszervezése mind a `git-security`
+levelezőlistán történik, a <git-security@googlegroups.com> címen.
 
-In this context, the term "embargo" refers to the time period that information
-about a vulnerability is kept under wraps and only shared on a need-to-know
-basis. This is necessary to protect Git's users from bad actors who would
-otherwise be made aware of attack vectors that could be exploited. "Lifting the
-embargo" refers to publishing the version that fixes the vulnerabilities.
+Ebben a szövegkörnyezetben az "embargó" kifejezés arra az időszakra utal,
+amíg egy sebezhetőségről szóló információt titokban tartanak, és csak a
+szükséges ismeret elve alapján osztanak meg. Erre azért van szükség, hogy
+megvédjük a Git felhasználóit a rosszindulatú szereplőktől, akik egyébként
+tudomást szereznének a kihasználható támadási vektorokról. Az "embargó
+feloldása" a sebezhetőségeket javító verzió közzétételére utal.
 
-Audience of the `git-security` mailing list
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A `git-security` levelezőlista közönsége
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Anybody may contact the `git-security` mailing list by sending an email
-to <git-security@googlegroups.com>, though the archive is closed to the
-public and only accessible to subscribed members.
+Bárki felveheti a kapcsolatot a `git-security` levelezőlistával úgy, hogy
+e-mailt küld a <git-security@googlegroups.com> címre, bár az archívum zárt a
+nyilvánosság előtt, és csak a feliratkozott tagok számára elérhető.
 
-There are a few dozen subscribed members: core Git developers who are trusted
-with addressing vulnerabilities, and stakeholders (i.e. owners of products
-affected by security vulnerabilities in Git).
+Néhány tucat feliratkozott tag van: core Git fejlesztők, akiket megbíznak a
+sebezhetőségek kezelésével, és érdekeltek (azaz olyan termékek tulajdonosai,
+amelyeket a Git biztonsági sebezhetőségei érintenek).
 
-Most of the discussions revolve around assessing the severity of the reported
-issue (including the decision whether the report is security-relevant or can be
-redirected to the public mailing list), how to remediate the issue, determining
-the timeline of the disclosure as well as aligning priorities and
-requirements.
+A viták többsége a jelentett probléma súlyosságának felmérése körül forog
+(beleértve azt a döntést, hogy a jelentés biztonsági szempontból releváns-e,
+vagy átirányítható a nyilvános levelezőlistára), hogyan orvosolják a
+problémát, a közzététel ütemtervének meghatározása, valamint a prioritások és
+a követelmények összehangolása.
 
-Communications
-~~~~~~~~~~~~~~
+Kommunikáció
+~~~~~~~~~~~~
 
-If you are a stakeholder, it is a good idea to pay close attention to the
-discussions, as pertinent information may be buried in the middle of a lively
-conversation that might not look relevant to your interests. For example, the
-tentative timeline might be agreed upon in the middle of discussing code
-comment formatting in one of the patches and whether or not to combine fixes
-for multiple, separate vulnerabilities into the same embargoed release. Most
-mail threads are not usually structured specifically to communicate
-agreements, assessments or timelines.
+Ha érdekelt vagy, jó ötlet szorosan figyelni a vitákat, mivel a lényeges
+információ egy élénk beszélgetés közepén lehet elrejtve, amely nem tűnik a
+te érdekeid szempontjából relevánsnak. Például az ideiglenes ütemtervben úgy
+állapodhatnak meg, hogy közben az egyik patch kódkommentjeinek formázásáról
+vitáznak, és arról, hogy több különálló sebezhetőség javításait egyetlen
+embargós kiadásba vonják-e össze. A legtöbb levélszál általában nincs
+kifejezetten úgy strukturálva, hogy megállapodásokat, felméréseket vagy
+ütemterveket közöljön.
 
-Typical timeline
+Tipikus ütemterv
 ----------------
 
-- A potential vulnerability is reported to the `git-security` mailing list.
+- Egy lehetséges sebezhetőséget jelentenek a `git-security` levelezőlistának.
 
-- The members of the git-security list start a discussion to give an initial
-  assessment of the severity of the reported potential vulnerability.
-  We aspire to do so within a few days.
+- A git-security lista tagjai vitát indítanak, hogy kezdeti felmérést adjanak
+  a jelentett lehetséges sebezhetőség súlyosságáról.
+  Erre néhány napon belül törekszünk.
 
-- After discussion, if consensus is reached that it is not critical enough
-  to warrant any embargo, the reporter is redirected to the public Git mailing
-  list. This ends the reporter's interaction with the `git-security` list.
+- A vita után, ha konszenzus születik arról, hogy nem elég kritikus ahhoz,
+  hogy bármilyen embargót indokoljon, a bejelentőt átirányítják a nyilvános
+  Git levelezőlistára. Ezzel véget ér a bejelentő interakciója a
+  `git-security` listával.
 
-- If it is deemed critical enough for an embargo, ideas are presented on how to
-  address the vulnerability.
+- Ha elég kritikusnak ítélik egy embargóhoz, ötleteket mutatnak be arról,
+  hogyan kezeljék a sebezhetőséget.
 
-- Usually around that time, the Git maintainer or their delegate(s) open a draft
-  security advisory in the `git/git` repository on GitHub (see below for more
-  details).
+- Általában e körül a Git maintainer vagy a megbízottjai megnyitnak egy
+  security advisory vázlatot a GitHubon lévő `git/git` repository-ban (lásd
+  lent a további részleteket).
 
-- Code review can take place in a variety of different locations,
-  depending on context. These are: patches sent inline on the git-security list,
-  a private fork on GitHub associated with the draft security advisory, or the
-  git/cabal repository.
+- A kódátnézés a szövegkörnyezettől függően különféle helyeken zajlhat.
+  Ezek: a git-security listán inline küldött patchek, a security advisory
+  vázlatához társított privát GitHub-fork, vagy a git/cabal repository.
 
-- Contributors working on a fix should consider beginning by sending
-  patches to the git-security list (inline with the original thread), since they
-  are accessible to all subscribers, along with the original reporter.
+- A javításon dolgozó contributoroknak érdemes megfontolniuk, hogy a
+  patchek a git-security listára küldésével kezdjenek (az eredeti szállal
+  inline), mivel azok minden feliratkozó számára elérhetők, az eredeti
+  bejelentővel együtt.
 
-- Once the review has settled and everyone involved in the review agrees that
-  the patches are nearing the finish line, the Git maintainer, and others
-  determine a release date as well as the release trains that are serviced. The
-  decision regarding which versions need a backported fix is based on input from
-  the reporter, the contributor who worked on the patches, and from
-  stakeholders. Operators of hosting sites who may want to analyze whether the
-  given issue is exploited via any of the repositories they host, and binary
-  packagers who want to make sure their product gets patched adequately against
-  the vulnerability, for example, may want to give their input at this stage.
+- Miután az átnézés letisztázódott, és mindenki, aki részt vett az
+  átnézésben, egyetért abban, hogy a patchek közelítenek a célegyeneshez, a Git
+  maintainer és mások meghatározzák a kiadás dátumát, valamint a kiszolgált
+  kiadási vonalakat. Az arról szóló döntés, hogy mely verziókhoz kell
+  visszaportolt javítás, a bejelentőtől, a patcheken dolgozó contributortól és
+  az érdekeltektől érkező inputon alapul. Például a hosztoló oldalak
+  üzemeltetői, akik elemezni szeretnék, hogy az adott problémát kihasználják-e
+  az általuk hosztolt repository-k valamelyikén keresztül, és a bináris
+  csomagolók, akik biztosak akarnak lenni abban, hogy a termékük megfelelően
+  javítva lesz a sebezhetőség ellen, ebben a szakaszban adhatják meg az
+  inputjukat.
 
-- While the Git community does its best to accommodate the specific timeline
-  requests of the various binary packagers, the nature of the issue may preclude
-  a prolonged release schedule. For fixes deemed urgent, it may be in the best
-  interest of the Git users community to shorten the disclosure and release
-  timeline, and packagers may need to adapt accordingly.
+- Bár a Git közösség mindent megtesz, hogy alkalmazkodjon a különböző bináris
+  csomagolók konkrét ütemterv-kéréseihez, a probléma természete kizárhat egy
+  elnyújtott kiadási ütemtervet. A sürgősnek ítélt javítások esetén a Git
+  felhasználói közösségének az lehet a legjobb érdeke, hogy lerövidítsék a
+  közzétételi és kiadási ütemtervet, és a csomagolóknak ennek megfelelően kell
+  alkalmazkodniuk.
 
-- Subsequently, branches with the fixes are pushed to the git/cabal repository.
+- Ezt követően a javításokat tartalmazó brancheket push-olják a git/cabal repository-ba.
 
-- The tags are created by the Git maintainer and pushed to the same repository.
+- A tageket a Git maintainer hozza létre, és ugyanabba a repository-ba push-olja.
 
-- The Git for Windows, Git for macOS, BSD, Debian, etc. maintainers prepare the
-  corresponding release artifacts, based on the tags created that have been
-  prepared by the Git maintainer.
+- A Git for Windows, a Git for macOS, a BSD, a Debian stb. maintainerei
+  elkészítik a megfelelő kiadási artefaktumokat a Git maintainer által
+  előkészített, létrehozott tagek alapján.
 
-- The release artifacts prepared by various binary packagers can be
-  made available to stakeholders under embargo via a mail to the
-  `git-security` list.
+- A különböző bináris csomagolók által előkészített kiadási artefaktumok
+  embargó alatt elérhetővé tehetők az érdekeltek számára a `git-security`
+  listára küldött levéllel.
 
-- Less than a week before the release, a mail with the relevant information is
-  sent to <distros@vs.openwall.org> (see below), a list used to pre-announce
-  embargoed releases of open source projects to the stakeholders of all major
-  distributions of Linux as well as other OSes.
+- Kevesebb mint egy héttel a kiadás előtt egy levelet küldenek a releváns
+  információval a <distros@vs.openwall.org> címre (lásd lent), ez egy lista,
+  amelyet a nyílt forráskódú projektek embargós kiadásainak előzetes
+  bejelentésére használnak a Linux összes főbb disztribúciójának, valamint
+  más operációs rendszereknek az érdekeltjei felé.
 
-- Public communication is then prepared in advance of the release date. This
-  includes blog posts and mails to the Git and Git for Windows mailing lists.
+- Ezután a nyilvános kommunikációt a kiadás dátuma előtt előkészítik. Ez
+  magában foglalja a blogbejegyzéseket és a Git és a Git for Windows
+  levelezőlistákra küldött leveleket.
 
-- On the day of the release, at around 10am Pacific Time, the Git maintainer
-  pushes the tag and the `master` branch to the public repository, then sends
-  out an announcement mail.
+- A kiadás napján, körülbelül csendes-óceáni idő szerint reggel 10-kor, a Git
+  maintainer push-olja a taget és a `master` branchet a nyilvános
+  repository-ba, majd kiküld egy bejelentő levelet.
 
-- Once the tag is pushed, the Git for Windows maintainer publishes the
-  corresponding tag and creates a GitHub Release with the associated release
-  artifacts (Git for Windows installer, Portable Git, MinGit, etc).
+- Miután a taget push-olták, a Git for Windows maintainer közzéteszi a
+  megfelelő taget, és létrehoz egy GitHub Release-t a hozzá tartozó kiadási
+  artefaktumokkal (Git for Windows telepítő, Portable Git, MinGit stb.).
 
-- Git for Windows release is then announced via a mail to the public Git and
-  Git for Windows mailing lists as well as via a tweet.
+- A Git for Windows kiadást ezután bejelentik a nyilvános Git és Git for
+  Windows levelezőlistákra küldött levéllel, valamint egy tweettel.
 
-- Ditto for distribution packagers for Linux and other platforms:
-  their releases are announced via their preferred channels.
+- Ugyanez a Linux és más platformok disztribúció-csomagolóira: a kiadásaikat
+  az általuk preferált csatornákon jelentik be.
 
-- A mail to <oss-security@lists.openwall.org> (see below for details) is sent
-  as a follow-up to the <distros@vs.openwall.org> one, describing the
-  vulnerability in detail, often including a proof of concept of an exploit.
+- Egy levelet küldenek a <oss-security@lists.openwall.org> címre (lásd lent a
+  részleteket) a <distros@vs.openwall.org> címre küldött levél folytatásaként,
+  amely részletesen leírja a sebezhetőséget, gyakran egy exploit proof of
+  conceptjével együtt.
 
-Note: The Git project makes no guarantees about timelines, but aims to keep
-embargoes reasonably short in the interest of keeping Git's users safe.
+Megjegyzés: A Git projekt nem ad garanciát az ütemtervekre, de arra törekszik,
+hogy az embargókat ésszerűen röviden tartsa a Git felhasználóinak biztonsága
+érdekében.
 
-Opening a Security Advisory draft
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Egy security advisory vázlat megnyitása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The first step is to https://github.com/git/git/security/advisories/new[open
-an advisory]. Technically, this is not necessary. However, it is the most
-convenient way to obtain the CVE number and it gives us a private repository
-associated with it that can be used to collaborate on a fix.
+Az első lépés, hogy https://github.com/git/git/security/advisories/new[megnyitsz
+egy advisory-t]. Technikailag ez nem szükséges. Mégis ez a legkényelmesebb mód a
+CVE-szám megszerzésére, és ad hozzá egy társított privát repository-t, amely egy
+javításon való együttműködésre használható.
 
-Notifying the Linux distributions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A Linux disztribúciók értesítése
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-At most two weeks before release date, we need to send a notification to
-<distros@vs.openwall.org>, preferably less than 7 days before the release date.
-This will reach most (all?) Linux distributions. See an example below, and the
-guidelines for this mailing list at
-https://oss-security.openwall.org/wiki/mailing-lists/distros#how-to-use-the-lists[here].
+Legfeljebb két héttel a kiadás dátuma előtt értesítést kell küldenünk a
+<distros@vs.openwall.org> címre, lehetőleg kevesebb mint 7 nappal a kiadás
+dátuma előtt. Ez a legtöbb (az összes?) Linux disztribúciót eléri. Lásd lent
+egy példát, és ennek a levelezőlistának az irányelveit
+https://oss-security.openwall.org/wiki/mailing-lists/distros#how-to-use-the-lists[itt].
 
-Once the version has been published, we send a note about that to oss-security.
-As an example, see https://www.openwall.com/lists/oss-security/2019/12/13/1[the
-v2.24.1 mail];
-https://oss-security.openwall.org/wiki/mailing-lists/oss-security[Here] are
-their guidelines.
+Miután a verzió megjelent, erről egy jegyzetet küldünk az oss-security-nek.
+Példaként lásd a https://www.openwall.com/lists/oss-security/2019/12/13/1[v2.24.1
+levelet];
+https://oss-security.openwall.org/wiki/mailing-lists/oss-security[itt] vannak
+az irányelveik.
 
-The mail to oss-security should also describe the exploit, and give credit to
-the reporter(s): security researchers still receive too little respect for the
-invaluable service they provide, and public credit goes a long way to keep them
-paid by their respective organizations.
+Az oss-security-nek küldött levélnek le kell írnia az exploitot is, és
+elismerést kell adnia a bejelentő(k)nek: a biztonsági kutatók még mindig túl
+kevés elismerést kapnak a felbecsülhetetlen szolgáltatásért, amelyet
+nyújtanak, és a nyilvános elismerés sokat segít abban, hogy a szervezeteik
+továbbra is fizessék őket.
 
-Technically, describing any exploit can be delayed up to 7 days, but we usually
-refrain from doing that, including it right away.
+Technikailag bármely exploit leírása legfeljebb 7 nappal elhalasztható, de
+ezt általában nem tesszük, hanem rögtön belefoglaljuk.
 
-As a courtesy we typically attach a Git bundle (as `.tar.xz` because the list
-will drop `.bundle` attachments) in the mail to distros@ so that the involved
-parties can take care of integrating/backporting them. This bundle is typically
-created using a command like this:
+Előzékenységből jellemzően csatolunk egy Git bundle-t (`.tar.xz`-ként, mert a
+lista eldobja a `.bundle` csatolmányokat) a distros@ címre küldött levélben,
+hogy az érintett felek gondoskodhassanak az integrálásukról/visszaportolásukról.
+Ezt a bundle-t jellemzően egy ilyen paranccsal hozzuk létre:
 
 	git bundle create cve-xxx.bundle ^origin/master vA.B.C vD.E.F
 	tar cJvf cve-xxx.bundle.tar.xz cve-xxx.bundle
 
-Example mail to distros@vs.openwall.org
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Példa levél a distros@vs.openwall.org címre
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ....
 To: distros@vs.openwall.org
@@ -215,8 +226,8 @@ Thanks,
 
 ....
 
-Example mail to oss-security@lists.openwall.com
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Példa levél az oss-security@lists.openwall.com címre
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ....
 To: oss-security@lists.openwall.com

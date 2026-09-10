@@ -1674,3 +1674,91 @@ párhuzamos `howto/`-munkamenet foglalta le (l. a progress batch-naplóban), ez�
   párban/pontos hosszal, `ifdef::`/`endif::` csak az `urls.adoc`-ban (2+2, párban), a
   bekezdéshatárok megtartva.
 
+## 24. blokk — `howto/` mappa, a maradék 6 fájl (mappa kész) — 2026-09-10
+
+**Módszer:** a `howto/` mappa hat, még lefordítatlan fájlja (a 22. blokk 10-es batch-e után
+maradt), byte szerint növekvő sorrendben. Orchestrátor fordította közvetlenül. Fájlok:
+`using-signed-tag-in-pull-request.adoc`, `setup-git-server-over-http.adoc`, `revert-a-faulty-merge.adoc`,
+`recover-corrupted-object-harder.adoc`, `maintain-git.adoc`, `coordinate-embargoed-releases.adoc`.
+**Ezzel a `howto/` mappa mind a 16 fájlon KÉSZ.**
+
+**NEM man page-ek** — a főcím és minden alcím fordult; a setext `=`/`-`/`~` aláhúzások a fordított
+cím pontos hosszához igazítva (Python `len()`-alapú ellenőrzés; ~10 db ±1–2 elütés menet közben
+javítva). A 22. blokk e-mail-fejléc-precedense érvényes: `From`/`To`/`Cc`/`Date`/`Subject`/
+`Message-ID`/`References` bájtazonosan angolul, `Abstract:` docinfo-törzs fordul, `Content-type`
+változatlan.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| lieutenant (Git alrendszer-maintainer szerep) | **marad „lieutenant"** angolul | `using-signed-tag-in-pull-request.adoc`, `maintain-git.adoc` — a „maintainer"/„contributor" mintája (0./22. blokk) |
+| ADDENDUM (csupa nagybetűs, aláhúzás NÉLKÜLI szakasz-felirat prózában, `See the ADDENDUM below` hivatkozással) | **marad `ADDENDUM` angolul** | `revert-a-faulty-merge.adoc` — a „VÉGLEGES DÖNTÉS" (csupa nagybetűs man-page-stílusú cím) szellemében, mert prózahivatkozás mutat rá szó szerint; a `DETACHED HEAD` (10. blokk) precedens |
+| stakeholder | **„érdekelt"** (fn) | `coordinate-embargoed-releases.adoc` |
+| packager / binary packager | **„csomagoló" / „bináris csomagoló"** | `coordinate-embargoed-releases.adoc`, `maintain-git.adoc` |
+| release train | **„kiadási vonal"** | `coordinate-embargoed-releases.adoc` |
+| backport / backported fix | **„visszaportol" / „visszaportolt javítás"** | `coordinate-embargoed-releases.adoc` — a 19. blokk „előre portol" párja |
+| embargo / embargoed release / lifting the embargo | **„embargó" / „embargós (v. embargó alatti) kiadás" / „az embargó feloldása"** | `coordinate-embargoed-releases.adoc` |
+| security advisory (GitHub) | **marad „security advisory"** angolul; „security advisory vázlat" | `coordinate-embargoed-releases.adoc` |
+| responsible disclosure | **„felelős közzététel"** | `coordinate-embargoed-releases.adoc` |
+| release artifacts | **„kiadási artefaktumok"** | `coordinate-embargoed-releases.adoc` |
+| Pacific Time (10am) | **„csendes-óceáni idő szerint (reggel 10)"** | `coordinate-embargoed-releases.adoc` |
+| feature/maintenance release | **„feature release" / „maintenance release"** (angolul, toldalékkal: `release-ek`, `release-hez`) | `maintain-git.adoc` — a kiadástípus-nevek angolul; „release candidate"/„preview" release szintén angolul, idézőjelben ahol a forrás is |
+| integration branch / topic branch | **„integrációs branch" / „topic branch"** (topic branch a 0. blokk szerint úgyis angolul) | `maintain-git.adoc` |
+| to cook / cooking (a `next`-ben „főzés") | **„főz" / „főzés"** | `maintain-git.adoc` — a „What's cooking" üzenetnév angolul marad |
+| graduated topic (a `master`-be jutott) | **„végzett topic"** | `maintain-git.adoc` — a „Graduated to master" szekciónév a mintafájlban angolul marad |
+| reroll / rerolled series | **„újragöngyölés" / „újragöngyölt sorozat"** | `maintain-git.adoc` — konzisztens a 13. blokk (`git-filter-branch`) „újragöngyölt"-jével |
+| release train / daily driver / guinea pig | „mindennapi meghajtó" / „kísérleti nyúl" | `maintain-git.adoc` — a forrás átvitt szóhasználatát követi |
+| stakeholder input / to give input | **„input" (marad) / „megadni az inputját"** | `coordinate-embargoed-releases.adoc` |
+| dumb server / smart transport | l. 17./19. blokk (idézőjeles, ad hoc) | `setup-git-server-over-http.adoc`-ban nem fordult elő; a 2006-os szöveg amúgy is „CGI capable" / DAV-alapú |
+| „Note:" (kis-nagybetűs, prózában, NEM a `NOTE:` admonition-makró) | **„Megjegyzés:"** | `coordinate-embargoed-releases.adoc` — a 15./17. blokk precedense |
+
+### `link:`/URL-es link makrók
+
+- `coordinate-embargoed-releases.adoc`: több `https://…[látható szöveg]` alakú link, ahol a
+  látható szöveg **sortörésen átível** (`[open\nan advisory]`, `[the\nv2.24.1 mail]`) — az URL
+  bájtazonos, a `[...]` látható szöveg fordult, a sortörés a fordított szövegben természetes
+  helyre került (`[megnyitsz\negy advisory-t]` stb.).
+- `setup-git-server-over-http.adoc`: `linkgit:git-http-backend[1]` a `NOTE:` admonition-prózában
+  bájtazonos.
+
+### Verbatim (bájtazonosan angolul) hagyott blokkok
+
+- `using-signed-tag-in-pull-request.adoc`: 9 db `------------` (12 kötőjel) `git request-pull` /
+  `git push` / `git show --show-signature` terminál-átirat blokk, a `# gpg: …` sorokkal és a
+  beágyazott `-----…-----` (47 kötőjel) aláírt-tag-üzenet keretével.
+- `setup-git-server-over-http.adoc`: **minden szóközzel behúzott sor bájtazonos** (2006-os, lazán
+  formázott doksi — a behúzott `$ apache2 …` parancsok, `httpd.conf` / `git.conf` config-
+  részletek, `[remote]`-mintakonfigok, és a behúzott Debian-specifikus utasítás-prózák is; ezek
+  AsciiDoc-literál-bekezdésként renderelnek). Csak a 0. oszlopból induló próza + a felső szintű
+  `- ` felsoroláspontok + a 6 szekciócím + a záró `Szerzők` fordult. **Jegyzet:** ez eltér a
+  `maintain-git.adoc` kezelésétől (l. lent), mert ott a behúzott szöveg listaelem-folytatás
+  (a `- ` felsoroláspont törzsszövegéhez igazítva), itt viszont különálló literál bekezdés.
+- `maintain-git.adoc`: az 5–7 szóközzel behúzott `$ git …` / `$ Meta/… ` parancsblokkok és a
+  `[notes]` / `[remote "github"]` / `[remote "github2"]` config-blokkok bájtazonosak (a `#`
+  kommentek és `;#` inline kommentek is). A **3 szóközzel behúzott, `- ` felsoroláspontokhoz
+  tartozó folytatás-próza fordult** (listaelem-tartalom, nem literál blokk). A `"<<"` és `">>"`
+  idézőjeles string-literálok (nem AsciiDoc xref) változatlanok.
+- `recover-corrupted-object-harder.adoc`: `****`-sidebar blokk (a próza fordult, a
+  `link:recover-corrupted-blob-object.html[ezt a howtót]` cél változatlan); a `-----`/`-------`/
+  `----------------…` határolt blokkokban a teljes `#include`-os C programok (`munge`, `inflate`,
+  `sha1-munge`), `dd`/`gcc`/`printf` shell-sorok, hexdumpok, `git fsck` kimenet és a
+  `-  cp = strtok (arg, "+");` diff bájtazonos.
+- `revert-a-faulty-merge.adoc`: a 4 szóközzel behúzott Alan- és Linus-idézet (literál blokk) és
+  minden ` ---o---o---M---x` ASCII-art commit-gráf + `$ git revert …` parancs bájtazonos; a
+  `_data_`/`_history_`/`_not_`/`_all_` compat-emphasis a **Linus-idézeten belül** verbatim maradt
+  (a blokk maga nem fordult).
+- `coordinate-embargoed-releases.adoc`: 2 db `....` határolt példa-e-mail (distros@ és
+  oss-security@ sablonlevelek) **teljes egészében bájtazonosan angolul** — copy-paste sablonok,
+  `<placeholder>`-ekkel; a `git bundle create …` / `tar cJvf …` behúzott parancspár bájtazonos.
+
+### Címsor-anchorok
+
+- Egyik fájlban sincs `[[...]]` anchor vagy `<<...>>` xref (grep-pel ellenőrizve). A
+  `maintain-git.adoc` `"<<"`/`">>"` előfordulásai idézőjeles string-literálok, nem xrefek —
+  érintetlenül hagyva.
+
+### Man-page címként angolul hagyott címsorok
+
+- **`ADDENDUM`** (`revert-a-faulty-merge.adoc`) — l. a döntés-táblát. A többi fájl összes alcíme
+  fordult (mind Title Case vagy mondat-alakú, egyik sem csupa nagybetűs man-page-stílusú).

@@ -400,22 +400,22 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 
 | fájl | kész | forrás-SHA | utolsó-ellenőrzés |
 |---|---|---|---|
-| howto/coordinate-embargoed-releases.adoc | [ ] |  |  |
+| howto/coordinate-embargoed-releases.adoc | [x] |  | 2026-09-10 |
 | howto/keep-canonical-history-correct.adoc | [x] |  | 2026-09-10 |
-| howto/maintain-git.adoc | [ ] |  |  |
+| howto/maintain-git.adoc | [x] |  | 2026-09-10 |
 | howto/new-command.adoc | [x] |  | 2026-09-10 |
 | howto/rebase-from-internal-branch.adoc | [x] |  | 2026-09-10 |
 | howto/rebuild-from-update-hook.adoc | [x] |  | 2026-09-10 |
 | howto/recover-corrupted-blob-object.adoc | [x] |  | 2026-09-10 |
-| howto/recover-corrupted-object-harder.adoc | [ ] |  |  |
-| howto/revert-a-faulty-merge.adoc | [ ] |  |  |
+| howto/recover-corrupted-object-harder.adoc | [x] |  | 2026-09-10 |
+| howto/revert-a-faulty-merge.adoc | [x] |  | 2026-09-10 |
 | howto/revert-branch-rebase.adoc | [x] |  | 2026-09-10 |
 | howto/separating-topic-branches.adoc | [x] |  | 2026-09-10 |
-| howto/setup-git-server-over-http.adoc | [ ] |  |  |
+| howto/setup-git-server-over-http.adoc | [x] |  | 2026-09-10 |
 | howto/update-hook-example.adoc | [x] |  | 2026-09-10 |
 | howto/use-git-daemon.adoc | [x] |  | 2026-09-10 |
 | howto/using-merge-subtree.adoc | [x] |  | 2026-09-10 |
-| howto/using-signed-tag-in-pull-request.adoc | [ ] |  |  |
+| howto/using-signed-tag-in-pull-request.adoc | [x] |  | 2026-09-10 |
 
 ### `technical/`
 

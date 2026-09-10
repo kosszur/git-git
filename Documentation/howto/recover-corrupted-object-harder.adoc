@@ -1,27 +1,27 @@
 Date: Wed, 16 Oct 2013 04:34:01 -0400
 From: Jeff King <peff@peff.net>
 Subject: pack corruption post-mortem
-Abstract: Recovering a corrupted object when no good copy is available.
+Abstract: Egy sérült objektum helyreállítása, amikor nincs elérhető jó másolat.
 Content-type: text/asciidoc
 
-How to recover an object from scratch
-=====================================
+Hogyan állíts helyre egy objektumot a nulláról
+==============================================
 
-I was recently presented with a repository with a corrupted packfile,
-and was asked if the data was recoverable. This post-mortem describes
-the steps I took to investigate and fix the problem. I thought others
-might find the process interesting, and it might help somebody in the
-same situation.
+Nemrég elém került egy repository sérült packfile-lal, és megkérdezték, hogy
+az adat helyreállítható-e. Ez a post-mortem leírja azokat a lépéseket,
+amelyeket a probléma kivizsgálásához és javításához tettem. Gondoltam, mások
+érdekesnek találhatják a folyamatot, és segíthet valakinek ugyanebben a
+helyzetben.
 
 ********************************
-Note: In this case, no good copy of the repository was available. For
-the much easier case where you can get the corrupted object from
-elsewhere, see link:recover-corrupted-blob-object.html[this howto].
+Megjegyzés: Ebben az esetben nem volt elérhető jó másolata a repository-nak. A
+sokkal egyszerűbb esethez, amikor a sérült objektumot máshonnan meg tudod
+szerezni, lásd link:recover-corrupted-blob-object.html[ezt a howtót].
 ********************************
 
-I started with an fsck, which found a problem with exactly one object
-(I've used $pack and $obj below to keep the output readable, and also
-because I'll refer to them later):
+Egy fsck-val kezdtem, amely pontosan egy objektummal talált problémát (lent
+a $pack és a $obj jelölést használtam, hogy a kimenet olvasható maradjon, és
+azért is, mert később hivatkozni fogok rájuk):
 
 -----------
     $ git fsck
@@ -31,18 +31,18 @@ because I'll refer to them later):
     error: cannot unpack $obj from $pack at offset 51653873
 -----------
 
-The pack checksum failing means a byte is munged somewhere, and it is
-presumably in the object mentioned (since both the index checksum and
-zlib were failing).
+A pack ellenőrzőösszegének hibája azt jelenti, hogy valahol egy bájt
+elromlott, és ez feltehetően az említett objektumban van (mivel az index
+ellenőrzőösszege és a zlib is hibázott).
 
-Reading the zlib source code, I found that "incorrect data check" means
-that the adler-32 checksum at the end of the zlib data did not match the
-inflated data. So stepping the data through zlib would not help, as it
-did not fail until the very end, when we realize the CRC does not match.
-The problematic bytes could be anywhere in the object data.
+A zlib forráskódját olvasva rájöttem, hogy az "incorrect data check" azt
+jelenti, hogy a zlib adat végén lévő adler-32 ellenőrzőösszeg nem egyezett a
+kibontott adattal. Így az adat zlib-en való átléptetése nem segítene, mivel
+egészen a legvégéig nem hibázott, amikor rájövünk, hogy a CRC nem egyezik.
+A problémás bájtok bárhol lehetnek az objektum adatában.
 
-The first thing I did was pull the broken data out of the packfile. I
-needed to know how big the object was, which I found out with:
+Az első dolog, amit tettem, hogy kiszedtem a hibás adatot a packfile-ból.
+Tudnom kellett, mekkora az objektum, amit ezzel derítettem ki:
 
 ------------
     $ git show-index <$idx | cut -d' ' -f1 | sort -n | grep -A1 51653873
@@ -50,27 +50,27 @@ needed to know how big the object was, which I found out with:
     51664736
 ------------
 
-Show-index gives us the list of objects and their offsets. We throw away
-everything but the offsets, and then sort them so that our interesting
-offset (which we got from the fsck output above) is followed immediately
-by the offset of the next object. Now we know that the object data is
-10863 bytes long, and we can grab it with:
+A show-index megadja az objektumok listáját és az offsetjeiket. Az offseteken
+kívül mindent eldobunk, majd rendezzük őket, hogy az érdekes offsetünket
+(amelyet a fenti fsck kimenetből kaptunk) közvetlenül a következő objektum
+offsetje kövesse. Most már tudjuk, hogy az objektum adata 10863 bájt hosszú,
+és megszerezhetjük ezzel:
 
 ------------
   dd if=$pack of=object bs=1 skip=51653873 count=10863
 ------------
 
-I inspected a hexdump of the data, looking for any obvious bogosity
-(e.g., a 4K run of zeroes would be a good sign of filesystem
-corruption). But everything looked pretty reasonable.
+Megvizsgáltam az adat hexdumpját, bármilyen nyilvánvaló képtelenséget keresve
+(pl. egy 4K-nyi nulla-sorozat a fájlrendszer sérülésének jó jele lenne). De
+minden elég ésszerűnek tűnt.
 
-Note that the "object" file isn't fit for feeding straight to zlib; it
-has the git packed object header, which is variable-length. We want to
-strip that off so we can start playing with the zlib data directly. You
-can either work your way through it manually (the format is described in
-linkgit:gitformat-pack[5]),
-or you can walk through it in a debugger. I did the latter, creating a
-valid pack like:
+Vedd észre, hogy az "object" fájl nem alkalmas arra, hogy közvetlenül a
+zlib-nek adjuk; van rajta a git csomagolt objektum fejléce, amely változó
+hosszúságú. Ezt le akarjuk vágni, hogy közvetlenül elkezdhessünk játszani a
+zlib adattal. Vagy manuálisan végigdolgozhatod magad rajta (a formátumot a
+linkgit:gitformat-pack[5] írja le),
+vagy végigléptethetsz rajta egy debuggerben. Én az utóbbit tettem, egy
+érvényes packet létrehozva így:
 
 ------------
     # pack magic and version
@@ -84,35 +84,35 @@ valid pack like:
     cat trailer >>tmp.pack
 ------------
 
-and then running "git index-pack tmp.pack" in the debugger (stop at
-unpack_raw_entry). Doing this, I found that there were 3 bytes of header
-(and the header itself had a sane type and size). So I stripped those
-off with:
+majd a "git index-pack tmp.pack" futtatásával a debuggerben (megállva az
+unpack_raw_entry-nél). Ezt megtéve rájöttem, hogy 3 bájtnyi fejléc volt
+(és magának a fejlécnek ép típusa és mérete volt). Így ezeket levágtam
+ezzel:
 
 ------------
     dd if=object of=zlib bs=1 skip=3
 ------------
 
-I ran the result through zlib's inflate using a custom C program. And
-while it did report the error, I did get the right number of output
-bytes (i.e., it matched git's size header that we decoded above). But
-feeding the result back to "git hash-object" didn't produce the same
-sha1. So there were some wrong bytes, but I didn't know which. The file
-happened to be C source code, so I hoped I could notice something
-obviously wrong with it, but I didn't. I even got it to compile!
+Az eredményt átfuttattam a zlib inflate-jén egy egyedi C program
+segítségével. És bár jelentette a hibát, a helyes számú kimeneti bájtot
+megkaptam (azaz egyezett a git méret-fejlécével, amelyet fent dekódoltunk). De
+az eredményt visszaadva a "git hash-object"-nek nem ugyanazt a sha1-et
+állította elő. Tehát volt néhány rossz bájt, de nem tudtam, melyek. A fájl
+történetesen C forráskód volt, így reméltem, hogy észreveszek benne valami
+nyilvánvalóan hibásat, de nem sikerült. Még le is fordítottam!
 
-I also tried comparing it to other versions of the same path in the
-repository, hoping that there would be some part of the diff that didn't
-make sense. Unfortunately, this happened to be the only revision of this
-particular file in the repository, so I had nothing to compare against.
+Megpróbáltam összehasonlítani ugyanannak az útvonalnak a repository-ban lévő
+más verzióival is, remélve, hogy lesz a diffnek valamilyen része, amelynek
+nincs értelme. Sajnos ez történetesen ennek a bizonyos fájlnak az egyetlen
+revíziója volt a repository-ban, így nem volt mihez hasonlítanom.
 
-So I took a different approach. Working under the guess that the
-corruption was limited to a single byte, I wrote a program to munge each
-byte individually, and try inflating the result. Since the object was
-only 10K compressed, that worked out to about 2.5M attempts, which took
-a few minutes.
+Így más megközelítést választottam. Azzal a feltételezéssel dolgozva, hogy a
+sérülés egyetlen bájtra korlátozódik, írtam egy programot, amely minden bájtot
+egyenként elront, és megpróbálja kibontani az eredményt. Mivel az objektum
+tömörítve csak 10K volt, ez körülbelül 2,5M próbálkozást jelentett, ami néhány
+percig tartott.
 
-The program I used is here:
+A program, amelyet használtam, itt van:
 
 ----------------------------------------------
 #include <stdio.h>
@@ -178,7 +178,7 @@ int main(void)
 }
 ----------------------------------------------
 
-I compiled and ran with:
+Lefordítottam és futtattam ezzel:
 
 -------
   gcc -Wall -Werror -O3 munge.c -o munge -lz
@@ -186,23 +186,23 @@ I compiled and ran with:
 -------
 
 
-There were a few false positives early on (if you write "no data" in the
-zlib header, zlib thinks it's just fine :) ). But I got a hit about
-halfway through:
+Volt néhány hamis pozitív az elején (ha "no data"-t írsz a zlib fejlécbe, a
+zlib szerint minden rendben :) ). De körülbelül félúton kaptam egy találatot:
 
 -------
   i=5642, j=c7
 -------
 
-I let it run to completion, and got a few more hits at the end (where it
-was munging the CRC to match our broken data). So there was a good
-chance this middle hit was the source of the problem.
+Hagytam végigfutni, és a végén kaptam még néhány találatot (ahol a CRC-t
+rontotta el, hogy egyezzen a hibás adatunkkal). Így jó esély volt rá, hogy ez
+a középső találat a probléma forrása.
 
-I confirmed by tweaking the byte in a hex editor, zlib inflating the
-result (no errors!), and then piping the output into "git hash-object",
-which reported the sha1 of the broken object. Success!
+Megerősítettem úgy, hogy módosítottam a bájtot egy hexszerkesztőben,
+kibontottam az eredményt a zlib-bel (nincs hiba!), majd a kimenetet
+átirányítottam a "git hash-object"-be, amely a hibás objektum sha1-ét
+jelentette. Siker!
 
-I fixed the packfile itself with:
+Magát a packfile-t ezzel javítottam meg:
 
 -------
   chmod +w $pack
@@ -210,57 +210,57 @@ I fixed the packfile itself with:
   chmod -w $pack
 -------
 
-The `\xc7` comes from the replacement byte our "munge" program found.
-The offset 51659518 is derived by taking the original object offset
-(51653873), adding the replacement offset found by "munge" (5642), and
-then adding back in the 3 bytes of git header we stripped.
+A `\xc7` a "munge" programunk által talált helyettesítő bájtból származik.
+Az 51659518 offsetet úgy kapjuk, hogy vesszük az eredeti objektum-offsetet
+(51653873), hozzáadjuk a "munge" által talált helyettesítési offsetet (5642),
+majd visszaadjuk a levágott 3 bájtnyi git fejlécet.
 
-After that, "git fsck" ran clean.
+Ezután a "git fsck" tisztán lefutott.
 
-As for the corruption itself, I was lucky that it was indeed a single
-byte. In fact, it turned out to be a single bit. The byte 0xc7 was
-corrupted to 0xc5. So presumably it was caused by faulty hardware, or a
-cosmic ray.
+Ami magát a sérülést illeti, szerencsém volt, hogy tényleg egyetlen bájt
+volt. Valójában kiderült, hogy egyetlen bit. A 0xc7 bájt 0xc5-re sérült. Így
+feltehetően hibás hardver okozta, vagy egy kozmikus sugár.
 
-And the aborted attempt to look at the inflated output to see what was
-wrong? I could have looked forever and never found it. Here's the diff
-between what the corrupted data inflates to, versus the real data:
+És a félbehagyott kísérlet, hogy megnézzem a kibontott kimenetet, hátha látom,
+mi a baj? Örökké nézhettem volna, sosem találom meg. Íme a diff aközött, amivé
+a sérült adat kibomlik, és a valódi adat között:
 
 --------------
   -       cp = strtok (arg, "+");
   +       cp = strtok (arg, ".");
 --------------
 
-It tweaked one byte and still ended up as valid, readable C that just
-happened to do something totally different! One takeaway is that on a
-less unlucky day, looking at the zlib output might have actually been
-helpful, as most random changes would actually break the C code.
+Egyetlen bájtot módosított, és mégis érvényes, olvasható C lett belőle, amely
+történetesen valami teljesen mást csinált! Az egyik tanulság, hogy egy
+kevésbé peches napon a zlib kimenetének megnézése valójában hasznos lehetett
+volna, mivel a legtöbb véletlenszerű változtatás ténylegesen eltörné a C
+kódot.
 
-But more importantly, git's hashing and checksumming noticed a problem
-that easily could have gone undetected in another system. The result
-still compiled, but would have caused an interesting bug (that would
-have been blamed on some random commit).
+De ami fontosabb, a git hashelése és ellenőrzőösszeg-számítása észrevett egy
+problémát, amely egy másik rendszerben könnyen észrevétlen maradhatott volna.
+Az eredmény még lefordult, de egy érdekes bugot okozott volna (amit valami
+véletlenszerű commitra fogtak volna).
 
 
-The adventure continues...
---------------------------
+A kaland folytatódik...
+-----------------------
 
-I ended up doing this again! Same entity, new hardware. The assumption
-at this point is that the old disk corrupted the packfile, and then the
-corruption was migrated to the new hardware (because it was done by
-rsync or similar, and no fsck was done at the time of migration).
+Végül újra megcsináltam ezt! Ugyanaz az entitás, új hardver. A feltételezés
+ezen a ponton az, hogy a régi lemez rontotta el a packfile-t, majd a sérülés
+átvándorolt az új hardverre (mert rsync-kel vagy hasonlóval történt, és a
+migráció idején nem végeztek fsck-t).
 
-This time, the affected blob was over 20 megabytes, which was far too
-large to do a brute-force on. I followed the instructions above to
-create the `zlib` file. I then used the `inflate` program below to pull
-the corrupted data from that. Examining that output gave me a hint about
-where in the file the corruption was. But now I was working with the
-file itself, not the zlib contents. So knowing the sha1 of the object
-and the approximate area of the corruption, I used the `sha1-munge`
-program below to brute-force the correct byte.
+Ezúttal az érintett blob több mint 20 megabájt volt, ami túl nagy volt ahhoz,
+hogy brute-force-oljam. Követtem a fenti utasításokat a `zlib` fájl
+létrehozásához. Aztán az alábbi `inflate` programmal szedtem ki belőle a
+sérült adatot. Ennek a kimenetnek a vizsgálata adott egy utalást arról, hol
+volt a sérülés a fájlban. De most magával a fájllal dolgoztam, nem a zlib
+tartalmával. Így az objektum sha1-ét és a sérülés hozzávetőleges területét
+ismerve az alábbi `sha1-munge` programmal brute-force-oltam ki a helyes
+bájtot.
 
-Here's the inflate program (it's essentially `gunzip` but without the
-`.gz` header processing):
+Íme az inflate program (lényegében `gunzip`, de a `.gz` fejléc feldolgozása
+nélkül):
 
 --------------------------
 #include <stdio.h>
@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 }
 --------------------------
 
-And here is the `sha1-munge` program:
+És íme a `sha1-munge` program:
 
 --------------------------
 #include <stdio.h>
