@@ -98,7 +98,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-fsmonitor--daemon.adoc | [x] |  | 2026-09-10 |
 | git-gc.adoc | [x] |  | 2026-09-10 |
 | git-get-tar-commit-id.adoc | [x] |  | 2026-09-10 |
-| git-grep.adoc | [ ] |  |  |
+| git-grep.adoc | [x] |  | 2026-09-10 |
 | git-gui.adoc | [x] |  | 2026-09-10 |
 | git-hash-object.adoc | [x] |  | 2026-09-10 |
 | git-help.adoc | [x] |  | 2026-09-10 |
@@ -115,7 +115,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-interpret-trailers.adoc | [ ] |  |  |
 | git-last-modified.adoc | [x] |  | 2026-09-10 |
 | git-log.adoc | [x] |  | 2026-09-10 |
-| git-ls-files.adoc | [ ] |  |  |
+| git-ls-files.adoc | [x] |  | 2026-09-10 |
 | git-ls-remote.adoc | [x] |  | 2026-09-10 |
 | git-ls-tree.adoc | [x] |  | 2026-09-10 |
 | git-mailinfo.adoc | [x] |  | 2026-09-10 |
@@ -125,7 +125,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-index.adoc | [x] |  | 2026-09-10 |
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
-| git-merge-tree.adoc | [ ] |  |  |
+| git-merge-tree.adoc | [x] |  | 2026-09-10 |
 | git-merge.adoc | [ ] |  |  |
 | git-mergetool--lib.adoc | [x] |  | 2026-09-10 |
 | git-mergetool.adoc | [x] |  | 2026-09-10 |
@@ -210,7 +210,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 
 | fájl | kész | forrás-SHA | utolsó-ellenőrzés |
 |---|---|---|---|
-| BreakingChanges.adoc | [ ] |  |  |
+| BreakingChanges.adoc | [x] |  | 2026-09-10 |
 | DecisionMaking.adoc | [x] |  | 2026-09-10 |
 | MyFirstContribution.adoc | [ ] |  |  |
 | MyFirstObjectWalk.adoc | [ ] |  |  |
@@ -224,7 +224,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | diff-format.adoc | [x] |  | 2026-09-10 |
 | diff-generate-patch.adoc | [x] |  | 2026-09-10 |
 | diff-options.adoc | [ ] |  |  |
-| fetch-options.adoc | [ ] |  |  |
+| fetch-options.adoc | [x] |  | 2026-09-10 |
 | for-each-ref-options.adoc | [x] |  | 2026-09-10 |
 | format-patch-caveats.adoc | [x] |  | 2026-09-10 |
 | format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
@@ -233,10 +233,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitattributes.adoc | [ ] |  |  |
 | gitcli.adoc | [x] |  | 2026-09-10 |
 | gitcore-tutorial.adoc | [ ] |  |  |
-| gitcredentials.adoc | [ ] |  |  |
+| gitcredentials.adoc | [x] |  | 2026-09-10 |
 | gitcvs-migration.adoc | [x] |  | 2026-09-10 |
 | gitdatamodel.adoc | [x] |  | 2026-09-10 |
-| gitdiffcore.adoc | [ ] |  |  |
+| gitdiffcore.adoc | [x] |  | 2026-09-10 |
 | giteveryday.adoc | [ ] |  |  |
 | gitfaq.adoc | [ ] |  |  |
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
@@ -254,13 +254,13 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitmodules.adoc | [x] |  | 2026-09-10 |
 | gitnamespaces.adoc | [x] |  | 2026-09-10 |
 | gitpacking.adoc | [x] |  | 2026-09-10 |
-| gitprotocol-capabilities.adoc | [ ] |  |  |
+| gitprotocol-capabilities.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-common.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-http.adoc | [ ] |  |  |
 | gitprotocol-pack.adoc | [ ] |  |  |
 | gitprotocol-v2.adoc | [ ] |  |  |
 | gitremote-helpers.adoc | [ ] |  |  |
-| gitrepository-layout.adoc | [ ] |  |  |
+| gitrepository-layout.adoc | [x] |  | 2026-09-10 |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
 | gitsubmodules.adoc | [x] |  | 2026-09-10 |
 | gittutorial-2.adoc | [ ] |  |  |
@@ -285,7 +285,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | rev-list-description.adoc | [x] |  | 2026-09-10 |
 | rev-list-options.adoc | [ ] |  |  |
 | revisions.adoc | [ ] |  |  |
-| scalar.adoc | [ ] |  |  |
+| scalar.adoc | [x] |  | 2026-09-10 |
 | sequencer.adoc | [x] |  | 2026-09-10 |
 | signoff-option.adoc | [x] |  | 2026-09-10 |
 | trace2-target-values.adoc | [x] |  | 2026-09-10 |
@@ -791,3 +791,35 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `„dumb" HTTP-protokoll` — az angol jelző kettős idézőjelben, a 17./19./32. blokk ad hoc
   kezelésének folytatása. Orchestrátor végezte közvetlenül. Részletek:
   `glossary-git-git-docs.md` „33. blokk".
+- **2026-09-10 — a következő 10 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  10-es bontást kért; a két gyökér-tábla együttes, sorméret szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `gitrepository-layout.adoc`, `gitdiffcore.adoc`, `gitcredentials.adoc`, `git-ls-files.adoc`,
+  `git-merge-tree.adoc`, `BreakingChanges.adoc`, `git-grep.adoc`, `scalar.adoc`, `fetch-options.adoc`,
+  `gitprotocol-capabilities.adoc`. Anchor-kezelés: `git-merge-tree.adoc` 8 meglévő `[[...]]` anchorja
+  (`[[NEWMERGE]]`, `[[OUTPUT]]`, `[[MS]]`, `[[OIDTLT]]`, `[[CFI]]`, `[[IM]]`, `[[INPUT]]`,
+  `[[DEPMERGE]]`) **bájtazonosan** megmaradt; a `~~~~` Title Case alcímek (`Merge status`,
+  `OID of toplevel tree`, `Conflicted file info`, `Informational messages`) fordultak
+  (aláhúzás pontos hosszra igazítva), a rájuk mutató `<<OIDTLT,...>>` / `<<CFI,...>>` / `<<IM,...>>`
+  xref-ek vessző utáni része is fordult; a csupa nagybetűs `<<INPUT,INPUT FORMAT>>`,
+  `<<OUTPUT,OUTPUT>>`, `<<DEPMERGE,DEPRECATED DESCRIPTION>>`, `<<NEWMERGE,DESCRIPTION>>` linkszöveg
+  angolul maradt (VÉGLEGES DÖNTÉS). Defenzív `[[...]]` anchorok: `gitdiffcore.adoc` (7 — a Title
+  Case setext szakaszcímek fölé: `_the_chain_of_operation` + 6 `diffcore-*` cím),
+  `gitcredentials.adoc` (2 — `_available_helpers`, `_oauth` a `===` alcímek fölé),
+  `BreakingChanges.adoc` (5 — NEM man page, minden `==`/`===` cím fordult: `_procedure`,
+  `_git_3_0`, `_changes`, `_removals`, `_superseded_features_that_will_not_be_deprecated`),
+  `scalar.adoc` (8 — a `~~~~` alparancs-alcímek fölé: `_clone`, `_list`, `_register`,
+  `_unregister`, `_run`, `_reconfigure`, `_diagnose`, `_delete`). A `gitprotocol-capabilities.adoc`
+  képességnév-alcímei (`multi_ack`, `thin-pack`, `side-band, side-band-64k`, …) protokoll-token
+  identifikátorok → bájtazonosan angolul, aláhúzás változatlan, nincs defenzív anchor.
+  Csupa nagybetűs, kanonikus listán kívüli alcímek a VÉGLEGES DÖNTÉS szerint angolul:
+  `FIELD NAMES` / `EXCLUDE PATTERNS` (`git-ls-files.adoc`), `USAGE NOTES` / `MISTAKES TO AVOID` /
+  `INPUT FORMAT` / `DEPRECATED DESCRIPTION` (`git-merge-tree.adoc`), `REQUESTING CREDENTIALS` /
+  `AVOIDING REPETITION` / `CREDENTIAL CONTEXTS` / `CONFIGURATION OPTIONS` / `CUSTOM HELPERS`
+  (`gitcredentials.adoc`), `NOTES ON THREADS` (`git-grep.adoc`), `RECOMMENDED CONFIG VALUES`
+  (`scalar.adoc`). RFC 2119 kulcsszavak (`MUST`/`MUST NOT`/`SHOULD`/`MAY`) angolul
+  (`gitprotocol-capabilities.adoc`, `BreakingChanges.adoc`). `PRUNING` / `OUTPUT` /
+  `\"Configured Remote-tracking Branches\"` prózahivatkozások (`fetch-options.adoc`) angolul.
+  A `fetch-options.adoc` include-fragmens: mind a 22 `ifdef/ifndef/endif::git-pull[]` guard és
+  minden `::` opció-címke bájtazonos, nincs NAME/GIT. Orchestrátor végezte közvetlenül. Részletek:
+  `glossary-git-git-docs.md` „34. blokk".

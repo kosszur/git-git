@@ -3,120 +3,119 @@ git-merge-tree(1)
 
 NAME
 ----
-git-merge-tree - Perform merge without touching index or working tree
+git-merge-tree - Merge végrehajtása az index és a working tree érintése nélkül
 
 
 SYNOPSIS
 --------
 [verse]
 'git merge-tree' [--write-tree] [<options>] <branch1> <branch2>
-'git merge-tree' [--trivial-merge] <base-tree> <branch1> <branch2> (deprecated)
+'git merge-tree' [--trivial-merge] <base-tree> <branch1> <branch2> (elavult)
 
 [[NEWMERGE]]
 DESCRIPTION
 -----------
 
-This command has a modern `--write-tree` mode and a deprecated
-`--trivial-merge` mode.  With the exception of the
-<<DEPMERGE,DEPRECATED DESCRIPTION>> section at the end, the rest of
-this documentation describes the modern `--write-tree` mode.
+Ennek a parancsnak van egy modern `--write-tree` módja és egy elavult
+`--trivial-merge` módja.  A végén lévő
+<<DEPMERGE,DEPRECATED DESCRIPTION>> szakasz kivételével a dokumentáció többi
+része a modern `--write-tree` módot írja le.
 
-Performs a merge, but does not make any new commits and does not read
-from or write to either the working tree or index.
+Végrehajt egy merge-t, de nem készít új commitot, és nem olvas a working
+tree-ből vagy az indexből, illetve nem is ír azokba.
 
-The performed merge will use the same features as the "real"
-linkgit:git-merge[1], including:
+A végrehajtott merge ugyanazokat a funkciókat használja, mint a „valódi"
+linkgit:git-merge[1], többek között:
 
-  * three way content merges of individual files
-  * rename detection
-  * proper directory/file conflict handling
-  * recursive ancestor consolidation (i.e. when there is more than one
-    merge base, creating a virtual merge base by merging the merge bases)
-  * etc.
+  * az egyes fájlok háromutas tartalmi merge-e
+  * átnevezés-észlelés
+  * megfelelő könyvtár-/fájlkonfliktus-kezelés
+  * rekurzív ős-konszolidáció (azaz amikor egynél több merge-alap van, egy
+    virtuális merge-alap létrehozása a merge-alapok merge-elésével)
+  * stb.
 
-After the merge completes, a new toplevel tree object is created.  See
-`OUTPUT` below for details.
+A merge befejezése után új legfelső szintű fa objektum jön létre.  A
+részletekért lásd az `OUTPUT` szakaszt lentebb.
 
 OPTIONS
 -------
 
 --stdin::
-	Read the commits to merge from the standard input rather than
-	the command-line. See <<INPUT,INPUT FORMAT>> below for more
-	information.  Implies `-z`.
+	A merge-elendő commitokat a parancssor helyett a standard bemenetről
+	olvassa. További információért lásd az <<INPUT,INPUT FORMAT>>
+	szakaszt lentebb.  Magában foglalja a `-z`-t.
 
 -z::
-	Do not quote filenames in the <Conflicted file info> section,
-	and end each filename with a NUL character rather than
-	newline.  Also begin the messages section with a NUL character
-	instead of a newline.  See <<OUTPUT,OUTPUT>> below for more
-	information.
+	Ne idézőjelezze a fájlneveket a <Conflicted file info> szakaszban,
+	és minden fájlnevet NUL karakterrel zárjon le sortörés helyett.
+	Az üzenetek szakaszt is NUL karakterrel kezdje sortörés helyett.
+	További információért lásd az <<OUTPUT,OUTPUT>> szakaszt lentebb.
 
 --name-only::
-	In the Conflicted file info section, instead of writing a list
-	of (mode, oid, stage, path) tuples to output for conflicted
-	files, just provide a list of filenames with conflicts (and
-	do not list filenames multiple times if they have multiple
-	conflicting stages).
+	A Conflicted file info szakaszban ahelyett, hogy a konfliktusos
+	fájlokhoz (mód, oid, stage, útvonal) rekordok listáját írná a
+	kimenetre, csak a konfliktusos fájlnevek listáját adja meg (és nem
+	sorolja fel többször a fájlneveket, ha több konfliktusos stage-ük
+	van).
 
 --messages::
 --no-messages::
-	Write any informational messages such as "Auto-merging <path>"
-	or CONFLICT notices to the end of stdout.  If unspecified, the
-	default is to include these messages if there are merge
-	conflicts, and to omit them otherwise.
+	A tájékoztató üzeneteket, például az "Auto-merging <path>"-t vagy a
+	CONFLICT értesítéseket a stdout végére írja.  Ha nincs megadva, az
+	alapértelmezés az, hogy ezeket az üzeneteket akkor tünteti fel, ha
+	vannak merge konfliktusok, egyébként pedig elhagyja.
 
 --quiet::
-	Disable all output from the program.  Useful when you are only
-	interested in the exit status.  Allows merge-tree to exit
-	early when it finds a conflict, and allows it to avoid writing
-	most objects created by merges.
+	Letiltja a program minden kimenetét.  Hasznos, amikor csak a kilépési
+	állapot érdekel.  Lehetővé teszi, hogy a merge-tree korán kilépjen,
+	amikor konfliktust talál, és hogy elkerülje a merge-ek által
+	létrehozott objektumok többségének kiírását.
 
 --allow-unrelated-histories::
-	merge-tree will by default error out if the two branches specified
-	share no common history.  This flag can be given to override that
-	check and make the merge proceed anyway.
+	A merge-tree alapértelmezés szerint hibával kilép, ha a megadott két
+	branchnek nincs közös története.  Ez a kapcsoló megadható az
+	ellenőrzés felülbírálására, hogy a merge mégis végbemenjen.
 
 --merge-base=<tree-ish>::
-	Instead of finding the merge-bases for <branch1> and <branch2>,
-	specify a merge-base for the merge.  This option is incompatible with
-	`--stdin`.
+	Ahelyett, hogy megkeresné a merge-alapokat a <branch1> és a
+	<branch2> számára, adj meg egy merge-alapot a merge-hez.  Ez az opció
+	nem kompatibilis a `--stdin`-nel.
 +
-Specifying multiple bases is currently not supported, which means that when
-merging two branches with more than one merge-base, using this option may
-cause merge results to differ from what `git merge` would compute.  This
-can include potentially losing some changes made on one side of the history
-in the resulting merge.
+Több alap megadása jelenleg nem támogatott, ami azt jelenti, hogy amikor két
+branchet egynél több merge-alappal merge-elsz, ennek az opciónak a
+használata azt okozhatja, hogy a merge eredménye eltér attól, amit a
+`git merge` számítana ki.  Ez akár azt is jelentheti, hogy az eredményül
+kapott merge-ben elvész néhány, a történet egyik oldalán végzett változás.
 +
-With this option, since the merge-base is provided directly, <branch1> and
-<branch2> do not need to specify commits; trees are enough.
+Ezzel az opcióval, mivel a merge-alap közvetlenül meg van adva, a <branch1>
+és a <branch2> nem kell, hogy commitokat adjon meg; fák is elegendők.
 
 -X<option>::
 --strategy-option=<option>::
-	Pass the merge strategy-specific option through to the merge strategy.
-	See linkgit:git-merge[1] for details.
+	Átadja a merge-stratégia-specifikus opciót a merge-stratégiának.
+	A részletekért lásd linkgit:git-merge[1].
 
 [[OUTPUT]]
 OUTPUT
 ------
 
-For a successful merge, the output from git-merge-tree is simply one
-line:
+Sikeres merge esetén a git-merge-tree kimenete egyszerűen egyetlen sor:
 
 	<OID of toplevel tree>
 
-Whereas for a conflicted merge, the output is by default of the form:
+Konfliktusos merge esetén viszont a kimenet alapértelmezés szerint ilyen
+alakú:
 
 	<OID of toplevel tree>
 	<Conflicted file info>
 	<Informational messages>
 
-These are discussed individually below.
+Ezeket alább egyenként tárgyaljuk.
 
-However, there is an exception.  If `--stdin` is passed, then there is
-an extra section at the beginning, a NUL character at the end, and then
-all the sections repeat for each line of input.  Thus, if the first merge
-is conflicted and the second is clean, the output would be of the form:
+Van azonban egy kivétel.  Ha a `--stdin` meg van adva, akkor az elején van
+egy extra szakasz, a végén egy NUL karakter, majd az összes szakasz
+megismétlődik a bemenet minden sorára.  Így ha az első merge konfliktusos, a
+második pedig tiszta, a kimenet ilyen alakú lenne:
 
 	<Merge status>
 	<OID of toplevel tree>
@@ -128,105 +127,104 @@ is conflicted and the second is clean, the output would be of the form:
 	NUL
 
 [[MS]]
-Merge status
-~~~~~~~~~~~~
+Merge-státusz
+~~~~~~~~~~~~~
 
-This is an integer status followed by a NUL character.  The integer status is:
+Ez egy egész számú státusz, amelyet egy NUL karakter követ.  Az egész számú
+státusz:
 
-     0: merge had conflicts
-     1: merge was clean
+     0: a merge-nek konfliktusai voltak
+     1: a merge tiszta volt
 
 [[OIDTLT]]
-OID of toplevel tree
-~~~~~~~~~~~~~~~~~~~~
+A legfelső szintű fa OID-ja
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is a tree object that represents what would be checked out in the
-working tree at the end of `git merge`.  If there were conflicts, then
-files within this tree may have embedded conflict markers.  This section
-is always followed by a newline (or NUL if `-z` is passed).
+Ez egy fa objektum, amely azt ábrázolja, ami a `git merge` végén a working
+tree-be lenne checkoutolva.  Ha voltak konfliktusok, akkor a fában lévő
+fájlokban beágyazott konfliktusjelölők lehetnek.  Ezt a szakaszt mindig egy
+sortörés követi (vagy NUL, ha a `-z` meg van adva).
 
 [[CFI]]
-Conflicted file info
-~~~~~~~~~~~~~~~~~~~~
+Konfliktusos fájlinformáció
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is a sequence of lines with the format
+Ez sorok sorozata a következő formátummal:
 
 	<mode> <object> <stage> <filename>
 
-The filename will be quoted as explained for the configuration
-variable `core.quotePath` (see linkgit:git-config[1]).  However, if
-the `--name-only` option is passed, the mode, object, and stage will
-be omitted.  If `-z` is passed, the "lines" are terminated by a NUL
-character instead of a newline character.
+A fájlnév a `core.quotePath` konfigurációs változónál leírtak szerint lesz
+idézőjelezve (lásd linkgit:git-config[1]).  Ha azonban a `--name-only` opció
+meg van adva, a mód, az objektum és a stage kimarad.  Ha a `-z` meg van adva,
+a „sorokat" sortörés karakter helyett NUL karakter zárja.
 
 [[IM]]
-Informational messages
-~~~~~~~~~~~~~~~~~~~~~~
+Tájékoztató üzenetek
+~~~~~~~~~~~~~~~~~~~~
 
-This section provides informational messages, typically about
-conflicts.  The format of the section varies significantly depending
-on whether `-z` is passed.
+Ez a szakasz tájékoztató üzeneteket ad, jellemzően konfliktusokról.  A
+szakasz formátuma jelentősen eltér attól függően, hogy a `-z` meg van-e adva.
 
-If `-z` is passed:
+Ha a `-z` meg van adva:
 
-The output format is zero or more conflict informational records, each
-of the form:
+A kimeneti formátum nulla vagy több konfliktus-tájékoztató rekord,
+mindegyik ilyen alakú:
 
 	<list-of-paths><conflict-type>NUL<conflict-message>NUL
 
-where <list-of-paths> is of the form
+ahol a <list-of-paths> ilyen alakú:
 
 	<number-of-paths>NUL<path1>NUL<path2>NUL...<pathN>NUL
 
-and includes paths (or branch names) affected by the conflict or
-informational message in <conflict-message>.  Also, <conflict-type> is a
-stable string explaining the type of conflict, such as
+és tartalmazza a konfliktus vagy a <conflict-message> tájékoztató üzenet
+által érintett útvonalakat (vagy branchneveket).  Továbbá a <conflict-type>
+egy stabil sztring, amely a konfliktus típusát magyarázza, például:
 
   * "Auto-merging"
   * "CONFLICT (rename/delete)"
   * "CONFLICT (submodule lacks merge base)"
   * "CONFLICT (binary)"
 
-and <conflict-message> is a more detailed message about the conflict which often
-(but not always) embeds the <stable-short-type-description> within it.  These
-strings may change in future Git versions.  Some examples:
+a <conflict-message> pedig egy részletesebb üzenet a konfliktusról, amely
+gyakran (de nem mindig) beágyazza a <stable-short-type-description>-t.  Ezek
+a sztringek a Git jövőbeli verzióiban változhatnak.  Néhány példa:
 
   * "Auto-merging <file>"
   * "CONFLICT (rename/delete): <oldfile> renamed...but deleted in..."
   * "Failed to merge submodule <submodule> (no merge base)"
   * "Warning: cannot merge binary files: <filename>"
 
-If `-z` is NOT passed:
+Ha a `-z` NINCS megadva:
 
-This section starts with a blank line to separate it from the previous
-sections, and then only contains the <conflict-message> information
-from the previous section (separated by newlines).  These are
-non-stable strings that should not be parsed by scripts, and are just
-meant for human consumption.  Also, note that while <conflict-message>
-strings usually do not contain embedded newlines, they sometimes do.
-(However, the free-form messages will never have an embedded NUL
-character).  So, the entire block of information is meant for human
-readers as an agglomeration of all conflict messages.
+Ez a szakasz üres sorral kezdődik, hogy elválassza az előző szakaszoktól,
+majd csak az előző szakasz <conflict-message> információját tartalmazza
+(sortörésekkel elválasztva).  Ezek nem stabil sztringek, amelyeket
+szkriptekkel nem szabad értelmezni, és csak emberi fogyasztásra szánták.
+Vedd figyelembe azt is, hogy bár a <conflict-message> sztringek általában
+nem tartalmaznak beágyazott sortörést, néha mégis.  (A szabad formátumú
+üzenetekben azonban soha nem lesz beágyazott NUL karakter).  Így a teljes
+információblokk emberi olvasóknak szól, az összes konfliktusüzenet
+összevonásaként.
 
 EXIT STATUS
 -----------
 
-For a successful, non-conflicted merge, the exit status is 0.  When the
-merge has conflicts, the exit status is 1.  If the merge is not able to
-complete (or start) due to some kind of error, the exit status is
-something other than 0 or 1 (and the output is unspecified).  When
---stdin is passed, the return status is 0 for both successful and
-conflicted merges, and something other than 0 or 1 if it cannot complete
-all the requested merges.
+Sikeres, konfliktusmentes merge esetén a kilépési állapot 0.  Amikor a
+merge-nek konfliktusai vannak, a kilépési állapot 1.  Ha a merge valamilyen
+hiba miatt nem tud befejeződni (vagy elindulni), a kilépési állapot 0-tól és
+1-től eltérő valami (a kimenet pedig nincs meghatározva).  Amikor a --stdin
+meg van adva, a visszatérési állapot 0 mind a sikeres, mind a konfliktusos
+merge-ek esetén, és 0-tól, 1-től eltérő valami, ha nem tudja befejezni az
+összes kért merge-t.
 
 USAGE NOTES
 -----------
 
-This command is intended as low-level plumbing, similar to
+Ez a parancs alacsonyszintű plumbingnak készült, hasonlóan a
 linkgit:git-hash-object[1], linkgit:git-mktree[1],
 linkgit:git-commit-tree[1], linkgit:git-write-tree[1],
-linkgit:git-update-ref[1], and linkgit:git-mktag[1].  Thus, it can be
-used as a part of a series of steps such as:
+linkgit:git-update-ref[1] és linkgit:git-mktag[1] parancsokhoz.  Így egy
+lépéssorozat részeként használható, például:
 
        vi message.txt
        BRANCH1=refs/heads/test
@@ -239,110 +237,109 @@ used as a part of a series of steps such as:
            -p $BRANCH1 -p $BRANCH2)
        git update-ref $BRANCH1 $NEWCOMMIT
 
-Note that when the exit status is non-zero, `NEWTREE` in this sequence
-will contain a lot more output than just a tree.
+Vedd figyelembe, hogy amikor a kilépési állapot nem nulla, a `NEWTREE` ebben
+a sorozatban sokkal több kimenetet fog tartalmazni, mint pusztán egy fát.
 
-For conflicts, the output includes the same information that you'd get
-with linkgit:git-merge[1]:
+Konfliktusok esetén a kimenet ugyanazt az információt tartalmazza, amit a
+linkgit:git-merge[1] adna:
 
-  * what would be written to the working tree (the
-    <<OIDTLT,OID of toplevel tree>>)
-  * the higher order stages that would be written to the index (the
-    <<CFI,Conflicted file info>>)
-  * any messages that would have been printed to stdout (the
-    <<IM,Informational messages>>)
+  * ami a working tree-be lenne írva (a
+    <<OIDTLT,legfelső szintű fa OID-ja>>)
+  * a magasabb rendű stage-ek, amelyek az indexbe lennének írva (a
+    <<CFI,konfliktusos fájlinformáció>>)
+  * bármely üzenet, amely a stdoutra lett volna kiírva (a
+    <<IM,tájékoztató üzenetek>>)
 
 [[INPUT]]
 INPUT FORMAT
 ------------
-'git merge-tree --stdin' input format is fully text based. Each line
-has this format:
+A 'git merge-tree --stdin' bemeneti formátuma teljesen szöveges alapú. Minden
+sor ilyen formátumú:
 
 	[<base-commit> -- ]<branch1> <branch2>
 
-If one line is separated by `--`, the string before the separator is
-used for specifying a merge-base for the merge and the string after
-the separator describes the branches to be merged.
+Ha egy sort `--` választ el, az elválasztó előtti sztring a merge
+merge-alapjának megadására szolgál, az elválasztó utáni sztring pedig a
+merge-elendő brancheket írja le.
 
 MISTAKES TO AVOID
 -----------------
 
-Do NOT look through the resulting toplevel tree to try to find which
-files conflict; parse the <<CFI,Conflicted file info>> section instead.
-Not only would parsing an entire tree be horrendously slow in large
-repositories, there are numerous types of conflicts not representable by
-conflict markers (modify/delete, mode conflict, binary file changed on
-both sides, file/directory conflicts, various rename conflict
-permutations, etc.)
+NE a keletkező legfelső szintű fát nézd át, hogy megpróbáld megtalálni,
+mely fájlok ütköznek; helyette elemezd a <<CFI,konfliktusos fájlinformáció>>
+szakaszt. Nemcsak hogy egy egész fa elemzése iszonyatosan lassú lenne nagy
+repositorykban, de számos konfliktustípus nem ábrázolható
+konfliktusjelölőkkel (módosítás/törlés, módkonfliktus, mindkét oldalon
+megváltozott bináris fájl, fájl-/könyvtárkonfliktusok, különféle
+átnevezés-konfliktus-permutációk stb.)
 
-Do NOT interpret an empty <<CFI,Conflicted file info>> list as a clean
-merge; check the exit status.  A merge can have conflicts without having
-individual files conflict (there are a few types of directory rename
-conflicts that fall into this category, and others might also be added
-in the future).
+NE értelmezz egy üres <<CFI,konfliktusos fájlinformáció>> listát tiszta
+merge-ként; ellenőrizd a kilépési állapotot.  Egy merge-nek lehetnek
+konfliktusai anélkül, hogy egyes fájlok ütköznének (van néhány
+könyvtárátnevezés-konfliktus-típus, amely ebbe a kategóriába esik, és a
+jövőben másokat is hozzáadhatnak).
 
-Do NOT attempt to guess or make the user guess the conflict types from
-the <<CFI,Conflicted file info>> list.  The information there is
-insufficient to do so.  For example: Rename/rename(1to2) conflicts (both
-sides renamed the same file differently) will result in three different
-files having higher order stages (but each only has one higher order
-stage), with no way (short of the <<IM,Informational messages>> section)
-to determine which three files are related.  File/directory conflicts
-also result in a file with exactly one higher order stage.
-Possibly-involved-in-directory-rename conflicts (when
-"merge.directoryRenames" is unset or set to "conflicts") also result in
-a file with exactly one higher order stage.  In all cases, the
-<<IM,Informational messages>> section has the necessary info, though it
-is not designed to be machine parseable.
+NE próbáld kitalálni, és ne is a felhasználóval találtasd ki a
+konfliktustípusokat a <<CFI,konfliktusos fájlinformáció>> listából.  Az
+ottani információ ehhez nem elegendő.  Például: a rename/rename(1to2)
+konfliktusok (mindkét oldal másképp nevezte át ugyanazt a fájlt) azt
+eredményezik, hogy három különböző fájlnak lesz magasabb rendű stage-e (de
+mindegyiknek csak egy magasabb rendű stage-e), és nincs mód (a
+<<IM,tájékoztató üzenetek>> szakaszon kívül) annak megállapítására, mely
+három fájl kapcsolódik egymáshoz.  A fájl-/könyvtárkonfliktusok szintén
+pontosan egy magasabb rendű stage-gel rendelkező fájlt eredményeznek.  A
+könyvtárátnevezésben esetleg érintett konfliktusok (amikor a
+"merge.directoryRenames" nincs beállítva, vagy "conflicts"-ra van állítva)
+szintén pontosan egy magasabb rendű stage-gel rendelkező fájlt
+eredményeznek.  Minden esetben a <<IM,tájékoztató üzenetek>> szakaszban
+megvan a szükséges információ, bár nem gép általi elemzésre tervezték.
 
-Do NOT assume that each path from <<CFI,Conflicted file info>>, and
-the logical conflicts in the <<IM,Informational messages>> have a
-one-to-one mapping, nor that there is a one-to-many mapping, nor a
-many-to-one mapping.  Many-to-many mappings exist, meaning that each
-path can have many logical conflict types in a single merge, and each
-logical conflict type can affect many paths.
+NE feltételezd, hogy a <<CFI,konfliktusos fájlinformáció>> minden útvonala
+és a <<IM,tájékoztató üzenetek>> logikai konfliktusai között egy-az-egyhez
+leképezés van, sem azt, hogy egy-a-többhöz leképezés, sem azt, hogy
+több-az-egyhez leképezés.  Léteznek több-a-többhöz leképezések, ami azt
+jelenti, hogy minden útvonalnak sok logikai konfliktustípusa lehet egyetlen
+merge-ben, és minden logikai konfliktustípus sok útvonalat érinthet.
 
-Do NOT assume all filenames listed in the <<IM,Informational messages>>
-section had conflicts.  Messages can be included for files that have no
-conflicts, such as "Auto-merging <file>".
+NE feltételezd, hogy a <<IM,tájékoztató üzenetek>> szakaszban felsorolt
+összes fájlnévnek voltak konfliktusai.  Az üzenetek olyan fájlokhoz is
+megjelenhetnek, amelyeknek nincs konfliktusuk, például "Auto-merging <file>".
 
-AVOID taking the OIDS from the <<CFI,Conflicted file info>> and
-re-merging them to present the conflicts to the user.  This will lose
-information.  Instead, look up the version of the file found within the
-<<OIDTLT,OID of toplevel tree>> and show that instead.  In particular,
-the latter will have conflict markers annotated with the original
-branch/commit being merged and, if renames were involved, the original
-filename.  While you could include the original branch/commit in the
-conflict marker annotations when re-merging, the original filename is
-not available from the <<CFI,Conflicted file info>> and thus you would
-be losing information that might help the user resolve the conflict.
+KERÜLD, hogy kivedd az OID-kat a <<CFI,konfliktusos fájlinformáció>>-ból, és
+újra merge-eld őket, hogy a konfliktusokat bemutasd a felhasználónak.  Ez
+információt veszít.  Ehelyett keresd meg a fájl <<OIDTLT,legfelső szintű fa
+OID-ja>>-n belül található verzióját, és azt mutasd meg helyette.  Ez utóbbi
+konkrétan olyan konfliktusjelölőket fog tartalmazni, amelyeket a merge-elt
+eredeti branch/commit annotál, és ha átnevezések történtek, az eredeti
+fájlnév.  Bár az újra merge-eléskor beilleszthetnéd az eredeti branch/commit
+adatot a konfliktusjelölő-annotációkba, az eredeti fájlnév nem érhető el a
+<<CFI,konfliktusos fájlinformáció>>-ból, így olyan információt veszítenél,
+amely segíthetné a felhasználót a konfliktus feloldásában.
 
 [[DEPMERGE]]
 DEPRECATED DESCRIPTION
 ----------------------
 
-Per the <<NEWMERGE,DESCRIPTION>> and unlike the rest of this
-documentation, this section describes the deprecated `--trivial-merge`
-mode.
+A <<NEWMERGE,DESCRIPTION>> szerint és a dokumentáció többi részétől
+eltérően ez a szakasz az elavult `--trivial-merge` módot írja le.
 
-Other than the optional `--trivial-merge`, this mode accepts no
-options.
+Az opcionális `--trivial-merge`-en kívül ez a mód nem fogad el opciókat.
 
-This mode reads three tree-ish, and outputs trivial merge results and
-conflicting stages to the standard output in a semi-diff format.
-Since this was designed for higher level scripts to consume and merge
-the results back into the index, it omits entries that match
-<branch1>.  The result of this second form is similar to what
-three-way 'git read-tree -m' does, but instead of storing the results
-in the index, the command outputs the entries to the standard output.
+Ez a mód három tree-ish-t olvas be, és a triviális merge eredményeit és a
+konfliktusos stage-eket egy fél-diff formátumban írja a standard kimenetre.
+Mivel ezt arra tervezték, hogy magasabb szintű szkriptek dolgozzák fel, és
+merge-eljék vissza az eredményeket az indexbe, kihagyja a <branch1>-re
+illeszkedő bejegyzéseket.  Ennek a második alaknak az eredménye hasonló
+ahhoz, amit a háromutas 'git read-tree -m' tesz, de az eredmények indexben
+való tárolása helyett a parancs a bejegyzéseket a standard kimenetre írja.
 
-This form not only has limited applicability (a trivial merge cannot
-handle content merges of individual files, rename detection, proper
-directory/file conflict handling, etc.), the output format is also
-difficult to work with, and it will generally be less performant than
-the first form even on successful merges (especially if working in
-large repositories).
+Ennek az alaknak nemcsak korlátozott az alkalmazhatósága (egy triviális
+merge nem tudja kezelni az egyes fájlok tartalmi merge-ét, az
+átnevezés-észlelést, a megfelelő könyvtár-/fájlkonfliktus-kezelést stb.),
+hanem a kimeneti formátummal is nehéz dolgozni, és általában
+teljesítményben is elmarad az első alaktól még sikeres merge-ek esetén is
+(különösen nagy repositorykban való munka esetén).
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ gitprotocol-capabilities(5)
 
 NAME
 ----
-gitprotocol-capabilities - Protocol v0 and v1 capabilities
+gitprotocol-capabilities - A 0-s és 1-es protokoll képességei
 
 SYNOPSIS
 --------
@@ -13,60 +13,60 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-NOTE: this document describes capabilities for versions 0 and 1 of the pack
-protocol. For version 2, please refer to the linkgit:gitprotocol-v2[5]
-doc.
+NOTE: ez a dokumentum a pack protokoll 0-s és 1-es verziójának képességeit
+írja le. A 2-es verzióhoz lásd a linkgit:gitprotocol-v2[5] dokumentumot.
 
-Servers SHOULD support all capabilities defined in this document.
+A szervereknek SHOULD támogatniuk minden, ebben a dokumentumban definiált
+képességet.
 
-On the very first line of the initial server response of either
-receive-pack and upload-pack the first reference is followed by
-a NUL byte and then a list of space delimited server capabilities.
-These allow the server to declare what it can and cannot support
-to the client.
+A receive-pack vagy az upload-pack kezdeti szerverválaszának legelső sorában
+az első referenciát egy NUL bájt követi, majd a szóközzel elválasztott
+szerverképességek listája. Ezek lehetővé teszik a szervernek, hogy
+kijelentse a kliensnek, mit tud és mit nem tud támogatni.
 
-Client will then send a space separated list of capabilities it wants
-to be in effect. The client MUST NOT ask for capabilities the server
-did not say it supports.
+A kliens ezután elküldi a szóközzel elválasztott listát azokról a
+képességekről, amelyeket érvényben szeretne. A kliens MUST NOT kérjen olyan
+képességeket, amelyekről a szerver nem mondta, hogy támogatja.
 
-Server MUST diagnose and abort if capabilities it does not understand
-were sent.  Server MUST NOT ignore capabilities that client requested
-and server advertised.  As a consequence of these rules, server MUST
-NOT advertise capabilities it does not understand.
+A szervernek MUST diagnosztizálnia és megszakítania, ha olyan képességeket
+küldtek, amelyeket nem ért.  A szerver MUST NOT hagyja figyelmen kívül azokat
+a képességeket, amelyeket a kliens kért, és a szerver hirdetett.  E szabályok
+következményeként a szerver MUST NOT hirdessen olyan képességeket, amelyeket
+nem ért.
 
-The 'atomic', 'report-status', 'report-status-v2', 'delete-refs', 'quiet',
-and 'push-cert' capabilities are sent and recognized by the receive-pack
-(push to server) process.
+Az 'atomic', a 'report-status', a 'report-status-v2', a 'delete-refs', a
+'quiet' és a 'push-cert' képességet a receive-pack (szerverre pusholás)
+folyamat küldi és ismeri fel.
 
-The 'ofs-delta' and 'side-band-64k' capabilities are sent and recognized
-by both upload-pack and receive-pack protocols.  The 'agent' and 'session-id'
-capabilities may optionally be sent in both protocols.
+Az 'ofs-delta' és a 'side-band-64k' képességet mind az upload-pack, mind a
+receive-pack protokoll küldi és felismeri.  Az 'agent' és a 'session-id'
+képesség opcionálisan mindkét protokollban elküldhető.
 
-All other capabilities are only recognized by the upload-pack (fetch
-from server) process.
+Az összes többi képességet csak az upload-pack (szerverről fetchelés)
+folyamat ismeri fel.
 
 multi_ack
 ---------
 
-The 'multi_ack' capability allows the server to return "ACK obj-id
-continue" as soon as it finds a commit that it can use as a common
-base, between the client's wants and the client's have set.
+A 'multi_ack' képesség lehetővé teszi a szervernek, hogy visszaadja az
+"ACK obj-id continue"-t, amint talál egy commitot, amelyet közös alapként
+tud használni a kliens want-jai és a kliens have-halmaza között.
 
-By sending this early, the server can potentially head off the client
-from walking any further down that particular branch of the client's
-repository history.  The client may still need to walk down other
-branches, sending have lines for those, until the server has a
-complete cut across the DAG, or the client has said "done".
+Azzal, hogy ezt korán elküldi, a szerver potenciálisan megakadályozhatja,
+hogy a kliens tovább járja a kliens repository-történetének azt a bizonyos
+branchét.  A kliensnek még mindig szükség lehet más branchek bejárására,
+have sorokat küldve azokhoz, amíg a szervernek nincs teljes metszete a
+DAG-en át, vagy a kliens azt nem mondta, hogy "done".
 
-Without multi_ack, a client sends have lines in --date-order until
-the server has found a common base.  That means the client will send
-have lines that are already known by the server to be common, because
-they overlap in time with another branch on which the server hasn't found
-a common base yet.
+A multi_ack nélkül a kliens --date-order sorrendben küld have sorokat, amíg a
+szerver nem talált közös alapot.  Ez azt jelenti, hogy a kliens olyan have
+sorokat fog küldeni, amelyekről a szerver már tudja, hogy közösek, mert
+időben átfednek egy másik branchcsel, amelyen a szerver még nem talált közös
+alapot.
 
-For example suppose the client has commits in caps that the server
-doesn't and the server has commits in lower case that the client
-doesn't, as in the following diagram:
+Tegyük fel például, hogy a kliensnek vannak nagybetűs commitjai, amelyek a
+szervernek nincsenek, a szervernek pedig vannak kisbetűs commitjai, amelyek a
+kliensnek nincsenek, mint a következő ábrán:
 
        +---- u ---------------------- x
       /              +----- y
@@ -75,322 +75,320 @@ doesn't, as in the following diagram:
        \
 	+--- Q -- R -- S
 
-If the client wants x,y and starts out by saying have F,S, the server
-doesn't know what F,S is.  Eventually the client says "have d" and
-the server sends "ACK d continue" to let the client know to stop
-walking down that line (so don't send c-b-a), but it's not done yet,
-it needs a base for x. The client keeps going with S-R-Q, until a
-gets reached, at which point the server has a clear base and it all
-ends.
+Ha a kliens x,y-t akar, és azzal kezd, hogy have F,S-t mond, a szerver nem
+tudja, mi az F,S.  Végül a kliens azt mondja, hogy "have d", és a szerver
+elküldi az "ACK d continue"-t, hogy tudassa a klienssel, hogy hagyja abba
+annak a vonalnak a bejárását (tehát ne küldjön c-b-a-t), de még nincs kész,
+alapra van szüksége az x-hez. A kliens folytatja az S-R-Q-val, amíg el nem
+éri az a-t, amely ponton a szervernek tiszta alapja van, és az egész véget
+ér.
 
-Without multi_ack the client would have sent that c-b-a chain anyway,
-interleaved with S-R-Q.
+A multi_ack nélkül a kliens amúgy is elküldte volna azt a c-b-a láncot,
+összefésülve az S-R-Q-val.
 
 multi_ack_detailed
 ------------------
-This is an extension of multi_ack that permits the client to better
-understand the server's in-memory state. See linkgit:gitprotocol-pack[5],
-section "Packfile Negotiation" for more information.
+Ez a multi_ack egy kiterjesztése, amely lehetővé teszi a kliensnek, hogy
+jobban megértse a szerver memóriában lévő állapotát. További információért
+lásd a linkgit:gitprotocol-pack[5] "Packfile Negotiation" szakaszát.
 
 no-done
 -------
-This capability should only be used with the smart HTTP protocol. If
-multi_ack_detailed and no-done are both present, then the sender is
-free to immediately send a pack following its first "ACK obj-id ready"
-message.
+Ezt a képességet csak a „smart" HTTP-protokollal szabad használni. Ha a
+multi_ack_detailed és a no-done is jelen van, akkor a küldő szabadon
+elküldhet egy packet közvetlenül az első "ACK obj-id ready" üzenete után.
 
-Without no-done in the smart HTTP protocol, the server session would
-end and the client has to make another trip to send "done" before
-the server can send the pack. no-done removes the last round and
-thus slightly reduces latency.
+A no-done nélkül a „smart" HTTP-protokollban a szerver-munkamenet véget
+érne, és a kliensnek még egy utat kell tennie, hogy elküldje a "done"-t,
+mielőtt a szerver elküldheti a packet. A no-done eltávolítja az utolsó kört,
+és így kissé csökkenti a késleltetést.
 
 thin-pack
 ---------
 
-A thin pack is one with deltas which reference base objects not
-contained within the pack (but are known to exist at the receiving
-end). This can reduce the network traffic significantly, but it
-requires the receiving end to know how to "thicken" these packs by
-adding the missing bases to the pack.
+A thin pack olyan, amelynek deltái olyan alapobjektumokra hivatkoznak,
+amelyeket a pack nem tartalmaz (de ismert, hogy léteznek a fogadó oldalon).
+Ez jelentősen csökkentheti a hálózati forgalmat, de megköveteli, hogy a
+fogadó oldal tudja, hogyan „vastagítsa meg" ezeket a packeket a hiányzó
+alapok packhez adásával.
 
-The upload-pack server advertises 'thin-pack' when it can generate
-and send a thin pack. A client requests the 'thin-pack' capability
-when it understands how to "thicken" it, notifying the server that
-it can receive such a pack. A client MUST NOT request the
-'thin-pack' capability if it cannot turn a thin pack into a
-self-contained pack.
+Az upload-pack szerver a 'thin-pack'-et hirdeti, amikor thin packet tud
+generálni és küldeni. A kliens a 'thin-pack' képességet kéri, amikor érti,
+hogyan „vastagítsa meg", értesítve a szervert, hogy tud ilyen packet
+fogadni. A kliens MUST NOT kérje a 'thin-pack' képességet, ha nem tud egy
+thin packet önálló packké alakítani.
 
-Receive-pack, on the other hand, is assumed by default to be able to
-handle thin packs, but can ask the client not to use the feature by
-advertising the 'no-thin' capability. A client MUST NOT send a thin
-pack if the server advertises the 'no-thin' capability.
+A receive-pack ezzel szemben alapértelmezés szerint úgy tekintendő, hogy
+képes kezelni a thin packeket, de a 'no-thin' képesség hirdetésével
+megkérheti a klienst, hogy ne használja a funkciót. A kliens MUST NOT
+küldjön thin packet, ha a szerver a 'no-thin' képességet hirdeti.
 
-The reasons for this asymmetry are historical. The receive-pack
-program did not exist until after the invention of thin packs, so
-historically the reference implementation of receive-pack always
-understood thin packs. Adding 'no-thin' later allowed receive-pack
-to disable the feature in a backwards-compatible manner.
+Ennek az aszimmetriának az okai történelmiek. A receive-pack program csak a
+thin packek feltalálása után jött létre, így történelmileg a receive-pack
+referencia-implementációja mindig értette a thin packeket. A 'no-thin'
+későbbi hozzáadása lehetővé tette a receive-pack számára, hogy visszafelé
+kompatibilis módon letiltsa a funkciót.
 
 
 side-band, side-band-64k
 ------------------------
 
-This capability means that the server can send, and the client can understand, multiplexed
-progress reports and error info interleaved with the packfile itself.
+Ez a képesség azt jelenti, hogy a szerver küldeni, a kliens pedig érteni
+tudja a magával a packfile-lal összefésült, multiplexelt
+folyamatjelentéseket és hibainformációt.
 
-These two options are mutually exclusive. A modern client always
-favors 'side-band-64k'.
+Ez a két opció kölcsönösen kizárja egymást. Egy modern kliens mindig a
+'side-band-64k'-t részesíti előnyben.
 
-Either mode indicates that the packfile data will be streamed broken
-up into packets of up to either 1000 bytes in the case of 'side_band',
-or 65520 bytes in the case of 'side_band_64k'. Each packet is made up
-of a leading 4-byte pkt-line length of how much data is in the packet,
-followed by a 1-byte stream code, followed by the actual data.
+Mindkét mód azt jelzi, hogy a packfile-adat 'side_band' esetén legfeljebb
+1000 bájtos, 'side_band_64k' esetén pedig 65520 bájtos csomagokra bontva
+streamelődik. Minden csomag egy 4 bájtos, vezető pkt-line hosszból áll,
+amely megadja, mennyi adat van a csomagban, majd egy 1 bájtos folyamkód,
+majd a tényleges adat követi.
 
-The stream code can be one of:
+A folyamkód a következők egyike lehet:
 
- 1 - pack data
- 2 - progress messages
- 3 - fatal error message just before stream aborts
+ 1 - pack adat
+ 2 - folyamat-üzenetek
+ 3 - végzetes hibaüzenet közvetlenül a folyam megszakadása előtt
 
-The "side-band-64k" capability came about as a way for newer clients
-that can handle much larger packets to request packets that are
-actually crammed nearly full, while maintaining backward compatibility
-for the older clients.
+A "side-band-64k" képesség úgy jött létre, mint egy mód arra, hogy az
+újabb, sokkal nagyobb csomagokat kezelni tudó kliensek olyan csomagokat
+kérjenek, amelyek ténylegesen csaknem tele vannak tömve, miközben megőrzik a
+visszafelé kompatibilitást a régebbi klienseknek.
 
-Further, with side-band and its up to 1000-byte messages, it's actually
-999 bytes of payload and 1 byte for the stream code. With side-band-64k,
-same deal, you have up to 65519 bytes of data and 1 byte for the stream
-code.
+Továbbá a side-banddel és annak legfeljebb 1000 bájtos üzeneteivel
+valójában 999 bájt a hasznos teher és 1 bájt a folyamkódé. A
+side-band-64k-val ugyanez a helyzet, legfeljebb 65519 bájt adatod van és 1
+bájt a folyamkódé.
 
-The client MUST send only one of "side-band" and "side-
-band-64k".  The server MUST diagnose it as an error if client requests
-both.
+A kliens MUST csak egyet küldjön a "side-band" és a "side-
+band-64k" közül.  A szervernek MUST hibaként diagnosztizálnia, ha a kliens
+mindkettőt kéri.
 
 ofs-delta
 ---------
 
-The server can send, and the client can understand, PACKv2 with delta referring to
-its base by position in pack rather than by an obj-id.  That is, they can
-send/read OBJ_OFS_DELTA (aka type 6) in a packfile.
+A szerver küldeni, a kliens pedig érteni tudja a PACKv2-t olyan deltával,
+amely a pozíció alapján hivatkozik az alapjára a packben, nem pedig egy
+obj-id alapján.  Azaz tudnak OBJ_OFS_DELTA-t (más néven 6-os típus) küldeni/
+olvasni egy packfile-ban.
 
 agent
 -----
 
-The server may optionally send a capability of the form `agent=X` to
-notify the client that the server is running version `X`. The client may
-optionally return its own agent string by responding with an `agent=Y`
-capability (but it MUST NOT do so if the server did not mention the
-agent capability). The `X` and `Y` strings may contain any printable
-ASCII characters except space (i.e., the byte range 32 < x < 127), and
-are typically of the form "package/version" (e.g., "git/1.8.3.1"). The
-agent strings are purely informative for statistics and debugging
-purposes, and MUST NOT be used to programmatically assume the presence
-or absence of particular features.
+A szerver opcionálisan küldhet egy `agent=X` alakú képességet, hogy
+értesítse a klienst, hogy a szerver az `X` verziót futtatja. A kliens
+opcionálisan visszaadhatja a saját agent-sztringjét egy `agent=Y`
+képességgel válaszolva (de MUST NOT tegye ezt, ha a szerver nem említette az
+agent képességet). Az `X` és `Y` sztring bármilyen nyomtatható ASCII
+karaktert tartalmazhat a szóköz kivételével (azaz a 32 < x < 127 bájt-
+tartomány), és jellemzően "package/version" alakú (pl. "git/1.8.3.1"). Az
+agent-sztringek pusztán tájékoztató jellegűek statisztikai és hibakeresési
+célokra, és MUST NOT használják őket arra, hogy programozottan
+következtessenek bizonyos funkciók jelenlétére vagy hiányára.
 
 object-format
 -------------
 
-This capability, which takes a hash algorithm as an argument, indicates
-that the server supports the given hash algorithms.  It may be sent
-multiple times; if so, the first one given is the one used in the ref
-advertisement.
+Ez a képesség, amely egy hash algoritmust vesz argumentumként, azt jelzi,
+hogy a szerver támogatja a megadott hash algoritmusokat.  Többször is
+elküldhető; ha így van, az elsőként megadottat használja a ref-hirdetésben.
 
-When provided by the client, this indicates that it intends to use the
-given hash algorithm to communicate.  The algorithm provided must be one
-that the server supports.
+Amikor a kliens adja meg, ez azt jelzi, hogy a megadott hash algoritmust
+szándékozik használni a kommunikációhoz.  A megadott algoritmusnak olyannak
+kell lennie, amelyet a szerver támogat.
 
-If this capability is not provided, it is assumed that the only
-supported algorithm is SHA-1.
+Ha ez a képesség nincs megadva, feltételezhető, hogy az egyetlen támogatott
+algoritmus az SHA-1.
 
 symref
 ------
 
-This parameterized capability is used to inform the receiver which symbolic ref
-points to which ref; for example, "symref=HEAD:refs/heads/master" tells the
-receiver that HEAD points to master. This capability can be repeated to
-represent multiple symrefs.
+Ez a paraméterezett képesség arra szolgál, hogy tájékoztassa a fogadót,
+melyik szimbolikus ref melyik refre mutat; például a
+"symref=HEAD:refs/heads/master" azt mondja a fogadónak, hogy a HEAD a
+masterre mutat. Ez a képesség megismételhető több symref ábrázolására.
 
-Servers SHOULD include this capability for the HEAD symref if it is one of the
-refs being sent.
+A szervereknek SHOULD tartalmazniuk ezt a képességet a HEAD symrefhez, ha az
+egyike az elküldött refeknek.
 
-Clients MAY use the parameters from this capability to select the proper initial
-branch when cloning a repository.
+A kliensek MAY használják ennek a képességnek a paramétereit a megfelelő
+kezdeti branch kiválasztására egy repository klónozásakor.
 
 shallow
 -------
 
-This capability adds "deepen", "shallow" and "unshallow" commands to
-the  fetch-pack/upload-pack protocol so clients can request shallow
-clones.
+Ez a képesség "deepen", "shallow" és "unshallow" parancsokat ad a
+fetch-pack/upload-pack protokollhoz, hogy a kliensek shallow klónokat
+kérhessenek.
 
 deepen-since
 ------------
 
-This capability adds "deepen-since" command to fetch-pack/upload-pack
-protocol so the client can request shallow clones that are cut at a
-specific time, instead of depth. Internally it's equivalent of doing
-"rev-list --max-age=<timestamp>" on the server side. "deepen-since"
-cannot be used with "deepen".
+Ez a képesség "deepen-since" parancsot ad a fetch-pack/upload-pack
+protokollhoz, hogy a kliens olyan shallow klónokat kérhessen, amelyek mélység
+helyett egy adott időpontnál vannak elvágva. Belsőleg egyenértékű a szerver
+oldalon a "rev-list --max-age=<timestamp>" futtatásával. A "deepen-since" nem
+használható a "deepen"-nel együtt.
 
 deepen-not
 ----------
 
-This capability adds "deepen-not" command to fetch-pack/upload-pack
-protocol so the client can request shallow clones that are cut at a
-specific revision, instead of depth. Internally it's equivalent of
-doing "rev-list --not <rev>" on the server side. "deepen-not"
-cannot be used with "deepen", but can be used with "deepen-since".
+Ez a képesség "deepen-not" parancsot ad a fetch-pack/upload-pack
+protokollhoz, hogy a kliens olyan shallow klónokat kérhessen, amelyek mélység
+helyett egy adott revíziónál vannak elvágva. Belsőleg egyenértékű a szerver
+oldalon a "rev-list --not <rev>" futtatásával. A "deepen-not" nem használható
+a "deepen"-nel együtt, de használható a "deepen-since"-szel.
 
 deepen-relative
 ---------------
 
-If this capability is requested by the client, the semantics of
-"deepen" command is changed. The "depth" argument is the depth from
-the current shallow boundary, instead of the depth from remote refs.
+Ha a kliens kéri ezt a képességet, a "deepen" parancs szemantikája
+megváltozik. A "depth" argumentum a jelenlegi shallow határtól számított
+mélység, nem pedig a remote refektől számított mélység.
 
 no-progress
 -----------
 
-The client was started with "git clone -q" or something similar, and doesn't
-want that side band 2.  Basically the client just says "I do not
-wish to receive stream 2 on sideband, so do not send it to me, and if
-you did, I will drop it on the floor anyway".  However, the sideband
-channel 3 is still used for error responses.
+A klienst a "git clone -q"-val vagy valami hasonlóval indították, és nem
+akarja azt a 2-es side bandet.  Alapvetően a kliens csak azt mondja: "I do
+not wish to receive stream 2 on sideband, so do not send it to me, and if
+you did, I will drop it on the floor anyway".  A 3-as sideband csatorna
+azonban továbbra is használatos a hibaválaszokhoz.
 
 include-tag
 -----------
 
-The 'include-tag' capability is about sending annotated tags if we are
-sending objects they point to.  If we pack an object to the client, and
-a tag object points exactly at that object, we pack the tag object too.
-In general this allows a client to get all new annotated tags when it
-fetches a branch, in a single network connection.
+Az 'include-tag' képesség az annotált tagek küldéséről szól, ha küldjük az
+objektumokat, amelyekre mutatnak.  Ha becsomagolunk egy objektumot a
+kliensnek, és egy tag objektum pontosan arra az objektumra mutat, a tag
+objektumot is becsomagoljuk. Általában ez lehetővé teszi a kliensnek, hogy
+egyetlen hálózati kapcsolatban minden új annotált taget megkapjon, amikor
+fetchel egy branchet.
 
-Clients MAY always send include-tag, hardcoding it into a request when
-the server advertises this capability. The decision for a client to
-request include-tag only has to do with the client's desires for tag
-data, whether or not a server had advertised objects in the
-refs/tags/* namespace.
+A kliensek MAY mindig elküldhetik az include-tag-et, beégetve azt egy
+kérésbe, amikor a szerver hirdeti ezt a képességet. A kliens azon döntése,
+hogy kérje az include-tag-et, csak a kliensnek a tagadatok iránti vágyával
+függ össze, függetlenül attól, hogy a szerver hirdetett-e objektumokat a
+refs/tags/* névtérben.
 
-Servers MUST pack the tags if their referent is packed and the client
-has requested include-tags.
+A szervereknek MUST becsomagolniuk a tageket, ha a hivatkozottjuk be van
+csomagolva, és a kliens kérte az include-tags-et.
 
-Clients MUST be prepared for the case where a server has ignored
-include-tag and has not actually sent tags in the pack.  In such
-cases the client SHOULD issue a subsequent fetch to acquire the tags
-that include-tag would have otherwise given the client.
+A klienseknek MUST felkészülniük arra az esetre, amikor a szerver figyelmen
+kívül hagyta az include-tag-et, és valójában nem küldött tageket a packben.
+Ilyen esetekben a kliensnek SHOULD egy következő fetchet kell kiadnia, hogy
+megszerezze azokat a tageket, amelyeket az include-tag egyébként adott volna
+a kliensnek.
 
-The server SHOULD send include-tag, if it supports it, regardless
-of whether or not there are tags available.
+A szervernek SHOULD elküldenie az include-tag-et, ha támogatja, függetlenül
+attól, hogy vannak-e elérhető tagek.
 
 report-status
 -------------
 
-The receive-pack process can receive a 'report-status' capability,
-which tells it that the client wants a report of what happened after
-a packfile upload and reference update.  If the pushing client requests
-this capability, after unpacking and updating references the server
-will respond with whether the packfile unpacked successfully and if
-each reference was updated successfully.  If any of those were not
-successful, it will send back an error message.  See linkgit:gitprotocol-pack[5]
-for example messages.
+A receive-pack folyamat kaphat egy 'report-status' képességet, amely
+megmondja neki, hogy a kliens jelentést akar arról, mi történt egy
+packfile-feltöltés és referenciafrissítés után.  Ha a pusholó kliens kéri
+ezt a képességet, a referenciák kicsomagolása és frissítése után a szerver
+azzal válaszol, hogy a packfile sikeresen kicsomagolódott-e, és hogy minden
+referencia sikeresen frissült-e.  Ha ezek közül bármelyik nem volt sikeres,
+hibaüzenetet küld vissza.  Példaüzenetekért lásd linkgit:gitprotocol-pack[5].
 
 report-status-v2
 ----------------
 
-Capability 'report-status-v2' extends capability 'report-status' by
-adding new "option" directives in order to support reference rewritten by
-the "proc-receive" hook.  The "proc-receive" hook may handle a command
-for a pseudo-reference which may create or update a reference with
-different name, new-oid, and old-oid.  While the capability
-'report-status' cannot report for such case.  See linkgit:gitprotocol-pack[5]
-for details.
+A 'report-status-v2' képesség kiterjeszti a 'report-status' képességet új
+"option" direktívák hozzáadásával, hogy támogassa a "proc-receive" hook
+által átírt referenciát.  A "proc-receive" hook kezelhet egy parancsot egy
+pszeudoreferenciához, amely eltérő névvel, new-oiddal és old-oiddal hozhat
+létre vagy frissíthet egy referenciát.  Míg a 'report-status' képesség nem
+tud jelenteni ilyen esetre.  A részletekért lásd linkgit:gitprotocol-pack[5].
 
 delete-refs
 -----------
 
-If the server sends back the 'delete-refs' capability, it means that
-it is capable of accepting a zero-id value as the target
-value of a reference update.  It is not sent back by the client, it
-simply informs the client that it can be sent zero-id values
-to delete references.
+Ha a szerver visszaküldi a 'delete-refs' képességet, az azt jelenti, hogy
+képes egy zero-id értéket elfogadni egy referenciafrissítés célértékeként.
+A kliens nem küldi vissza, egyszerűen tájékoztatja a klienst, hogy
+küldhetők neki zero-id értékek referenciák törlésére.
 
 quiet
 -----
 
-If the receive-pack server advertises the 'quiet' capability, it is
-capable of silencing human-readable progress output which otherwise may
-be shown when processing the received pack. A send-pack client should
-respond with the 'quiet' capability to suppress server-side progress
-reporting if the local progress reporting is also being suppressed
-(e.g., via `push -q`, or if stderr does not go to a tty).
+Ha a receive-pack szerver a 'quiet' képességet hirdeti, képes elnémítani az
+ember által olvasható folyamatjelzést, amely egyébként a fogadott pack
+feldolgozásakor megjelenhet. Egy send-pack kliensnek a 'quiet' képességgel
+kell válaszolnia a szerveroldali folyamatjelzés elnyomására, ha a lokális
+folyamatjelzés is el van nyomva (pl. a `push -q`-val, vagy ha a stderr nem
+egy ttyre megy).
 
 atomic
 ------
 
-If the server sends the 'atomic' capability it is capable of accepting
-atomic pushes. If the pushing client requests this capability, the server
-will update the refs in one atomic transaction. Either all refs are
-updated or none.
+Ha a szerver az 'atomic' képességet küldi, képes atomi pusholásokat
+elfogadni. Ha a pusholó kliens kéri ezt a képességet, a szerver egyetlen
+atomi tranzakcióban frissíti a refeket. Vagy az összes ref frissül, vagy
+egyik sem.
 
 push-options
 ------------
 
-If the server sends the 'push-options' capability it is able to accept
-push options after the update commands have been sent, but before the
-packfile is streamed. If the pushing client requests this capability,
-the server will pass the options to the pre- and post- receive hooks
-that process this push request.
+Ha a szerver a 'push-options' képességet küldi, képes push-opciókat
+elfogadni azután, hogy az update parancsokat elküldték, de mielőtt a
+packfile streamelődik. Ha a pusholó kliens kéri ezt a képességet, a szerver
+átadja az opciókat az ezt a push-kérést feldolgozó pre- és post-receive
+hookoknak.
 
 allow-tip-sha1-in-want
 ----------------------
 
-If the upload-pack server advertises this capability, fetch-pack may
-send "want" lines with object names that exist at the server but are not
-advertised by upload-pack. For historical reasons, the name of this
-capability contains "sha1". Object names are always given using the
-object format negotiated through the 'object-format' capability.
+Ha az upload-pack szerver hirdeti ezt a képességet, a fetch-pack küldhet
+"want" sorokat olyan objektumnevekkel, amelyek léteznek a szerveren, de
+amelyeket az upload-pack nem hirdet. Történelmi okokból ennek a képességnek
+a neve tartalmazza a "sha1"-et. Az objektumneveket mindig az 'object-format'
+képességen keresztül egyeztetett objektumformátummal adják meg.
 
 allow-reachable-sha1-in-want
 ----------------------------
 
-If the upload-pack server advertises this capability, fetch-pack may
-send "want" lines with object names that exist at the server but are not
-advertised by upload-pack. For historical reasons, the name of this
-capability contains "sha1". Object names are always given using the
-object format negotiated through the 'object-format' capability.
+Ha az upload-pack szerver hirdeti ezt a képességet, a fetch-pack küldhet
+"want" sorokat olyan objektumnevekkel, amelyek léteznek a szerveren, de
+amelyeket az upload-pack nem hirdet. Történelmi okokból ennek a képességnek
+a neve tartalmazza a "sha1"-et. Az objektumneveket mindig az 'object-format'
+képességen keresztül egyeztetett objektumformátummal adják meg.
 
 push-cert=<nonce>
 -----------------
 
-The receive-pack server that advertises this capability is willing
-to accept a signed push certificate, and asks the <nonce> to be
-included in the push certificate.  A send-pack client MUST NOT
-send a push-cert packet unless the receive-pack server advertises
-this capability.
+Az a receive-pack szerver, amely hirdeti ezt a képességet, hajlandó
+elfogadni egy aláírt push-tanúsítványt, és kéri, hogy a <nonce> szerepeljen
+a push-tanúsítványban.  Egy send-pack kliens MUST NOT küldjön push-cert
+csomagot, hacsak a receive-pack szerver nem hirdeti ezt a képességet.
 
 filter
 ------
 
-If the upload-pack server advertises the 'filter' capability,
-fetch-pack may send "filter" commands to request a partial clone
-or partial fetch and request that the server omit various objects
-from the packfile.
+Ha az upload-pack szerver a 'filter' képességet hirdeti, a fetch-pack
+küldhet "filter" parancsokat egy partial clone vagy részleges fetch
+kéréséhez, és kérheti, hogy a szerver különféle objektumokat hagyjon ki a
+packfile-ból.
 
 session-id=<session-id>
 -----------------------
 
-The server may advertise a session ID that can be used to identify this process
-across multiple requests. The client may advertise its own session ID back to
-the server as well.
+A szerver hirdethet egy session ID-t, amely ennek a folyamatnak több kérésen
+átívelő azonosítására használható. A kliens szintén visszahirdetheti a saját
+session ID-jét a szervernek.
 
-Session IDs should be unique to a given process. They must fit within a
-packet-line, and must not contain non-printable or whitespace characters. The
-current implementation uses trace2 session IDs (see
-link:technical/api-trace2.html[api-trace2] for details), but this may change
-and users of the session ID should not rely on this fact.
+A session ID-knak egyedinek kell lenniük egy adott folyamathoz. Bele kell
+férniük egy packet-line-ba, és nem tartalmazhatnak nem nyomtatható vagy
+whitespace karaktereket. A jelenlegi implementáció trace2 session ID-ket
+használ (részletekért lásd link:technical/api-trace2.html[api-trace2]), de ez
+változhat, és a session ID használóinak nem szabad erre a tényre
+támaszkodniuk.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

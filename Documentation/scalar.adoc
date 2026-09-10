@@ -3,7 +3,7 @@ scalar(1)
 
 NAME
 ----
-scalar - A tool for managing large Git repositories
+scalar - Eszköz nagy Git repositoryk kezelésére
 
 SYNOPSIS
 --------
@@ -21,344 +21,375 @@ scalar delete <enlistment>
 DESCRIPTION
 -----------
 
-Scalar is a repository management tool that optimizes Git for use in large
-repositories. Scalar improves performance by configuring advanced Git settings,
-maintaining repositories in the background, and helping to reduce data sent
-across the network.
+A Scalar egy repository-kezelő eszköz, amely a Gitet nagy repositorykban való
+használatra optimalizálja. A Scalar úgy javítja a teljesítményt, hogy fejlett
+Git beállításokat konfigurál, a repositorykat a háttérben karbantartja, és
+segít csökkenteni a hálózaton átküldött adatok mennyiségét.
 
-An important Scalar concept is the enlistment: this is the top-level directory
-of the project. It usually contains the subdirectory `src/` which is a Git
-worktree. This encourages the separation between tracked files (inside `src/`)
-and untracked files, such as build artifacts (outside `src/`). When registering
-an existing Git worktree with Scalar whose name is not `src`, the enlistment
-will be identical to the worktree.
+A Scalar egyik fontos fogalma az enlistment: ez a projekt legfelső szintű
+könyvtára. Általában tartalmazza a `src/` alkönyvtárt, amely egy Git
+worktree. Ez ösztönzi a nyomon követett fájlok (a `src/`-en belül) és a
+nyomon nem követett fájlok, például a build artifactok (a `src/`-en kívül)
+elkülönítését. Amikor egy meglévő, `src`-től eltérő nevű Git worktree-t
+regisztrálsz a Scalarral, az enlistment azonos lesz a worktree-vel.
 
-The `scalar` command implements various subcommands, and different options
-depending on the subcommand. With the exception of `clone`, `list` and
-`reconfigure --all`, all subcommands expect to be run in an enlistment.
+A `scalar` parancs különféle alparancsokat valósít meg, és az alparancstól
+függően eltérő opciókat. A `clone`, a `list` és a `reconfigure --all`
+kivételével minden alparancs elvárja, hogy egy enlistmentben fusson.
 
-The following options can be specified _before_ the subcommand:
+A következő opciók az alparancs _előtt_ adhatók meg:
 
 -C <directory>::
-	Before running the subcommand, change the working directory. This
-	option imitates the same option of linkgit:git[1].
+	Az alparancs futtatása előtt megváltoztatja a munkakönyvtárat. Ez az
+	opció a linkgit:git[1] azonos opcióját utánozza.
 
 -c <key>=<value>::
-	For the duration of running the specified subcommand, configure this
-	setting. This option imitates the same option of linkgit:git[1].
+	A megadott alparancs futtatásának idejére beállítja ezt a beállítást.
+	Ez az opció a linkgit:git[1] azonos opcióját utánozza.
 
 COMMANDS
 --------
 
-Clone
-~~~~~
+[[_clone]]
+Klónozás
+~~~~~~~~
 
 clone [<options>] <url> [<enlistment>]::
-	Clones the specified repository, similar to linkgit:git-clone[1]. By
-	default, only commit and tree objects are cloned. Once finished, the
-	worktree is located at `<enlistment>/src`.
+	Klónozza a megadott repositoryt, hasonlóan a linkgit:git-clone[1]-hoz.
+	Alapértelmezés szerint csak commit és tree objektumok klónozódnak. A
+	befejezés után a worktree a `<enlistment>/src` helyen található.
 +
-The sparse-checkout feature is enabled (except when run with `--full-clone`)
-and the only files present are those in the top-level directory. Use
-`git sparse-checkout set` to expand the set of directories you want to see,
-or `git sparse-checkout disable` to expand to all files (see
-linkgit:git-sparse-checkout[1] for more details). You can explore the
-subdirectories outside your sparse-checkout by using `git ls-tree
-HEAD[:<directory>]`.
+A sparse-checkout funkció engedélyezve van (kivéve, ha a `--full-clone`-nal
+fut), és az egyetlen jelen lévő fájlok a legfelső szintű könyvtárban lévők.
+A `git sparse-checkout set` paranccsal bővítheted a látni kívánt könyvtárak
+halmazát, vagy a `git sparse-checkout disable`-lel az összes fájlra bővítheted
+(további részletekért lásd linkgit:git-sparse-checkout[1]). A
+sparse-checkouton kívüli alkönyvtárakat a `git ls-tree HEAD[:<directory>]`
+használatával fedezheted fel.
 
 -b <name>::
 --branch <name>::
-	Instead of checking out the branch pointed to by the cloned
-	repository's HEAD, check out the `<name>` branch instead.
+	Ahelyett, hogy a klónozott repository HEAD-je által mutatott branchet
+	checkoutolná, a `<name>` branchet checkoutolja.
 
 --single-branch::
 --no-single-branch::
-	Clone only the history leading to the tip of a single branch, either
-	specified by the `--branch` option or the primary branch remote's
-	`HEAD` points at.
+	Csak az egyetlen branch csúcsához vezető történetet klónozza, amelyet
+	vagy a `--branch` opció ad meg, vagy amelyre a remote elsődleges
+	branchének `HEAD`-je mutat.
 +
-Further fetches into the resulting repository will only update the
-remote-tracking branch for the branch this option was used for the initial
-cloning. If the HEAD at the remote did not point at any branch when
-`--single-branch` clone was made, no remote-tracking branch is created.
+Az eredményül kapott repositoryba való további fetchek csak annak a
+branchnek a remote-tracking branchét frissítik, amelyhez ezt az opciót a
+kezdeti klónozáshoz használták. Ha a remote-on lévő HEAD nem mutatott
+egyetlen branchre sem, amikor a `--single-branch` klónozás történt, nem jön
+létre remote-tracking branch.
 
 --src::
 --no-src::
-	By default, `scalar clone` places the cloned repository within a
-	`<entlistment>/src` directory. Use `--no-src` to place the cloned
-	repository directly in the `<enlistment>` directory.
+	Alapértelmezés szerint a `scalar clone` a klónozott repositoryt egy
+	`<entlistment>/src` könyvtárba helyezi. A `--no-src` használatával a
+	klónozott repositoryt közvetlenül a `<enlistment>` könyvtárba helyezi.
 
 --tags::
 --no-tags::
-	By default, `scalar clone` will fetch the tag objects advertised by
-	the remote and future `git fetch` commands will do the same. Use
-	`--no-tags` to avoid fetching tags in `scalar clone` and to configure
-	the repository to avoid fetching tags in the future. To fetch tags after
-	cloning with `--no-tags`, run `git fetch --tags`.
+	Alapértelmezés szerint a `scalar clone` letölti a remote által
+	hirdetett tag objektumokat, és a jövőbeli `git fetch` parancsok is ezt
+	teszik. A `--no-tags` használatával elkerülheted a tagek letöltését a
+	`scalar clone`-ban, és úgy konfigurálhatod a repositoryt, hogy a
+	jövőben elkerülje a tagek letöltését. A `--no-tags`-szal való klónozás
+	utáni tagletöltéshez futtasd a `git fetch --tags`-et.
 
 --full-clone::
 --no-full-clone::
-	A sparse-checkout is initialized by default. This behavior can be
-	turned off via `--full-clone`.
+	Alapértelmezés szerint sparse-checkout inicializálódik. Ez a
+	viselkedés a `--full-clone`-nal kikapcsolható.
 
 --maintenance::
 --no-maintenance::
-	By default, `scalar clone` configures the enlistment to use Git's
-	background maintenance feature. Use the `--no-maintenance` to skip
-	this configuration.
+	Alapértelmezés szerint a `scalar clone` úgy konfigurálja az
+	enlistmentet, hogy a Git háttérkarbantartási funkcióját használja. A
+	`--no-maintenance` használatával kihagyhatod ezt a konfigurációt.
 
-List
-~~~~
+[[_list]]
+Listázás
+~~~~~~~~
 
 list::
-	List enlistments that are currently registered by Scalar. This
-	subcommand does not need to be run inside an enlistment.
+	Felsorolja a Scalar által jelenleg regisztrált enlistmenteket. Ezt az
+	alparancsot nem kell enlistmenten belül futtatni.
 
-Register
-~~~~~~~~
+[[_register]]
+Regisztrálás
+~~~~~~~~~~~~
 
 register [<enlistment>]::
-	Adds the enlistment's repository to the list of registered repositories
-	and starts background maintenance. If `<enlistment>` is not provided,
-	then the enlistment associated with the current working directory is
-	registered.
+	Hozzáadja az enlistment repositoryját a regisztrált repositoryk
+	listájához, és elindítja a háttérkarbantartást. Ha a `<enlistment>`
+	nincs megadva, akkor az aktuális munkakönyvtárhoz tartozó enlistment
+	kerül regisztrálásra.
 +
-Note: when this subcommand is called in a worktree that is called `src/`, its
-parent directory is considered to be the Scalar enlistment. If the worktree is
-_not_ called `src/`, it itself will be considered to be the Scalar enlistment.
+Megjegyzés: amikor ezt az alparancsot egy `src/` nevű worktree-ben hívják
+meg, a szülőkönyvtára számít a Scalar enlistmentnek. Ha a worktree _nem_
+`src/` nevű, akkor maga számít a Scalar enlistmentnek.
 
 --maintenance::
 --no-maintenance::
-	By default, `scalar register` configures the enlistment to use Git's
-	background maintenance feature. Use the `--no-maintenance` to skip
-	this configuration. This does not disable any maintenance that may
-	already be enabled in other ways.
+	Alapértelmezés szerint a `scalar register` úgy konfigurálja az
+	enlistmentet, hogy a Git háttérkarbantartási funkcióját használja. A
+	`--no-maintenance` használatával kihagyhatod ezt a konfigurációt. Ez
+	nem tiltja le azt a karbantartást, amely már más módon engedélyezve
+	lehet.
 
-Unregister
-~~~~~~~~~~
+[[_unregister]]
+Kiregisztrálás
+~~~~~~~~~~~~~~
 
 unregister [<enlistment>]::
-	Remove the specified repository from the list of repositories
-	registered with Scalar and stop the scheduled background maintenance.
+	Eltávolítja a megadott repositoryt a Scalarral regisztrált
+	repositoryk listájából, és leállítja az ütemezett
+	háttérkarbantartást.
 
-Run
-~~~
-
-scalar run ( all | config | commit-graph | fetch | loose-objects | pack-files ) [<enlistment>]::
-	Run the given maintenance task (or all tasks, if `all` was specified).
-	Except for `all` and `config`, this subcommand simply hands off to
-	linkgit:git-maintenance[1] (mapping `fetch` to `prefetch` and
-	`pack-files` to `incremental-repack`).
-+
-These tasks are run automatically as part of the scheduled maintenance,
-as soon as the repository is registered with Scalar. It should therefore
-not be necessary to run this subcommand manually.
-+
-The `config` task is specific to Scalar and configures all those
-opinionated default settings that make Git work more efficiently with
-large repositories. As this task is run as part of `scalar clone`
-automatically, explicit invocations of this task are rarely needed.
-
-Reconfigure
-~~~~~~~~~~~
-
-After a Scalar upgrade, or when the configuration of a Scalar enlistment
-was somehow corrupted or changed by mistake, this subcommand allows to
-reconfigure the enlistment.
-
---all::
-	When `--all` is specified, reconfigure all enlistments currently
-	registered with Scalar by the `scalar.repo` config key. Use this
-	option after each upgrade to get the latest features.
-
---maintenance=(enable|disable|keep)::
-	By default, Scalar configures the enlistment to use Git's
-	background maintenance feature; this is the same as using the
-	`enable` value for this option. Use the	`disable` value to
-	remove each considered enlistment from background maintenance.
-	Use `keep' to leave the background maintenance configuration
-	untouched for these repositories.
-
-Diagnose
+[[_run]]
+Futtatás
 ~~~~~~~~
 
-diagnose [<enlistment>]::
-    When reporting issues with Scalar, it is often helpful to provide the
-    information gathered by this command, including logs and certain
-    statistics describing the data shape of the current enlistment.
+scalar run ( all | config | commit-graph | fetch | loose-objects | pack-files ) [<enlistment>]::
+	Lefuttatja a megadott karbantartási feladatot (vagy az összeset, ha az
+	`all` volt megadva). Az `all` és a `config` kivételével ez az
+	alparancs egyszerűen átadja a vezérlést a linkgit:git-maintenance[1]-nek
+	(a `fetch`-et `prefetch`-re, a `pack-files`-t `incremental-repack`-re
+	képezve).
 +
-The output of this command is a `.zip` file that is written into
-a directory adjacent to the worktree in the `src` directory.
+Ezek a feladatok automatikusan lefutnak az ütemezett karbantartás
+részeként, amint a repositoryt regisztrálják a Scalarral. Ezért nem kellene
+szükségesnek lennie ennek az alparancsnak a kézi futtatására.
++
+A `config` feladat Scalar-specifikus, és beállítja mindazokat a határozott
+alapértelmezéseket, amelyektől a Git hatékonyabban működik nagy
+repositorykkal. Mivel ez a feladat a `scalar clone` részeként automatikusan
+lefut, ennek a feladatnak a kifejezett meghívására ritkán van szükség.
 
-Delete
+[[_reconfigure]]
+Újrakonfigurálás
+~~~~~~~~~~~~~~~~
+
+Egy Scalar-frissítés után, vagy amikor egy Scalar enlistment konfigurációja
+valahogy megsérült vagy tévedésből megváltozott, ez az alparancs lehetővé
+teszi az enlistment újrakonfigurálását.
+
+--all::
+	Amikor a `--all` meg van adva, újrakonfigurálja az összes, a Scalarral
+	jelenleg a `scalar.repo` config kulccsal regisztrált enlistmentet.
+	Használd ezt az opciót minden frissítés után a legújabb funkciók
+	eléréséhez.
+
+--maintenance=(enable|disable|keep)::
+	Alapértelmezés szerint a Scalar úgy konfigurálja az enlistmentet, hogy
+	a Git háttérkarbantartási funkcióját használja; ez ugyanaz, mint az
+	`enable` érték használata ehhez az opcióhoz. A `disable` értéket
+	használva minden vizsgált enlistmentet eltávolít a
+	háttérkarbantartásból.
+	A `keep' használatával érintetlenül hagyja e repositoryk
+	háttérkarbantartási konfigurációját.
+
+[[_diagnose]]
+Diagnosztizálás
+~~~~~~~~~~~~~~~
+
+diagnose [<enlistment>]::
+    A Scalarral kapcsolatos problémák jelentésekor gyakran hasznos megadni
+    az ezzel a paranccsal összegyűjtött információt, beleértve a naplókat és
+    bizonyos statisztikákat, amelyek az aktuális enlistment adatalakját
+    írják le.
++
+Ennek a parancsnak a kimenete egy `.zip` fájl, amely a `src` könyvtárban lévő
+worktree melletti könyvtárba íródik.
+
+[[_delete]]
+Törlés
 ~~~~~~
 
 delete <enlistment>::
-	This subcommand lets you delete an existing Scalar enlistment from your
-	local file system, unregistering the repository.
+	Ez az alparancs lehetővé teszi egy meglévő Scalar enlistment törlését a
+	lokális fájlrendszeredből, kiregisztrálva a repositoryt.
 
 RECOMMENDED CONFIG VALUES
 -------------------------
 
-As part of both `scalar clone` and `scalar register`, certain Git config
-values are set to optimize for large repositories or cross-platform support.
-These options are updated in new Git versions according to the best known
-advice for large repositories, and users can get the latest recommendations
-by running `scalar reconfigure [--all]`.
+Mind a `scalar clone`, mind a `scalar register` részeként bizonyos Git config
+értékek beállításra kerülnek a nagy repositorykra vagy a többplatformos
+támogatásra való optimalizálás érdekében. Ezek az opciók az új Git
+verziókban a nagy repositorykra vonatkozó legjobb ismert tanács szerint
+frissülnek, és a felhasználók a `scalar reconfigure [--all]` futtatásával
+megkaphatják a legújabb ajánlásokat.
 
-This section lists justifications for the config values that are set in the
-latest version.
+Ez a szakasz a legújabb verzióban beállított config értékek indoklásait
+sorolja fel.
 
 am.keepCR=true::
-	This setting is important for cross-platform development across Windows
-	and non-Windows platforms and keeping carriage return (`\r`) characters
-	in certain workflows.
+	Ez a beállítás fontos a Windows és nem Windows platformok közötti
+	többplatformos fejlesztéshez, és a kocsivissza (`\r`) karakterek
+	megtartásához bizonyos munkafolyamatokban.
 
 commitGraph.changedPaths=true::
-	This setting helps the background maintenance steps that compute the
-	serialized commit-graph to also store changed-path Bloom filters. This
-	accelerates file history commands and allows users to automatically
-	benefit without running a foreground command.
+	Ez a beállítás segít a szerializált commit-graphot kiszámító
+	háttérkarbantartási lépéseknek abban, hogy megváltozott-útvonalú Bloom
+	szűrőket is tároljanak. Ez felgyorsítja a fájltörténet-parancsokat, és
+	lehetővé teszi, hogy a felhasználók automatikusan hasznot húzzanak
+	belőle előtér-parancs futtatása nélkül.
 
 commitGraph.generationVersion=1::
-	While the preferred version is 2 for performance reasons, existing users
-	that had version 1 by default will need special care in upgrading to
-	version 2. This is likely to change in the future as the upgrade story
-	solidifies.
+	Bár teljesítménybeli okokból a 2-es a preferált verzió, azoknak a
+	meglévő felhasználóknak, akiknek alapértelmezés szerint az 1-es verzió
+	volt, különös figyelemre lesz szükségük a 2-es verzióra való
+	frissítéskor. Ez a jövőben valószínűleg változni fog, ahogy a
+	frissítési folyamat megszilárdul.
 
 core.autoCRLF=false::
-	This removes the transformation of worktree files to add CRLF line
-	endings when only LF line endings exist. This is removed for performance
-	reasons. Repositories that use tools that care about CRLF line endings
-	should commit the necessary files with those line endings instead.
+	Ez eltávolítja a worktree-fájlok azon átalakítását, amely CRLF
+	sorvégeket ad hozzá, amikor csak LF sorvégek léteznek. Ezt
+	teljesítménybeli okokból távolítottuk el. Azoknak a repositoryknak,
+	amelyek CRLF sorvégekkel törődő eszközöket használnak, helyette a
+	szükséges fájlokat azokkal a sorvégekkel kell commitolniuk.
 
 core.logAllRefUpdates=true::
-	This enables the reflog on all branches. While this is a performance
-	cost for large repositories, it is frequently an important data source
-	for users to get out of bad situations or to seek support from experts.
+	Ez engedélyezi a reflogot minden branchen. Bár ez teljesítménybeli
+	költség a nagy repositoryknak, gyakran fontos adatforrás a
+	felhasználóknak ahhoz, hogy kikerüljenek rossz helyzetekből, vagy
+	szakértőktől kérjenek segítséget.
 
 core.safeCRLF=false::
-	Similar to `core.autoCRLF=false`, this disables checks around whether
-	the CRLF conversion is reversible. This is a performance improvement,
-	but can be dangerous if `core.autoCRLF` is reenabled by the user.
+	A `core.autoCRLF=false`-hoz hasonlóan ez letiltja azokat az
+	ellenőrzéseket, amelyek arra vonatkoznak, hogy a CRLF konverzió
+	visszafordítható-e. Ez teljesítménybeli javulás, de veszélyes lehet, ha
+	a felhasználó újra engedélyezi a `core.autoCRLF`-et.
 
 credential.https://dev.azure.com.useHttpPath=true::
-	This setting enables the `credential.useHttpPath` feature only for web
-	URLs for Azure DevOps. This is important for users interacting with that
-	service using multiple organizations and thus multiple credential
-	tokens.
+	Ez a beállítás csak az Azure DevOps webes URL-jeihez engedélyezi a
+	`credential.useHttpPath` funkciót. Ez fontos azoknak a
+	felhasználóknak, akik több szervezettel, így több credential tokennel
+	kommunikálnak azzal a szolgáltatással.
 
 feature.experimental=false::
-	This disables the "experimental" optimizations grouped under this
-	feature config. The expectation is that all valuable optimizations are
-	also set explicitly by Scalar config, and any differences are
-	intentional. Notable differences include several bitmap-related config
-	options which are disabled for client-focused Scalar repos.
+	Ez letiltja az e feature config alá csoportosított „kísérleti"
+	optimalizációkat. Az elvárás az, hogy minden értékes optimalizációt a
+	Scalar config is kifejezetten beállít, és minden eltérés szándékos. A
+	jelentős eltérések közé tartozik több bitmappel kapcsolatos config
+	opció, amelyek a kliensközpontú Scalar repókhoz le vannak tiltva.
 
 feature.manyFiles=false::
-	This disables the "many files" optimizations grouped under this feature
-	config. The expectation is that all valuable optimizations are also set
-	explicitly by Scalar config, and any differences are intentional.
+	Ez letiltja az e feature config alá csoportosított „sok fájl"
+	optimalizációkat. Az elvárás az, hogy minden értékes optimalizációt a
+	Scalar config is kifejezetten beállít, és minden eltérés szándékos.
 
 fetch.showForcedUpdates=false::
-	This disables the check at the end of `git fetch` that notifies the user
-	if the ref update was a forced update (one where the previous position
-	is not reachable from the latest position). This check can be very
-	expensive in large repositories, so is disabled and replaced with an
-	advice message. Set `advice.fetchShowForcedUpdates=false` to disable
-	this advice message.
+	Ez letiltja a `git fetch` végén lévő ellenőrzést, amely értesíti a
+	felhasználót, ha a ref frissítése force-update volt (olyan, ahol a
+	korábbi pozíció nem érhető el a legutóbbi pozícióból). Ez az ellenőrzés
+	nagy repositorykban nagyon költséges lehet, ezért le van tiltva, és egy
+	tanácsüzenettel van helyettesítve. Állítsd be az
+	`advice.fetchShowForcedUpdates=false`-t ennek a tanácsüzenetnek a
+	letiltásához.
 
 fetch.unpackLimit=1::
-	This setting prevents Git from unpacking packfiles into loose objects
-	as they are downloaded from the server. The default limit of 100 was
-	intended as a way to prevent performance issues from too many packfiles,
-	but Scalar uses background maintenance to group packfiles and cover them
-	with a multi-pack-index, removing this issue.
+	Ez a beállítás megakadályozza, hogy a Git a packfile-okat laza
+	objektumokká csomagolja ki, ahogy azok letöltődnek a szerverről. A 100-as
+	alapértelmezett korlát arra szolgált, hogy megelőzze a túl sok
+	packfile-ból eredő teljesítményproblémákat, de a Scalar
+	háttérkarbantartással csoportosítja a packfile-okat, és
+	multi-pack-indexszel fedi le őket, megszüntetve ezt a problémát.
 
 fetch.writeCommitGraph=false::
-	This config setting was created to help users automatically update their
-	commit-graph files as they perform fetches. However, this takes time
-	from foreground fetches and pulls and Scalar uses background maintenance
-	for this function instead.
+	Ezt a config beállítást azért hozták létre, hogy segítsen a
+	felhasználóknak automatikusan frissíteni a commit-graph fájljaikat,
+	miközben fetcheket végeznek. Ez azonban időt vesz el az előtérben
+	végzett fetchektől és pulloktól, és a Scalar helyette
+	háttérkarbantartást használ erre a funkcióra.
 
 gc.auto=0::
-	This disables automatic garbage collection, since Scalar uses background
-	maintenance to keep the repository data in good shape.
+	Ez letiltja az automatikus szemétgyűjtést, mivel a Scalar
+	háttérkarbantartással tartja jó formában a repository adatait.
 
 gui.GCWarning=false::
-	Since Scalar disables garbage collection by setting `gc.auto=0`, the
-	`git-gui` tool may start to warn about this setting. Disable this
-	warning as Scalar's background maintenance configuration makes the
-	warning irrelevant.
+	Mivel a Scalar a `gc.auto=0` beállításával letiltja a szemétgyűjtést, a
+	`git-gui` eszköz elkezdhet figyelmeztetni erre a beállításra. Tiltsd le
+	ezt a figyelmeztetést, mivel a Scalar háttérkarbantartási
+	konfigurációja irrelevánssá teszi a figyelmeztetést.
 
 index.skipHash=true::
-	Disable computing the hash of the index contents as it is being written.
-	This assists with performance, especially for large index files.
+	Letiltja az index tartalmának hashelését írás közben. Ez segíti a
+	teljesítményt, különösen nagy index fájloknál.
 
 index.threads=true::
-	This tells Git to automatically detect how many threads it should use
-	when reading the index due to the default value of `core.preloadIndex`,
-	which enables parallel index reads. This explicit setting also enables
-	`index.recordOffsetTable=true` to speed up parallel index reads.
+	Ez azt mondja a Gitnek, hogy automatikusan észlelje, hány szálat kell
+	használnia az index olvasásakor a `core.preloadIndex` alapértelmezett
+	értéke miatt, amely engedélyezi a párhuzamos indexolvasást. Ez a
+	kifejezett beállítás engedélyezi az `index.recordOffsetTable=true`-t
+	is a párhuzamos indexolvasás felgyorsítására.
 
 index.version=4::
-	This index version adds compression to the path names, reducing the size
-	of the index in a significant way for large repos. This is an important
-	performance boost.
+	Ez az indexverzió tömörítést ad az útvonalnevekhez, jelentősen
+	csökkentve az index méretét a nagy repóknál. Ez fontos
+	teljesítménynövelés.
 
 log.excludeDecoration=refs/prefetch/*::
-	Since Scalar enables background maintenance with the `incremental`
-	strategy, this setting avoids polluting `git log` output with refs
-	stored by the background prefetch operations.
+	Mivel a Scalar az `incremental` stratégiával engedélyezi a
+	háttérkarbantartást, ez a beállítás elkerüli, hogy a `git log` kimenetét
+	a háttérbeli prefetch műveletek által tárolt refek szennyezzék.
 
 merge.renames=true::
-	When computing merges in large repos, it is particularly important to
-	detect renames to maximize the potential for a result that will validate
-	correctly. Users performing merges locally are more likely to be doing
-	so because a server-side merge (via pull request or similar) resulted in
-	conflicts. While this is the default setting, it is set specifically to
-	override a potential change to `diff.renames` which a user may set for
-	performance reasons.
+	Nagy repókban a merge-ek kiszámításakor különösen fontos az átnevezések
+	észlelése, hogy maximalizáljuk egy helyesen validáló eredmény
+	esélyét. Azok a felhasználók, akik lokálisan végeznek merge-eket,
+	valószínűbb, hogy azért teszik, mert egy szerveroldali merge (pull
+	requesten vagy hasonlón keresztül) konfliktusokat eredményezett. Bár ez
+	az alapértelmezett beállítás, kifejezetten azért van beállítva, hogy
+	felülírja a `diff.renames` esetleges változását, amelyet a felhasználó
+	teljesítménybeli okokból állíthat be.
 
 merge.stat=false::
-	This disables a diff output after computing a merge. This improves
-	performance of `git merge` for large repos while reducing noisy output.
+	Ez letiltja a diff kimenetet egy merge kiszámítása után. Ez javítja a
+	`git merge` teljesítményét a nagy repóknál, miközben csökkenti a zajos
+	kimenetet.
 
 pack.useBitmaps=false::
-	This disables the use of `.bitmap` files attached to packfiles. Bitmap
-	files are optimized for server-side use, not client-side use. Scalar
-	disables this to avoid some performance issues that can occur if a user
-	accidentally creates `.bitmap` files.
+	Ez letiltja a packfile-okhoz csatolt `.bitmap` fájlok használatát. A
+	bitmap fájlok szerveroldali használatra vannak optimalizálva, nem
+	kliensoldalira. A Scalar ezt letiltja, hogy elkerüljön néhány
+	teljesítményproblémát, amely akkor fordulhat elő, ha egy felhasználó
+	véletlenül `.bitmap` fájlokat hoz létre.
 
 pack.usePathWalk=true::
-	This enables the `--path-walk` option to `git pack-objects` by default.
-	This can accelerate the computation and compression of packfiles created
-	by `git push` and other repack operations.
+	Ez alapértelmezés szerint engedélyezi a `--path-walk` opciót a
+	`git pack-objects`-hez. Ez felgyorsíthatja a `git push` és más
+	repack-műveletek által létrehozott packfile-ok kiszámítását és
+	tömörítését.
 
 receive.autoGC=false::
-	Similar to `gc.auto`, this setting is disabled in preference of
-	background maintenance.
+	A `gc.auto`-hoz hasonlóan ez a beállítás le van tiltva a
+	háttérkarbantartás javára.
 
 status.aheadBehind=false::
-	This disables the ahead/behind calculation that would normally happen
-	during a `git status` command. This information is frequently ignored by
-	users but can be expensive to calculate in large repos that receive
-	thousands of commits per day. The calculation is replaced with an advice
-	message that can be disabled by disabling the `advice.statusAheadBehind`
-	config.
+	Ez letiltja az ahead/behind számítást, amely normál esetben egy
+	`git status` parancs során történne. Ezt az információt a felhasználók
+	gyakran figyelmen kívül hagyják, de költséges lehet kiszámítani a nagy
+	repókban, amelyek naponta több ezer commitot kapnak. A számítást egy
+	tanácsüzenet helyettesíti, amely az `advice.statusAheadBehind` config
+	letiltásával tiltható le.
 
-The following settings are different based on which platform is in use:
+A következő beállítások a használatban lévő platformtól függően eltérnek:
 
 core.untrackedCache=(true|false)::
-	The untracked cache feature is important for performance benefits on
-	large repositories, but has demonstrated some bugs on Windows
-	filesystems. Thus, this is set for other platforms but disabled on
-	Windows.
+	Az untracked cache funkció fontos a nagy repositoryk
+	teljesítménybeli előnyeihez, de néhány bugot mutatott a Windows
+	fájlrendszereken. Ezért ez más platformokra be van állítva, Windowson
+	viszont le van tiltva.
 
 http.sslBackend=schannel::
-	On Windows, the `openssl` backend has some issues with certain types of
-	remote providers and certificate types. Override the default setting to
-	avoid these common problems.
+	Windowson az `openssl` backendnek van néhány problémája bizonyos típusú
+	remote szolgáltatókkal és tanúsítványtípusokkal. Írd felül az
+	alapértelmezett beállítást ezeknek a gyakori problémáknak az
+	elkerüléséhez.
 
 
 SEE ALSO
@@ -367,4 +398,4 @@ linkgit:git-clone[1], linkgit:git-maintenance[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

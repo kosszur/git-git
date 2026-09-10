@@ -3,7 +3,7 @@ git-ls-files(1)
 
 NAME
 ----
-git-ls-files - Show information about files in the index and the working tree
+git-ls-files - Információ megjelenítése az indexben és a working tree-ben lévő fájlokról
 
 
 SYNOPSIS
@@ -25,315 +25,313 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-This command merges the file listing in the index with the actual working
-directory list, and shows different combinations of the two.
+Ez a parancs összefésüli az indexbeli fájllistát a tényleges
+munkakönyvtár-listával, és a kettő különböző kombinációit mutatja.
 
-Several flags can be used to determine which files are
-shown, and each file may be printed multiple times if there are
-multiple entries in the index or if multiple statuses are applicable for
-the relevant file selection options.
+Több kapcsolóval megadható, mely fájlok jelenjenek meg, és minden fájl
+többször is kiírásra kerülhet, ha több bejegyzés van az indexben, vagy ha a
+vonatkozó fájlkiválasztási opciókra több státusz is alkalmazható.
 
 OPTIONS
 -------
 -c::
 --cached::
-	Show all files cached in Git's index, i.e. all tracked files.
-	(This is the default if no -c/-s/-d/-o/-u/-k/-m/--resolve-undo
-	options are specified.)
+	Megjeleníti a Git indexében gyorsítótárazott összes fájlt, azaz az
+	összes nyomon követett fájlt.
+	(Ez az alapértelmezés, ha nincs -c/-s/-d/-o/-u/-k/-m/--resolve-undo
+	opció megadva.)
 
 -d::
 --deleted::
-	Show files with an unstaged deletion
+	Megjeleníti a stage-elés nélküli törléssel rendelkező fájlokat
 
 -m::
 --modified::
-	Show files with an unstaged modification (note that an unstaged
-	deletion also counts as an unstaged modification)
+	Megjeleníti a stage-elés nélküli módosítással rendelkező fájlokat (a
+	stage-elés nélküli törlés is stage-elés nélküli módosításnak számít)
 
 -o::
 --others::
-	Show other (i.e. untracked) files in the output
+	Megjeleníti az egyéb (azaz nyomon nem követett) fájlokat a kimenetben
 
 -i::
 --ignored::
-	Show only ignored files in the output.  Must be used with
-	either an explicit '-c' or '-o'.  When showing files in the
-	index (i.e. when used with '-c'), print only those files
-	matching an exclude pattern.  When showing "other" files
-	(i.e. when used with '-o'), show only those matched by an
-	exclude pattern.  Standard ignore rules are not automatically
-	activated; therefore, at least one of the `--exclude*` options
-	is required.
+	Csak az ignorált fájlokat jeleníti meg a kimenetben.  Explicit '-c'-vel
+	vagy '-o'-val kell használni.  Az indexben lévő fájlok
+	megjelenítésekor (azaz '-c'-vel használva) csak azokat a fájlokat
+	írja ki, amelyek illeszkednek egy exclude mintára.  Az „egyéb" fájlok
+	megjelenítésekor (azaz '-o'-val használva) csak az exclude mintára
+	illeszkedőket mutatja.  A standard ignore szabályok nem
+	aktiválódnak automatikusan; ezért a `--exclude*` opciók közül
+	legalább egy szükséges.
 
 -s::
 --stage::
-	Show staged contents' mode bits, object name and stage number in the output.
+	Megjeleníti a stage-elt tartalom módbitjeit, objektumnevét és
+	stage-számát a kimenetben.
 
 --directory::
-	If a whole directory is classified as "other", show just its
-	name (with a trailing slash) and not its whole contents.
-	Has no effect without -o/--others.
+	Ha egy egész könyvtár „egyéb"-ként van besorolva, csak a nevét
+	jeleníti meg (záró perjellel), nem a teljes tartalmát.
+	-o/--others nélkül nincs hatása.
 
 --no-empty-directory::
-	Do not list empty directories. Has no effect without --directory.
+	Ne sorolja fel az üres könyvtárakat. --directory nélkül nincs hatása.
 
 -u::
 --unmerged::
-	Show information about unmerged files in the output, but do
-	not show any other tracked files (forces --stage, overrides
-	--cached).
+	Megjeleníti a nem merge-elt fájlokról szóló információt a kimenetben,
+	de nem mutat más nyomon követett fájlt (kikényszeríti a --stage-et,
+	felülírja a --cached-et).
 
 -k::
 --killed::
-	Show untracked files on the filesystem that need to be removed
-	due to file/directory conflicts for tracked files to be able to
-	be written to the filesystem.
+	Megjeleníti a fájlrendszeren azokat a nyomon nem követett fájlokat,
+	amelyeket el kell távolítani a fájl-/könyvtárkonfliktusok miatt
+	ahhoz, hogy a nyomon követett fájlokat a fájlrendszerre lehessen írni.
 
 --resolve-undo::
-	Show files having resolve-undo information in the index
-	together with their resolve-undo information.  (resolve-undo
-	information is what is used to implement "git checkout -m
-	$PATH", i.e. to recreate merge conflicts that were
-	accidentally resolved)
+	Megjeleníti az indexben resolve-undo információval rendelkező
+	fájlokat a resolve-undo információjukkal együtt.  (a resolve-undo
+	információt a "git checkout -m $PATH" megvalósítására használják,
+	azaz a véletlenül feloldott merge konfliktusok újbóli létrehozására)
 
 -z::
-	\0 line termination on output and do not quote filenames.
-	See OUTPUT below for more information.
+	\0 sorlezárás a kimeneten, és a fájlneveket nem idézőjelezi.
+	További információért lásd az OUTPUT szakaszt lentebb.
 
 --deduplicate::
-	When only filenames are shown, suppress duplicates that may
-	come from having multiple stages during a merge, or giving
-	`--deleted` and `--modified` option at the same time.
-	When any of the `-t`, `--unmerged`, or `--stage` option is
-	in use, this option has no effect.
+	Amikor csak fájlnevek jelennek meg, elnyomja azokat a duplikátumokat,
+	amelyek egy merge során meglévő több stage-ből, vagy a `--deleted` és
+	a `--modified` opció egyidejű megadásából származhatnak.
+	Amikor a `-t`, a `--unmerged` vagy a `--stage` opció bármelyike
+	használatban van, ennek az opciónak nincs hatása.
 
 -x <pattern>::
 --exclude=<pattern>::
-	Skip untracked files matching pattern.
-	Note that pattern is a shell wildcard pattern. See EXCLUDE PATTERNS
-	below for more information.
+	Kihagyja a mintára illeszkedő, nyomon nem követett fájlokat.
+	A minta egy shell helyettesítő-karakteres minta. További
+	információért lásd az EXCLUDE PATTERNS szakaszt lentebb.
 
 -X <file>::
 --exclude-from=<file>::
-	Read exclude patterns from <file>; 1 per line.
+	Exclude mintákat olvas a <file>-ból; soronként 1-et.
 
 --exclude-per-directory=<file>::
-	Read additional exclude patterns that apply only to the
-	directory and its subdirectories in <file>.  If you are
-	trying to emulate the way Porcelain commands work, using
-	the `--exclude-standard` option instead is easier and more
-	thorough.
+	További exclude mintákat olvas a <file>-ból, amelyek csak a
+	könyvtárra és alkönyvtáraira vonatkoznak.  Ha a Porcelain parancsok
+	működését próbálod utánozni, egyszerűbb és alaposabb helyette a
+	`--exclude-standard` opciót használni.
 
 --exclude-standard::
-	Add the standard Git exclusions: .git/info/exclude, .gitignore
-	in each directory, and the user's global exclusion file.
+	Hozzáadja a standard Git kizárásokat: .git/info/exclude, .gitignore
+	minden könyvtárban, és a felhasználó globális kizárási fájlja.
 
 --error-unmatch::
-	If any <file> does not appear in the index, treat this as an
-	error (return 1).
+	Ha valamelyik <file> nem szerepel az indexben, ezt hibaként kezeli
+	(1-et ad vissza).
 
 --with-tree=<tree-ish>::
-	When using --error-unmatch to expand the user supplied
-	<file> (i.e. path pattern) arguments to paths, pretend
-	that paths which were removed in the index since the
-	named <tree-ish> are still present.  Using this option
-	with `-s` or `-u` options does not make any sense.
+	Amikor a --error-unmatch-csel a felhasználó által megadott <file>
+	(azaz útvonalminta) argumentumokat útvonalakká bővíti, úgy tesz,
+	mintha a megnevezett <tree-ish> óta az indexből eltávolított
+	útvonalak még jelen lennének.  Ennek az opciónak a `-s` vagy `-u`
+	opcióval való használata értelmetlen.
 
 -t::
-	Show status tags together with filenames.  Note that for
-	scripting purposes, linkgit:git-status[1] `--porcelain` and
-	linkgit:git-diff-files[1] `--name-status` are almost always
-	superior alternatives; users should look at
-	linkgit:git-status[1] `--short` or linkgit:git-diff[1]
-	`--name-status` for more user-friendly alternatives.
+	Megjeleníti a státuszcímkéket a fájlnevekkel együtt.  Szkriptelési
+	célból a linkgit:git-status[1] `--porcelain` és a
+	linkgit:git-diff-files[1] `--name-status` szinte mindig jobb
+	alternatíva; felhasználóbarátabb alternatívákért a felhasználók
+	nézzék meg a linkgit:git-status[1] `--short` vagy a linkgit:git-diff[1]
+	`--name-status` opciót.
 +
 --
-This option provides a reason for showing each filename, in the form
-of a status tag (which is followed by a space and then the filename).
-The status tags are all single characters from the following list:
+Ez az opció indokot ad az egyes fájlnevek megjelenítéséhez, egy
+státuszcímke formájában (amelyet egy szóköz, majd a fájlnév követ).
+A státuszcímkék mind egyetlen karakterek a következő listából:
 
-	H::	tracked file that is not either unmerged or skip-worktree
-	S::	tracked file that is skip-worktree
-	M::	tracked file that is unmerged
-	R::	tracked file with unstaged removal/deletion
-	C::	tracked file with unstaged modification/change
-	K::	untracked paths which are part of file/directory conflicts
-		which prevent checking out tracked files
-	?::	untracked file
-	U::     file with resolve-undo information
+	H::	nyomon követett fájl, amely nem nem-merge-elt és nem skip-worktree
+	S::	nyomon követett fájl, amely skip-worktree
+	M::	nyomon követett fájl, amely nem merge-elt
+	R::	nyomon követett fájl stage-elés nélküli eltávolítással/törléssel
+	C::	nyomon követett fájl stage-elés nélküli módosítással/változással
+	K::	nyomon nem követett útvonalak, amelyek fájl-/könyvtárkonfliktusok
+		részei, és megakadályozzák a nyomon követett fájlok checkoutolását
+	?::	nyomon nem követett fájl
+	U::     resolve-undo információval rendelkező fájl
 --
 
 -v::
-	Similar to `-t`, but use lowercase letters for files
-	that are marked as 'assume unchanged' (see
+	Hasonló a `-t`-hez, de kisbetűket használ azokhoz a fájlokhoz,
+	amelyek 'assume unchanged'-ként vannak megjelölve (lásd
 	linkgit:git-update-index[1]).
 
 -f::
-	Similar to `-t`, but use lowercase letters for files
-	that are marked as 'fsmonitor valid' (see
+	Hasonló a `-t`-hez, de kisbetűket használ azokhoz a fájlokhoz,
+	amelyek 'fsmonitor valid'-ként vannak megjelölve (lásd
 	linkgit:git-update-index[1]).
 
 --full-name::
-	When run from a subdirectory, the command usually
-	outputs paths relative to the current directory.  This
-	option forces paths to be output relative to the project
-	top directory.
+	Alkönyvtárból futtatva a parancs általában az aktuális könyvtárhoz
+	relatív útvonalakat ír ki.  Ez az opció kikényszeríti, hogy az
+	útvonalak a projekt legfelső könyvtárához relatívan íródjanak ki.
 
 --recurse-submodules::
-	Recursively calls ls-files on each active submodule in the repository.
-	Currently there is only support for the --cached and --stage modes.
+	Rekurzívan meghívja az ls-files-t a repository minden aktív
+	submodule-jén.
+	Jelenleg csak a --cached és a --stage módot támogatja.
 
 --abbrev[=<n>]::
-	Instead of showing the full 40-byte hexadecimal object
-	lines, show the shortest prefix that is at least '<n>'
-	hexdigits long that uniquely refers the object.
-	Non default number of digits can be specified with --abbrev=<n>.
+	A teljes 40 bájtos hexadecimális objektumsorok megjelenítése helyett
+	a legrövidebb, legalább '<n>' hexadecimális számjegy hosszú előtagot
+	mutatja, amely egyértelműen az objektumra hivatkozik.
+	Nem alapértelmezett számú számjegy a --abbrev=<n>-nel adható meg.
 
 --debug::
-	After each line that describes a file, add more data about its
-	cache entry.  This is intended to show as much information as
-	possible for manual inspection; the exact format may change at
-	any time.
+	Minden fájlt leíró sor után több adatot ad hozzá a fájl
+	cache-bejegyzéséről.  Ennek célja, hogy kézi vizsgálathoz a lehető
+	legtöbb információt mutassa; a pontos formátum bármikor változhat.
 
 --eol::
-	Show <eolinfo> and <eolattr> of files.
-	<eolinfo> is the file content identification used by Git when
-	the "text" attribute is "auto" (or not set and core.autocrlf is not false).
-	<eolinfo> is either "-text", "none", "lf", "crlf", "mixed" or "".
+	Megjeleníti a fájlok <eolinfo> és <eolattr> értékét.
+	Az <eolinfo> a Git által használt fájltartalom-azonosítás, amikor a
+	"text" attribútum "auto" (vagy nincs beállítva, és a core.autocrlf
+	nem false).
+	Az <eolinfo> értéke "-text", "none", "lf", "crlf", "mixed" vagy "".
 +
-"" means the file is not a regular file, it is not in the index or
-not accessible in the working tree.
+A "" azt jelenti, hogy a fájl nem közönséges fájl, nincs az indexben, vagy
+nem elérhető a working tree-ben.
 +
-<eolattr> is the attribute that is used when checking out or committing,
-it is either "", "-text", "text", "text=auto", "text eol=lf", "text eol=crlf".
-Since Git 2.10 "text=auto eol=lf" and "text=auto eol=crlf" are supported.
+Az <eolattr> az az attribútum, amely checkoutoláskor vagy commitoláskor
+használatos, értéke "", "-text", "text", "text=auto", "text eol=lf",
+"text eol=crlf". A Git 2.10 óta a "text=auto eol=lf" és a "text=auto eol=crlf"
+támogatott.
 +
-Both the <eolinfo> in the index ("i/<eolinfo>")
-and in the working tree ("w/<eolinfo>") are shown for regular files,
-followed by the  ("attr/<eolattr>").
+A közönséges fájloknál mind az indexbeli ("i/<eolinfo>"), mind a working
+tree-beli ("w/<eolinfo>") <eolinfo> megjelenik, amelyet az ("attr/<eolattr>")
+követ.
 
 --sparse::
-	If the index is sparse, show the sparse directories without expanding
-	to the contained files. Sparse directories will be shown with a
-	trailing slash, such as "x/" for a sparse directory "x".
+	Ha az index sparse, a sparse könyvtárakat a bennük lévő fájlokra való
+	kibontás nélkül jeleníti meg. A sparse könyvtárak záró perjellel
+	jelennek meg, például "x/" egy "x" nevű sparse könyvtárhoz.
 
 --format=<format>::
-	A string that interpolates `%(fieldname)` from the result being shown.
-	It also interpolates `%%` to `%`, and `%xXX` where `XX` are hex digits
-	interpolates to character with hex code `XX`; for example `%x00`
-	interpolates to `\0` (NUL), `%x09` to `\t` (TAB) and %x0a to `\n` (LF).
-	--format cannot be combined with `-s`, `-o`, `-k`, `-t`, `--resolve-undo`
-	and `--eol`.
+	Egy sztring, amely a megjelenített eredményből `%(fieldname)`-t
+	interpolál. Interpolálja a `%%`-ot `%`-ra is, a `%xXX`-et pedig, ahol
+	az `XX` hexadecimális számjegy, a `XX` hexkódú karakterre; például a
+	`%x00` `\0`-ra (NUL), a `%x09` `\t`-re (TAB), a %x0a pedig `\n`-re
+	(LF) interpolálódik.
+	A --format nem kombinálható a `-s`, `-o`, `-k`, `-t`, `--resolve-undo`
+	és `--eol` opcióval.
 \--::
-	Do not interpret any more arguments as options.
+	Ne értelmezzen több argumentumot opcióként.
 
 <file>::
-	Files to show. If no files are given all files which match the other
-	specified criteria are shown.
+	Megjelenítendő fájlok. Ha nincs fájl megadva, minden fájl megjelenik,
+	amely illeszkedik a többi megadott feltételre.
 
 OUTPUT
 ------
-'git ls-files' just outputs the filenames unless `--stage` is specified in
-which case it outputs:
+A 'git ls-files' csak a fájlneveket írja ki, hacsak nincs megadva a
+`--stage`, amely esetben ezt írja ki:
 
         [<tag> ]<mode> <object> <stage> <file>
 
-'git ls-files --eol' will show
+A 'git ls-files --eol' ezt mutatja:
 	i/<eolinfo><SPACES>w/<eolinfo><SPACES>attr/<eolattr><SPACE*><TAB><file>
 
-'git ls-files --unmerged' and 'git ls-files --stage' can be used to examine
-detailed information on unmerged paths.
+A 'git ls-files --unmerged' és a 'git ls-files --stage' a nem merge-elt
+útvonalak részletes információinak vizsgálatára használható.
 
-For an unmerged path, instead of recording a single mode/SHA-1 pair,
-the index records up to three such pairs; one from tree O in stage
-1, A in stage 2, and B in stage 3.  This information can be used by
-the user (or the porcelain) to see what should eventually be recorded at the
-path. (see linkgit:git-read-tree[1] for more information on state)
+Egy nem merge-elt útvonalnál egyetlen mód/SHA-1 pár rögzítése helyett az
+index legfeljebb három ilyen párt rögzít; egyet az O fából az 1-es
+stage-ben, az A-t a 2-es stage-ben, a B-t pedig a 3-as stage-ben.  Ezt az
+információt a felhasználó (vagy a porcelain) használhatja annak
+megtekintésére, mit kell végül az útvonalon rögzíteni. (az állapotról
+bővebben lásd linkgit:git-read-tree[1])
 
-Without the `-z` option, pathnames with "unusual" characters are
-quoted as explained for the configuration variable `core.quotePath`
-(see linkgit:git-config[1]).  Using `-z` the filename is output
-verbatim and the line is terminated by a NUL byte.
+A `-z` opció nélkül a "szokatlan" karaktereket tartalmazó útvonalneveket a
+`core.quotePath` konfigurációs változónál leírtak szerint idézőjelezi (lásd
+linkgit:git-config[1]).  A `-z` használatakor a fájlnév szó szerint íródik
+ki, a sort pedig egy NUL bájt zárja le.
 
-It is possible to print in a custom format by using the `--format`
-option, which is able to interpolate different fields using
-a `%(fieldname)` notation. For example, if you only care about the
-"objectname" and "path" fields, you can execute with a specific
-"--format" like
+Lehetséges egyéni formátumban való kiírás a `--format` opcióval, amely
+különböző mezőket képes interpolálni egy `%(fieldname)` jelöléssel. Ha
+például csak az "objectname" és a "path" mező érdekel, egy konkrét
+"--format"-tal futtathatod, például:
 
 	git ls-files --format='%(objectname) %(path)'
 
 FIELD NAMES
 -----------
-The way each path is shown can be customized by using the
-`--format=<format>` option, where the %(fieldname) in the
-<format> string for various aspects of the index entry are
-interpolated.  The following "fieldname" are understood:
+Az egyes útvonalak megjelenítési módja a `--format=<format>` opcióval
+testreszabható, ahol a <format> sztringben lévő %(fieldname) az
+indexbejegyzés különböző aspektusaira interpolálódik.  A következő
+"fieldname"-ek értelmezettek:
 
 objectmode::
-	The mode of the file which is recorded in the index.
+	Az indexben rögzített fájl módja.
 objecttype::
-	The object type of the file which is recorded in the index.
+	Az indexben rögzített fájl objektumtípusa.
 objectname::
-	The name of the file which is recorded in the index.
+	Az indexben rögzített fájl neve.
 objectsize[:padded]::
-	The object size of the file which is recorded in the index
-	("-" if the object is a `commit` or `tree`).
-	It also supports a padded format of size with "%(objectsize:padded)".
+	Az indexben rögzített fájl objektummérete ("-", ha az objektum egy
+	`commit` vagy `tree`).
+	Támogatja a méret kitöltött formátumát is a "%(objectsize:padded)"-del.
 stage::
-	The stage of the file which is recorded in the index.
+	Az indexben rögzített fájl stage-e.
 eolinfo:index::
 eolinfo:worktree::
-	The <eolinfo> (see the description of the `--eol` option) of
-	the contents in the index or in the worktree for the path.
+	Az útvonal indexbeli vagy worktree-beli tartalmának <eolinfo> értéke
+	(lásd a `--eol` opció leírását).
 eolattr::
-	The <eolattr> (see the description of the `--eol` option)
-	that applies to the path.
+	Az útvonalra vonatkozó <eolattr> (lásd a `--eol` opció leírását).
 path::
-	The pathname of the file which is recorded in the index.
+	Az indexben rögzített fájl útvonalneve.
 
 EXCLUDE PATTERNS
 ----------------
 
-'git ls-files' can use a list of "exclude patterns" when
-traversing the directory tree and finding files to show when the
-flags --others or --ignored are specified.  linkgit:gitignore[5]
-specifies the format of exclude patterns.
+A 'git ls-files' „exclude minták" listáját használhatja, amikor bejárja a
+könyvtárfát, és megjelenítendő fájlokat keres, ha a --others vagy a
+--ignored kapcsoló meg van adva.  A linkgit:gitignore[5] adja meg az exclude
+minták formátumát.
 
-These exclude patterns can be specified from the following places,
-in order:
+Ezek az exclude minták a következő helyekről adhatók meg, ebben a sorrendben:
 
-  1. The command-line flag --exclude=<pattern> specifies a
-     single pattern.  Patterns are ordered in the same order
-     they appear in the command line.
+  1. A --exclude=<pattern> parancssori kapcsoló egyetlen mintát ad meg.
+     A minták ugyanabban a sorrendben rendeződnek, ahogy a parancssorban
+     megjelennek.
 
-  2. The command-line flag --exclude-from=<file> specifies a
-     file containing a list of patterns.  Patterns are ordered
-     in the same order they appear in the file.
+  2. A --exclude-from=<file> parancssori kapcsoló egy minták listáját
+     tartalmazó fájlt ad meg.  A minták ugyanabban a sorrendben
+     rendeződnek, ahogy a fájlban megjelennek.
 
-  3. The command-line flag --exclude-per-directory=<name> specifies
-     a name of the file in each directory 'git ls-files'
-     examines, normally `.gitignore`.  Files in deeper
-     directories take precedence.  Patterns are ordered in the
-     same order they appear in the files.
+  3. A --exclude-per-directory=<name> parancssori kapcsoló a 'git ls-files'
+     által vizsgált minden könyvtárban lévő fájl nevét adja meg,
+     rendszerint a `.gitignore`-t.  A mélyebb könyvtárakban lévő fájlok
+     elsőbbséget élveznek.  A minták ugyanabban a sorrendben rendeződnek,
+     ahogy a fájlokban megjelennek.
 
-A pattern specified on the command line with --exclude or read
-from the file specified with --exclude-from is relative to the
-top of the directory tree.  A pattern read from a file specified
-by --exclude-per-directory is relative to the directory that the
-pattern file appears in.
+A --exclude-dal a parancssorban megadott, vagy a --exclude-from-mal megadott
+fájlból beolvasott minta a könyvtárfa tetejéhez relatív.  A
+--exclude-per-directory-vel megadott fájlból beolvasott minta ahhoz a
+könyvtárhoz relatív, amelyben a mintafájl megjelenik.
 
-Generally, you should be able to use `--exclude-standard` when you
-want the exclude rules applied the same way as what Porcelain
-commands do.  To emulate what `--exclude-standard` specifies, you
-can give `--exclude-per-directory=.gitignore`, and then specify:
+Általában használhatod a `--exclude-standard`-ot, amikor azt szeretnéd, hogy
+az exclude szabályok ugyanúgy alkalmazódjanak, mint ahogy a Porcelain
+parancsok teszik.  Ahhoz, hogy utánozd, amit a `--exclude-standard` megad,
+megadhatod a `--exclude-per-directory=.gitignore`-t, majd megadhatod:
 
-  1. The file specified by the `core.excludesfile` configuration
-     variable, if exists, or the `$XDG_CONFIG_HOME/git/ignore` file.
+  1. A `core.excludesfile` konfigurációs változó által megadott fájlt, ha
+     létezik, vagy a `$XDG_CONFIG_HOME/git/ignore` fájlt.
 
-  2. The `$GIT_COMMON_DIR/info/exclude` file.
+  2. A `$GIT_COMMON_DIR/info/exclude` fájlt.
 
-via the `--exclude-from=` option.
+a `--exclude-from=` opción keresztül.
 
 SEE ALSO
 --------
@@ -341,4 +339,4 @@ linkgit:git-read-tree[1], linkgit:gitignore[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

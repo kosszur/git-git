@@ -1,216 +1,216 @@
 `--all`::
 `--no-all`::
-	Fetch all remotes, except for the ones that have the
-	`remote.<name>.skipFetchAll` configuration variable set.
-	This overrides the configuration variable `fetch.all`.
+	Az összes remote-ot fetcheli, azok kivételével, amelyeknél a
+	`remote.<name>.skipFetchAll` konfigurációs változó be van állítva.
+	Ez felülírja a `fetch.all` konfigurációs változót.
 
 `-a`::
 `--append`::
-	Append ref names and object names of fetched refs to the
-	existing contents of `.git/FETCH_HEAD`.  Without this
-	option old data in `.git/FETCH_HEAD` will be overwritten.
+	A fetchelt refek refneveit és objektumneveit hozzáfűzi a
+	`.git/FETCH_HEAD` meglévő tartalmához.  Ez az opció nélkül a
+	`.git/FETCH_HEAD`-ben lévő régi adatok felülíródnak.
 
 `--atomic`::
-	Use an atomic transaction to update local refs. Either all refs are
-	updated, or on error, no refs are updated.
+	Atomi tranzakciót használ a lokális refek frissítésére. Vagy az összes
+	ref frissül, vagy hiba esetén egyetlen ref sem.
 
 `--depth=<depth>`::
-	Limit fetching to the specified number of commits from the tip of
-	each remote branch history. If fetching to a 'shallow' repository
-	created by `git clone` with `--depth=<depth>` option (see
-	linkgit:git-clone[1]), deepen or shorten the history to the specified
-	number of commits. Tags for the deepened commits are not fetched.
+	A fetchelést az egyes remote branchek történetének csúcsától számított
+	megadott számú commitra korlátozza. Ha egy `git clone`-nal a
+	`--depth=<depth>` opcióval létrehozott 'shallow' repositoryba fetchelsz
+	(lásd linkgit:git-clone[1]), mélyíti vagy rövidíti a történetet a
+	megadott számú commitra. A mélyített commitok tagjeit nem fetcheli.
 
 `--deepen=<depth>`::
-	Similar to `--depth`, except it specifies the number of commits
-	from the current shallow boundary instead of from the tip of
-	each remote branch history.
+	Hasonló a `--depth`-hoz, azzal a különbséggel, hogy a commitok számát a
+	jelenlegi shallow határtól adja meg, nem az egyes remote branchek
+	történetének csúcsától.
 
 `--shallow-since=<date>`::
-	Deepen or shorten the history of a shallow repository to
-	include all reachable commits after _<date>_.
+	Mélyíti vagy rövidíti egy shallow repository történetét, hogy magában
+	foglalja az összes _<date>_ utáni elérhető commitot.
 
 `--shallow-exclude=<ref>`::
-	Deepen or shorten the history of a shallow repository to
-	exclude commits reachable from a specified remote branch or tag.
-	This option can be specified multiple times.
+	Mélyíti vagy rövidíti egy shallow repository történetét, hogy kizárja a
+	megadott remote branchből vagy tagből elérhető commitokat.
+	Ez az opció többször is megadható.
 
 `--unshallow`::
-	If the source repository is complete, convert a shallow
-	repository to a complete one, removing all the limitations
-	imposed by shallow repositories.
+	Ha a forrás-repository teljes, egy shallow repositoryt teljessé
+	alakít, eltávolítva a shallow repositoryk minden korlátozását.
 +
-If the source repository is shallow, fetch as much as possible so that
-the current repository has the same history as the source repository.
+Ha a forrás-repository shallow, a lehető legtöbbet fetcheli, hogy az
+aktuális repositorynak ugyanaz legyen a története, mint a
+forrás-repositorynak.
 
 `--update-shallow`::
-	By default when fetching from a shallow repository,
-	`git fetch` refuses refs that require updating
-	`.git/shallow`. This option updates `.git/shallow` and accepts such
-	refs.
+	Alapértelmezés szerint egy shallow repositoryból való fetcheléskor a
+	`git fetch` elutasítja azokat a refeket, amelyek a `.git/shallow`
+	frissítését igénylik. Ez az opció frissíti a `.git/shallow`-t, és
+	elfogadja az ilyen refeket.
 
 `--negotiation-restrict=(<commit>|<glob>)`::
 `--negotiation-tip=(<commit>|<glob>)`::
-	By default, Git will report, to the server, commits reachable
-	from all local refs to find common commits in an attempt to
-	reduce the size of the to-be-received packfile. If specified,
-	Git will only report commits reachable from the given tips.
-	This is useful to speed up fetches when the user knows which
-	local ref is likely to have commits in common with the
-	upstream ref being fetched.
+	Alapértelmezés szerint a Git az összes lokális refből elérhető
+	commitot jelenti a szervernek a közös commitok megtalálásához, hogy
+	megpróbálja csökkenteni a fogadandó packfile méretét. Ha meg van adva,
+	a Git csak a megadott csúcsokból elérhető commitokat jelenti.
+	Ez hasznos a fetchek felgyorsítására, amikor a felhasználó tudja, mely
+	lokális refnek vannak valószínűleg közös commitjai a fetchelt upstream
+	reffel.
 +
-`--negotiation-restrict` is the preferred name for this option;
-`--negotiation-tip` is accepted as a synonym.
+A `--negotiation-restrict` ennek az opciónak a preferált neve;
+a `--negotiation-tip` szinonimaként elfogadott.
 +
-This option may be specified more than once; if so, Git will report
-commits reachable from any of the given commits.
+Ez az opció többször is megadható; ha így van, a Git a megadott commitok
+bármelyikéből elérhető commitokat jelenti.
 +
-The argument to this option may be a glob on ref names, a ref, or the (possibly
-abbreviated) SHA-1 of a commit. Specifying a glob is equivalent to specifying
-this option multiple times, one for each matching ref name.
+Ennek az opciónak az argumentuma lehet egy glob a refneveken, egy ref, vagy
+egy commit (esetleg rövidített) SHA-1-e. Egy glob megadása egyenértékű ennek
+az opciónak a többszöri megadásával, egyszer minden illeszkedő refnévhez.
 +
-See also the `fetch.negotiationAlgorithm` and `push.negotiate`
-configuration variables documented in linkgit:git-config[1], and the
-`--negotiate-only` option below.
+Lásd még a `fetch.negotiationAlgorithm` és a `push.negotiate` konfigurációs
+változókat, amelyek a linkgit:git-config[1] oldalon vannak dokumentálva,
+valamint a lenti `--negotiate-only` opciót.
 
 `--negotiation-include=(<commit>|<glob>)`::
-	Ensure that the commits at the given tips are always sent as "have"
-	lines during fetch negotiation, regardless of what the negotiation
-	algorithm selects.  This is useful to guarantee that common
-	history reachable from specific refs is always considered, even
-	when `--negotiation-restrict` restricts the set of tips or when
-	the negotiation algorithm would otherwise skip them.
+	Biztosítja, hogy a megadott csúcsokon lévő commitok mindig "have"
+	sorokként legyenek elküldve a fetch-egyeztetés során, függetlenül
+	attól, mit választ az egyeztetési algoritmus.  Ez hasznos annak
+	garantálására, hogy a bizonyos refekből elérhető közös történetet
+	mindig figyelembe vegye, még akkor is, amikor a
+	`--negotiation-restrict` korlátozza a csúcsok halmazát, vagy amikor az
+	egyeztetési algoritmus egyébként kihagyná őket.
 +
-This option may be specified more than once; if so, each commit is sent
-unconditionally.
+Ez az opció többször is megadható; ha így van, minden commit feltétel nélkül
+elküldésre kerül.
 +
-The argument may be an exact ref name (e.g. `refs/heads/release`), an
-object hash, or a glob pattern (e.g. `refs/heads/release/{asterisk}`).
-The pattern syntax is the same as for `--negotiation-restrict`.
+Az argumentum lehet egy pontos refnév (pl. `refs/heads/release`), egy
+objektum-hash, vagy egy glob minta (pl. `refs/heads/release/{asterisk}`).
+A minta szintaxisa ugyanaz, mint a `--negotiation-restrict`-nél.
 +
-If `--negotiation-restrict` is used, the have set is first restricted by
-that option and then increased to include the tips specified by
-`--negotiation-include`.
+Ha a `--negotiation-restrict` használatban van, a have-halmazt először az az
+opció korlátozza, majd bővíti a `--negotiation-include` által megadott
+csúcsokkal.
 +
-If this option is not specified on the command line, then any
-`remote.<name>.negotiationInclude` config values for the current remote
-are used instead.
+Ha ez az opció nincs megadva a parancssorban, akkor az aktuális remote
+`remote.<name>.negotiationInclude` config értékei kerülnek használatba
+helyette.
 
 `--negotiate-only`::
-	Do not fetch anything from the server, and instead print the
-	ancestors of the provided `--negotiation-restrict=` arguments,
-	which we have in common with the server.
+	Ne fetcheljen semmit a szerverről, ehelyett írja ki a megadott
+	`--negotiation-restrict=` argumentumok azon őseit, amelyek közösek a
+	szerverrel.
 +
-This is incompatible with `--recurse-submodules=(yes|on-demand)`.
-Internally this is used to implement the `push.negotiate` option, see
+Ez nem kompatibilis a `--recurse-submodules=(yes|on-demand)`-del.
+Belsőleg ez a `push.negotiate` opció megvalósítására szolgál, lásd
 linkgit:git-config[1].
 
 `--dry-run`::
-	Show what would be done, without making any changes.
+	Megmutatja, mit tenne, változtatások nélkül.
 
 `--porcelain`::
-	Print the output to standard output in an easy-to-parse format for
-	scripts. See section OUTPUT in linkgit:git-fetch[1] for details.
+	A kimenetet a standard kimenetre írja, szkriptek számára könnyen
+	elemezhető formátumban. A részletekért lásd az OUTPUT szakaszt a
+	linkgit:git-fetch[1] oldalon.
 +
-This is incompatible with `--recurse-submodules=(yes|on-demand)` and takes
-precedence over the `fetch.output` config option.
+Ez nem kompatibilis a `--recurse-submodules=(yes|on-demand)`-del, és
+elsőbbséget élvez a `fetch.output` config opcióval szemben.
 
 `--filter=<filter-spec>`::
-	Use the partial clone feature and request that the server sends
-	a subset of reachable objects according to a given object filter.
-	When using `--filter`, the supplied _<filter-spec>_ is used for
-	the partial fetch.
+	A partial clone funkciót használja, és azt kéri, hogy a szerver az
+	elérhető objektumoknak egy adott objektumszűrő szerinti részhalmazát
+	küldje. A `--filter` használatakor a megadott _<filter-spec>_
+	használatos a részleges fetchhez.
 +
-If `--filter=auto` is used, the filter specification is determined
-automatically by combining the filter specifications advertised by
-the server for the promisor remotes that the client accepts (see
-linkgit:gitprotocol-v2[5] and the `promisor.acceptFromServer`
-configuration option in linkgit:git-config[1]).
+Ha a `--filter=auto` használatban van, a szűrő-specifikáció automatikusan
+meghatározódik úgy, hogy összevonja a szerver által a kliens által
+elfogadott promisor remote-okhoz hirdetett szűrő-specifikációkat (lásd
+linkgit:gitprotocol-v2[5] és a `promisor.acceptFromServer` konfigurációs
+opciót a linkgit:git-config[1] oldalon).
 +
-For details on all other available filter specifications, see the
-`--filter=<filter-spec>` option in linkgit:git-rev-list[1].
+Az összes többi elérhető szűrő-specifikáció részleteiért lásd a
+`--filter=<filter-spec>` opciót a linkgit:git-rev-list[1] oldalon.
 +
-For example, `--filter=blob:none` will filter out all blobs (file
-contents) until needed by Git. Also, `--filter=blob:limit=<size>` will
-filter out all blobs of size at least _<size>_.
+Például a `--filter=blob:none` kiszűr minden blobot (fájltartalmat),
+amíg a Gitnek szüksége nem lesz rá. Továbbá a `--filter=blob:limit=<size>`
+kiszűr minden legalább _<size>_ méretű blobot.
 
 ifndef::git-pull[]
 `--write-fetch-head`::
 `--no-write-fetch-head`::
-	Write the list of remote refs fetched in the `FETCH_HEAD`
-	file directly under `$GIT_DIR`.  This is the default.
-	Passing `--no-write-fetch-head` from the command line tells
-	Git not to write the file.  Under `--dry-run` option, the
-	file is never written.
+	A fetchelt remote refek listáját a `$GIT_DIR` alatt közvetlenül lévő
+	`FETCH_HEAD` fájlba írja.  Ez az alapértelmezés.
+	A `--no-write-fetch-head` parancssorból való átadása azt mondja a
+	Gitnek, hogy ne írja a fájlt.  A `--dry-run` opció mellett a fájl soha
+	nem íródik.
 endif::git-pull[]
 
 `-f`::
 `--force`::
 ifdef::git-pull[]
-When `git fetch` is used with `<src>:<dst>` refspec, it may
-refuse to update the local branch as discussed
-in the _<refspec>_ part of the linkgit:git-fetch[1]
-documentation.
+Amikor a `git fetch`-et `<src>:<dst>` refspeckel használják, elutasíthatja a
+lokális branch frissítését, ahogy azt a linkgit:git-fetch[1] dokumentáció
+_<refspec>_ része tárgyalja.
 endif::git-pull[]
 ifndef::git-pull[]
-When `git fetch` is used with `<src>:<dst>` refspec, it may
-refuse to update the local branch as discussed in the _<refspec>_ part below.
+Amikor a `git fetch`-et `<src>:<dst>` refspeckel használják, elutasíthatja a
+lokális branch frissítését, ahogy azt a lenti _<refspec>_ rész tárgyalja.
 endif::git-pull[]
-This option overrides that check.
+Ez az opció felülírja ezt az ellenőrzést.
 
 `-k`::
 `--keep`::
-	Keep downloaded pack.
+	Megtartja a letöltött packet.
 
 ifndef::git-pull[]
 `--multiple`::
-	Allow several _<repository>_ and _<group>_ arguments to be
-	specified. No __<refspec>__s may be specified.
+	Lehetővé teszi több _<repository>_ és _<group>_ argumentum megadását.
+	Nem adható meg __<refspec>__.
 
 `--auto-maintenance`::
 `--no-auto-maintenance`::
 `--auto-gc`::
 `--no-auto-gc`::
-	Run `git maintenance run --auto` at the end to perform automatic
-	repository maintenance if needed.
-	This is enabled by default.
+	A végén lefuttatja a `git maintenance run --auto`-t, hogy szükség
+	esetén automatikus repository-karbantartást végezzen.
+	Ez alapértelmezés szerint engedélyezett.
 
 `--write-commit-graph`::
 `--no-write-commit-graph`::
-	Write a commit-graph after fetching. This overrides the config
-	setting `fetch.writeCommitGraph`.
+	Fetchelés után commit-graphot ír. Ez felülírja a `fetch.writeCommitGraph`
+	config beállítást.
 endif::git-pull[]
 
 `--prefetch`::
-	Modify the configured refspec to place all refs into the
-	`refs/prefetch/` namespace. See the `prefetch` task in
-	linkgit:git-maintenance[1].
+	Módosítja a konfigurált refspecet, hogy minden refet a
+	`refs/prefetch/` névtérbe helyezzen. Lásd a `prefetch` feladatot a
+	linkgit:git-maintenance[1] oldalon.
 
 `-p`::
 `--prune`::
-	Before fetching, remove any remote-tracking references that no
-	longer exist on the remote.  Tags are not subject to pruning
-	if they are fetched only because of the default tag
-	auto-following or due to a `--tags` option.  However, if tags
-	are fetched due to an explicit refspec (either on the command
-	line or in the remote configuration, for example if the remote
-	was cloned with the `--mirror` option), then they are also
-	subject to pruning. Supplying `--prune-tags` is a shorthand for
-	providing the tag refspec.
+	Fetchelés előtt eltávolítja azokat a remote-tracking referenciákat,
+	amelyek már nem léteznek a remote-on.  A tagek nem esnek kigyomlálás
+	alá, ha csak az alapértelmezett tag-automatikuskövetés miatt vagy egy
+	`--tags` opció miatt fetchelődnek.  Ha azonban a tagek egy explicit
+	refspec miatt fetchelődnek (akár a parancssorban, akár a remote
+	konfigurációjában, például ha a remote-ot a `--mirror` opcióval
+	klónozták), akkor ők is kigyomlálás alá esnek. A `--prune-tags`
+	megadása rövidítés a tag-refspec megadására.
 ifndef::git-pull[]
 +
-See the PRUNING section below for more details.
+További részletekért lásd a lenti PRUNING szakaszt.
 
 `-P`::
 `--prune-tags`::
-	Before fetching, remove any local tags that no longer exist on
-	the remote if `--prune` is enabled. This option should be used
-	more carefully, unlike `--prune` it will remove any local
-	references (local tags) that have been created. This option is
-	a shorthand for providing the explicit tag refspec along with
-	`--prune`, see the discussion about that in its documentation.
+	Fetchelés előtt eltávolítja azokat a lokális tageket, amelyek már nem
+	léteznek a remote-on, ha a `--prune` engedélyezve van. Ezt az opciót
+	óvatosabban kell használni, a `--prune`-nal ellentétben eltávolít
+	minden létrehozott lokális referenciát (lokális taget). Ez az opció
+	rövidítés az explicit tag-refspec `--prune`-nal együtti megadására,
+	lásd az erről szóló tárgyalást a dokumentációjában.
 +
-See the PRUNING section below for more details.
+További részletekért lásd a lenti PRUNING szakaszt.
 
 endif::git-pull[]
 
@@ -218,168 +218,172 @@ ifndef::git-pull[]
 `-n`::
 endif::git-pull[]
 `--no-tags`::
-	By default, tags that point at objects that are downloaded
-	from the remote repository are fetched and stored locally.
-	This option disables this automatic tag following. The default
-	behavior for a remote may be specified with the `remote.<name>.tagOpt`
-	setting. See linkgit:git-config[1].
+	Alapértelmezés szerint azok a tagek, amelyek a remote repositoryból
+	letöltött objektumokra mutatnak, fetchelődnek és lokálisan
+	tárolódnak. Ez az opció letiltja ezt az automatikus tagkövetést. Egy
+	remote alapértelmezett viselkedése a `remote.<name>.tagOpt`
+	beállítással adható meg. Lásd linkgit:git-config[1].
 
 ifndef::git-pull[]
 `--refetch`::
-	Instead of negotiating with the server to avoid transferring commits and
-	associated objects that are already present locally, this option fetches
-	all objects as a fresh clone would. Use this to reapply a partial clone
-	filter from configuration or using `--filter=` when the filter
-	definition has changed. Automatic post-fetch maintenance will perform
-	object database pack consolidation to remove any duplicate objects.
+	Ahelyett, hogy a szerverrel egyeztetne a lokálisan már jelen lévő
+	commitok és a hozzájuk tartozó objektumok átvitelének elkerülésére, ez
+	az opció minden objektumot fetchel, ahogy egy friss klón tenné.
+	Használd ezt egy partial clone szűrő ismételt alkalmazására a
+	konfigurációból vagy a `--filter=` használatával, amikor a
+	szűrődefiníció megváltozott. Az automatikus fetch utáni karbantartás
+	objektumadatbázis-pack-konszolidációt végez a duplikált objektumok
+	eltávolítására.
 endif::git-pull[]
 
 `--refmap=<refspec>`::
-	When fetching refs listed on the command line, use the
-	specified refspec (can be given more than once) to map the
-	refs to remote-tracking branches, instead of the values of
-	`remote.<name>.fetch` configuration variables for the remote
-	repository.  Providing an empty _<refspec>_ to the
-	`--refmap` option causes Git to ignore the configured
-	refspecs and rely entirely on the refspecs supplied as
-	command-line arguments. See section on "Configured Remote-tracking
-	Branches" for details.
+	A parancssorban felsorolt refek fetchelésekor a megadott refspecet
+	(többször is megadható) használja a refek remote-tracking branchekre
+	való leképezésére, a remote repository `remote.<name>.fetch`
+	konfigurációs változóinak értékei helyett.  Üres _<refspec>_ megadása a
+	`--refmap` opcióhoz azt eredményezi, hogy a Git figyelmen kívül hagyja
+	a konfigurált refspeceket, és teljes egészében a parancssori
+	argumentumként megadott refspecekre támaszkodik. A részletekért lásd a
+	"Configured Remote-tracking Branches" szakaszt.
 
 `-t`::
 `--tags`::
-	Fetch all tags from the remote (i.e., fetch remote tags
-	`refs/tags/*` into local tags with the same name), in addition
-	to whatever else would otherwise be fetched.  Using this
-	option alone does not subject tags to pruning, even if `--prune`
-	is used (though tags may be pruned anyway if they are also the
-	destination of an explicit refspec; see `--prune`).
+	Az összes taget fetcheli a remote-ról (azaz a `refs/tags/*` remote
+	tageket azonos nevű lokális tagekbe fetcheli), azon kívül, amit
+	egyébként fetchelne.  Ennek az opciónak az önmagában való használata
+	nem teszi ki a tageket kigyomlálásnak, még akkor sem, ha a `--prune`
+	használatban van (bár a tagek amúgy is kigyomlálásra kerülhetnek, ha
+	egyben egy explicit refspec célpontjai is; lásd `--prune`).
 
 ifndef::git-pull[]
 `--recurse-submodules[=(yes|on-demand|no)]`::
-	Control if and under what conditions new commits of
-	submodules should be fetched too. When recursing through submodules,
-	`git fetch` always attempts to fetch "changed" submodules, that is, a
-	submodule that has commits that are referenced by a newly fetched
-	superproject commit but are missing in the local submodule clone. A
-	changed submodule can be fetched as long as it is present locally e.g.
-	in `$GIT_DIR/modules/` (see linkgit:gitsubmodules[7]); if the upstream
-	adds a new submodule, that submodule cannot be fetched until it is
-	cloned e.g. by `git submodule update`.
+	Szabályozza, hogy a submodule-ok új commitjai szintén fetchelődjenek-e,
+	és milyen feltételek mellett. A submodule-okon való rekurzió során a
+	`git fetch` mindig megpróbálja fetchelni a "megváltozott"
+	submodule-okat, azaz azt a submodule-t, amelynek vannak olyan
+	commitjai, amelyekre egy újonnan fetchelt szuperprojekt-commit
+	hivatkozik, de hiányoznak a lokális submodule-klónból. Egy
+	megváltozott submodule addig fetchelhető, amíg lokálisan jelen van,
+	pl. a `$GIT_DIR/modules/`-ban (lásd linkgit:gitsubmodules[7]); ha az
+	upstream új submodule-t ad hozzá, az a submodule nem fetchelhető, amíg
+	nem klónozzák, pl. a `git submodule update`-tel.
 +
-When set to `on-demand`, only changed submodules are fetched. When set
-to `yes`, all populated submodules are fetched and submodules that are
-both unpopulated and changed are fetched. When set to `no`, submodules
-are never fetched.
+`on-demand`-re állítva csak a megváltozott submodule-ok fetchelődnek. `yes`-re
+állítva minden feltöltött submodule fetchelődik, és azok a submodule-ok is,
+amelyek egyszerre feltöltetlenek és megváltozottak. `no`-ra állítva a
+submodule-ok soha nem fetchelődnek.
 +
-When unspecified, this uses the value of `fetch.recurseSubmodules` if it
-is set (see linkgit:git-config[1]), defaulting to `on-demand` if unset.
-When this option is used without any value, it defaults to `yes`.
+Ha nincs megadva, ez a `fetch.recurseSubmodules` értékét használja, ha be van
+állítva (lásd linkgit:git-config[1]), és `on-demand`-re esik vissza, ha
+nincs beállítva. Amikor ezt az opciót érték nélkül használják, `yes`-re esik
+vissza.
 endif::git-pull[]
 
 `-j <n>`::
 `--jobs=<n>`::
-	Parallelize all forms of fetching up to _<n>_ jobs at a time.
+	A fetchelés minden formáját párhuzamosítja, egyszerre legfeljebb _<n>_
+	feladatig.
 +
-A value of 0 will use some reasonable default.
+A 0 érték valamilyen észszerű alapértelmezést fog használni.
 +
-If the `--multiple` option was specified, the different remotes will be fetched
-in parallel. If multiple submodules are fetched, they will be fetched in
-parallel. To control them independently, use the config settings
-`fetch.parallel` and `submodule.fetchJobs` (see linkgit:git-config[1]).
+Ha a `--multiple` opció meg volt adva, a különböző remote-ok párhuzamosan
+fetchelődnek. Ha több submodule fetchelődik, azok párhuzamosan fetchelődnek.
+A független szabályozásukhoz használd a `fetch.parallel` és a
+`submodule.fetchJobs` config beállításokat (lásd linkgit:git-config[1]).
 +
-Typically, parallel recursive and multi-remote fetches will be faster. By
-default fetches are performed sequentially, not in parallel.
+Jellemzően a párhuzamos rekurzív és több-remote-os fetchek gyorsabbak lesznek.
+Alapértelmezés szerint a fetchek szekvenciálisan futnak, nem párhuzamosan.
 
 ifndef::git-pull[]
 `--no-recurse-submodules`::
-	Disable recursive fetching of submodules (this has the same effect as
-	using the `--recurse-submodules=no` option).
+	Letiltja a submodule-ok rekurzív fetchelését (ennek ugyanaz a hatása,
+	mint a `--recurse-submodules=no` opció használatának).
 endif::git-pull[]
 
 `--set-upstream`::
-	If the remote is fetched successfully, add upstream
-	(tracking) reference, used by argument-less
-	linkgit:git-pull[1] and other commands. For more information,
-	see `branch.<name>.merge` and `branch.<name>.remote` in
-	linkgit:git-config[1].
+	Ha a remote sikeresen fetchelődik, hozzáadja az upstream (követési)
+	referenciát, amelyet az argumentum nélküli linkgit:git-pull[1] és más
+	parancsok használnak. További információért lásd a
+	`branch.<name>.merge` és a `branch.<name>.remote` beállítást a
+	linkgit:git-config[1] oldalon.
 
 ifndef::git-pull[]
 `--submodule-prefix=<path>`::
-	Prepend _<path>_ to paths printed in informative messages
-	such as "Fetching submodule foo".  This option is used
-	internally when recursing over submodules.
+	A _<path>_-t az olyan tájékoztató üzenetekben kiírt útvonalak elé
+	teszi, mint a "Fetching submodule foo".  Ezt az opciót belsőleg
+	használják a submodule-okon való rekurzió során.
 
 `--recurse-submodules-default=(yes|on-demand)`::
-	This option is used internally to temporarily provide a
-	non-negative default value for the `--recurse-submodules`
-	option.  All other methods of configuring fetch's submodule
-	recursion (such as settings in linkgit:gitmodules[5] and
-	linkgit:git-config[1]) override this option, as does
-	specifying `--[no-]recurse-submodules` directly.
+	Ezt az opciót belsőleg használják arra, hogy ideiglenesen nem negatív
+	alapértelmezett értéket adjanak a `--recurse-submodules` opciónak.  A
+	fetch submodule-rekurziójának minden más konfigurálási módja (például
+	a linkgit:gitmodules[5] és a linkgit:git-config[1] beállításai)
+	felülírja ezt az opciót, ahogy a `--[no-]recurse-submodules`
+	közvetlen megadása is.
 
 `-u`::
 `--update-head-ok`::
-	By default `git fetch` refuses to update the head which
-	corresponds to the current branch.  This flag disables the
-	check.  This is purely for the internal use for `git pull`
-	to communicate with `git fetch`, and unless you are
-	implementing your own Porcelain you are not supposed to
-	use it.
+	Alapértelmezés szerint a `git fetch` elutasítja az aktuális branchnek
+	megfelelő head frissítését.  Ez a kapcsoló letiltja az ellenőrzést.
+	Ez pusztán a `git pull` belső használatára szolgál, hogy a
+	`git fetch`-csel kommunikáljon, és hacsak nem a saját Porcelainedet
+	valósítod meg, nem szabad használnod.
 endif::git-pull[]
 
 `--upload-pack <upload-pack>`::
-	When given, and the repository to fetch from is handled
-	by `git fetch-pack`, `--exec=<upload-pack>` is passed to
-	the command to specify non-default path for the command
-	run on the other end.
+	Ha meg van adva, és a fetchelendő repositoryt a `git fetch-pack`
+	kezeli, a `--exec=<upload-pack>` átadódik a parancsnak, hogy a
+	túloldalon futó parancshoz nem alapértelmezett útvonalat adjon meg.
 
 ifndef::git-pull[]
 `-q`::
 `--quiet`::
-	Pass `--quiet` to `git-fetch-pack` and silence any other internally
-	used git commands. Progress is not reported to the standard error
-	stream.
+	Átadja a `--quiet`-ot a `git-fetch-pack`-nek, és elnémít minden más
+	belsőleg használt git parancsot. A folyamat nem jelződik a standard
+	hibakimeneten.
 
 `-v`::
 `--verbose`::
-	Be verbose.
+	Legyen bőbeszédű.
 endif::git-pull[]
 
 `--progress`::
-	Progress status is reported on the standard error stream
-	by default when it is attached to a terminal, unless `-q`
-	is specified. This flag forces progress status even if the
-	standard error stream is not directed to a terminal.
+	A folyamat állapota alapértelmezés szerint a standard hibakimeneten
+	jelződik, amikor az terminálhoz kapcsolódik, hacsak a `-q` nincs
+	megadva. Ez a kapcsoló akkor is kikényszeríti a folyamatjelzést, ha a
+	standard hibakimenet nem terminálra irányul.
 
 `-o <option>`::
 `--server-option=<option>`::
-	Transmit the given string to the server when communicating using
-	protocol version 2.  The given string must not contain a _NUL_ or _LF_
-	character.  The server's handling of server options, including
-	unknown ones, is server-specific.
-	When multiple `--server-option=<option>` are given, they are all
-	sent to the other side in the order listed on the command line.
-	When no `--server-option=<option>` is given from the command line,
-	the values of configuration variable `remote.<name>.serverOption`
-	are used instead.
+	A megadott sztringet átküldi a szervernek, amikor a 2-es
+	protokollverzióval kommunikál.  A megadott sztring nem tartalmazhat
+	_NUL_ vagy _LF_ karaktert.  A szerver kezelése a szerveropciókra, az
+	ismeretleneket is beleértve, szerverspecifikus.
+	Amikor több `--server-option=<option>` van megadva, mindegyik
+	elküldésre kerül a túloldalra, a parancssorban felsorolt sorrendben.
+	Amikor egyetlen `--server-option=<option>` sincs megadva a
+	parancssorból, a `remote.<name>.serverOption` konfigurációs változó
+	értékei kerülnek használatba helyette.
 
 `--show-forced-updates`::
-	By default, git checks if a branch is force-updated during
-	fetch. This can be disabled through `fetch.showForcedUpdates`, but
-	the `--show-forced-updates` option guarantees this check occurs.
-	See linkgit:git-config[1].
+	Alapértelmezés szerint a git a fetch során ellenőrzi, hogy egy branchen
+	force-update történt-e. Ez a `fetch.showForcedUpdates`-en keresztül
+	letiltható, de a `--show-forced-updates` opció garantálja, hogy ez az
+	ellenőrzés megtörténik.
+	Lásd linkgit:git-config[1].
 
 `--no-show-forced-updates`::
-	By default, git checks if a branch is force-updated during
-	fetch. Pass `--no-show-forced-updates` or set `fetch.showForcedUpdates`
-	to false to skip this check for performance reasons. If used during
-	`git-pull` the `--ff-only` option will still check for forced updates
-	before attempting a fast-forward update. See linkgit:git-config[1].
+	Alapértelmezés szerint a git a fetch során ellenőrzi, hogy egy branchen
+	force-update történt-e. Add meg a `--no-show-forced-updates`-et, vagy
+	állítsd a `fetch.showForcedUpdates`-et false-ra, hogy teljesítménybeli
+	okokból kihagyd ezt az ellenőrzést. Ha a `git-pull` során használják, a
+	`--ff-only` opció akkor is ellenőrzi a force-update-eket, mielőtt
+	fast-forward frissítést kísérelne meg. Lásd linkgit:git-config[1].
 
 `-4`::
 `--ipv4`::
-	Use IPv4 addresses only, ignoring IPv6 addresses.
+	Csak IPv4 címeket használ, figyelmen kívül hagyva az IPv6 címeket.
 
 `-6`::
 `--ipv6`::
-	Use IPv6 addresses only, ignoring IPv4 addresses.
+	Csak IPv6 címeket használ, figyelmen kívül hagyva az IPv4 címeket.

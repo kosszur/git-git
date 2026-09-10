@@ -1,359 +1,385 @@
-= Upcoming breaking changes
+= Közelgő kompatibilitástörő változások
 
-The Git project aims to ensure backwards compatibility to the best extent
-possible. Minor releases will not break backwards compatibility unless there is
-a very strong reason to do so, like for example a security vulnerability.
+A Git projekt a lehető legjobban törekszik a visszafelé kompatibilitás
+biztosítására. A minor kiadások nem törik meg a visszafelé kompatibilitást,
+hacsak nincs nagyon erős ok rá, mint például egy biztonsági sebezhetőség.
 
-Regardless of that, due to the age of the Git project, it is only natural to
-accumulate a backlog of backwards-incompatible changes that will eventually be
-required to keep the project aligned with a changing world. These changes fall
-into several categories:
+Ettől függetlenül a Git projekt kora miatt csak természetes, hogy
+felhalmozódik a visszafelé nem kompatibilis változások hátraléka, amelyekre
+végül szükség lesz ahhoz, hogy a projekt lépést tartson a változó világgal.
+Ezek a változások több kategóriába esnek:
 
-* Changes to long established defaults.
-* Concepts that have been replaced with a superior design.
-* Concepts, commands, configuration or options that have been lacking in major
-  ways and that cannot be fixed and which will thus be removed without any
-  replacement.
+* Régóta bevett alapértelmezések megváltoztatása.
+* Fogalmak, amelyeket egy jobb kialakítás váltott le.
+* Fogalmak, parancsok, konfiguráció vagy opciók, amelyek jelentős
+  hiányosságokkal bírtak, és nem javíthatók, ezért mindenféle pótlás nélkül
+  eltávolításra kerülnek.
 
-Explicitly not included in this list are fixes to minor bugs that may cause a
-change in user-visible behavior.
+Kifejezetten nem szerepelnek ezen a listán a kisebb hibák javításai,
+amelyek a felhasználó által látható viselkedés megváltozását okozhatják.
 
-The Git project irregularly releases breaking versions that deliberately break
-backwards compatibility with older versions. This is done to ensure that Git
-remains relevant, safe and maintainable going forward. The release cadence of
-breaking versions is typically measured in multiple years. We had the following
-major breaking releases in the past:
+A Git projekt szabálytalan időközönként ad ki olyan kompatibilitástörő
+verziókat, amelyek szándékosan megtörik a visszafelé kompatibilitást a
+régebbi verziókkal. Ez azért történik, hogy a Git a jövőben is releváns,
+biztonságos és karbantartható maradjon. A kompatibilitástörő verziók kiadási
+üteme jellemzően több évben mérhető. A múltban a következő nagyobb
+kompatibilitástörő kiadásaink voltak:
 
-* Git 1.6.0, released in August 2008.
-* Git 2.0, released in May 2014.
+* Git 1.6.0, kiadva 2008 augusztusában.
+* Git 2.0, kiadva 2014 májusában.
 
-We use <major>.<minor> release numbers these days, starting from Git 2.0. For
-future releases, our plan is to increment <major> in the release number when we
-make the next breaking release. Before Git 2.0, the release numbers were
-1.<major>.<minor> with the intention to increment <major> for "usual" breaking
-releases, reserving the jump to Git 2.0 for really large backward-compatibility
-breaking changes.
+Manapság <major>.<minor> kiadási számokat használunk, a Git 2.0-tól kezdve. A
+jövőbeli kiadásoknál az a tervünk, hogy a kiadási szám <major> részét
+növeljük, amikor a következő kompatibilitástörő kiadást készítjük. A Git 2.0
+előtt a kiadási számok 1.<major>.<minor> alakúak voltak, azzal a szándékkal,
+hogy a <major> a „szokásos" kompatibilitástörő kiadásoknál növekedjen, a Git
+2.0-ra való ugrást pedig a valóban nagy, visszafelé kompatibilitást törő
+változásoknak tartsuk fenn.
 
-The intent of this document is to track upcoming deprecations for future
-breaking releases. Furthermore, this document also tracks what will _not_ be
-deprecated. This is done such that the outcome of discussions document both
-when the discussion favors deprecation, but also when it rejects a deprecation.
+Ennek a dokumentumnak a célja a jövőbeli kompatibilitástörő kiadásokhoz
+tartozó közelgő elavulttá nyilvánítások nyomon követése. Továbbá ez a
+dokumentum azt is nyomon követi, mi _nem_ lesz elavulttá nyilvánítva. Ez
+azért van így, hogy a megbeszélések kimenete dokumentálja mind azt, amikor a
+megbeszélés az elavulttá nyilvánítást támogatja, mind azt, amikor elutasítja.
 
-Items should have a clear summary of the reasons why we do or do not want to
-make the described change that can be easily understood without having to read
-the mailing list discussions. If there are alternatives to the changed feature,
-those alternatives should be pointed out to our users.
+A tételekhez tartoznia kell egy világos összefoglalónak arról, miért
+szeretnénk vagy nem szeretnénk elvégezni a leírt változtatást, amely
+könnyen érthető anélkül, hogy el kellene olvasni a levelezőlista-vitákat. Ha
+a megváltoztatott funkciónak vannak alternatívái, ezekre az alternatívákra
+rá kell mutatni a felhasználóinknak.
 
-All items should be accompanied by references to relevant mailing list threads
-where the deprecation was discussed. These references use message-IDs, which
-can visited via
+Minden tételt kísérnie kell a releváns levelezőlista-szálakra való
+hivatkozásoknak, ahol az elavulttá nyilvánítást megvitatták. Ezek a
+hivatkozások message-ID-kat használnak, amelyek a
 
   https://lore.kernel.org/git/$message_id/
 
-to see the message and its surrounding discussion. Such a reference is there to
-make it easier for you to find how the project reached consensus on the
-described item back then.
+címen látogathatók meg az üzenet és a körülötte lévő megbeszélés
+megtekintéséhez. Egy ilyen hivatkozás azért van ott, hogy megkönnyítse
+számodra annak felderítését, hogyan jutott a projekt akkoriban konszenzusra a
+leírt tételről.
 
-This is a living document as the environment surrounding the project changes
-over time. If circumstances change, an earlier decision to deprecate or change
-something may need to be revisited from time to time. So do not take items on
-this list to mean "it is settled, do not waste our time bringing it up again".
+Ez egy élő dokumentum, mivel a projektet körülvevő környezet idővel
+változik. Ha a körülmények megváltoznak, egy korábbi döntést valaminek az
+elavulttá nyilvánításáról vagy megváltoztatásáról időnként újra kell
+gondolni. Ezért ne úgy értelmezd az ezen a listán szereplő tételeket, hogy
+„ez el van döntve, ne pazarold az időnket azzal, hogy újra előhozod".
 
-== Procedure
+[[_procedure]]
+== Eljárás
 
-Discussing the desire to make breaking changes, declaring that breaking
-changes are made at a certain version boundary, and recording these
-decisions in this document, are necessary but not sufficient.
-Because such changes are expected to be numerous, and the design and
-implementation of them are expected to span over time, they have to
-be deployable trivially at such a version boundary, prepared over long
-time.
+A kompatibilitástörő változtatások iránti igény megvitatása, annak
+kijelentése, hogy a kompatibilitástörő változtatások egy bizonyos
+verzióhatárnál történnek meg, és e döntések rögzítése ebben a dokumentumban
+szükséges, de nem elegendő.
+Mivel az ilyen változtatások várhatóan számosak, és a kialakításuk, valamint
+a megvalósításuk várhatóan hosszabb időt fog át, egy ilyen verzióhatárnál
+triviálisan bevethetőnek kell lenniük, hosszú idő alatt előkészítve.
 
-The breaking changes MUST be guarded with the a compile-time switch,
-WITH_BREAKING_CHANGES, to help this process.  When built with it,
-the resulting Git binary together with its documentation would
-behave as if these breaking changes slated for the next big version
-boundary are already in effect.  We also have a CI job to exercise
-the work-in-progress version of Git with these breaking changes.
+A kompatibilitástörő változtatásokat egy fordításidejű kapcsolóval,
+a WITH_BREAKING_CHANGES kapcsolóval MUST védeni, hogy ez a folyamat
+könnyebb legyen.  Amikor ezzel fordítják le, az eredményül kapott Git
+bináris a dokumentációjával együtt úgy viselkedne, mintha a következő nagy
+verzióhatárra tervezett kompatibilitástörő változtatások már érvényben
+lennének.  Van egy CI feladatunk is a Git folyamatban lévő verziójának
+gyakorlására ezekkel a kompatibilitástörő változtatásokkal.
 
 
+[[_git_3_0]]
 == Git 3.0
 
-The following subsections document upcoming breaking changes for Git 3.0. There
-is no planned release date for this breaking version yet.
+A következő alszakaszok a Git 3.0-hoz tartozó közelgő kompatibilitástörő
+változásokat dokumentálják. Ehhez a kompatibilitástörő verzióhoz még nincs
+tervezett kiadási dátum.
 
-Proposed changes and removals only include items which are "ready" to be done.
-In other words, this is not supposed to be a wishlist of features that should
-be changed to or replaced in case the alternative was implemented already.
+A javasolt változások és eltávolítások csak olyan tételeket tartalmaznak,
+amelyek „készen állnak" az elvégzésre. Más szóval ez nem egy kívánságlista
+olyan funkciókról, amelyekre át kellene váltani vagy amelyeket le kellene
+cserélni, ha az alternatívát már megvalósították.
 
-=== Changes
+[[_changes]]
+=== Változások
 
-* The default hash function for new repositories will be changed from "sha1"
-  to "sha256". SHA-1 has been deprecated by NIST in 2011 and is nowadays
-  recommended against in FIPS 140-2 and similar certifications. Furthermore,
-  there are practical attacks on SHA-1 that weaken its cryptographic properties:
+* Az új repositorykhoz tartozó alapértelmezett hash függvény "sha1"-ről
+  "sha256"-ra változik. Az SHA-1-et a NIST 2011-ben elavulttá nyilvánította,
+  és manapság a FIPS 140-2 és hasonló tanúsítványok ellenjavallják.
+  Továbbá vannak gyakorlati támadások az SHA-1 ellen, amelyek gyengítik a
+  kriptográfiai tulajdonságait:
 +
-  ** The SHAppening (2015). The first demonstration of a practical attack
-     against SHA-1 with 2^57 operations.
-  ** SHAttered (2017). Generation of two valid PDF files with 2^63 operations.
-  ** Birthday-Near-Collision (2019). This attack allows for chosen prefix
-     attacks with 2^68 operations.
-  ** Shambles (2020). This attack allows for chosen prefix attacks with 2^63
-     operations.
+  ** The SHAppening (2015). Az első demonstrációja egy gyakorlati SHA-1
+     elleni támadásnak 2^57 művelettel.
+  ** SHAttered (2017). Két érvényes PDF fájl előállítása 2^63 művelettel.
+  ** Birthday-Near-Collision (2019). Ez a támadás választott előtagú
+     támadásokat tesz lehetővé 2^68 művelettel.
+  ** Shambles (2020). Ez a támadás választott előtagú támadásokat tesz
+     lehetővé 2^63 művelettel.
 +
-While we have protections in place against known attacks, it is expected
-that more attacks against SHA-1 will be found by future research. Paired
-with the ever-growing capability of hardware, it is only a matter of time
-before SHA-1 will be considered broken completely. We want to be prepared
-and will thus change the default hash algorithm to "sha256" for newly
-initialized repositories.
+Bár vannak védelmeink az ismert támadásokkal szemben, várható, hogy a
+jövőbeli kutatás további SHA-1 elleni támadásokat talál majd. Párosítva a
+hardver folyamatosan növekvő képességével, csak idő kérdése, mikor tekintik
+az SHA-1-et teljesen feltörtnek. Fel akarunk készülni, ezért az újonnan
+inicializált repositorykhoz az alapértelmezett hash algoritmust "sha256"-ra
+változtatjuk.
 +
-An important requirement for this change is that the ecosystem is ready to
-support the "sha256" object format. This includes popular Git libraries,
-applications and forges.
+E változás fontos követelménye, hogy az ökoszisztéma készen álljon a
+"sha256" objektumformátum támogatására. Ez magában foglalja a népszerű Git
+könyvtárakat, alkalmazásokat és forge-okat.
 +
-There is no plan to deprecate the "sha1" object format at this point in time.
+Jelenleg nincs terv a "sha1" objektumformátum elavulttá nyilvánítására.
 +
-Cf. <2f5de416-04ba-c23d-1e0b-83bb655829a7@zombino.com>,
+Vö. <2f5de416-04ba-c23d-1e0b-83bb655829a7@zombino.com>,
 <20170223155046.e7nxivfwqqoprsqj@LykOS.localdomain>,
 <CA+EOSBncr=4a4d8n9xS4FNehyebpmX8JiUwCsXD47EQDE+DiUQ@mail.gmail.com>.
 
-* The default storage format for references in newly created repositories will
-  be changed from "files" to "reftable". The "reftable" format provides
-  multiple advantages over the "files" format:
+* Az újonnan létrehozott repositorykban a referenciák alapértelmezett
+  tárolási formátuma "files"-ról "reftable"-re változik. A "reftable"
+  formátum több előnyt is nyújt a "files" formátummal szemben:
 +
-  ** It is impossible to store two references that only differ in casing on
-     case-insensitive filesystems with the "files" format. This issue is common
-     on Windows and macOS platforms. As the "reftable" backend does not use
-     filesystem paths to encode reference names this problem goes away.
-  ** Similarly, macOS normalizes path names that contain unicode characters,
-     which has the consequence that you cannot store two names with unicode
-     characters that are encoded differently with the "files" backend. Again,
-     this is not an issue with the "reftable" backend.
-  ** Deleting references with the "files" backend requires Git to rewrite the
-     complete "packed-refs" file. In large repositories with many references
-     this file can easily be dozens of megabytes in size, in extreme cases it
-     may be gigabytes. The "reftable" backend uses tombstone markers for
-     deleted references and thus does not have to rewrite all of its data.
-  ** Repository housekeeping with the "files" backend typically performs
-     all-into-one repacks of references. This can be quite expensive, and
-     consequently housekeeping is a tradeoff between the number of loose
-     references that accumulate and slow down operations that read references,
-     and compressing those loose references into the "packed-refs" file. The
-     "reftable" backend uses geometric compaction after every write, which
-     amortizes costs and ensures that the backend is always in a
-     well-maintained state.
-  ** Operations that write multiple references at once are not atomic with the
-     "files" backend. Consequently, Git may see in-between states when it reads
-     references while a reference transaction is in the process of being
-     committed to disk.
-  ** Writing many references at once is slow with the "files" backend because
-     every reference is created as a separate file. The "reftable" backend
-     significantly outperforms the "files" backend by multiple orders of
-     magnitude.
-  ** The reftable backend uses a binary format with prefix compression for
-     reference names. As a result, the format uses less space compared to the
-     "packed-refs" file.
+  ** A "files" formátummal lehetetlen két olyan referenciát tárolni, amelyek
+     csak a kis-/nagybetűkben térnek el, kis-/nagybetűre érzéketlen
+     fájlrendszereken. Ez a probléma gyakori Windows és macOS platformokon.
+     Mivel a "reftable" backend nem használ fájlrendszerbeli útvonalakat a
+     referencianevek kódolására, ez a probléma megszűnik.
+  ** Hasonlóképpen a macOS normalizálja az unicode karaktereket tartalmazó
+     útvonalneveket, aminek az a következménye, hogy nem tárolhatsz két
+     unicode karaktereket tartalmazó nevet, amelyek eltérően vannak kódolva,
+     a "files" backenddel. Ez a "reftable" backenddel megint csak nem
+     probléma.
+  ** A referenciák törléséhez a "files" backenddel a Gitnek újra kell írnia
+     a teljes "packed-refs" fájlt. Sok referenciával rendelkező nagy
+     repositorykban ez a fájl könnyen tucatnyi megabájt méretű lehet,
+     szélsőséges esetekben akár gigabájtos. A "reftable" backend
+     sírkő-jelölőket használ a törölt referenciákhoz, így nem kell újraírnia
+     az összes adatát.
+  ** A repository-karbantartás a "files" backenddel jellemzően a referenciák
+     mindent-egybe újracsomagolását végzi. Ez elég költséges lehet, és
+     ennek következtében a karbantartás kompromisszum a felhalmozódó, a
+     referenciákat olvasó műveleteket lassító laza referenciák száma, és e
+     laza referenciáknak a "packed-refs" fájlba tömörítése között. A
+     "reftable" backend geometriai tömörítést használ minden írás után, ami
+     amortizálja a költségeket, és biztosítja, hogy a backend mindig
+     jól karbantartott állapotban legyen.
+  ** Az egyszerre több referenciát író műveletek nem atomiak a "files"
+     backenddel. Ennek következtében a Git köztes állapotokat láthat, amikor
+     referenciákat olvas, miközben egy referenciatranzakció éppen lemezre
+     íródik.
+  ** Sok referencia egyszerre való írása lassú a "files" backenddel, mert
+     minden referencia külön fájlként jön létre. A "reftable" backend
+     jelentősen, több nagyságrenddel felülmúlja a "files" backendet.
+  ** A reftable backend bináris formátumot használ előtag-tömörítéssel a
+     referencianevekhez. Ennek eredményeként a formátum kevesebb helyet
+     használ a "packed-refs" fájlhoz képest.
 +
-Users that get immediate benefit from the "reftable" backend could continue to
-opt-in to the "reftable" format manually by setting the "init.defaultRefFormat"
-config. But defaults matter, and we think that overall users will have a better
-experience with less platform-specific quirks when they use the new backend by
-default.
+Azok a felhasználók, akik azonnali hasznot húznak a "reftable" backendből,
+továbbra is kézzel opt-inolhatnak a "reftable" formátumra az
+"init.defaultRefFormat" config beállításával. De az alapértelmezések
+számítanak, és úgy gondoljuk, hogy összességében a felhasználóknak jobb
+lesz az élményük, kevesebb platformspecifikus furcsasággal, ha
+alapértelmezés szerint az új backendet használják.
 +
-A prerequisite for this change is that the ecosystem is ready to support the
-"reftable" format. Most importantly, alternative implementations of Git like
-JGit, libgit2 and Gitoxide need to support it.
+E változás előfeltétele, hogy az ökoszisztéma készen álljon a "reftable"
+formátum támogatására. Legfontosabb, hogy a Git alternatív implementációi,
+mint a JGit, a libgit2 és a Gitoxide, támogassák.
 
-* In new repositories, the default branch name will be `main`. We have been
-  warning that the default name will change since 675704c74dd (init:
-  provide useful advice about init.defaultBranch, 2020-12-11).  The new name
-  matches the default branch name used in new repositories by many of the
-  big Git forges.
+* Az új repositorykban az alapértelmezett branchnév `main` lesz. A
+  675704c74dd (init: provide useful advice about init.defaultBranch,
+  2020-12-11) óta figyelmeztetünk, hogy az alapértelmezett név változni fog.
+  Az új név megegyezik azzal az alapértelmezett branchnévvel, amelyet sok
+  nagy Git forge használ az új repositorykban.
 
-* Git will require Rust as a mandatory part of the build process. While Git
-  already started to adopt Rust in Git 2.49, all parts written in Rust are
-  optional for the time being. This includes:
+* A Git a build folyamat kötelező részeként meg fogja követelni a Rustot. Bár
+  a Git a Git 2.49-ben már elkezdte átvenni a Rustot, a Rustban írt összes
+  rész egyelőre opcionális. Ez magában foglalja:
 +
-  ** The Rust wrapper around libgit.a that is part of "contrib/" and which has
-     been introduced in Git 2.49.
-  ** Subsystems that have an alternative implementation in Rust to test
-     interoperability between our C and Rust codebase.
-  ** Newly written features that are not mission critical for a fully functional
-     Git client.
+  ** A libgit.a köré írt Rust wrappert, amely a "contrib/" része, és amelyet
+     a Git 2.49-ben vezettek be.
+  ** Azokat az alrendszereket, amelyeknek van alternatív Rust
+     implementációjuk a C és a Rust kódbázisunk közötti interoperabilitás
+     tesztelésére.
+  ** Az újonnan írt funkciókat, amelyek nem kritikusak egy teljesen működő
+     Git kliens szempontjából.
 +
-These changes are meant as test balloons to allow distributors of Git to prepare
-for Rust becoming a mandatory part of the build process. There will be multiple
-milestones for the introduction of Rust:
+Ezek a változtatások próbaléggömböknek szánták, hogy a Git terjesztői
+felkészülhessenek arra, hogy a Rust a build folyamat kötelező részévé válik.
+A Rust bevezetésének több mérföldköve lesz:
 +
 --
-1. Initially, with Git 2.52, support for Rust will be auto-detected by Meson and
-   disabled in our Makefile so that the project can sort out the initial
-   infrastructure.
-2. In Git 2.55, both build systems will default-enable support for Rust.
-   Consequently, builds will break by default if Rust is not available on the
-   build host. The use of Rust can still be explicitly disabled via build
-   flags.
-3. In Git 3.0, the build options will be removed and support for Rust is
-   mandatory.
+1. Kezdetben, a Git 2.52-vel, a Rust támogatását a Meson automatikusan
+   felismeri, a Makefile-unkban pedig letiltja, hogy a projekt rendezni
+   tudja a kezdeti infrastruktúrát.
+2. A Git 2.55-ben mindkét build rendszer alapértelmezés szerint engedélyezi a
+   Rust támogatását. Ennek következtében a buildek alapértelmezés szerint
+   megtörnek, ha a Rust nem érhető el a build hoszton. A Rust használata
+   továbbra is kifejezetten letiltható build kapcsolókkal.
+3. A Git 3.0-ban a build opciók eltávolításra kerülnek, és a Rust támogatása
+   kötelező.
 --
 +
-You can explicitly ask both Meson and our Makefile-based system to enable Rust
-by saying `meson configure -Drust=enabled` and `make WITH_RUST=YesPlease`,
-respectively.
+Kifejezetten megkérheted mind a Mesont, mind a Makefile-alapú rendszerünket a
+Rust engedélyezésére a `meson configure -Drust=enabled`, illetve a
+`make WITH_RUST=YesPlease` megadásával.
 +
-The Git project will declare the last version before Git 3.0 to be a long-term
-support release. This long-term release will receive important bug fixes for at
-least four release cycles and security fixes for six release cycles. The Git
-project will hand over maintainership of the long-term release to distributors
-in case they need to extend the life of that long-term release even further.
-Details of how this long-term release will be handed over to the community will
-be discussed once the Git project decides to stop officially supporting it.
+A Git projekt a Git 3.0 előtti utolsó verziót hosszú távú támogatási
+kiadásnak nyilvánítja. Ez a hosszú távú kiadás legalább négy kiadási
+cikluson át fontos hibajavításokat, hat kiadási cikluson át pedig
+biztonsági javításokat kap. A Git projekt átadja a hosszú távú kiadás
+karbantartását a terjesztőknek arra az esetre, ha még tovább kell
+hosszabbítaniuk annak a hosszú távú kiadásnak az életét. Annak részleteit,
+hogy ez a hosszú távú kiadás hogyan kerül átadásra a közösségnek, akkor
+vitatják meg, amikor a Git projekt úgy dönt, hogy leállítja a hivatalos
+támogatását.
 +
-We will evaluate the impact on downstream distributions before making Rust
-mandatory in Git 3.0. If we see that the impact on downstream distributions
-would be significant, we may decide to defer this change to a subsequent minor
-release. This evaluation will also take into account our own experience with
-how painful it is to keep Rust an optional component.
+Kiértékeljük a downstream disztribúciókra gyakorolt hatást, mielőtt a Rustot
+kötelezővé tennénk a Git 3.0-ban. Ha azt látjuk, hogy a downstream
+disztribúciókra gyakorolt hatás jelentős lenne, dönthetünk úgy, hogy ezt a
+változást egy későbbi minor kiadásra halasztjuk. Ez a kiértékelés a saját
+tapasztalatunkat is figyelembe veszi arról, mennyire fájdalmas a Rustot
+opcionális komponensként tartani.
 
-* The default value of `safe.bareRepository` will change from `all` to
-  `explicit`. It is all too easy for an attacker to trick a user into cloning a
-  repository that contains an embedded bare repository with malicious hooks
-  configured. If the user enters that subdirectory and runs any Git command, Git
-  discovers the bare repository and the hooks fire. The user does not even need
-  to run a Git command explicitly: many shell prompts run `git status` in the
-  background to display branch and dirty state information, and `git status` in
-  turn may invoke the fsmonitor hook if so configured, making the user
-  vulnerable the moment they `cd` into the directory. The `safe.bareRepository`
-  configuration variable was introduced in 8959555cee (setup_git_directory():
-  add an owner check for the top-level directory, 2022-03-02) with a default of
-  `all` to preserve backwards compatibility.
+* A `safe.bareRepository` alapértelmezett értéke `all`-ról `explicit`-re
+  változik. Túl könnyű egy támadónak rávennie egy felhasználót arra, hogy
+  klónozzon egy olyan repositoryt, amely beágyazott bare repositoryt
+  tartalmaz, rosszindulatú hookokkal konfigurálva. Ha a felhasználó belép
+  abba az alkönyvtárba, és bármilyen Git parancsot futtat, a Git felfedezi a
+  bare repositoryt, és a hookok elsülnek. A felhasználónak még csak
+  kifejezetten futtatnia sem kell Git parancsot: sok shell prompt a háttérben
+  futtatja a `git status`-t, hogy branch- és piszkos-állapot-információt
+  jelenítsen meg, a `git status` pedig meghívhatja az fsmonitor hookot, ha
+  így van konfigurálva, sebezhetővé téve a felhasználót abban a pillanatban,
+  amikor `cd`-vel belép a könyvtárba. A `safe.bareRepository` konfigurációs
+  változót a 8959555cee (setup_git_directory(): add an owner check for the
+  top-level directory, 2022-03-02) vezette be `all` alapértelmezéssel a
+  visszafelé kompatibilitás megőrzésére.
 +
-Changing the default to `explicit` means that Git will refuse to work with bare
-repositories that are discovered implicitly by walking up the directory tree.
-Bare repositories specified explicitly via the `--git-dir` command-line option
-or the `GIT_DIR` environment variable continue to work regardless of this
-setting. Repositories that look like a `.git` directory, a worktree, or a
-submodule directory are also unaffected.
+Az alapértelmezés `explicit`-re változtatása azt jelenti, hogy a Git megtagadja
+a munkát azokkal a bare repositorykkal, amelyeket implicit módon, a
+könyvtárfán felfelé haladva fedez fel. Azok a bare repositoryk, amelyeket
+kifejezetten a `--git-dir` parancssori opcióval vagy a `GIT_DIR` környezeti
+változóval adnak meg, ettől a beállítástól függetlenül továbbra is működnek.
+Azok a repositoryk, amelyek `.git` könyvtárnak, worktree-nek vagy submodule
+könyvtárnak tűnnek, szintén érintetlenek.
 +
-Users who rely on implicit discovery of bare repositories can restore the
-previous behavior by setting `safe.bareRepository=all` in their global or
-system configuration.
+Azok a felhasználók, akik a bare repositoryk implicit felfedezésére
+támaszkodnak, visszaállíthatják a korábbi viselkedést a
+`safe.bareRepository=all` beállításával a globális vagy rendszerszintű
+konfigurációjukban.
 
-=== Removals
+[[_removals]]
+=== Eltávolítások
 
-* Support for grafting commits has long been superseded by git-replace(1).
-  Grafts are inferior to replacement refs:
+* A commitok graftolásának támogatását régóta leváltotta a git-replace(1). A
+  graftok gyengébbek a helyettesítő refeknél:
 +
-  ** Grafts are a local-only mechanism and cannot be shared across
-     repositories.
-  ** Grafts can lead to hard-to-diagnose problems when transferring objects
-     between repositories.
+  ** A graftok kizárólag lokális mechanizmus, és nem oszthatók meg
+     repositoryk között.
+  ** A graftok nehezen diagnosztizálható problémákhoz vezethetnek az
+     objektumok repositoryk közötti átvitelekor.
 +
-The grafting mechanism has been marked as outdated since e650d0643b (docs: mark
-info/grafts as outdated, 2014-03-05) and will be removed.
+A graftolási mechanizmust az e650d0643b (docs: mark info/grafts as outdated,
+2014-03-05) óta elavultként jelöltük, és el fog távolításra kerülni.
 +
-Cf. <20140304174806.GA11561@sigill.intra.peff.net>.
+Vö. <20140304174806.GA11561@sigill.intra.peff.net>.
 
-* The git-pack-redundant(1) command can be used to remove redundant pack files.
-  The subcommand is unusably slow and the reason why nobody reports it as a
-  performance bug is suspected to be the absence of users. We have nominated
-  the command for removal and have started to emit a user-visible warning in
-  c3b58472be (pack-redundant: gauge the usage before proposing its removal,
-  2020-08-25) whenever the command is executed.
+* A git-pack-redundant(1) parancs redundáns pack fájlok eltávolítására
+  használható. Az alparancs használhatatlanul lassú, és feltehetően azért nem
+  jelenti senki teljesítménybugként, mert nincsenek felhasználói. A parancsot
+  eltávolításra jelöltük, és a c3b58472be (pack-redundant: gauge the usage
+  before proposing its removal, 2020-08-25) óta felhasználó által látható
+  figyelmeztetést adunk, valahányszor a parancs végrehajtódik.
 +
-So far there was a single complaint about somebody still using the command, but
-that complaint did not cause us to reverse course. On the contrary, we have
-doubled down on the deprecation and starting with 4406522b76 (pack-redundant:
-escalate deprecation warning to an error, 2023-03-23), the command dies unless
-the user passes the `--i-still-use-this` option.
+Eddig egyetlen panasz volt arról, hogy valaki még használja a parancsot, de
+ez a panasz nem késztetett minket az irány megfordítására. Épp ellenkezőleg,
+megkétszereztük az elavulttá nyilvánítást, és a 4406522b76 (pack-redundant:
+escalate deprecation warning to an error, 2023-03-23) óta a parancs meghal,
+hacsak a felhasználó nem adja meg a `--i-still-use-this` opciót.
 +
-There have not been any subsequent complaints, so this command will finally be
-removed.
+Nem érkeztek további panaszok, így ez a parancs végül eltávolításra kerül.
 +
-Cf. <xmqq1rjuz6n3.fsf_-_@gitster.c.googlers.com>,
+Vö. <xmqq1rjuz6n3.fsf_-_@gitster.c.googlers.com>,
     <CAKvOHKAFXQwt4D8yUCCkf_TQL79mYaJ=KAKhtpDNTvHJFuX1NA@mail.gmail.com>,
     <20230323204047.GA9290@coredump.intra.peff.net>,
 
-* Support for storing shorthands for remote URLs in "$GIT_COMMON_DIR/branches/"
-  and "$GIT_COMMON_DIR/remotes/" has been long superseded by storing remotes in
-  the repository configuration.
+* A remote URL-ekhez tartozó rövidítések "$GIT_COMMON_DIR/branches/"-ban és
+  "$GIT_COMMON_DIR/remotes/"-ban való tárolásának támogatását régóta
+  leváltotta a remote-ok repository-konfigurációban való tárolása.
 +
-The mechanism has originally been introduced in f170e4b39d ([PATCH] fetch/pull:
-short-hand notation for remote repositories., 2005-07-16) and was superseded by
+A mechanizmust eredetileg az f170e4b39d ([PATCH] fetch/pull: short-hand
+notation for remote repositories., 2005-07-16) vezette be, és leváltotta a
 6687f8fea2 ([PATCH] Use .git/remote/origin, not .git/branches/origin.,
-2005-08-20), where we switched from ".git/branches/" to ".git/remotes/". That
-commit already mentions an upcoming deprecation of the ".git/branches/"
-directory, and starting with a1d4aa7424 (Add repository-layout document.,
-2005-09-01) we have also marked this layout as deprecated. Eventually we also
-started to migrate away from ".git/remotes/" in favor of config-based remotes,
-and we have marked the directory as legacy in 3d3d282146 (Documentation:
-Grammar correction, wording fixes and cleanup, 2011-08-23)
+2005-08-20), ahol áttértünk a ".git/branches/"-ról a ".git/remotes/"-ra. Az a
+commit már említ egy közelgő elavulttá nyilvánítást a ".git/branches/"
+könyvtárra, és az a1d4aa7424 (Add repository-layout document., 2005-09-01)
+óta ezt az elrendezést is elavultként jelöltük. Végül elkezdtünk elvándorolni
+a ".git/remotes/"-tól is a config-alapú remote-ok javára, és a 3d3d282146
+(Documentation: Grammar correction, wording fixes and cleanup, 2011-08-23)
+óta a könyvtárat régi (legacy) jelöléssel láttuk el
 +
-As our documentation mentions, these directories are unlikely to be used in
-modern repositories and most users aren't even aware of these mechanisms. They
-have been deprecated for almost 20 years and 14 years respectively, and we are
-not aware of any active users that have complained about this deprecation.
-Furthermore, the ".git/branches/" directory is nowadays misleadingly named and
-may cause confusion as "branches" are almost exclusively used in the context of
-references.
+Ahogy a dokumentációnk említi, ezeket a könyvtárakat modern repositorykban
+valószínűleg nem használják, és a legtöbb felhasználó nincs is tudatában
+ezeknek a mechanizmusoknak. Csaknem 20, illetve 14 éve elavulttá vannak
+nyilvánítva, és nincs tudomásunk egyetlen aktív felhasználóról sem, aki
+panaszkodott volna erre az elavulttá nyilvánításra. Továbbá a
+".git/branches/" könyvtár manapság megtévesztő nevű, és zavart okozhat, mivel
+a „branchek" szinte kizárólag a referenciák kontextusában használatosak.
 +
-These features will be removed.
+Ezek a funkciók el fognak távolításra kerülni.
 
-* Support for "--stdin" option in the "name-rev" command was
-  deprecated (and hidden from the documentation) in the Git 2.40
-  timeframe, in preference to its synonym "--annotate-stdin".  Git 3.0
-  removes the support for "--stdin" altogether.
+* A "--stdin" opció támogatását a "name-rev" parancsban a Git 2.40
+  időszakában elavulttá nyilvánították (és elrejtették a dokumentációból), a
+  szinonimája, a "--annotate-stdin" javára.  A Git 3.0 teljesen eltávolítja a
+  "--stdin" támogatását.
 
-* The git-whatchanged(1) command has outlived its usefulness more than
-  10 years ago, and takes more keystrokes to type than its rough
-  equivalent `git log --raw`.  We have nominated the command for
-  removal, have changed the command to refuse to work unless the
-  `--i-still-use-this` option is given, and asked the users to report
-  when they do so.
+* A git-whatchanged(1) parancs több mint 10 éve túlélte a hasznosságát, és
+  több billentyűleütést igényel begépelni, mint a nagyjából egyenértékű
+  `git log --raw`.  A parancsot eltávolításra jelöltük, megváltoztattuk a
+  parancsot úgy, hogy megtagadja a működést, hacsak a `--i-still-use-this`
+  opciót nem adják meg, és megkértük a felhasználókat, hogy jelezzék, ha így
+  tesznek.
 +
-The command will be removed.
+A parancs el fog távolításra kerülni.
 
-* Support for `core.commentString=auto` has been deprecated and will
-  be removed in Git 3.0.
+* A `core.commentString=auto` támogatását elavulttá nyilvánították, és a Git
+  3.0-ban eltávolításra kerül.
 +
-cf. <xmqqa59i45wc.fsf@gitster.g>
+vö. <xmqqa59i45wc.fsf@gitster.g>
 
-* Support for `core.preferSymlinkRefs=true` has been deprecated and will be
-  removed in Git 3.0. Writing symbolic refs as symbolic links will be phased
-  out in favor of using plain files using the textual representation of
-  symbolic refs.
+* A `core.preferSymlinkRefs=true` támogatását elavulttá nyilvánították, és a
+  Git 3.0-ban eltávolításra kerül. A szimbolikus refek szimbolikus linkként
+  való írását fokozatosan kivezetik, a szimbolikus refek szöveges
+  ábrázolását használó egyszerű fájlok javára.
 +
-Symbolic references were initially always stored as a symbolic link. This was
-changed in 9b143c6e15 (Teach update-ref about a symbolic ref stored in a
-textfile., 2005-09-25), where a new textual symref format was introduced to
-store those symbolic refs in a plain file. In 9f0bb90d16
-(core.prefersymlinkrefs: use symlinks for .git/HEAD, 2006-05-02), the Git
-project switched the default to use the textual symrefs in favor of symbolic
-links.
+A szimbolikus referenciákat kezdetben mindig szimbolikus linkként tárolták.
+Ez a 9b143c6e15 (Teach update-ref about a symbolic ref stored in a textfile.,
+2005-09-25) commitban változott meg, ahol egy új szöveges symref formátumot
+vezettek be, hogy ezeket a szimbolikus refeket egyszerű fájlban tárolják. A
+9f0bb90d16 (core.prefersymlinkrefs: use symlinks for .git/HEAD, 2006-05-02)
+commitban a Git projekt átállította az alapértelmezést a szöveges symrefek
+használatára a szimbolikus linkek helyett.
 +
-The migration away from symbolic links has happened almost 20 years ago by now,
-and there is no known reason why one should prefer them nowadays. Furthermore,
-symbolic links are not supported on some platforms.
+A szimbolikus linkektől való elvándorlás mostanra csaknem 20 éve megtörtént,
+és nincs ismert ok, amiért manapság előnyben kellene részesíteni őket.
+Továbbá a szimbolikus linkeket egyes platformok nem támogatják.
 +
-Note that only the writing side for such symbolic links is deprecated. Reading
-such symbolic links is still supported for now.
+Vedd figyelembe, hogy csak az ilyen szimbolikus linkek írási oldala van
+elavulttá nyilvánítva. Az ilyen szimbolikus linkek olvasása egyelőre
+továbbra is támogatott.
 
-== Superseded features that will not be deprecated
+[[_superseded_features_that_will_not_be_deprecated]]
+== Leváltott funkciók, amelyeket nem nyilvánítanak elavulttá
 
-Some features have gained newer replacements that aim to improve the design in
-certain ways. The fact that there is a replacement does not automatically mean
-that the old way of doing things will eventually be removed. This section tracks
-those features with newer alternatives.
+Egyes funkciók újabb helyettesítőket kaptak, amelyek bizonyos módokon a
+kialakítás javítását célozzák. Az, hogy létezik helyettesítő, nem jelenti
+automatikusan, hogy a dolgok régi módja végül eltávolításra kerül. Ez a
+szakasz az újabb alternatívával rendelkező funkciókat követi nyomon.
 
-* The features git-checkout(1) offers are covered by the pair of commands
-  git-restore(1) and git-switch(1). Because the use of git-checkout(1) is still
-  widespread, and it is not expected that this will change anytime soon, all
-  three commands will stay.
+* A git-checkout(1) által kínált funkciókat lefedi a git-restore(1) és a
+  git-switch(1) parancspáros. Mivel a git-checkout(1) használata még mindig
+  elterjedt, és nem várható, hogy ez a közeljövőben változni fog, mindhárom
+  parancs megmarad.
 +
-This decision may get revisited in case we ever figure out that there are
-almost no users of any of the commands anymore.
+Ez a döntés újragondolható arra az esetre, ha valaha kiderülne, hogy már
+szinte egyik parancsnak sincsenek felhasználói.
 +
-Cf. <xmqqttjazwwa.fsf@gitster.g>,
+Vö. <xmqqttjazwwa.fsf@gitster.g>,
 <xmqqleeubork.fsf@gitster.g>,
 <112b6568912a6de6672bf5592c3a718e@manjaro.org>.

@@ -3,7 +3,7 @@ gitdiffcore(7)
 
 NAME
 ----
-gitdiffcore - Tweaking diff output
+gitdiffcore - A diff kimenet finomhangolása
 
 SYNOPSIS
 --------
@@ -13,49 +13,48 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-The diff commands 'git diff-index', 'git diff-files', and 'git diff-tree'
-can be told to manipulate differences they find in
-unconventional ways before showing 'diff' output.  The manipulation
-is collectively called "diffcore transformation".  This short note
-describes what they are and how to use them to produce 'diff' output
-that is easier to understand than the conventional kind.
+A 'git diff-index', a 'git diff-files' és a 'git diff-tree' diff-parancsoknak
+megmondható, hogy az általuk talált különbségeket szokatlan módon
+manipulálják, mielőtt megjelenítenék a 'diff' kimenetet.  A manipulációt
+összefoglalóan „diffcore transzformációnak" nevezzük.  Ez a rövid jegyzet
+leírja, mik ezek, és hogyan használhatók a szokásosnál könnyebben érthető
+'diff' kimenet előállítására.
 
 
-The chain of operation
-----------------------
+[[_the_chain_of_operation]]
+A műveleti lánc
+---------------
 
-The 'git diff-{asterisk}' family works by first comparing two sets of
-files:
+A 'git diff-{asterisk}' család először két fájlhalmazt hasonlít össze:
 
- - 'git diff-index' compares contents of a "tree" object and the
-   working directory (when `--cached` flag is not used) or a
-   "tree" object and the index file (when `--cached` flag is
-   used);
+ - a 'git diff-index' egy "tree" objektum és a munkakönyvtár tartalmát
+   hasonlítja össze (amikor a `--cached` kapcsoló nincs használatban),
+   vagy egy "tree" objektum és az index fájl tartalmát (amikor a
+   `--cached` kapcsoló használatban van);
 
- - 'git diff-files' compares contents of the index file and the
-   working directory;
+ - a 'git diff-files' az index fájl és a munkakönyvtár tartalmát
+   hasonlítja össze;
 
- - 'git diff-tree' compares contents of two "tree" objects;
+ - a 'git diff-tree' két "tree" objektum tartalmát hasonlítja össze;
 
-In all of these cases, the commands themselves first optionally limit
-the two sets of files by any pathspecs given on their command-lines,
-and compare corresponding paths in the two resulting sets of files.
+Ezekben az esetekben maga a parancs először opcionálisan leszűkíti a két
+fájlhalmazt a parancssorában megadott pathspecekkel, majd összehasonlítja a
+megfelelő útvonalakat a két eredményül kapott fájlhalmazban.
 
-The pathspecs are used to limit the world diff operates in.  They remove
-the filepairs outside the specified sets of pathnames.  E.g. If the
-input set of filepairs included:
+A pathspecek arra szolgálnak, hogy leszűkítsék a világot, amelyben a diff
+működik.  Eltávolítják a megadott útvonalnév-halmazokon kívüli filepaireket.
+Pl. ha a filepairek bemeneti halmaza ezt tartalmazta:
 
 ------------------------------------------------
 :100644 100644 bcd1234... 0123456... M junkfile
 ------------------------------------------------
 
-but the command invocation was `git diff-files myfile`, then the
-junkfile entry would be removed from the list because only "myfile"
-is under consideration.
+de a parancshívás `git diff-files myfile` volt, akkor a junkfile bejegyzés
+eltávolításra kerülne a listából, mert csak a "myfile" jön szóba.
 
-The result of comparison is passed from these commands to what is
-internally called "diffcore", in a format similar to what is output
-when the -p option is not used.  E.g.
+Az összehasonlítás eredményét ezek a parancsok átadják a belsőleg
+„diffcore"-nak nevezett résznek, olyan formátumban, amely hasonló ahhoz,
+mint amit a -p opció mellőzésekor ír ki.  Pl.
 
 ------------------------------------------------
 in-place edit  :100644 100644 bcd1234... 0123456... M file0
@@ -64,10 +63,10 @@ delete         :100644 000000 1234567... 0000000... D file5
 unmerged       :000000 000000 0000000... 0000000... U file6
 ------------------------------------------------
 
-The diffcore mechanism is fed a list of such comparison results
-(each of which is called "filepair", although at this point each
-of them talks about a single file), and transforms such a list
-into another list.  There are currently 5 such transformations:
+A diffcore mechanizmus ilyen összehasonlítási eredmények listáját kapja
+(mindegyiket „filepairnek" nevezzük, bár ezen a ponton mindegyik egyetlen
+fájlról szól), és az ilyen listát egy másik listává alakítja.  Jelenleg 5
+ilyen transzformáció van:
 
 - diffcore-break
 - diffcore-rename
@@ -76,217 +75,212 @@ into another list.  There are currently 5 such transformations:
 - diffcore-order
 - diffcore-rotate
 
-These are applied in sequence.  The set of filepairs 'git diff-{asterisk}'
-commands find are used as the input to diffcore-break, and
-the output from diffcore-break is used as the input to the
-next transformation.  The final result is then passed to the
-output routine and generates either diff-raw format (see Output
-format sections of the manual for 'git diff-{asterisk}' commands) or
-diff-patch format.
+Ezek egymás után alkalmazódnak.  A 'git diff-{asterisk}' parancsok által
+talált filepair-halmaz a diffcore-break bemenete, a diffcore-break kimenete
+pedig a következő transzformáció bemenete.  A végeredmény ezután a kimeneti
+rutinhoz kerül, és vagy diff-raw formátumot generál (lásd a
+'git diff-{asterisk}' parancsok kézikönyvének kimeneti formátum szakaszait),
+vagy diff-patch formátumot.
 
 
-diffcore-break: For Splitting Up Complete Rewrites
---------------------------------------------------
+[[_diffcore_break_for_splitting_up_complete_rewrites]]
+diffcore-break: teljes újraírások szétbontásához
+------------------------------------------------
 
-The second transformation in the chain is diffcore-break, and is
-controlled by the -B option to the 'git diff-{asterisk}' commands.  This is
-used to detect a filepair that represents "complete rewrite" and
-break such filepair into two filepairs that represent delete and
-create.  E.g.  If the input contained this filepair:
+A lánc második transzformációja a diffcore-break, amelyet a
+'git diff-{asterisk}' parancsok -B opciója vezérel.  Ez arra szolgál, hogy
+felismerjen egy „teljes újraírást" képviselő filepairt, és két filepairre
+bontsa, amelyek törlést és létrehozást képviselnek.  Pl.  ha a bemenet ezt a
+filepairt tartalmazta:
 
 ------------------------------------------------
 :100644 100644 bcd1234... 0123456... M file0
 ------------------------------------------------
 
-and if it detects that the file "file0" is completely rewritten,
-it changes it to:
+és ha felismeri, hogy a "file0" fájl teljesen újra van írva, akkor erre
+változtatja:
 
 ------------------------------------------------
 :100644 000000 bcd1234... 0000000... D file0
 :000000 100644 0000000... 0123456... A file0
 ------------------------------------------------
 
-For the purpose of breaking a filepair, diffcore-break examines
-the extent of changes between the contents of the files before
-and after modification (i.e. the contents that have "bcd1234..."
-and "0123456..." as their SHA-1 content ID, in the above
-example).  The amount of deletion of original contents and
-insertion of new material are added together, and if it exceeds
-the "break score", the filepair is broken into two.  The break
-score defaults to 50% of the size of the smaller of the original
-and the result (i.e. if the edit shrinks the file, the size of
-the result is used; if the edit lengthens the file, the size of
-the original is used), and can be customized by giving a number
-after "-B" option (e.g. "-B75" to tell it to use 75%).
+Egy filepair szétbontásához a diffcore-break megvizsgálja a változások
+mértékét a fájlok módosítás előtti és utáni tartalma között (azaz a fenti
+példában azon tartalmak között, amelyek SHA-1 tartalom-azonosítója
+"bcd1234..." és "0123456...").  Az eredeti tartalom törlésének és az új
+anyag beszúrásának mennyiségét összeadja, és ha ez meghaladja a „break
+score"-t, a filepair kettébontásra kerül.  A break score alapértelmezése az
+eredeti és az eredmény közül a kisebbik méretének 50%-a (azaz ha a
+szerkesztés zsugorítja a fájlt, az eredmény mérete számít; ha a szerkesztés
+hosszabbítja a fájlt, az eredeti mérete számít), és testreszabható egy szám
+megadásával a "-B" opció után (pl. "-B75", hogy 75%-ot használjon).
 
 
-diffcore-rename: For Detecting Renames and Copies
--------------------------------------------------
+[[_diffcore_rename_for_detecting_renames_and_copies]]
+diffcore-rename: átnevezések és másolatok észleléséhez
+------------------------------------------------------
 
-This transformation is used to detect renames and copies, and is
-controlled by the -M option (to detect renames) and the -C option
-(to detect copies as well) to the 'git diff-{asterisk}' commands.  If the
-input contained these filepairs:
+Ez a transzformáció átnevezések és másolatok észlelésére szolgál, és a
+'git diff-{asterisk}' parancsok -M opciója (átnevezések észlelése) és -C
+opciója (másolatok észlelése is) vezérli.  Ha a bemenet ezeket a
+filepaireket tartalmazta:
 
 ------------------------------------------------
 :100644 000000 0123456... 0000000... D fileX
 :000000 100644 0000000... 0123456... A file0
 ------------------------------------------------
 
-and the contents of the deleted file fileX is similar enough to
-the contents of the created file file0, then rename detection
-merges these filepairs and creates:
+és a törölt fileX fájl tartalma elég hasonló a létrehozott file0 fájl
+tartalmához, akkor az átnevezés-észlelés összevonja ezeket a filepaireket, és
+ezt hozza létre:
 
 ------------------------------------------------
 :100644 100644 0123456... 0123456... R100 fileX file0
 ------------------------------------------------
 
-When the "-C" option is used, the original contents of modified files,
-and deleted files (and also unmodified files, if the
-"--find-copies-harder" option is used) are considered as candidates
-of the source files in rename/copy operation.  If the input were like
-these filepairs, that talk about a modified file fileY and a newly
-created file file0:
+Amikor a "-C" opció használatban van, a módosított fájlok és a törölt fájlok
+eredeti tartalma (és a módosítatlan fájloké is, ha a "--find-copies-harder"
+opció használatban van) az átnevezési/másolási művelet forrásfájljainak
+jelöltjeként számít.  Ha a bemenet ilyen filepairekből állna, amelyek egy
+módosított fileY fájlról és egy újonnan létrehozott file0 fájlról szólnak:
 
 ------------------------------------------------
 :100644 100644 0123456... 1234567... M fileY
 :000000 100644 0000000... bcd3456... A file0
 ------------------------------------------------
 
-the original contents of fileY and the resulting contents of
-file0 are compared, and if they are similar enough, they are
-changed to:
+a fileY eredeti tartalmát és a file0 eredményül kapott tartalmát
+összehasonlítja, és ha elég hasonlóak, ezekre változtatja őket:
 
 ------------------------------------------------
 :100644 100644 0123456... 1234567... M fileY
 :100644 100644 0123456... bcd3456... C100 fileY file0
 ------------------------------------------------
 
-In both rename and copy detection, the same "extent of changes"
-algorithm used in diffcore-break is used to determine if two
-files are "similar enough", and can be customized to use
-a similarity score different from the default of 50% by giving a
-number after the "-M" or "-C" option (e.g. "-M8" to tell it to use
-8/10 = 80%).
+Mind az átnevezés-, mind a másolatészlelésben ugyanaz a „változások
+mértéke" algoritmus dönti el, hogy két fájl „elég hasonló"-e, mint amelyet a
+diffcore-break használ, és testreszabható, hogy az 50%-os alapértelmezéstől
+eltérő hasonlósági pontszámot használjon egy szám megadásával a "-M" vagy
+"-C" opció után (pl. "-M8", hogy 8/10 = 80%-ot használjon).
 
-Note that when rename detection is on but both copy and break
-detection are off, rename detection adds a preliminary step that first
-checks if files are moved across directories while keeping their
-filename the same.  If there is a file added to a directory whose
-contents are sufficiently similar to a file with the same name that got
-deleted from a different directory, it will mark them as renames and
-exclude them from the later quadratic step (the one that pairwise
-compares all unmatched files to find the "best" matches, determined by
-the highest content similarity).  So, for example, if a deleted
-docs/ext.txt and an added docs/config/ext.txt are similar enough, they
-will be marked as a rename and prevent an added docs/ext.md that may
-be even more similar to the deleted docs/ext.txt from being considered
-as the rename destination in the later step.  For this reason, the
-preliminary "match same filename" step uses a bit higher threshold to
-mark a file pair as a rename and stop considering other candidates for
-better matches.  At most, one comparison is done per file in this
-preliminary pass; so if there are several remaining ext.txt files
-throughout the directory hierarchy after exact rename detection, this
-preliminary step may be skipped for those files.
+Vedd figyelembe, hogy amikor az átnevezés-észlelés be van kapcsolva, de a
+másolat- és a break-észlelés is ki van kapcsolva, az átnevezés-észlelés egy
+előzetes lépést ad hozzá, amely először azt ellenőrzi, hogy a fájlokat
+áthelyezték-e könyvtárak között úgy, hogy a fájlnevük ugyanaz maradt.  Ha egy
+könyvtárhoz hozzáadtak egy fájlt, amelynek tartalma kellően hasonló egy
+azonos nevű fájléhoz, amelyet egy másik könyvtárból töröltek, átnevezésként
+jelöli meg őket, és kizárja őket a későbbi négyzetes lépésből (amely
+páronként hasonlítja össze az összes párosítatlan fájlt a „legjobb"
+egyezések megtalálásához, a legnagyobb tartalmi hasonlóság alapján).  Így
+például ha egy törölt docs/ext.txt és egy hozzáadott docs/config/ext.txt elég
+hasonló, átnevezésként jelöli meg őket, és megakadályozza, hogy egy
+hozzáadott docs/ext.md-t, amely akár még hasonlóbb is lehet a törölt
+docs/ext.txt-hez, a későbbi lépésben az átnevezés céljának tekintsen.  Emiatt
+az előzetes „match same filename" lépés kissé magasabb küszöböt használ
+ahhoz, hogy egy fájlpárt átnevezésként jelöljön meg, és leálljon a jobb
+egyezésekre való más jelöltek vizsgálatával.  Ebben az előzetes menetben
+fájlonként legfeljebb egy összehasonlítás történik; így ha a pontos
+átnevezés-észlelés után több ext.txt fájl marad a könyvtárhierarchiában,
+ezeknél a fájloknál ez az előzetes lépés kihagyható.
 
-Note.  When the "-C" option is used with `--find-copies-harder`
-option, 'git diff-{asterisk}' commands feed unmodified filepairs to
-diffcore mechanism as well as modified ones.  This lets the copy
-detector consider unmodified files as copy source candidates at
-the expense of making it slower.  Without `--find-copies-harder`,
-'git diff-{asterisk}' commands can detect copies only if the file that was
-copied happened to have been modified in the same changeset.
-
-
-diffcore-merge-broken: For Putting Complete Rewrites Back Together
-------------------------------------------------------------------
-
-This transformation is used to merge filepairs broken by
-diffcore-break, and not transformed into rename/copy by
-diffcore-rename, back into a single modification.  This always
-runs when diffcore-break is used.
-
-For the purpose of merging broken filepairs back, it uses a
-different "extent of changes" computation from the ones used by
-diffcore-break and diffcore-rename.  It counts only the deletion
-from the original, and does not count insertion.  If you removed
-only 10 lines from a 100-line document, even if you added 910
-new lines to make a new 1000-line document, you did not do a
-complete rewrite.  diffcore-break breaks such a case in order to
-help diffcore-rename to consider such filepairs as a candidate of
-rename/copy detection, but if filepairs broken that way were not
-matched with other filepairs to create rename/copy, then this
-transformation merges them back into the original
-"modification".
-
-The "extent of changes" parameter can be tweaked from the
-default 80% (that is, unless more than 80% of the original
-material is deleted, the broken pairs are merged back into a
-single modification) by giving a second number to -B option,
-like these:
-
-* -B50/60 (give 50% "break score" to diffcore-break, use 60%
-  for diffcore-merge-broken).
-
-* -B/60 (the same as above, since diffcore-break defaults to 50%).
-
-Note that earlier implementation left a broken pair as separate
-creation and deletion patches.  This was an unnecessary hack, and
-the latest implementation always merges all the broken pairs
-back into modifications, but the resulting patch output is
-formatted differently for easier review in case of such
-a complete rewrite by showing the entire contents of the old version
-prefixed with '-', followed by the entire contents of the new
-version prefixed with '+'.
+Megjegyzés.  Amikor a "-C" opciót a `--find-copies-harder` opcióval együtt
+használják, a 'git diff-{asterisk}' parancsok a módosítottak mellett a
+módosítatlan filepaireket is átadják a diffcore mechanizmusnak.  Ez lehetővé
+teszi, hogy a másolatészlelő a módosítatlan fájlokat is másolási
+forrásjelöltnek tekintse, cserébe lassabbá válik.  A `--find-copies-harder`
+nélkül a 'git diff-{asterisk}' parancsok csak akkor ismerik fel a
+másolatokat, ha a lemásolt fájl történetesen ugyanabban a changesetben lett
+módosítva.
 
 
-diffcore-pickaxe: For Detecting Addition/Deletion of Specified String
----------------------------------------------------------------------
+[[_diffcore_merge_broken_for_putting_complete_rewrites_back_together]]
+diffcore-merge-broken: teljes újraírások összeillesztéséhez
+-----------------------------------------------------------
 
-This transformation limits the set of filepairs to those that change
-specified strings between the preimage and the postimage in a certain
-way.  -S<block-of-text> and -G<regular-expression> options are used to
-specify different ways these strings are sought.
+Ez a transzformáció arra szolgál, hogy a diffcore-break által szétbontott, és
+a diffcore-rename által átnevezéssé/másolattá nem alakított filepaireket
+visszaolvassza egyetlen módosítássá.  Ez mindig lefut, amikor a
+diffcore-break használatban van.
 
-"-S<block-of-text>" detects filepairs whose preimage and postimage
-have different number of occurrences of the specified block of text.
-By definition, it will not detect in-file moves.  Also, when a
-changeset moves a file wholesale without affecting the interesting
-string, diffcore-rename kicks in as usual, and `-S` omits the filepair
-(since the number of occurrences of that string didn't change in that
-rename-detected filepair).  When used with `--pickaxe-regex`, treat
-the <block-of-text> as an extended POSIX regular expression to match,
-instead of a literal string.
+A szétbontott filepairek visszaolvasztásához a diffcore-break és a
+diffcore-rename által használtaktól eltérő „változások mértéke" számítást
+használ.  Csak az eredetiből való törlést számolja, a beszúrást nem.  Ha egy
+100 soros dokumentumból csak 10 sort távolítottál el, még ha 910 új sort
+adtál is hozzá egy új, 1000 soros dokumentum létrehozásához, nem végeztél
+teljes újraírást.  A diffcore-break szétbontja az ilyen esetet, hogy segítse
+a diffcore-rename-et abban, hogy az ilyen filepaireket az
+átnevezés-/másolatészlelés jelöltjeként vegye figyelembe, de ha az így
+szétbontott filepairek nem párosultak más filepairekkel átnevezés/másolat
+létrehozásához, akkor ez a transzformáció visszaolvasztja őket az eredeti
+„módosítássá".
 
-"-G<regular-expression>" (mnemonic: grep) detects filepairs whose
-textual diff has an added or a deleted line that matches the given
-regular expression.  This means that it will detect in-file (or what
-rename-detection considers the same file) moves, which is noise.  The
-implementation runs diff twice and greps, and this can be quite
-expensive.  To speed things up, binary files without textconv filters
-will be ignored.
+A „változások mértéke" paraméter a 80%-os alapértelmezéstől (azaz hacsak az
+eredeti anyag több mint 80%-át nem törlik, a szétbontott párok
+visszaolvadnak egyetlen módosítássá) eltérően állítható egy második szám
+megadásával a -B opciónak, így:
 
-When `-S` or `-G` are used without `--pickaxe-all`, only filepairs
-that match their respective criterion are kept in the output.  When
-`--pickaxe-all` is used, if even one filepair matches their respective
-criterion in a changeset, the entire changeset is kept.  This behavior
-is designed to make reviewing changes in the context of the whole
-changeset easier.
+* -B50/60 (adj 50% „break score"-t a diffcore-break-nek, használj 60%-ot
+  a diffcore-merge-broken-hez).
 
-diffcore-order: For Sorting the Output Based on Filenames
----------------------------------------------------------
+* -B/60 (ugyanaz, mint fent, mivel a diffcore-break alapértelmezése 50%).
 
-This is used to reorder the filepairs according to the user's
-(or project's) taste, and is controlled by the -O option to the
-'git diff-{asterisk}' commands.
+Vedd figyelembe, hogy a korábbi implementáció a szétbontott párt külön
+létrehozási és törlési patchként hagyta meg.  Ez felesleges hack volt, és a
+legújabb implementáció mindig visszaolvasztja az összes szétbontott párt
+módosításokká, de az eredményül kapott patch kimenete másképp van
+formázva a könnyebb átnézhetőség érdekében egy ilyen teljes újraírás
+esetén: a régi verzió teljes tartalmát '-' előtaggal, majd az új verzió
+teljes tartalmát '+' előtaggal mutatja.
 
-This takes a text file each of whose lines is a shell glob
-pattern.  Filepairs that match a glob pattern on an earlier line
-in the file are output before ones that match a later line, and
-filepairs that do not match any glob pattern are output last.
 
-As an example, a typical orderfile for the core Git probably
-would look like this:
+[[_diffcore_pickaxe_for_detecting_addition_deletion_of_specified_string]]
+diffcore-pickaxe: megadott sztring hozzáadásának/törlésének észleléséhez
+------------------------------------------------------------------------
+
+Ez a transzformáció a filepairek halmazát azokra korlátozza, amelyek adott
+sztringeket bizonyos módon megváltoztatnak a preimage és a postimage között.
+A -S<block-of-text> és a -G<regular-expression> opció szolgál e sztringek
+keresésének különböző módjai megadására.
+
+A "-S<block-of-text>" azokat a filepaireket észleli, amelyek preimage-e és
+postimage-e eltérő számú előfordulást tartalmaz a megadott szövegblokkból.
+Definíció szerint nem észleli a fájlon belüli mozgatásokat.  Továbbá amikor
+egy changeset egészében mozgat egy fájlt anélkül, hogy érintené az érdekes
+sztringet, a diffcore-rename a szokásos módon lép működésbe, és a `-S`
+kihagyja a filepairt (mivel az adott sztring előfordulásainak száma nem
+változott abban az átnevezésként észlelt filepairben).  A `--pickaxe-regex`
+kapcsolóval használva a <block-of-text> literál sztring helyett illesztendő
+kiterjesztett POSIX reguláris kifejezésként kezelendő.
+
+A "-G<regular-expression>" (emlékeztető: grep) azokat a filepaireket észleli,
+amelyek szöveges diffjében van olyan hozzáadott vagy törölt sor, amely
+illeszkedik a megadott reguláris kifejezésre.  Ez azt jelenti, hogy észleli a
+fájlon belüli (vagy amit az átnevezés-észlelés ugyanazon fájlnak tekint)
+mozgatásokat, ami zaj.  Az implementáció kétszer futtat diffet és grepel, és
+ez elég költséges lehet.  A gyorsítás érdekében a textconv szűrők nélküli
+bináris fájlokat figyelmen kívül hagyja.
+
+Amikor a `-S`-t vagy a `-G`-t `--pickaxe-all` nélkül használják, csak azok a
+filepairek maradnak meg a kimenetben, amelyek illeszkednek a saját
+kritériumukra.  Amikor a `--pickaxe-all` használatban van, ha egy
+changesetben akár csak egy filepair is illeszkedik a saját kritériumára, az
+egész changeset megmarad.  Ezt a viselkedést arra tervezték, hogy
+megkönnyítse a változások átnézését az egész changeset kontextusában.
+
+[[_diffcore_order_for_sorting_the_output_based_on_filenames]]
+diffcore-order: a kimenet rendezéséhez fájlnevek alapján
+--------------------------------------------------------
+
+Ez arra szolgál, hogy a filepaireket a felhasználó (vagy a projekt) ízlése
+szerint átrendezze, és a 'git diff-{asterisk}' parancsok -O opciója vezérli.
+
+Ez egy szöveges fájlt vár, amelynek minden sora egy shell glob minta.  Azok a
+filepairek, amelyek a fájl egy korábbi sorában lévő glob mintára
+illeszkednek, egy későbbi sorra illeszkedők előtt kerülnek a kimenetbe, a
+glob mintára nem illeszkedő filepairek pedig utolsóként.
+
+Példaként a core Git egy tipikus orderfile-ja valószínűleg így nézne ki:
 
 ------------------------------------------------
 README
@@ -297,24 +291,24 @@ Documentation
 t
 ------------------------------------------------
 
-diffcore-rotate: For Changing At Which Path Output Starts
----------------------------------------------------------
+[[_diffcore_rotate_for_changing_at_which_path_output_starts]]
+diffcore-rotate: annak megváltoztatásához, melyik útvonalnál kezdődik a kimenet
+-------------------------------------------------------------------------------
 
-This transformation takes one pathname, and rotates the set of
-filepairs so that the filepair for the given pathname comes first,
-optionally discarding the paths that come before it.  This is used
-to implement the `--skip-to` and the `--rotate-to` options.  It is
-an error when the specified pathname is not in the set of filepairs,
-but it is not useful to error out when used with "git log" family of
-commands, because it is unreasonable to expect that a given path
-would be modified by each and every commit shown by the "git log"
-command.  For this reason, when used with "git log", the filepair
-that sorts the same as, or the first one that sorts after, the given
-pathname is where the output starts.
+Ez a transzformáció egy útvonalnevet vesz, és úgy forgatja el a filepairek
+halmazát, hogy a megadott útvonalnévhez tartozó filepair kerüljön előre,
+opcionálisan eldobva az előtte lévő útvonalakat.  Ez a `--skip-to` és a
+`--rotate-to` opció megvalósítására szolgál.  Hiba, ha a megadott útvonalnév
+nincs a filepairek halmazában, de nem hasznos hibával kilépni a "git log"
+parancscsaláddal használva, mert észszerűtlen elvárni, hogy egy adott
+útvonalat a "git log" parancs által megjelenített minden egyes commit
+módosítson.  Emiatt a "git log"-gal használva a kimenet ott kezdődik, ahol az
+a filepair van, amely ugyanoda rendeződik, mint a megadott útvonalnév, vagy
+az első olyan, amely utána.
 
-Use of this transformation combined with diffcore-order will produce
-unexpected results, as the input to this transformation is likely
-not sorted when diffcore-order is in effect.
+Ha ezt a transzformációt a diffcore-order-rel kombinálva használják, az
+váratlan eredményeket produkál, mivel ennek a transzformációnak a bemenete
+valószínűleg nincs rendezve, amikor a diffcore-order érvényben van.
 
 
 SEE ALSO
@@ -326,8 +320,8 @@ linkgit:git-diff-tree[1],
 linkgit:git-format-patch[1],
 linkgit:git-log[1],
 linkgit:gitglossary[7],
-link:user-manual.html[The Git User's Manual]
+link:user-manual.html[A Git felhasználói kézikönyve]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

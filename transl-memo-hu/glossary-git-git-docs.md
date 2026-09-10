@@ -2752,3 +2752,171 @@ listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`g
   címkék bájtazonosak; a `color.diff.<slot>` / `contextDimmed` stb. config-token, a
   `Jonker–Volgenant` név, a `c>0` / `n+m` / `n*m` matematikai jelölések változatlanok; `Note:`
   (kisbetűs, NEM `NOTE:` admonition) → „Megjegyzés:".
+
+## 34. blokk — `gitrepository-layout.adoc`, `gitdiffcore.adoc`, `gitcredentials.adoc`, `git-ls-files.adoc`, `git-merge-tree.adoc`, `BreakingChanges.adoc`, `git-grep.adoc`, `scalar.adoc`, `fetch-options.adoc`, `gitprotocol-capabilities.adoc` — 2026-09-10
+
+**Módszer:** a felhasználó 10-es bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a következő 10 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel (nagy, ~10–90 soros blokkokban).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| breaking change / breaking release / backwards-incompatible | **„kompatibilitástörő változás" / „kompatibilitástörő kiadás" / „visszafelé nem kompatibilis"** | `BreakingChanges.adoc` — a doc `= Upcoming breaking changes` címe: „Közelgő kompatibilitástörő változások" |
+| to deprecate / deprecated / deprecation | **„elavulttá nyilvánít" / „elavult" / „elavulttá nyilvánítás"** | `BreakingChanges.adoc` |
+| enlistment (Scalar) | **marad „enlistment"** (coined term, a doc definiálja); első előforduláskor magyar glossza | `scalar.adoc` |
+| forge (Git hosting) | **marad „forge"**; toldalék: `forge-ok`, `forge-okhoz` | `scalar.adoc`, `BreakingChanges.adoc` |
+| long-term support release | **„hosszú távú támogatási kiadás"** | `BreakingChanges.adoc` |
+| test balloon | **„próbaléggömb"** | `BreakingChanges.adoc` |
+| graft / grafting / grafts | **marad „graft" / „graftolás" / „graftok"** (Git jargon) | `BreakingChanges.adoc`, `gitrepository-layout.adoc` |
+| object store (`.git/objects`) | **„objektumadatbázis"** (0. blokk `object database (ODB)`; NEM „objektumtárolás" — az S3/GCP-értelem, 1. blokk) | `gitrepository-layout.adoc`, `git-grep.adoc` |
+| symref (a `symbolic ref` rövidítése) | **marad „symref"** angolul (Git jargon, „see glossary") | `gitrepository-layout.adoc`, `gitprotocol-capabilities.adoc` |
+| `'unpacked'` / `'loose'` / `'bare'` / `'gitfile'` / `'detached HEAD.'` (compat-mode `'...'` jelölésű Git jargon) | **bájtazonosan angolul, a `'...'` jelöléssel** | `gitrepository-layout.adoc` — coined/jargon-címkék; a `'borrow'` (sima ige emfázisban) viszont fordult: `'kölcsönöz'` |
+| `*must*` (kisbetűs, `*...*` emfázisú modális ige folyó szövegben) | **fordult: `*kötelező*`** (a `*` jelölés megtartva) | `gitrepository-layout.adoc` — NEM formális RFC 2119 (az uppercase `MUST`/`SHOULD` marad angol); a lowercase emfázis közönséges kiemelés |
+| diffcore transformation | **„diffcore transzformáció"** | `gitdiffcore.adoc` |
+| filepair | **marad „filepair"** (coined, a doc definiálja) | `gitdiffcore.adoc` |
+| `"tree"` object (idézőjeles) | **marad `"tree"`** angolul (Git objektum-típusnév, 0. blokk) | `gitdiffcore.adoc` |
+| complete rewrite / break score / extent of changes / similar enough | **„teljes újraírás" / „break score" (angolul, a `-B`-hez kötve) / „változások mértéke" / „elég hasonló"** | `gitdiffcore.adoc` — idézőjelben, ahol a forrás is |
+| preimage / postimage | **marad „preimage" / „postimage"** (Git diff jargon) | `gitdiffcore.adoc` |
+| credential(s) (sima szó) / credential helper (összetétel) | **„hitelesítő adatok" / marad „credential helper"** (anglicizmus, 0. blokk) | `gitcredentials.adoc` — `credential-kontextus`, `credential.helper` config bájtazonos |
+| status tag (git-ls-files `-t`) | **„státuszcímke"** | `git-ls-files.adoc` — a `H`/`S`/`M`/`R`/`C`/`K`/`?`/`U` `::` címkék bájtazonosak |
+| unborn branch | **„meg nem született branch"** (0./33. blokk) | `git-ls-files.adoc` — a `--orphan` mintája |
+| toplevel tree (merge-tree) | **„legfelső szintű fa"** | `git-merge-tree.adoc` |
+| trivial merge / semi-diff format | **„triviális merge" / „fél-diff formátum"** | `git-merge-tree.adoc` |
+| higher order stage (index) | **„magasabb rendű stage"** | `git-merge-tree.adoc` |
+| many-to-many / one-to-one mapping | **„több-a-többhöz" / „egy-az-egyhez" leképezés** | `git-merge-tree.adoc` |
+| `Do NOT` / `AVOID` (emfatikus, csupa nagybetűs mondatkezdet) | **`NE` / `KERÜLD`** (nagybetűs marad, a 3. blokk emfatikus formázás-megtartás mintája) | `git-merge-tree.adoc` |
+| force-update / force-updated (branch) | **„force-update" (fn, marad); „force-update történt-e" (ige helyett körülírás)** | `fetch-options.adoc` — a 0. blokk `force-update` tétele |
+| have line / want line / "have" set (protokoll) | **„have sor" / „want sor" / „have-halmaz"**; a `"have"` / `"want"` idézőjeles protokoll-token angolul | `fetch-options.adoc`, `gitprotocol-capabilities.adoc` |
+| to thicken (a thin pack) | **„megvastagít"** (idézőjelben, ahol a forrás `"thicken"`) | `gitprotocol-capabilities.adoc` |
+| stream code / sideband channel | **„folyamkód" / „sideband csatorna"** | `gitprotocol-capabilities.adoc` |
+| push certificate / nonce | **„push-tanúsítvány" / marad „nonce"** (32. blokk) | `gitprotocol-capabilities.adoc` |
+| capability (protokoll) | **„képesség"**; a konkrét capability-nevek (`multi_ack`, `thin-pack`, …) angolul, `'...'` jelöléssel | `gitprotocol-capabilities.adoc` |
+
+### Címsor-anchorok
+
+- **`git-merge-tree.adoc`** — 8 meglévő `[[...]]` anchor **bájtazonos** (`[[NEWMERGE]]`, `[[OUTPUT]]`,
+  `[[MS]]`, `[[OIDTLT]]`, `[[CFI]]`, `[[IM]]`, `[[INPUT]]`, `[[DEPMERGE]]`). A 4 `~~~~` Title Case
+  alcím **fordult**, aláhúzás pontos karakterhosszra igazítva (Python `len()` ellenőrzés):
+  „Merge-státusz" (13), „A legfelső szintű fa OID-ja" (27), „Konfliktusos fájlinformáció" (27),
+  „Tájékoztató üzenetek" (20). A rájuk mutató `<<OIDTLT,legfelső szintű fa OID-ja>>` /
+  `<<CFI,konfliktusos fájlinformáció>>` / `<<IM,tájékoztató üzenetek>>` xref-ek vessző utáni része
+  is fordult (kisbetűsítve, folyó szövegben). A csupa nagybetűs linkszövegek angolul:
+  `<<INPUT,INPUT FORMAT>>`, `<<OUTPUT,OUTPUT>>`, `<<DEPMERGE,DEPRECATED DESCRIPTION>>`,
+  `<<NEWMERGE,DESCRIPTION>>`.
+- **`gitdiffcore.adoc`** — 7 defenzív `[[...]]` a Title Case setext szakaszcímek fölé (nincs rájuk
+  `<<...>>`): `[[_the_chain_of_operation]]` „A műveleti lánc", + 6 `diffcore-*` cím
+  (`_diffcore_break_for_splitting_up_complete_rewrites` „diffcore-break: teljes újraírások
+  szétbontásához" stb. — a `diffcore-*:` token megtartva, a „For …" leíró rész fordult). Aláhúzás
+  pontos hosszra igazítva.
+- **`gitcredentials.adoc`** — 2 defenzív `[[...]]` a `===` alcímek fölé: `[[_available_helpers]]`
+  „=== Elérhető helperek", `[[_oauth]]` „=== OAuth" (proper noun, fordítatlan).
+- **`BreakingChanges.adoc`** — NEM man page; **minden** `==`/`===` cím fordult, 5 defenzív `[[...]]`:
+  `[[_procedure]]` „== Eljárás", `[[_git_3_0]]` „== Git 3.0" (verzió-token, fordítatlan),
+  `[[_changes]]` „=== Változások", `[[_removals]]` „=== Eltávolítások",
+  `[[_superseded_features_that_will_not_be_deprecated]]` „== Leváltott funkciók, amelyeket nem
+  nyilvánítanak elavulttá". A `= Upcoming breaking changes` doc-cím → „= Közelgő kompatibilitástörő
+  változások".
+- **`scalar.adoc`** — 8 defenzív `[[...]]` a `~~~~` alparancs-alcímek fölé (mind fordult, aláhúzás
+  pontos hosszra igazítva): `[[_clone]]` „Klónozás", `[[_list]]` „Listázás", `[[_register]]`
+  „Regisztrálás", `[[_unregister]]` „Kiregisztrálás", `[[_run]]` „Futtatás", `[[_reconfigure]]`
+  „Újrakonfigurálás", `[[_diagnose]]` „Diagnosztizálás", `[[_delete]]` „Törlés".
+- **`gitprotocol-capabilities.adoc`** — a capability-nevek (`multi_ack`, `multi_ack_detailed`,
+  `no-done`, `thin-pack`, `side-band, side-band-64k`, `ofs-delta`, `agent`, `object-format`,
+  `symref`, `shallow`, `deepen-*`, `no-progress`, `include-tag`, `report-status`,
+  `report-status-v2`, `delete-refs`, `quiet`, `atomic`, `push-options`, `allow-*-sha1-in-want`,
+  `push-cert=<nonce>`, `filter`, `session-id=<session-id>`) protokoll-token identifikátorok →
+  **bájtazonosan angolul**, aláhúzás változatlan, **nincs** defenzív anchor.
+- `gitrepository-layout.adoc`, `git-ls-files.adoc`, `git-grep.adoc`, `fetch-options.adoc`: nincs
+  `[[...]]`/`<<...>>`. A `git-ls-files.adoc` / `git-grep.adoc` / `git-merge-tree.adoc` csupa
+  nagybetűs, kanonikus listán kívüli alcímei a VÉGLEGES DÖNTÉS szerint angolul (l. lent).
+
+### Man-page címként / csupa nagybetűs alcímként ANGOLUL hagyott címsorok (VÉGLEGES DÖNTÉS szerint)
+
+- **`FIELD NAMES`** / **`EXCLUDE PATTERNS`** (`git-ls-files.adoc`, + `see EXCLUDE PATTERNS below` /
+  `see OUTPUT below` prózahivatkozások), **`USAGE NOTES`** / **`MISTAKES TO AVOID`** /
+  **`INPUT FORMAT`** / **`DEPRECATED DESCRIPTION`** (`git-merge-tree.adoc`),
+  **`REQUESTING CREDENTIALS`** / **`AVOIDING REPETITION`** / **`CREDENTIAL CONTEXTS`** /
+  **`CONFIGURATION OPTIONS`** / **`CUSTOM HELPERS`** (`gitcredentials.adoc`),
+  **`NOTES ON THREADS`** (`git-grep.adoc`, + `` `NOTES ON THREADS` `` prózahivatkozás),
+  **`RECOMMENDED CONFIG VALUES`** (`scalar.adoc`) — csupa nagybetűs, kanonikus listán kívül →
+  bájtazonosan angolul (aláhúzás sem változott).
+- **`OUTPUT`** (`git-merge-tree.adoc`, explicit `[[OUTPUT]]` anchorral; `git-ls-files.adoc` szakasz;
+  `fetch-options.adoc` prózahivatkozás `linkgit:git-fetch[1]`-re) — a 3. blokk `OUTPUT` precedense,
+  angolul. **`EXIT STATUS`** (`git-merge-tree.adoc`) — kanonikus.
+- **`PRUNING`** (`fetch-options.adoc`, `see the PRUNING section below` — a `git-fetch.adoc`-ban is
+  angol, 32. blokk) és **`"Configured Remote-tracking Branches"`** (`fetch-options.adoc`
+  prózahivatkozás a `git-fetch.adoc` `[[CRTB]]` / `CONFIGURED REMOTE-TRACKING BRANCHES` szakaszára,
+  12./26. blokk) — angolul, idézőjelben.
+- **`"Packfile Negotiation"`** (`gitprotocol-capabilities.adoc`, `linkgit:gitprotocol-pack[5]`
+  szakasznév) — egyenes idézőjelben, angolul.
+
+### Megőrzött markup / megjegyzések
+
+- **`gitrepository-layout.adoc`**: tiszta `::` def-lista (útvonal-/fájlnév-címkék: `objects::`,
+  `HEAD::`, `worktrees/<id>/gitdir::`, … — **bájtazonosak**); a 4 `ifndef::with-breaking-changes[]` /
+  `endif::with-breaking-changes[]` guard és az `include::technical/repository-version.adoc[]`
+  változatlan; a `link:user-manual.html[...]` látható szövege fordult („A Git felhasználói
+  kézikönyve"); `$GIT_COMMON_DIR` / `"$GIT_COMMON_DIR/objects"` idézőjeles útvonalak
+  változatlanok; a `. You could …` implicit számozott lista `. ` jelölése megtartva.
+- **`gitdiffcore.adoc`**: a 9 pár `------------------------------------------------` (48 kötőjel)
+  `:100644 …` raw-diff példablokk **bájtazonos** (a `README`/`Makefile`/`*.h`/`*.c`/`t` orderfile-
+  példa is); `{asterisk}` attribútum-referencia változatlan; a „5 ilyen transzformáció" (a lista
+  6 elemű — upstream inkonzisztencia) **nem javítva**; `'-'` / `'+'` compat-mode jelölés megtartva.
+- **`gitcredentials.adoc`**: a `------------------` (18) SYNOPSIS-blokk és a 22 config-példablokk
+  (`----…` 18/36–52 kötőjel, benne `#` Apache/shell config-kommentek, `[credential "…"]` szekciók,
+  `!f() { … }` shell-snippet) **bájtazonos**; a `helper::` / `username::` / `useHttpPath::` /
+  `` `get`:: `` / `` `store`:: `` / `` `erase`:: `` `::` címkék változatlanok; a `cache::` / `store::`
+  helper-nevek bájtazonosak; `'CONFIGURATION'` szakasznév-hivatkozás angolul; `\0` escape megtartva;
+  a `keep'` (nyitó backtick, záró aposztróf — upstream elírás) **bájtazonosan** hagyva; a
+  `<entlistment>` elírás (kód-spanben) bájtazonos.
+- **`git-ls-files.adoc`**: `[verse]` blokk; a `--`…`--` open-block a `H::`/`S::`/… tab-behúzott
+  státuszcímke-listával (a `U::` utáni 5 szóköz megtartva); a `        [<tag> ]<mode> …` /
+  tabbal behúzott `i/<eolinfo>…` / `git ls-files --format='…'` literál sorok **bájtazonosak**;
+  `objectmode::`/`objecttype::`/… mezőnév-`::`-címkék változatlanok; a `"-text"`/`"none"`/`"lf"`/
+  `"crlf"`/`"text=auto eol=lf"` eol-értékek és `%(fieldname)` / `%x00` / `\0` / `\t` / `\n`
+  jelölések bájtazonosak; `'assume unchanged'` / `'fsmonitor valid'` compat-mode jelölés megtartva;
+  `\--::` bájtazonos.
+- **`git-merge-tree.adoc`**: `[verse]` blokk; a `(deprecated)` synopsis-annotáció → `(elavult)`; a
+  `<OID of toplevel tree>` / `<Conflicted file info>` / `<Informational messages>` / `<Merge status>`
+  / `NUL` tab-behúzott literál kimenet-vázlatok **bájtazonosak**; a `     0: …` / `     1: …`
+  5-szóközzel behúzott státuszkód-magyarázatok fordultak (behúzás megtartva); a `* "Auto-merging"` /
+  `* "CONFLICT (rename/delete)"` / `"Failed to merge submodule …"` idézőjeles program-üzenet-példák
+  angolul; a `vi message.txt` … `git update-ref $BRANCH1 $NEWCOMMIT` 7-szóközzel behúzott
+  shell-blokk (benne `echo "There were conflicts…"`) bájtazonos; `"merge.directoryRenames"` /
+  `"conflicts"` idézőjeles config-token angolul.
+- **`BreakingChanges.adoc`**: a `--`…`--` open-block a Rust-mérföldkövek számozott listájával
+  fordult; a `** ` másodszintű felsorolás-elemek fordultak; a `<message-id@host>` e-mail-
+  message-ID-k és a `675704c74dd (init: …, 2020-12-11)` alakú commit-hivatkozások (hash +
+  angol commit-subject) **bájtazonosak**; `Cf.` → `Vö.`; `_not_` compat-mode emfázis → `_nem_`;
+  `MUST` (RFC 2119, `WITH_BREAKING_CHANGES` guard leírásában) angolul; `"sha1"`/`"sha256"`/
+  `"files"`/`"reftable"`/`"packed-refs"`/`"experimental"` idézőjeles formátum-/feature-nevek
+  angolul.
+- **`git-grep.adoc`**: `[synopsis]` blokk; `include::includes/cmd-config-section-all.adoc[]` +
+  `include::config/grep.adoc[]` változatlan; `'CONFIGURATION'` / `'Defining a custom hunk-header'`
+  compat-mode szakasznév-hivatkozások angolul; `` `grep`(1) `` / `` `glob`(7) `` / `\0` bájtazonos;
+  `"less"` / `"vi"` / `"a*"` / `"*"` idézőjeles program-/glob-példák angolul; a `` `git grep …` ``
+  EXAMPLES-`::`-címkék bájtazonosak (csak a törzs fordult).
+- **`scalar.adoc`**: `[verse]` blokk; a config-kulcs `::`-címkék (`am.keepCR=true::`,
+  `credential.https://dev.azure.com.useHttpPath=true::`, …) és az alparancs-`::`-címkék
+  (`clone [<options>] …::`, `list::`, `diagnose [<enlistment>]::` — utóbbi 4-szóközzel behúzott
+  törzzsel) **bájtazonosak**; `"experimental"` / `"many files"` idézőjeles feature-leírás fordult;
+  a `keep'` (upstream elírás) és a `<entlistment>` elírás bájtazonos; `\r` escape megtartva.
+- **`fetch-options.adoc`**: tiszta opció-fragmens (nincs NAME/GIT/DESCRIPTION); mind a 22
+  `ifdef::git-pull[]` / `ifndef::git-pull[]` / `endif::git-pull[]` guard **bájtazonos**; minden
+  `::` opció-címke és a `+` folytatásjelölők változatlanok; `{asterisk}` / `_NUL_` / `_LF_` /
+  `__<refspec>__` / `_<n>_` placeholderek bájtazonosak; `'shallow'` compat-mode jelölés megtartva;
+  `"have"` / `"changed"` / `"Fetching submodule foo"` idézőjeles protokoll-token, ill. program-
+  üzenet angolul (a `"changed"` leíró → nem fordult, protokoll-kontextus).
+- **`gitprotocol-capabilities.adoc`**: `[verse]` blokk (`<over-the-wire-protocol>`); a
+  `+---- u ----` … tab-behúzott bipartite-gráf ASCII-art **bájtazonos**; a ` 1 - pack data` /
+  ` 2 - …` / ` 3 - …` 1-szóközzel behúzott folyamkód-lista fordult (behúzás megtartva); minden
+  idézőjeles protokoll-parancs/-string (`"ACK obj-id continue"`, `"done"`, `"deepen"`,
+  `"rev-list --max-age=<timestamp>"`, `"symref=HEAD:refs/heads/master"`, `"side-band-64k"`,
+  `"want"`, `"filter"`, `"option"`, `"proc-receive"`, `"package/version"`, `"git/1.8.3.1"`, a hosszú
+  `"I do not wish to receive stream 2 …"` kliens-idézet) **bájtazonosan angolul**; `'multi_ack'` /
+  `'thin-pack'` / `'no-thin'` / … compat-mode jelölés megtartva; RFC 2119 kulcsszavak
+  (`SHOULD`/`MUST`/`MUST NOT`/`MAY`) angolul; `link:technical/api-trace2.html[api-trace2]` látható
+  szöveg (doc-név) angolul; `OBJ_OFS_DELTA` / `PACKv2` / `DAG` / `SHA-1` bájtazonos.
