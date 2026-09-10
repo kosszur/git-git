@@ -3,7 +3,7 @@ git-notes(1)
 
 NAME
 ----
-git-notes - Add or inspect object notes
+git-notes - Objektumjegyzetek hozzáadása vagy megtekintése
 
 SYNOPSIS
 --------
@@ -24,300 +24,313 @@ git notes get-ref
 
 DESCRIPTION
 -----------
-Adds, removes, or reads notes attached to objects, without touching
-the objects themselves.
+Objektumokhoz csatolt jegyzeteket ad hozzá, távolít el vagy olvas be,
+anélkül, hogy magukhoz az objektumokhoz hozzányúlna.
 
-By default, notes are saved to and read from `refs/notes/commits`, but
-this default can be overridden.  See the OPTIONS, CONFIGURATION, and
-ENVIRONMENT sections below.  If this ref does not exist, it will be
-quietly created when it is first needed to store a note.
+Alapból a jegyzetek a `refs/notes/commits`-ba mentődnek, és onnan
+olvasódnak be, de ez az alapértelmezés felülbírálható. Lásd az OPTIONS,
+CONFIGURATION és ENVIRONMENT szakaszt lentebb. Ha ez a ref nem létezik,
+csendben létrejön, amikor először van rá szükség egy jegyzet
+tárolásához.
 
-A typical use of notes is to supplement a commit message without
-changing the commit itself. Notes can be shown by `git log` along with
-the original commit message. To distinguish these notes from the
-message stored in the commit object, the notes are indented like the
-message, after an unindented line saying "Notes (_<refname>_):" (or
-"Notes:" for `refs/notes/commits`).
+A jegyzetek tipikus felhasználása egy commit-üzenet kiegészítése magának
+a commitnak a módosítása nélkül. A jegyzeteket a `git log` az eredeti
+commit-üzenettel együtt meg tudja jeleníteni. Hogy ezek a jegyzetek
+megkülönböztethetők legyenek a commitobjektumban tárolt üzenettől, a
+jegyzetek az üzenethez hasonlóan vannak behúzva, egy be nem húzott sor
+után, amely azt írja: „Notes (_<refname>_):" (vagy „Notes:" a
+`refs/notes/commits` esetén).
 
-Notes can also be added to patches prepared with `git format-patch` by
-using the `--notes` option. Such notes are added as a patch commentary
-after a three dash separator line.
+A jegyzetek a `git format-patch`-csel előkészített patchekhez is
+hozzáadhatók a `--notes` kapcsolóval. Az ilyen jegyzetek patch-kommentárként
+kerülnek hozzáadásra egy három kötőjeles elválasztó sor után.
 
-To change which notes are shown by `git log`, see the
-`notes.displayRef` discussion in <<CONFIGURATION,CONFIGURATION>>.
+Hogy megváltoztasd, mely jegyzeteket jeleníti meg a `git log`, lásd a
+`notes.displayRef` tárgyalását a <<CONFIGURATION,CONFIGURATION>>
+szakaszban.
 
-See the `notes.rewrite.<command>` configuration for a way to carry
-notes across commands that rewrite commits.
+A commitokat átíró parancsokon átívelő jegyzetátvitel módjáról lásd a
+`notes.rewrite.<command>` konfigurációt.
 
 
 SUBCOMMANDS
 -----------
 
 `list`::
-	List the notes object for a given object. If no object is
-	given, show a list of all note objects and the objects they
-	annotate (in the format "`<note-object> <annotated-object>`").
-	This is the default subcommand if no subcommand is given.
+	Kilistázza egy adott objektum jegyzetobjektumát. Ha nincs
+	objektum megadva, megjeleníti az összes jegyzetobjektum és az
+	általuk annotált objektumok listáját (a "`<note-object>
+	<annotated-object>`" formátumban). Ez az alapértelmezett
+	alparancs, ha nincs alparancs megadva.
 
 `add`::
-	Add notes for a given object (defaults to `HEAD`). Abort if the
-	object already has notes (use `-f` to overwrite existing notes).
-	However, if you're using `add` interactively (using an editor
-	to supply the notes contents), then - instead of aborting -
-	the existing notes will be opened in the editor (like the `edit`
-	subcommand). If you specify multiple `-m` and `-F`, a blank
-	line will be inserted between the messages. Use the `--separator`
-	option to insert other delimiters. You can use `-e` to edit and
-	fine-tune the message(s) supplied from `-m` and `-F` options
-	interactively (using an editor) before adding the note.
+	Jegyzeteket ad egy adott objektumhoz (alapból `HEAD`). Megszakad,
+	ha az objektumnak már vannak jegyzetei (a `-f`-fel felülírhatók a
+	meglévő jegyzetek). Ha viszont az `add`-et interaktívan használod
+	(egy szerkesztővel adva meg a jegyzetek tartalmát), akkor —
+	megszakadás helyett — a meglévő jegyzetek megnyílnak a
+	szerkesztőben (mint az `edit` alparancsnál). Ha több `-m`-et és
+	`-F`-et adsz meg, egy üres sor kerül beszúrásra az üzenetek közé. A
+	`--separator` kapcsolóval más elválasztók is beszúrhatók. A `-e`-vel
+	interaktívan (egy szerkesztővel) szerkesztheted és finomíthatod a
+	`-m` és `-F` kapcsolóból megadott üzenete(ke)t a jegyzet
+	hozzáadása előtt.
 
 `copy`::
-	Copy the notes for the first object onto the second object (defaults to
-	`HEAD`). Abort if the second object already has notes, or if the first
-	object has none (use `-f` to overwrite existing notes to the
-	second object). This subcommand is equivalent to:
+	Átmásolja az első objektum jegyzeteit a második objektumra (alapból
+	`HEAD`). Megszakad, ha a második objektumnak már vannak jegyzetei,
+	vagy ha az elsőnek nincsenek (a `-f`-fel felülírhatók a második
+	objektum meglévő jegyzetei). Ez az alparancs a következővel
+	egyenértékű:
 	`git notes add [-f] -C $(git notes list <from-object>) <to-object>`
 +
-In `--stdin` mode, take lines in the format
+`--stdin` módban a
 +
 ----------
 <from-object> SP <to-object> [ SP <rest> ] LF
 ----------
 +
-on standard input, and copy the notes from each _<from-object>_ to its
-corresponding _<to-object>_.  (The optional _<rest>_ is ignored so that
-the command can read the input given to the `post-rewrite` hook.)
+formátumú sorokat veszi a standard bemenetről, és átmásolja a
+jegyzeteket minden egyes _<from-object>_-ról a hozzá tartozó
+_<to-object>_-ra. (Az opcionális _<rest>_ figyelmen kívül marad, hogy a
+parancs be tudja olvasni a `post-rewrite` hooknak adott bemenetet.)
 +
-`--stdin` cannot be combined with object names given on the command
-line.
+A `--stdin` nem kombinálható a parancssorban megadott
+objektumnevekkel.
 
 `append`::
-	Append new message(s) given by `-m` or `-F` options to an
-	existing note, or add them as a new note if one does not
-	exist, for the object (defaults to `HEAD`).  When appending to
-	an existing note, a blank line is added before each new
-	message as an inter-paragraph separator.  The separator can
-	be customized with the `--separator` option.
-	Edit the notes to be appended given by `-m` and `-F` options with
-	`-e` interactively (using an editor) before appending the note.
+	A `-m` vagy `-F` kapcsolóból megadott új üzenete(ke)t hozzáfűzi egy
+	meglévő jegyzethez, vagy új jegyzetként adja hozzá őket, ha nincs
+	ilyen, az objektumhoz (alapból `HEAD`). Meglévő jegyzethez való
+	hozzáfűzéskor minden új üzenet elé egy üres sor kerül bekezdésközi
+	elválasztóként. Az elválasztó a `--separator` kapcsolóval
+	testreszabható. A `-e`-vel interaktívan (egy szerkesztővel)
+	szerkeszd a `-m` és `-F` kapcsolóból megadott, hozzáfűzendő
+	jegyzeteket a jegyzet hozzáfűzése előtt.
 
 `edit`::
-	Edit the notes for a given object (defaults to `HEAD`).
+	Szerkeszti egy adott objektum jegyzeteit (alapból `HEAD`).
 
 `show`::
-	Show the notes for a given object (defaults to `HEAD`).
+	Megjeleníti egy adott objektum jegyzeteit (alapból `HEAD`).
 
 `merge`::
-	Merge the given notes ref into the current notes ref.
-	This will try to merge the changes made by the given
-	notes ref (called "remote") since the merge-base (if
-	any) into the current notes ref (called "local").
+	Merge-eli a megadott jegyzet-refet az aktuális jegyzet-refbe. Ez
+	megpróbálja a megadott jegyzet-ref (a neve "remote") által a
+	merge-alap (ha van) óta végzett módosításokat az aktuális
+	jegyzet-refbe (a neve "local") merge-elni.
 +
-If conflicts arise and a strategy for automatically resolving
-conflicting notes (see the "NOTES MERGE STRATEGIES" section) is not given,
-the `manual` resolver is used. This resolver checks out the
-conflicting notes in a special worktree (`.git/NOTES_MERGE_WORKTREE`),
-and instructs the user to manually resolve the conflicts there.
-When done, the user can either finalize the merge with
-`git notes merge --commit`, or abort the merge with
-`git notes merge --abort`.
+Ha konfliktusok merülnek fel, és nincs megadva stratégia a konfliktusos
+jegyzetek automatikus feloldására (lásd a "NOTES MERGE STRATEGIES"
+szakaszt), a `manual` feloldó kerül használatra. Ez a feloldó
+checkoutolja a konfliktusos jegyzeteket egy speciális worktree-be
+(`.git/NOTES_MERGE_WORKTREE`), és utasítja a felhasználót, hogy ott
+kézzel oldja fel a konfliktusokat. Ha ezzel megvan, a felhasználó vagy
+véglegesítheti a merge-et a `git notes merge --commit`-tal, vagy
+megszakíthatja a merge-et a `git notes merge --abort`-tal.
 
 `remove`::
-	Remove the notes for given objects (defaults to `HEAD`). When
-	giving zero or one object from the command line, this is
-	equivalent to specifying an empty note message to
-	the `edit` subcommand.
+	Eltávolítja a megadott objektumok jegyzeteit (alapból `HEAD`). Ha
+	nulla vagy egy objektumot adsz meg a parancssorból, ez azzal
+	egyenértékű, mintha üres jegyzetüzenetet adnál meg az `edit`
+	alparancsnak.
 +
-In `--stdin` mode, also remove the object names given on standard
-input. In other words, `--stdin` can be combined with object names from
-the command line.
+`--stdin` módban a standard bemeneten megadott objektumneveket is
+eltávolítja. Más szóval a `--stdin` kombinálható a parancssorból
+származó objektumnevekkel.
 
 `prune`::
-	Remove all notes for non-existing/unreachable objects.
+	Eltávolítja az összes jegyzetet a nem létező/elérhetetlen
+	objektumokhoz.
 
 `get-ref`::
-	Print the current notes ref. This provides an easy way to
-	retrieve the current notes ref (e.g. from scripts).
+	Kiírja az aktuális jegyzet-refet. Ez egyszerű módot ad az aktuális
+	jegyzet-ref lekérdezésére (pl. szkriptekből).
 
 OPTIONS
 -------
 `-f`::
 `--force`::
-	When adding notes to an object that already has notes,
-	overwrite the existing notes (instead of aborting).
+	Amikor olyan objektumhoz adsz jegyzeteket, amelynek már vannak
+	jegyzetei, felülírja a meglévő jegyzeteket (megszakadás helyett).
 
 `-m <msg>`::
 `--message=<msg>`::
-	Use the given note message (instead of prompting).
-	If multiple `-m` options are given, their values
-	are concatenated as separate paragraphs.
+	A megadott jegyzetüzenetet használja (bekérés helyett). Ha több
+	`-m` kapcsoló van megadva, az értékeik külön bekezdésekként
+	fűződnek össze.
 
 `-F <file>`::
 `--file=<file>`::
-	Take the note message from the given file.  Use `-` to
-	read the note message from the standard input.
+	A jegyzetüzenetet a megadott fájlból veszi. A `-`-t használva a
+	jegyzetüzenetet a standard bemenetről olvassa be.
 
 `-C <object>`::
 `--reuse-message=<object>`::
-	Take the given blob object (for example, another note) as the
-	note message. (Use `git notes copy <object>` instead to
-	copy notes between objects.)  Implies `--no-stripspace` since
-	the default behavior is to copy the message verbatim.
+	A megadott blobobjektumot (például egy másik jegyzetet) veszi
+	jegyzetüzenetnek. (Az objektumok közötti jegyzetmásoláshoz ehelyett
+	a `git notes copy <object>`-et használd.) Maga után vonja a
+	`--no-stripspace`-t, mivel az alapértelmezett viselkedés az üzenet
+	szó szerinti másolása.
 
 `-c <object>`::
 `--reedit-message=<object>`::
-	Like `-C`, but with `-c` the editor is invoked, so that
-	the user can further edit the note message.
+	Mint a `-C`, de a `-c`-vel meghívódik a szerkesztő, hogy a
+	felhasználó tovább tudja szerkeszteni a jegyzetüzenetet.
 
 `--allow-empty`::
-	Allow an empty note object to be stored. The default behavior is
-	to automatically remove empty notes.
+	Engedélyezi egy üres jegyzetobjektum tárolását. Az alapértelmezett
+	viselkedés az üres jegyzetek automatikus eltávolítása.
 
 `--separator=<paragraph-break>`::
 `--separator`::
 `--no-separator`::
-	Specify a string used as a custom inter-paragraph separator
-	(a newline is added at the end as needed). If `--no-separator`, no
-	separators will be added between paragraphs.  Defaults to a blank
-	line.
+	Megad egy sztringet, amely egyéni bekezdésközi elválasztóként
+	szolgál (a végére szükség szerint sortörés kerül). Ha
+	`--no-separator`, akkor nem kerülnek elválasztók a bekezdések közé.
+	Alapból egy üres sor.
 
 `--stripspace`::
 `--no-stripspace`::
-	Clean up whitespace. Specifically (see
+	Feltakarítja a whitespace-t. Pontosabban (lásd:
 	linkgit:git-stripspace[1]):
 +
 --
-- remove trailing whitespace from all lines
-- collapse multiple consecutive empty lines into one empty line
-- remove empty lines from the beginning and end of the input
-- add a missing `\n` to the last line if necessary.
+- eltávolítja a sorvégi whitespace-t minden sorból
+- több egymás utáni üres sort egyetlen üres sorrá von össze
+- eltávolítja az üres sorokat a bemenet elejéről és végéről
+- szükség esetén hozzáad egy hiányzó `\n`-t az utolsó sorhoz.
 --
 +
-`--stripspace` is the default except for
-`-C`/`--reuse-message`. However, keep in mind that this depends on the
-order of similar options. For example, for `-C <object> -m<message>`,
-`--stripspace` will be used because the default for `-m` overrides the
-previous `-C`. This is a known limitation that may be fixed in the
-future.
+A `--stripspace` az alapértelmezés, kivéve a `-C`/`--reuse-message`
+esetén. Ne feledd azonban, hogy ez a hasonló kapcsolók sorrendjétől
+függ. Például a `-C <object> -m<message>` esetén a `--stripspace` kerül
+használatra, mert a `-m` alapértelmezése felülbírálja a korábbi `-C`-t.
+Ez egy ismert korlát, amit a jövőben lehet, hogy kijavítanak.
 
 `--ref=<ref>`::
-	Manipulate the notes tree in _<ref>_.  This overrides
-	`GIT_NOTES_REF` and the `core.notesRef` configuration.  The ref
-	specifies the full refname when it begins with `refs/notes/`; when it
-	begins with `notes/`, `refs/` and otherwise `refs/notes/` is prefixed
-	to form a full name of the ref.
+	A `_<ref>_`-ben lévő jegyzetfát manipulálja. Ez felülbírálja a
+	`GIT_NOTES_REF`-et és a `core.notesRef` konfigurációt. A ref a
+	teljes refnevet adja meg, ha `refs/notes/`-szal kezdődik; ha
+	`notes/`-szal kezdődik, akkor `refs/` kerül elé, egyébként pedig
+	`refs/notes/` kerül elé, hogy a ref teljes neve létrejöjjön.
 
 `--ignore-missing`::
-	Do not consider it an error to request removing notes from an
-	object that does not have notes attached to it.
+	Nem tekinti hibának, ha olyan objektumtól kérsz jegyzeteltávolítást,
+	amelyhez nincsenek jegyzetek csatolva.
 
 `--stdin`::
-	Only valid for `remove` and `copy`. See the respective subcommands.
+	Csak a `remove` és `copy` esetén érvényes. Lásd az adott
+	alparancsokat.
 
 `-n`::
 `--dry-run`::
-	Do not remove anything; just report the object names whose notes
-	would be removed.
+	Nem távolít el semmit; csak jelenti azoknak az objektumoknak a
+	nevét, amelyeknek a jegyzetei eltávolításra kerülnének.
 
 `-s <strategy>`::
 `--strategy=<strategy>`::
-	When merging notes, resolve notes conflicts using the given
-	strategy. The following strategies are recognized: `manual`
-	(default), `ours`, `theirs`, `union` and `cat_sort_uniq`.
-	This option overrides the `notes.mergeStrategy` configuration setting.
-	See the "NOTES MERGE STRATEGIES" section below for more
-	information on each notes merge strategy.
+	Jegyzetek merge-elésekor a jegyzetkonfliktusokat a megadott
+	stratégiával oldja fel. A következő stratégiák ismertek: `manual`
+	(alapértelmezett), `ours`, `theirs`, `union` és `cat_sort_uniq`.
+	Ez a kapcsoló felülbírálja a `notes.mergeStrategy` konfigurációs
+	beállítást. Az egyes jegyzet-merge-stratégiákról bővebb
+	információért lásd a "NOTES MERGE STRATEGIES" szakaszt lentebb.
 
 `--commit`::
-	Finalize an in-progress `git notes merge`. Use this option
-	when you have resolved the conflicts that `git notes merge`
-	stored in `.git/NOTES_MERGE_WORKTREE`. This amends the partial
-	merge commit created by `git notes merge` (stored in
-	`.git/NOTES_MERGE_PARTIAL`) by adding the notes in
-	`.git/NOTES_MERGE_WORKTREE`. The notes ref stored in the
-	`.git/NOTES_MERGE_REF` symref is updated to the resulting commit.
+	Véglegesít egy folyamatban lévő `git notes merge`-et. Akkor
+	használd ezt a kapcsolót, ha feloldottad a konfliktusokat,
+	amelyeket a `git notes merge` a `.git/NOTES_MERGE_WORKTREE`-ben
+	tárolt. Ez amendeli a `git notes merge` által létrehozott
+	részleges merge commitot (amely a `.git/NOTES_MERGE_PARTIAL`-ban
+	van tárolva) a `.git/NOTES_MERGE_WORKTREE`-ben lévő jegyzetek
+	hozzáadásával. A `.git/NOTES_MERGE_REF` symrefben tárolt
+	jegyzet-ref az eredményül kapott commitra frissül.
 
 `--abort`::
-	Abort/reset an in-progress `git notes merge`, i.e. a notes merge
-	with conflicts. This simply removes all files related to the
-	notes merge.
+	Megszakít/visszaállít egy folyamatban lévő `git notes merge`-et,
+	azaz egy konfliktusokkal járó jegyzet-merge-et. Ez egyszerűen
+	eltávolítja a jegyzet-merge-hez kapcsolódó összes fájlt.
 
 `-q`::
 `--quiet`::
-	When merging notes, operate quietly.
+	Jegyzetek merge-elésekor csendben működik.
 
 `-v`::
 `--verbose`::
-	When merging notes, be more verbose.
-	When pruning notes, report all object names whose notes are
-	removed.
+	Jegyzetek merge-elésekor bőbeszédűbb. Jegyzetek prune-olásakor
+	jelenti az összes objektum nevét, amelynek a jegyzetei eltávolításra
+	kerülnek.
 
 
 DISCUSSION
 ----------
 
-Commit notes are blobs containing extra information about an object
-(usually information to supplement a commit's message).  These blobs
-are taken from notes refs.  A notes ref is usually a branch which
-contains "files" whose paths are the object names for the objects
-they describe, with some directory separators included for performance
-reasons footnote:[Permitted pathnames have the form
-'bf'`/`'fe'`/`'30'`/`'...'`/`'680d5a...': a sequence of directory
-names of two hexadecimal digits each followed by a filename with the
-rest of the object ID.].
+A commitjegyzetek olyan blobok, amelyek egy objektumról extra
+információt tartalmaznak (általában a commit üzenetét kiegészítő
+információt). Ezeket a blobokat a jegyzet-refekből veszi. Egy
+jegyzet-ref általában egy branch, amely olyan „fájlokat" tartalmaz,
+amelyeknek az útvonalai az általuk leírt objektumok objektumnevei,
+néhány könyvtárelválasztóval a teljesítmény érdekében
+footnote:[A megengedett útvonalneveknek a
+'bf'`/`'fe'`/`'30'`/`'...'`/`'680d5a...' alakja van: kétjegyű
+hexadecimális könyvtárnevek sorozata, amelyet egy fájlnév követ az
+objektumazonosító maradékával.].
 
-Every notes change creates a new commit at the specified notes ref.
-You can therefore inspect the history of the notes by invoking, e.g.,
-`git log -p notes/commits`.  Currently the commit message only records
-which operation triggered the update, and the commit authorship is
-determined according to the usual rules (see linkgit:git-commit[1]).
-These details may change in the future.
+Minden jegyzetváltozás egy új commitot hoz létre a megadott
+jegyzet-refnél. A jegyzetek történetét tehát megtekintheted például a
+`git log -p notes/commits` meghívásával. Jelenleg a commit-üzenet csak
+azt rögzíti, hogy melyik művelet váltotta ki a frissítést, és a commit
+szerzősége a szokásos szabályok szerint dől el (lásd:
+linkgit:git-commit[1]). Ezek a részletek a jövőben változhatnak.
 
-It is also permitted for a notes ref to point directly to a tree
-object, in which case the history of the notes can be read with
-`git log -p -g <refname>`.
+Az is megengedett, hogy egy jegyzet-ref közvetlenül egy treeobjektumra
+mutasson, amely esetben a jegyzetek története a
+`git log -p -g <refname>`-mel olvasható.
 
 
 NOTES MERGE STRATEGIES
 ----------------------
 
-The default notes merge strategy is `manual`, which checks out
-conflicting notes in a special work tree for resolving notes conflicts
-(`.git/NOTES_MERGE_WORKTREE`), and instructs the user to resolve the
-conflicts in that work tree.
-When done, the user can either finalize the merge with
-`git notes merge --commit`, or abort the merge with
-`git notes merge --abort`.
+Az alapértelmezett jegyzet-merge-stratégia a `manual`, amely a
+konfliktusos jegyzeteket egy speciális work tree-ben checkoutolja a
+jegyzetkonfliktusok feloldásához (`.git/NOTES_MERGE_WORKTREE`), és
+utasítja a felhasználót, hogy abban a work tree-ben oldja fel a
+konfliktusokat.
+Ha ezzel megvan, a felhasználó vagy véglegesítheti a merge-et a
+`git notes merge --commit`-tal, vagy megszakíthatja a merge-et a
+`git notes merge --abort`-tal.
 
-Users may select an automated merge strategy from among the following using
-either `-s`/`--strategy` option or configuring `notes.mergeStrategy` accordingly:
+A felhasználók az alábbiak közül választhatnak automatizált
+merge-stratégiát, akár a `-s`/`--strategy` kapcsolóval, akár a
+`notes.mergeStrategy` megfelelő beállításával:
 
-`ours` automatically resolves conflicting notes in favor of the local
-version (i.e. the current notes ref).
+Az `ours` automatikusan a helyi verzió (azaz az aktuális jegyzet-ref)
+javára oldja fel a konfliktusos jegyzeteket.
 
-`theirs` automatically resolves notes conflicts in favor of the remote
-version (i.e. the given notes ref being merged into the current notes
-ref).
+A `theirs` automatikusan a remote verzió (azaz az aktuális jegyzet-refbe
+merge-elt megadott jegyzet-ref) javára oldja fel a jegyzetkonfliktusokat.
 
-`union` automatically resolves notes conflicts by concatenating the
-local and remote versions.
+A `union` automatikusan a helyi és a remote verzió összefűzésével oldja
+fel a jegyzetkonfliktusokat.
 
-`cat_sort_uniq` is similar to `union`, but in addition to concatenating
-the local and remote versions, this strategy also sorts the resulting
-lines, and removes duplicate lines from the result. This is equivalent
-to applying the "cat | sort | uniq" shell pipeline to the local and
-remote versions. This strategy is useful if the notes follow a line-based
-format where one wants to avoid duplicated lines in the merge result.
-Note that if either the local or remote version contain duplicate lines
-prior to the merge, these will also be removed by this notes merge
-strategy.
+A `cat_sort_uniq` hasonló a `union`-höz, de a helyi és a remote verzió
+összefűzésén túl ez a stratégia rendezi is az eredményül kapott sorokat,
+és eltávolítja a duplikált sorokat az eredményből. Ez azzal
+egyenértékű, mintha a "cat | sort | uniq" shell pipeline-t alkalmaznád a
+helyi és a remote verzióra. Ez a stratégia akkor hasznos, ha a jegyzetek
+soralapú formátumot követnek, ahol el akarod kerülni a duplikált sorokat
+a merge eredményében. Vedd figyelembe, hogy ha akár a helyi, akár a
+remote verzió tartalmaz duplikált sorokat a merge előtt, ezeket is
+eltávolítja ez a jegyzet-merge-stratégia.
 
 
 EXAMPLES
 --------
 
-You can use notes to add annotations with information that was not
-available at the time a commit was written.
+A jegyzeteket olyan annotációk hozzáadására használhatod, amelyek
+olyan információt tartalmaznak, ami nem volt elérhető egy commit
+megírásának idején.
 
 ------------
 $ git notes add -m 'Tested-by: Johannes Sixt <j6t@kdbg.org>' 72a144e2
@@ -329,9 +342,9 @@ Notes:
     Tested-by: Johannes Sixt <j6t@kdbg.org>
 ------------
 
-In principle, a note is a regular Git blob, and any kind of
-(non-)format is accepted.  You can binary-safely create notes from
-arbitrary files using `git hash-object`:
+Elvben egy jegyzet egy közönséges Git-blob, és bármilyen (nem-)formátum
+elfogadott. Tetszőleges fájlokból bináris-biztosan hozhatsz létre
+jegyzeteket a `git hash-object`-tel:
 
 ------------
 $ cc *.c
@@ -339,11 +352,11 @@ $ blob=$(git hash-object -w a.out)
 $ git notes --ref=built add --allow-empty -C "$blob" HEAD
 ------------
 
-(You cannot simply use `git notes --ref=built add -F a.out HEAD`
-because that is not binary-safe.)
-Of course, it doesn't make much sense to display non-text-format notes
-with `git log`, so if you use such notes, you'll probably need to write
-some special-purpose tools to do something useful with them.
+(Nem használhatod egyszerűen a `git notes --ref=built add -F a.out HEAD`-et,
+mert az nem bináris-biztos.)
+Persze nincs sok értelme nem-szöveges formátumú jegyzeteket megjeleníteni
+a `git log`-gal, így ha ilyen jegyzeteket használsz, valószínűleg
+speciális célú eszközöket kell írnod, hogy valami hasznosat kezdj velük.
 
 
 [[CONFIGURATION]]
@@ -351,10 +364,9 @@ CONFIGURATION
 -------------
 
 `core.notesRef`::
-	Notes ref to read and manipulate instead of
-	`refs/notes/commits`.  Must be an unabbreviated ref name.
-	This setting can be overridden through the environment and
-	command line.
+	A `refs/notes/commits` helyett olvasandó és manipulálandó
+	jegyzet-ref. Rövidítetlen refnévnek kell lennie. Ez a beállítás
+	felülbírálható a környezeten és a parancssoron keresztül.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -365,33 +377,34 @@ ENVIRONMENT
 -----------
 
 `GIT_NOTES_REF`::
-	Which ref to manipulate notes from, instead of `refs/notes/commits`.
-	This overrides the `core.notesRef` setting.
+	Melyik refből manipulálja a jegyzeteket, a `refs/notes/commits`
+	helyett. Ez felülbírálja a `core.notesRef` beállítást.
 
 `GIT_NOTES_DISPLAY_REF`::
-	Colon-delimited list of refs or globs indicating which refs,
-	in addition to the default from `core.notesRef` or
-	`GIT_NOTES_REF`, to read notes from when showing commit
-	messages.
-	This overrides the `notes.displayRef` setting.
+	Refek vagy globok kettősponttal elválasztott listája, amely azt
+	jelzi, mely refekből — a `core.notesRef` vagy a `GIT_NOTES_REF`
+	alapértelmezésén felül — olvasson be jegyzeteket a commit-üzenetek
+	megjelenítésekor.
+	Ez felülbírálja a `notes.displayRef` beállítást.
 +
-A warning will be issued for refs that do not exist, but a glob that
-does not match any refs is silently ignored.
+A nem létező refekhez figyelmeztetés jár, de egy olyan glob, amely
+egyetlen refre sem illeszkedik, csendben figyelmen kívül marad.
 
 `GIT_NOTES_REWRITE_MODE`::
-	When copying notes during a rewrite, what to do if the target
-	commit already has a note.
-	Must be one of `overwrite`, `concatenate`, `cat_sort_uniq`, or `ignore`.
-	This overrides the `core.rewriteMode` setting.
+	Jegyzetek átírás közbeni másolásakor mit tegyen, ha a cél
+	commitnak már van jegyzete.
+	Az `overwrite`, `concatenate`, `cat_sort_uniq` vagy `ignore` egyike
+	kell legyen.
+	Ez felülbírálja a `core.rewriteMode` beállítást.
 
 `GIT_NOTES_REWRITE_REF`::
-	When rewriting commits, which notes to copy from the original
-	to the rewritten commit.  Must be a colon-delimited list of
-	refs or globs.
+	Commitok átírásakor mely jegyzeteket másolja az eredetiről az
+	átírt commitra. Refek vagy globok kettősponttal elválasztott
+	listája kell legyen.
 +
-If not set in the environment, the list of notes to copy depends
-on the `notes.rewrite.<command>` and `notes.rewriteRef` settings.
+Ha a környezetben nincs beállítva, a másolandó jegyzetek listája a
+`notes.rewrite.<command>` és a `notes.rewriteRef` beállításoktól függ.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

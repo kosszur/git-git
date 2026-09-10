@@ -3,7 +3,7 @@ gitformat-index(5)
 
 NAME
 ----
-gitformat-index - Git index format
+gitformat-index - A Git index formátuma
 
 SYNOPSIS
 --------
@@ -13,9 +13,10 @@ $GIT_DIR/index
 DESCRIPTION
 -----------
 
-Git index format
+A Git index formátuma
 
-== The Git index file has the following format
+[[_the_git_index_file_has_the_following_format]]
+== A Git indexfájljának a következő formátuma van
 
   All binary numbers are in network byte order.
   In a repository using the traditional SHA-1, checksums and object IDs
@@ -49,7 +50,8 @@ Git index format
 
    - Hash checksum over the content of the index file before this checksum.
 
-== Index entry
+[[_index_entry]]
+== Indexbejegyzés
 
   Index entries are sorted in ascending order on the name field,
   interpreted as a string of unsigned bytes (i.e. memcmp() order, no
@@ -155,8 +157,10 @@ Git index format
   Interpretation of index entries in split index mode is completely
   different. See below for details.
 
-== Extensions
+[[_extensions]]
+== Kiterjesztések
 
+[[_cache_tree]]
 === Cache tree
 
   Since the index does not record entries for directories, the cache
@@ -219,6 +223,7 @@ Git index format
   its name relative to A), and so on. The specified number of subtrees
   indicates when the current level of the recursive stack is complete.
 
+[[_resolve_undo]]
 === Resolve undo
 
   A conflict is represented in the index as a set of higher stage entries.
@@ -246,6 +251,7 @@ Git index format
   - At most three object names of the entry in stages from 1 to 3
     (nothing is written for a missing stage).
 
+[[_split_index]]
 === Split index
 
   In split index mode, the majority of index entries could be stored
@@ -279,6 +285,7 @@ Git index format
   final index. These added entries are also sorted by entry name then
   stage.
 
+[[_untracked_cache]]
 == Untracked cache
 
   Untracked cache saves the untracked file list and necessary data to
@@ -322,7 +329,7 @@ Git index format
 
     - A number of untracked file/dir names terminated by NUL.
 
-The remaining data of each directory block is grouped by type:
+Az egyes könyvtárblokkok fennmaradó adatai típus szerint csoportosítva:
 
   - An ewah bitmap, the n-th bit marks whether the n-th directory has
     valid untracked cache entries.
@@ -341,6 +348,7 @@ The remaining data of each directory block is grouped by type:
 
   - One NUL.
 
+[[_file_system_monitor_cache]]
 == File System Monitor cache
 
   The file system monitor cache tracks files for which the core.fsmonitor
@@ -366,6 +374,7 @@ The remaining data of each directory block is grouped by type:
   - An ewah bitmap, the n-th bit indicates whether the n-th index entry
     is not CE_FSMONITOR_VALID.
 
+[[_end_of_index_entry]]
 == End of Index Entry
 
   The End of Index Entry (EOIE) is used to locate the end of the variable
@@ -389,6 +398,7 @@ The remaining data of each directory block is grouped by type:
 	Hash("TREE" + <binary-representation-of-N> +
 		"REUC" + <binary-representation-of-M>)
 
+[[_index_entry_offset_table]]
 == Index Entry Offset Table
 
   The Index Entry Offset Table (IEOT) is used to help address the CPU
@@ -407,6 +417,7 @@ The remaining data of each directory block is grouped by type:
 
     - 32-bit count of cache entries in this block
 
+[[_sparse_directory_entries]]
 == Sparse Directory Entries
 
   When using sparse-checkout in cone mode, some entire directories within
@@ -421,4 +432,4 @@ The remaining data of each directory block is grouped by type:
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-repack(1)
 
 NAME
 ----
-git-repack - Pack unpacked objects in a repository
+git-repack - Egy repository nem csomagolt objektumainak packbe rendezése
 
 
 SYNOPSIS
@@ -17,345 +17,358 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This command is used to combine all objects that do not currently
-reside in a "pack", into a pack.  It can also be used to re-organize
-existing packs into a single, more efficient pack.
+Ez a parancs arra szolgál, hogy minden olyan objektumot, amely
+jelenleg nem egy „pack"-ben van, egyetlen packbe vonjon össze. Arra is
+használható, hogy a meglévő packeket egyetlen, hatékonyabb packbe
+rendezze át.
 
-A pack is a collection of objects, individually compressed, with
-delta compression applied, stored in a single file, with an
-associated index file.
+A pack egyedileg tömörített objektumok gyűjteménye, amelyre
+delta-tömörítés van alkalmazva, egyetlen fájlban tárolva, egy hozzá
+tartozó indexfájllal.
 
-Packs are used to reduce the load on mirror systems, backup
-engines, disk storage, etc.
+A packek a tükrözőrendszerek, a mentőmotorok, a lemeztárolás stb.
+terhelésének csökkentésére szolgálnak.
 
 OPTIONS
 -------
 
 -a::
-	Instead of incrementally packing the unpacked objects,
-	pack everything referenced into a single pack.
-	Especially useful when packing a repository that is used
-	for private development. Use
-	with `-d`.  This will clean up the objects that `git prune`
-	leaves behind, but `git fsck --full --dangling` shows as
-	dangling.
+	Ahelyett, hogy a nem csomagolt objektumokat inkrementálisan
+	pakolná be, minden hivatkozott objektumot egyetlen packbe
+	csomagol. Különösen hasznos olyan repository packelésekor, amelyet
+	privát fejlesztéshez használnak. A `-d` kapcsolóval együtt
+	használandó. Ez feltakarítja azokat az objektumokat, amelyeket a
+	`git prune` hátrahagy, de amelyeket a `git fsck --full --dangling`
+	lógóként mutat.
 +
-Note that users fetching over dumb protocols will have to fetch the
-whole new pack in order to get any contained object, no matter how many
-other objects in that pack they already have locally.
+Vedd figyelembe, hogy a „dumb" protokollokon fetchelő felhasználóknak az
+egész új packet le kell tölteniük ahhoz, hogy bármely benne lévő
+objektumhoz hozzájussanak, függetlenül attól, hogy a pack hány más
+objektumával rendelkeznek már helyben.
 +
-Promisor packfiles are repacked separately: if there are packfiles that
-have an associated ".promisor" file, these packfiles will be repacked
-into another separate pack, and an empty ".promisor" file corresponding
-to the new separate pack will be written.
+A promisor packfile-ok külön kerülnek újracsomagolásra: ha vannak olyan
+packfile-ok, amelyekhez tartozik egy „.promisor" fájl, ezek a
+packfile-ok egy másik, külön packbe kerülnek újracsomagolásra, és az új
+külön packhez tartozó üres „.promisor" fájl is kiírásra kerül.
 
 -A::
-	Same as `-a`, unless `-d` is used.  Then any unreachable
-	objects in a previous pack become loose, unpacked objects,
-	instead of being left in the old pack.  Unreachable objects
-	are never intentionally added to a pack, even when repacking.
-	This option prevents unreachable objects from being immediately
-	deleted by way of being left in the old pack and then
-	removed.  Instead, the loose unreachable objects
-	will be pruned according to normal expiry rules
-	with the next 'git gc' invocation. See linkgit:git-gc[1].
+	Ugyanaz, mint a `-a`, hacsak a `-d`-t nem használod. Ekkor egy
+	korábbi packben lévő elérhetetlen objektumok laza, nem csomagolt
+	objektumokká válnak, ahelyett, hogy a régi packben maradnának. Az
+	elérhetetlen objektumokat soha nem adják szándékosan egy packhez,
+	még újracsomagoláskor sem. Ez a kapcsoló megakadályozza, hogy az
+	elérhetetlen objektumok azonnal törlődjenek azáltal, hogy a régi
+	packben maradnak, majd az eltávolításra kerül. Ehelyett a laza,
+	elérhetetlen objektumok a normál lejárati szabályok szerint kerülnek
+	prune-olásra a következő 'git gc' híváskor. Lásd: linkgit:git-gc[1].
 
 -d::
-	After packing, if the newly created packs make some
-	existing packs redundant, remove the redundant packs.
-	Also run  'git prune-packed' to remove redundant
-	loose object files.
+	A csomagolás után, ha az újonnan létrehozott packek egyes meglévő
+	packeket feleslegessé tesznek, eltávolítja a felesleges packeket.
+	Lefuttatja a 'git prune-packed' parancsot is a felesleges laza
+	objektumfájlok eltávolításához.
 
 --cruft::
-	Same as `-a`, unless `-d` is used. Then any unreachable objects
-	are packed into a separate cruft pack. Unreachable objects can
-	be pruned using the normal expiry rules with the next `git gc`
-	invocation (see linkgit:git-gc[1]). Incompatible with `-k`.
+	Ugyanaz, mint a `-a`, hacsak a `-d`-t nem használod. Ekkor az
+	elérhetetlen objektumok egy külön cruft packbe kerülnek
+	csomagolásra. Az elérhetetlen objektumok a normál lejárati
+	szabályok szerint prune-olhatók a következő `git gc` híváskor
+	(lásd: linkgit:git-gc[1]). Nem kompatibilis a `-k`-val.
 
 --cruft-expiration=<approxidate>::
-	Expire unreachable objects older than `<approxidate>`
-	immediately instead of waiting for the next `git gc` invocation.
-	Only useful with `--cruft -d`.
+	A `<approxidate>`-nél régebbi elérhetetlen objektumokat azonnal
+	lejáratja, ahelyett, hogy a következő `git gc` hívásra várna.
+	Csak a `--cruft -d`-vel együtt hasznos.
 
 --max-cruft-size=<n>::
-	Override `--max-pack-size` for cruft packs. Inherits the value of
-	`--max-pack-size` (if any) by default. See the documentation for
-	`--max-pack-size` for more details.
+	Felülbírálja a `--max-pack-size`-t a cruft packekre. Alapból a
+	`--max-pack-size` értékét örökli (ha van). A további részletekért
+	lásd a `--max-pack-size` dokumentációját.
 
 --combine-cruft-below-size=<n>::
-	When generating cruft packs without pruning, only repack
-	existing cruft packs whose size is strictly less than `<n>`
-	bytes, which can optionally
-	be suffixed with "k", "m", or "g". Cruft packs whose size is
-	greater than or equal to `<n>` are left as-is and not repacked.
-	Useful when you want to avoid repacking large cruft pack(s) in
-	repositories that have many and/or large unreachable objects.
+	Cruft packek prune nélküli generálásakor csak azokat a meglévő
+	cruft packeket csomagolja újra, amelyek mérete szigorúan kisebb,
+	mint `<n>` bájt, amit opcionálisan „k", „m" vagy „g" utótaggal
+	lehet ellátni. Azok a cruft packek, amelyek mérete nagyobb vagy
+	egyenlő, mint `<n>`, változatlanul maradnak, és nem kerülnek
+	újracsomagolásra. Akkor hasznos, ha el akarod kerülni a nagy cruft
+	packek újracsomagolását olyan repository-kban, amelyekben sok
+	és/vagy nagy elérhetetlen objektum van.
 
 --expire-to=<dir>::
-	Write a cruft pack containing pruned objects (if any) to the
-	directory `<dir>`. This option is useful for keeping a copy of
-	any pruned objects in a separate directory as a backup. Only
-	useful with `--cruft -d`.
+	A prune-olt objektumokat (ha vannak) tartalmazó cruft packet a
+	`<dir>` könyvtárba írja. Ez a kapcsoló hasznos ahhoz, hogy a
+	prune-olt objektumokról egy külön könyvtárban másolatot tarts
+	biztonsági mentésként. Csak a `--cruft -d`-vel együtt hasznos.
 
 -l::
-	Pass the `--local` option to 'git pack-objects'. See
+	Átadja a `--local` kapcsolót a 'git pack-objects'-nek. Lásd:
 	linkgit:git-pack-objects[1].
 
 -f::
-	Pass the `--no-reuse-delta` option to `git-pack-objects`, see
-	linkgit:git-pack-objects[1].
+	Átadja a `--no-reuse-delta` kapcsolót a `git-pack-objects`-nek,
+	lásd: linkgit:git-pack-objects[1].
 
 -F::
-	Pass the `--no-reuse-object` option to `git-pack-objects`, see
-	linkgit:git-pack-objects[1].
+	Átadja a `--no-reuse-object` kapcsolót a `git-pack-objects`-nek,
+	lásd: linkgit:git-pack-objects[1].
 
 -q::
 --quiet::
-	Show no progress over the standard error stream and pass the `-q`
-	option to 'git pack-objects'. See linkgit:git-pack-objects[1].
+	Nem jelenít meg folyamatjelzést a standard hibakimeneten, és
+	átadja a `-q` kapcsolót a 'git pack-objects'-nek. Lásd:
+	linkgit:git-pack-objects[1].
 
 -n::
-	Do not update the server information with
-	'git update-server-info'.  This option skips
-	updating local catalog files needed to publish
-	this repository (or a direct copy of it)
-	over HTTP or FTP.  See linkgit:git-update-server-info[1].
+	Nem frissíti a szerverinformációt a 'git update-server-info'
+	paranccsal. Ez a kapcsoló kihagyja azoknak a helyi katalógusfájloknak
+	a frissítését, amelyek ahhoz kellenek, hogy ezt a repository-t
+	(vagy annak egy közvetlen másolatát) HTTP-n vagy FTP-n közzétedd.
+	Lásd: linkgit:git-update-server-info[1].
 
 --window=<n>::
 --depth=<n>::
-	These two options affect how the objects contained in the pack are
-	stored using delta compression. The objects are first internally
-	sorted by type, size and optionally names and compared against the
-	other objects within `--window` to see if using delta compression saves
-	space. `--depth` limits the maximum delta depth; making it too deep
-	affects the performance on the unpacker side, because delta data needs
-	to be applied that many times to get to the necessary object.
+	Ez a két kapcsoló azt befolyásolja, hogyan tárolódnak a packben
+	lévő objektumok delta-tömörítéssel. Az objektumok először belsőleg
+	típus, méret és opcionálisan név szerint rendeződnek, majd
+	összehasonlításra kerülnek a `--window`-n belüli többi objektummal,
+	hogy a delta-tömörítés használata megtakarít-e helyet. A `--depth`
+	korlátozza a maximális deltamélységet; ha túl mélyre állítod, az
+	rontja a teljesítményt a kicsomagoló oldalán, mert a deltaadatokat
+	annyiszor kell alkalmazni, hogy eljuss a szükséges objektumhoz.
 +
-The default value for --window is 10 and --depth is 50. The maximum
-depth is 4095.
+A --window alapértelmezett értéke 10, a --depth-é 50. A maximális
+mélység 4095.
 
 --threads=<n>::
-	This option is passed through to `git pack-objects`.
+	Ez a kapcsoló továbbadódik a `git pack-objects`-nek.
 
 --window-memory=<n>::
-	This option provides an additional limit on top of `--window`;
-	the window size will dynamically scale down so as to not take
-	up more than '<n>' bytes in memory.  This is useful in
-	repositories with a mix of large and small objects to not run
-	out of memory with a large window, but still be able to take
-	advantage of the large window for the smaller objects.  The
-	size can be suffixed with "k", "m", or "g".
-	`--window-memory=0` makes memory usage unlimited.  The default
-	is taken from the `pack.windowMemory` configuration variable.
-	Note that the actual memory usage will be the limit multiplied
-	by the number of threads used by linkgit:git-pack-objects[1].
+	Ez a kapcsoló egy további korlátot ad a `--window` fölé; az
+	ablakméret dinamikusan csökken, hogy ne foglaljon el '<n>' bájtnál
+	többet a memóriában. Ez hasznos olyan repository-kban, ahol nagy és
+	kis objektumok keverednek, hogy ne fogyjon el a memória egy nagy
+	ablaknál, de a kisebb objektumoknál még mindig ki lehessen használni
+	a nagy ablakot. A méret „k", „m" vagy „g" utótaggal látható el. A
+	`--window-memory=0` korlátlanná teszi a memóriahasználatot. Az
+	alapértelmezett érték a `pack.windowMemory` konfigurációs változóból
+	származik. Vedd figyelembe, hogy a tényleges memóriahasználat a
+	korlát megszorozva a linkgit:git-pack-objects[1] által használt
+	szálak számával.
 
 --max-pack-size=<n>::
-	Maximum size of each output pack file. The size can be suffixed with
-	"k", "m", or "g". The minimum size allowed is limited to 1 MiB.
-	If specified, multiple packfiles may be created, which also
-	prevents the creation of a bitmap index.
-	The default is unlimited, unless the config variable
-	`pack.packSizeLimit` is set. Note that this option may result in
-	a larger and slower repository; see the discussion in
-	`pack.packSizeLimit`.
+	Az egyes kimeneti packfile-ok maximális mérete. A méret „k", „m"
+	vagy „g" utótaggal látható el. A megengedett legkisebb méret 1 MiB.
+	Ha meg van adva, több packfile is létrejöhet, ami egyben
+	megakadályozza a bitmap index létrehozását is. Az alapértelmezés
+	korlátlan, hacsak a `pack.packSizeLimit` konfigurációs változó nincs
+	beállítva. Vedd figyelembe, hogy ez a kapcsoló nagyobb és lassabb
+	repository-t eredményezhet; lásd a `pack.packSizeLimit`-nél lévő
+	tárgyalást.
 
 --filter=<filter-spec>::
-	Remove objects matching the filter specification from the
-	resulting packfile and put them into a separate packfile. Note
-	that objects used in the working directory are not filtered
-	out. So for the split to fully work, it's best to perform it
-	in a bare repo and to use the `-a` and `-d` options along with
-	this option.  Also `--no-write-bitmap-index` (or the
-	`repack.writebitmaps` config option set to `false`) should be
-	used otherwise writing bitmap index will fail, as it supposes
-	a single packfile containing all the objects. See
-	linkgit:git-rev-list[1] for valid `<filter-spec>` forms.
+	Eltávolítja a szűrőspecifikációra illeszkedő objektumokat az
+	eredményül kapott packfile-ból, és egy külön packfile-ba teszi
+	őket. Vedd figyelembe, hogy a munkakönyvtárban használt objektumok
+	nem szűrődnek ki. Ahhoz tehát, hogy a szétválasztás teljesen
+	működjön, a legjobb bare repóban végezni, és a `-a` és `-d`
+	kapcsolót is használni ezzel a kapcsolóval együtt. A
+	`--no-write-bitmap-index`-et is használni kell (vagy a
+	`repack.writebitmaps` konfigurációs kapcsolót `false`-ra állítani),
+	különben a bitmap index írása meghiúsul, mivel az egyetlen, az
+	összes objektumot tartalmazó packfile-t feltételez. Az érvényes
+	`<filter-spec>` alakokért lásd: linkgit:git-rev-list[1].
 
 --filter-to=<dir>::
-	Write the pack containing filtered out objects to the
-	directory `<dir>`. Only useful with `--filter`. This can be
-	used for putting the pack on a separate object directory that
-	is accessed through the Git alternates mechanism. **WARNING:**
-	If the packfile containing the filtered out objects is not
-	accessible, the repo can become corrupt as it might not be
-	possible to access the objects in that packfile. See the
-	`objects` and `objects/info/alternates` sections of
-	linkgit:gitrepository-layout[5].
+	A kiszűrt objektumokat tartalmazó packet a `<dir>` könyvtárba írja.
+	Csak a `--filter`-rel együtt hasznos. Ez arra használható, hogy a
+	packet egy külön objektumkönyvtárba tedd, amelyet a Git alternates
+	mechanizmusán keresztül érnek el. **WARNING:** Ha a kiszűrt
+	objektumokat tartalmazó packfile nem érhető el, a repó sérültté
+	válhat, mivel lehet, hogy nem lehet hozzáférni az abban a
+	packfile-ban lévő objektumokhoz. Lásd a linkgit:gitrepository-layout[5]
+	`objects` és `objects/info/alternates` szakaszát.
 
 --drop-filtered::
-	Delete the local objects that match the `--filter` specification
-	instead of keeping them in a separate packfile, reclaiming the
-	disk space they occupy. This is intended for partial clones,
-	where the filtered objects are promisor objects that remain
-	recoverable from the promisor remote and are lazily re-fetched
-	on demand when they are next needed.
+	Törli azokat a helyi objektumokat, amelyek illeszkednek a
+	`--filter` specifikációra, ahelyett, hogy egy külön packfile-ban
+	tartaná meg őket, felszabadítva az általuk elfoglalt lemezterületet.
+	Ez a partial clone-okhoz készült, ahol a kiszűrt objektumok olyan
+	promisor objektumok, amelyek a promisor remote-ról továbbra is
+	helyreállíthatók maradnak, és lustán, igény szerint kerülnek
+	újrafetchelésre, amikor legközelebb szükség van rájuk.
 +
-Only large blobs are supported for now, so `--filter=blob:limit=<n>`
-is currently the only accepted filter. Because dropped objects must be
-recoverable, this option requires a promisor remote to be configured
-and refuses to run otherwise.
+Egyelőre csak a nagy blobok támogatottak, így a `--filter=blob:limit=<n>`
+jelenleg az egyetlen elfogadott szűrő. Mivel az eldobott objektumoknak
+helyreállíthatónak kell lenniük, ez a kapcsoló megköveteli egy promisor
+remote beállítását, és egyébként megtagadja a futást.
 +
-This option requires `-a`, and implies `-d`: the objects are dropped by
-rebuilding the promisor pack without them and then removing the now
-redundant old packs, so the redundant packs must be deleted for the
-space to actually be reclaimed. It is incompatible with `--filter-to`
-and with bitmap writing (`-b`/`--write-bitmap-index`), since filtering
-breaks the single-pack closure that bitmaps require. A bitmap setting
-coming from configuration is silently disabled for the duration of the
-command.
+Ez a kapcsoló megköveteli a `-a`-t, és maga után vonja a `-d`-t: az
+objektumok eldobása úgy történik, hogy a promisor pack nélkülük épül
+újra, majd az immár felesleges régi packek eltávolításra kerülnek, tehát
+a felesleges packeket törölni kell ahhoz, hogy a hely ténylegesen
+felszabaduljon. Nem kompatibilis a `--filter-to`-val és a bitmap írásával
+(`-b`/`--write-bitmap-index`), mivel a szűrés eltöri az egyetlen packes
+lezártságot, amelyet a bitmapek megkövetelnek. A konfigurációból érkező
+bitmap-beállítás a parancs idejére csendben letiltásra kerül.
 +
-As a convenience, since dropped objects remain recoverable by lazy fetch,
-`--drop-filtered` refuses to run while another operation
-(merge, rebase, am, cherry-pick, revert, or bisect) is in progress, to
-avoid a surprising network fetch mid-operation, and refuses to drop any
-blob that the current index references, since such a blob would only be
-lazily re-fetched by the next command that inspects the working tree.
-These checks are skipped in bare repositories, which have neither a
-working tree nor an index.
+Kényelmi okból, mivel az eldobott objektumok lusta fetchsel
+helyreállíthatók maradnak, a `--drop-filtered` megtagadja a futást,
+amíg egy másik művelet (merge, rebase, am, cherry-pick, revert vagy
+bisect) folyamatban van, hogy elkerülje a meglepő hálózati fetchet egy
+művelet közepén, és megtagadja bármely olyan blob eldobását, amelyre az
+aktuális index hivatkozik, mivel az ilyen blobot csak a working tree-t
+vizsgáló következő parancs fetchelné újra lustán. Ezek az ellenőrzések
+kimaradnak a bare repository-kban, amelyeknek sem working tree-jük, sem
+indexük nincs.
 
 --dry-run::
-	Only meaningful with `--drop-filtered`. List the objects that
-	would be dropped, one object ID per line, without rebuilding any
-	pack or deleting anything.
+	Csak a `--drop-filtered`-del van értelme. Felsorolja azokat az
+	objektumokat, amelyek eldobásra kerülnének, soronként egy
+	objektumazonosítót, anélkül, hogy bármely packet újraépítené vagy
+	bármit törölne.
 
 -b::
 --write-bitmap-index::
-	Write a reachability bitmap index as part of the repack. This
-	only makes sense when used with `-a`, `-A` or `-m`, as the bitmaps
-	must be able to refer to all reachable objects. This option
-	overrides the setting of `repack.writeBitmaps`. This option
-	has no effect if multiple packfiles are created, unless writing a
-	MIDX (in which case a multi-pack bitmap is created).
+	Az újracsomagolás részeként elérhetőségi bitmap indexet ír. Ennek
+	csak a `-a`, `-A` vagy `-m` kapcsolóval együtt van értelme, mivel a
+	bitmapeknek minden elérhető objektumra tudniuk kell hivatkozni. Ez a
+	kapcsoló felülbírálja a `repack.writeBitmaps` beállítását. Ennek a
+	kapcsolónak nincs hatása, ha több packfile jön létre, kivéve, ha
+	MIDX-et ír (amely esetben többpackes bitmap jön létre).
 
 --pack-kept-objects::
-	Include objects in `.keep` files when repacking.  Note that we
-	still do not delete `.keep` packs after `pack-objects` finishes.
-	This means that we may duplicate objects, but this makes the
-	option safe to use when there are concurrent pushes or fetches.
-	This option is generally only useful if you are writing bitmaps
-	with `-b` or `repack.writeBitmaps`, as it ensures that the
-	bitmapped packfile has the necessary objects.
+	Újracsomagoláskor beleveszi a `.keep` fájlokban lévő objektumokat
+	is. Vedd figyelembe, hogy a `.keep` packeket továbbra sem töröljük,
+	miután a `pack-objects` befejeződött. Ez azt jelenti, hogy
+	előfordulhat, hogy objektumokat duplikálunk, de ez teszi a
+	kapcsolót biztonságosan használhatóvá, amikor egyidejű pushok vagy
+	fetchek vannak. Ez a kapcsoló általában csak akkor hasznos, ha
+	bitmapeket írsz a `-b`-vel vagy a `repack.writeBitmaps`-szel, mivel
+	biztosítja, hogy a bitmapelt packfile-ban meglegyenek a szükséges
+	objektumok.
 
 --keep-pack=<pack-name>::
-	Exclude the given pack from repacking. This is the equivalent
-	of having `.keep` file on the pack. `<pack-name>` is the
-	pack file name without leading directory (e.g. `pack-123.pack`).
-	The option can be specified multiple times to keep multiple
-	packs.
+	Kizárja a megadott packet az újracsomagolásból. Ez azzal
+	egyenértékű, mintha `.keep` fájl lenne a packen. A `<pack-name>` a
+	packfile neve a vezető könyvtár nélkül (pl. `pack-123.pack`). A
+	kapcsoló többször is megadható több pack megtartásához.
 
 --unpack-unreachable=<when>::
-	When loosening unreachable objects, do not bother loosening any
-	objects older than `<when>`. This can be used to optimize out
-	the write of any objects that would be immediately pruned by
-	a follow-up `git prune`.
+	Az elérhetetlen objektumok lazává tételekor ne bajlódjon a
+	`<when>`-nél régebbi objektumok lazává tételével. Ezzel
+	optimalizálható, hogy ne íródjanak ki olyan objektumok, amelyeket
+	egy soron következő `git prune` azonnal prune-olna.
 
 -k::
 --keep-unreachable::
-	When used with `-ad`, any unreachable objects from existing
-	packs will be appended to the end of the packfile instead of
-	being removed. In addition, any unreachable loose objects will
-	be packed (and their loose counterparts removed).
+	A `-ad`-vel együtt használva a meglévő packekből származó
+	elérhetetlen objektumok a packfile végéhez fűződnek hozzá, ahelyett,
+	hogy eltávolításra kerülnének. Ezen felül minden elérhetetlen laza
+	objektum becsomagolásra kerül (és a laza megfelelőik eltávolításra).
 
 -i::
 --delta-islands::
-	Pass the `--delta-islands` option to `git-pack-objects`, see
-	linkgit:git-pack-objects[1].
+	Átadja a `--delta-islands` kapcsolót a `git-pack-objects`-nek,
+	lásd: linkgit:git-pack-objects[1].
 
 -g<factor>::
 --geometric=<factor>::
-	Arrange resulting pack structure so that each successive pack
-	contains at least `<factor>` times the number of objects as the
-	next-largest pack.
+	Úgy rendezi el az eredményül kapott pack-struktúrát, hogy minden
+	egymást követő pack legalább `<factor>`-szor annyi objektumot
+	tartalmazzon, mint a következő legnagyobb pack.
 +
-`git repack` ensures this by determining a "cut" of packfiles that need
-to be repacked into one in order to ensure a geometric progression. It
-picks the smallest set of packfiles such that as many of the larger
-packfiles (by count of objects contained in that pack) may be left
-intact.
+A `git repack` ezt úgy biztosítja, hogy meghatároz egy „cut"-ot azokból
+a packfile-okból, amelyeket egybe kell csomagolni ahhoz, hogy a
+geometriai progresszió biztosított legyen. A packfile-ok legkisebb
+halmazát választja ki úgy, hogy a nagyobb packfile-ok közül (a bennük
+lévő objektumok száma szerint) minél több érintetlenül maradhasson.
 +
-Unlike other repack modes, the set of objects to pack is determined
-uniquely by the set of packs being "rolled-up"; in other words, the
-packs determined to need to be combined in order to restore a geometric
-progression.
+A többi újracsomagolási módtól eltérően a becsomagolandó objektumok
+halmazát egyértelműen a „rolled-up" packek halmaza határozza meg; más
+szóval azok a packek, amelyekről kiderült, hogy egyesíteni kell őket a
+geometriai progresszió helyreállításához.
 +
-Loose objects are implicitly included in this "roll-up", without respect to
-their reachability. This is subject to change in the future.
+A laza objektumok implicit módon részei ennek a „roll-up"-nak,
+elérhetőségüktől függetlenül. Ez a jövőben változhat.
 +
-When writing a multi-pack bitmap, `git repack` selects the largest resulting
-pack as the preferred pack for object selection by the MIDX (see
-linkgit:git-multi-pack-index[1]).
+Többpackes bitmap írásakor a `git repack` a legnagyobb eredményül kapott
+packet választja ki a MIDX általi objektumkiválasztás előnyben
+részesített packjeként (lásd: linkgit:git-multi-pack-index[1]).
 
 -m::
 --write-midx[=<mode>]::
-	Write a multi-pack index (see linkgit:git-multi-pack-index[1])
-	containing the non-redundant packs. The following modes are
-	available:
+	Egy multi-pack indexet ír (lásd: linkgit:git-multi-pack-index[1]),
+	amely a nem felesleges packeket tartalmazza. A következő módok
+	érhetők el:
 +
 --
 	`default`;;
-		Write a single MIDX covering all packs. This is the
-		default when `--write-midx` is given without an
-		explicit mode.
+		Egyetlen MIDX-et ír, amely az összes packet lefedi. Ez az
+		alapértelmezés, ha a `--write-midx` explicit mód nélkül van
+		megadva.
 
 	`incremental`;;
-		Write an incremental MIDX chain instead of a single
-		flat MIDX.
+		Egyetlen lapos MIDX helyett inkrementális MIDX-láncot ír.
 +
-Without `--geometric`, a new MIDX layer is appended to the existing
-chain (or a new chain is started) containing whatever packs were written
-by the repack. Existing layers are preserved as-is.
+A `--geometric` nélkül egy új MIDX-réteg fűződik a meglévő lánchoz (vagy
+új lánc kezdődik), amely azokat a packeket tartalmazza, amelyeket az
+újracsomagolás írt. A meglévő rétegek változatlanul megmaradnak.
 +
-When combined with `--geometric`, the incremental mode maintains a chain
-of MIDX layers that is compacted over time using a geometric merging
-strategy. Each repack creates a new tip layer containing the newly
-written pack(s). Adjacent layers are then merged whenever the newer
-layer's object count exceeds `1/repack.midxSplitFactor` of the next
-deeper layer's count. Layers that do not meet this condition are
-retained as-is.
+A `--geometric`-kel kombinálva az inkrementális mód olyan MIDX-réteg-láncot
+tart karban, amely idővel egy geometriai összevonási stratégiával
+tömörödik. Minden újracsomagolás egy új csúcsréteget hoz létre, amely az
+újonnan írt pack(ek)et tartalmazza. A szomszédos rétegek ezután akkor
+kerülnek összevonásra, amikor az újabb réteg objektumszáma meghaladja a
+következő mélyebb réteg számának `1/repack.midxSplitFactor`-át. Azok a
+rétegek, amelyek nem felelnek meg ennek a feltételnek, változatlanul
+megmaradnak.
 +
-The result is that newer (tip) layers tend to contain many small packs
-with relatively few objects, while older (deeper) layers contain fewer,
-larger packs covering more objects. Because compaction is driven by the
-tip of the chain, newer layers are also rewritten more frequently than
-older ones, which are only touched when enough objects have accumulated
-to justify merging into them. This keeps the total number of layers
-logarithmic relative to the total number of objects.
+Az eredmény az, hogy az újabb (csúcs) rétegek jellemzően sok kis packet
+tartalmaznak viszonylag kevés objektummal, míg a régebbi (mélyebb)
+rétegek kevesebb, nagyobb packet tartalmaznak, amelyek több objektumot
+fednek le. Mivel a tömörítést a lánc csúcsa vezérli, az újabb rétegek
+gyakrabban is íródnak újra, mint a régebbiek, amelyekhez csak akkor
+nyúlnak hozzá, ha elég objektum gyűlt össze ahhoz, hogy az összevonás
+indokolt legyen. Ez logaritmikusan tartja a rétegek teljes számát az
+objektumok teljes számához képest.
 +
-Only packs in the tip MIDX layer are considered as candidates for the
-geometric repack; packs in deeper layers are left untouched. If the tip
-layer contains fewer packs than `repack.midxNewLayerThreshold`, those
-packs are excluded from the geometry entirely, and a new layer is
-created for any new pack(s) without disturbing the existing chain.
+Csak a csúcs MIDX-rétegben lévő packek jönnek szóba a geometriai
+újracsomagolás jelöltjeiként; a mélyebb rétegekben lévő packek
+érintetlenül maradnak. Ha a csúcsréteg kevesebb packet tartalmaz, mint
+`repack.midxNewLayerThreshold`, akkor ezek a packek teljesen kimaradnak a
+geometriából, és egy új réteg jön létre az esetleges új pack(ek)nek a
+meglévő lánc megzavarása nélkül.
 --
 
 --name-hash-version=<n>::
-	Provide this argument to the underlying `git pack-objects` process.
-	See linkgit:git-pack-objects[1] for full details.
+	Add meg ezt az argumentumot az alatta lévő `git pack-objects`
+	folyamatnak. A teljes részletekért lásd: linkgit:git-pack-objects[1].
 
 --path-walk::
-	Pass the `--path-walk` option to the underlying `git pack-objects`
-	process. See linkgit:git-pack-objects[1] for full details.
+	Átadja a `--path-walk` kapcsolót az alatta lévő `git pack-objects`
+	folyamatnak. A teljes részletekért lásd: linkgit:git-pack-objects[1].
 
 CONFIGURATION
 -------------
 
-Various configuration variables affect packing, see
-linkgit:git-config[1] (search for "pack" and "delta").
+Számos konfigurációs változó befolyásolja a csomagolást, lásd:
+linkgit:git-config[1] (keress rá a „pack" és „delta" szavakra).
 
-By default, the command passes `--delta-base-offset` option to
-'git pack-objects'; this typically results in slightly smaller packs,
-but the generated packs are incompatible with versions of Git older than
-version 1.4.4. If you need to share your repository with such ancient Git
-versions, either directly or via the dumb http protocol, then you
-need to set the configuration variable `repack.UseDeltaBaseOffset` to
-"false" and repack. Access from old Git versions over the native protocol
-is unaffected by this option as the conversion is performed on the fly
-as needed in that case.
+Alapból a parancs átadja a `--delta-base-offset` kapcsolót a
+'git pack-objects'-nek; ez jellemzően kissé kisebb packeket eredményez,
+de a generált packek nem kompatibilisek a Git 1.4.4-nél régebbi
+verzióival. Ha meg kell osztanod a repository-dat ilyen ősi
+Git-verziókkal, akár közvetlenül, akár a dumb http protokollon
+keresztül, akkor a `repack.UseDeltaBaseOffset` konfigurációs változót
+„false"-ra kell állítanod, és újra kell csomagolnod. A régi
+Git-verziókból a natív protokollon való hozzáférést ez a kapcsoló nem
+érinti, mivel a konverzió ebben az esetben menet közben, szükség szerint
+történik.
 
-Delta compression is not used on objects larger than the
-`core.bigFileThreshold` configuration variable and on files with the
-attribute `delta` set to false.
+A delta-tömörítés nem használatos a `core.bigFileThreshold` konfigurációs
+változónál nagyobb objektumokon, valamint azokon a fájlokon, amelyeknél a
+`delta` attribútum false-ra van állítva.
 
 SEE ALSO
 --------
@@ -364,4 +377,4 @@ linkgit:git-prune-packed[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-merge(1)
 
 NAME
 ----
-git-merge - Join two or more development histories together
+git-merge - Két vagy több fejlődéstörténet összekapcsolása
 
 
 SYNOPSIS
@@ -18,13 +18,13 @@ git merge (--continue | --abort | --quit)
 
 DESCRIPTION
 -----------
-Incorporates changes from the named commits (since the time their
-histories diverged from the current branch) into the current
-branch.  This command is used by `git pull` to incorporate changes
-from another repository and can be used by hand to merge changes
-from one branch into another.
+Beépíti a megnevezett commitok változásait (attól kezdve, hogy a
+történetük eltért az aktuális branchtől) az aktuális branchbe. Ezt a
+parancsot használja a `git pull` egy másik repository változásainak
+beépítéséhez, és kézzel is használható arra, hogy egy branch változásait
+egy másikba merge-eld.
 
-Assume the following history exists and the current branch is
+Tegyük fel, hogy a következő történet létezik, és az aktuális branch a
 `master`:
 
 ------------
@@ -33,12 +33,12 @@ Assume the following history exists and the current branch is
     D---E---F---G master
 ------------
 
-Then `git merge topic` will replay the changes made on the
-`topic` branch since it diverged from `master` (i.e., `E`) until
-its current commit (`C`) on top of `master`, and record the result
-in a new commit along with the names of the two parent commits and
-a log message from the user describing the changes. Before the operation,
-`ORIG_HEAD` is set to the tip of the current branch (`G`).
+Ekkor a `git merge topic` újrajátssza a `topic` branchen végzett
+változásokat attól kezdve, hogy az eltért a `master`-től (azaz `E`), az
+aktuális commitjáig (`C`), a `master` tetejére, és az eredményt egy új
+commitban rögzíti a két szülőcommit nevével és a felhasználótól származó,
+a változásokat leíró napló-üzenettel együtt. A művelet előtt az
+`ORIG_HEAD` az aktuális branch csúcsára (`G`) áll be.
 
 ------------
           A---B---C topic
@@ -46,20 +46,21 @@ a log message from the user describing the changes. Before the operation,
     D---E---F---G---H master
 ------------
 
-A merge stops if there's a conflict that cannot be resolved
-automatically or if `--no-commit` was provided when initiating the
-merge. At that point you can run `git merge --abort` or `git merge
---continue`.
+A merge leáll, ha van egy olyan konfliktus, amely nem oldható fel
+automatikusan, vagy ha a `--no-commit` meg volt adva a merge
+kezdeményezésekor. Ekkor lefuttathatod a `git merge --abort` vagy a
+`git merge --continue` parancsot.
 
-`git merge --abort` will abort the merge process and try to reconstruct
-the pre-merge state. However, if there were uncommitted changes when the
-merge started (and especially if those changes were further modified
-after the merge was started), `git merge --abort` will in some cases be
-unable to reconstruct the original (pre-merge) changes. Therefore:
+A `git merge --abort` megszakítja a merge folyamatát, és megpróbálja
+helyreállítani a merge előtti állapotot. Ha viszont voltak nem
+commitolt változások, amikor a merge elindult (és különösen, ha ezeket a
+változásokat a merge indulása után tovább módosították), a
+`git merge --abort` bizonyos esetekben nem lesz képes helyreállítani az
+eredeti (merge előtti) változásokat. Ezért:
 
-WARNING: Running `git merge` with non-trivial uncommitted changes is
-discouraged: while possible, it may leave you in a state that is hard to
-back out of in the case of a conflict.
+WARNING: A `git merge` futtatása nem triviális, nem commitolt
+változásokkal nem ajánlott: bár lehetséges, olyan állapotban hagyhat,
+amiből konfliktus esetén nehéz kihátrálni.
 
 OPTIONS
 -------
@@ -68,162 +69,165 @@ OPTIONS
 include::merge-options.adoc[]
 
 `-m <msg>`::
-	Set the commit message to be used for the merge commit (in
-	case one is created).
+	Beállítja a merge commithoz használandó commit-üzenetet (arra az
+	esetre, ha létrejön ilyen).
 +
-If `--log` is specified, a shortlog of the commits being merged
-will be appended to the specified message.
+Ha a `--log` meg van adva, a merge-elt commitok shortlogja hozzáfűződik
+a megadott üzenethez.
 +
-The `git fmt-merge-msg` command can be
-used to give a good default for automated `git merge`
-invocations. The automated message can include the branch description.
+A `git fmt-merge-msg` parancs jó alapértelmezést tud adni az
+automatizált `git merge` hívásokhoz. Az automatikus üzenet tartalmazhatja
+a branch leírását.
 
 `--into-name <branch>`::
-	Prepare the default merge message as if merging to the branch
-	_<branch>_, instead of the name of the real branch to which
-	the merge is made.
+	Úgy készíti elő az alapértelmezett merge-üzenetet, mintha a
+	`_<branch>_` branchbe merge-elne, nem pedig annak a valódi
+	branchnek a nevével, amelybe a merge történik.
 
 `-F <file>`::
 `--file=<file>`::
-	Read the commit message to be used for the merge commit (in
-	case one is created).
+	Beolvassa a merge commithoz használandó commit-üzenetet (arra az
+	esetre, ha létrejön ilyen).
 +
-If `--log` is specified, a shortlog of the commits being merged
-will be appended to the specified message.
+Ha a `--log` meg van adva, a merge-elt commitok shortlogja hozzáfűződik
+a megadott üzenethez.
 
 include::rerere-options.adoc[]
 
 `--overwrite-ignore`::
 `--no-overwrite-ignore`::
-	Silently overwrite ignored files from the merge result. This
-	is the default behavior. Use `--no-overwrite-ignore` to abort.
+	Csendben felülírja a merge eredményéből az ignorált fájlokat. Ez az
+	alapértelmezett viselkedés. A `--no-overwrite-ignore`-ral
+	megszakítható.
 
 `--abort`::
-	Abort the current conflict resolution process, and
-	try to reconstruct the pre-merge state. If an autostash entry is
-	present, apply it to the worktree.
+	Megszakítja az aktuális konfliktusfeloldási folyamatot, és
+	megpróbálja helyreállítani a merge előtti állapotot. Ha van
+	autostash bejegyzés, alkalmazza a worktree-re.
 +
-If there were uncommitted worktree changes present when the merge
-started, `git merge --abort` will in some cases be unable to
-reconstruct these changes. It is therefore recommended to always
-commit or stash your changes before running `git merge`.
+Ha voltak nem commitolt worktree-változások, amikor a merge elindult, a
+`git merge --abort` bizonyos esetekben nem lesz képes helyreállítani
+ezeket a változásokat. Ezért ajánlott mindig commitolni vagy stashelni a
+változásaidat, mielőtt a `git merge`-et lefuttatnád.
 +
-`git merge --abort` is equivalent to `git reset --merge` when
-`MERGE_HEAD` is present unless `MERGE_AUTOSTASH` is also present in
-which case `git merge --abort` applies the stash entry to the worktree
-whereas `git reset --merge` will save the stashed changes in the stash
-list.
+A `git merge --abort` egyenértékű a `git reset --merge`-dzsel, amikor a
+`MERGE_HEAD` jelen van, kivéve, ha a `MERGE_AUTOSTASH` is jelen van, amely
+esetben a `git merge --abort` a worktree-re alkalmazza a stash-bejegyzést,
+míg a `git reset --merge` a stash-elt változásokat a stash-listába menti.
 
 `--quit`::
-	Forget about the current merge in progress. Leave the index
-	and the working tree as-is. If `MERGE_AUTOSTASH` is present, the
-	stash entry will be saved to the stash list.
+	Elfelejti az aktuális, folyamatban lévő merge-et. Az indexet és a
+	munkakönyvtárat úgy hagyja, ahogy van. Ha a `MERGE_AUTOSTASH` jelen
+	van, a stash-bejegyzés a stash-listába mentődik.
 
 `--continue`::
-	After a `git merge` stops due to conflicts you can conclude the
-	merge by running `git merge --continue` (see "HOW TO RESOLVE
-	CONFLICTS" section below).
+	Miután egy `git merge` konfliktusok miatt leáll, befejezheted a
+	merge-et a `git merge --continue` lefuttatásával (lásd a "HOW TO
+	RESOLVE CONFLICTS" szakaszt lentebb).
 
 `<commit>...`::
-	Commits, usually other branch heads, to merge into our branch.
-	Specifying more than one commit will create a merge with
-	more than two parents (affectionately called an Octopus merge).
+	Commitok — általában más branchek fejei —, amelyeket a mi branchünkbe
+	kell merge-elni. Egynél több commit megadása kettőnél több szülővel
+	járó merge-et hoz létre (amit szeretettel Octopus merge-nek
+	neveznek).
 +
-If no commit is given from the command line, merge the remote-tracking
-branches that the current branch is configured to use as its upstream.
-See also the configuration section of this manual page.
+Ha nincs commit megadva a parancssorból, azokat a remote-tracking
+brancheket merge-eli, amelyeket az aktuális branch az upstreamjeként
+való használatra van beállítva. Lásd még e kézikönyvlap konfigurációs
+szakaszát.
 +
-When `FETCH_HEAD` (and no other commit) is specified, the branches
-recorded in the `.git/FETCH_HEAD` file by the previous invocation
-of `git fetch` for merging are merged to the current branch.
+Ha a `FETCH_HEAD` (és semmilyen más commit) van megadva, a `git fetch`
+előző hívása által a `.git/FETCH_HEAD` fájlba merge-elésre rögzített
+branchek merge-elődnek az aktuális branchbe.
 
 
 PRE-MERGE CHECKS
 ----------------
 
-Before applying outside changes, you should get your own work in
-good shape and committed locally, so it will not be clobbered if
-there are conflicts.  See also linkgit:git-stash[1].
-`git pull` and `git merge` will stop without doing anything when
-local uncommitted changes overlap with files that `git pull`/`git
-merge` may need to update.
+Mielőtt külső változásokat alkalmaznál, jó formába kell hoznod és
+helyben commitolnod a saját munkádat, hogy az ne íródjon felül, ha
+konfliktusok vannak. Lásd még: linkgit:git-stash[1].
+A `git pull` és a `git merge` bármi tevés nélkül leáll, amikor a helyi,
+nem commitolt változások átfednek olyan fájlokkal, amelyeket a
+`git pull`/`git merge`-nek frissítenie kellhet.
 
-To avoid recording unrelated changes in the merge commit,
-`git pull` and `git merge` will also abort if there are any changes
-registered in the index relative to the `HEAD` commit.  (Special
-narrow exceptions to this rule may exist depending on which merge
-strategy is in use, but generally, the index must match `HEAD`.)
+Hogy elkerülje a nem kapcsolódó változások rögzítését a merge commitban,
+a `git pull` és a `git merge` akkor is megszakad, ha bármilyen változás
+van regisztrálva az indexben a `HEAD` commithoz képest. (Ez alól a
+szabály alól szűk, speciális kivételek létezhetnek attól függően, hogy
+melyik merge-stratégia van használatban, de általában az indexnek
+egyeznie kell a `HEAD`-del.)
 
-If all named commits are already ancestors of `HEAD`, `git merge`
-will exit early with the message "Already up to date."
+Ha az összes megnevezett commit már a `HEAD` őse, a `git merge` korán
+kilép az "Already up to date." üzenettel.
 
 FAST-FORWARD MERGE
 ------------------
 
-Often the current branch head is an ancestor of the named commit.
-This is the most common case especially when invoked from `git
-pull`: you are tracking an upstream repository, you have committed
-no local changes, and now you want to update to a newer upstream
-revision.  In this case, a new commit is not needed to store the
-combined history; instead, the `HEAD` (along with the index) is
-updated to point at the named commit, without creating an extra
-merge commit.
+Gyakran az aktuális branch feje a megnevezett commit őse. Ez a
+leggyakoribb eset, különösen amikor a `git pull`-ból hívódik meg: egy
+upstream repository-t követsz, nem commitoltál helyi változásokat, és
+most egy újabb upstream revízióra szeretnél frissíteni. Ebben az
+esetben nincs szükség új commitra az egyesített történet tárolásához;
+helyette a `HEAD` (az indexszel együtt) úgy frissül, hogy a megnevezett
+commitra mutasson, extra merge commit létrehozása nélkül.
 
-This behavior can be suppressed with the `--no-ff` option.
+Ez a viselkedés a `--no-ff` kapcsolóval elnyomható.
 
 TRUE MERGE
 ----------
 
-Except in a fast-forward merge (see above), the branches to be
-merged must be tied together by a merge commit that has both of them
-as its parents.
+A fast-forward merge (lásd fent) kivételével a merge-elendő brancheket
+egy merge commitnak kell összekötnie, amelynek mindkettő a szülője.
 
-A merged version reconciling the changes from all branches to be
-merged is committed, and your `HEAD`, index, and working tree are
-updated to it.  It is possible to have modifications in the working
-tree as long as they do not overlap; the update will preserve them.
+Egy merge-elt verzió commitolódik, amely összeegyezteti az összes
+merge-elendő branch változásait, és a `HEAD`-ed, az indexed és a working
+tree-d erre frissül. Lehetnek módosítások a working tree-ben, amíg nem
+fednek át; a frissítés megőrzi őket.
 
-When it is not obvious how to reconcile the changes, the following
-happens:
+Amikor nem nyilvánvaló, hogyan kell összeegyeztetni a változásokat, a
+következő történik:
 
-1. The `HEAD` pointer stays the same.
-2. The `MERGE_HEAD` ref is set to point to the other branch head.
-3. Paths that merged cleanly are updated both in the index file and
-   in your working tree.
-4. For conflicting paths, the index file records up to three
-   versions: stage 1 stores the version from the common ancestor,
-   stage 2 from `HEAD`, and stage 3 from `MERGE_HEAD` (you
-   can inspect the stages with `git ls-files -u`).  The working
-   tree files contain the result of the merge operation; i.e. 3-way
-   merge results with familiar conflict markers +<<<+ `===` +>>>+.
-5. A ref named `AUTO_MERGE` is written, pointing to a tree
-   corresponding to the current content of the working tree (including
-   conflict markers for textual conflicts).  Note that this ref is only
-   written when the `ort` merge strategy is used (the default).
-6. No other changes are made.  In particular, the local
-   modifications you had before you started merge will stay the
-   same and the index entries for them stay as they were,
-   i.e. matching `HEAD`.
+1. A `HEAD` mutató ugyanaz marad.
+2. A `MERGE_HEAD` ref a másik branch fejére áll be.
+3. A tisztán merge-elődött útvonalak mind az indexfájlban, mind a
+   working tree-dben frissülnek.
+4. A konfliktusos útvonalakhoz az indexfájl legfeljebb három verziót
+   rögzít: az 1-es stage a közös ős verzióját tárolja, a 2-es a
+   `HEAD`-ét, a 3-as pedig a `MERGE_HEAD`-ét (a stage-eket a
+   `git ls-files -u`-val vizsgálhatod meg). A working tree fájljai a
+   merge művelet eredményét tartalmazzák; azaz háromutas merge
+   eredményeit az ismerős +<<<+ `===` +>>>+ konfliktusjelölőkkel.
+5. Egy `AUTO_MERGE` nevű ref íródik ki, amely egy olyan fára mutat,
+   amely a working tree aktuális tartalmának felel meg (a szöveges
+   konfliktusok konfliktusjelölőit is beleértve). Vedd figyelembe, hogy
+   ez a ref csak akkor íródik ki, amikor az `ort` merge-stratégia van
+   használatban (az alapértelmezett).
+6. Semmilyen más változás nem történik. Konkrétan a helyi
+   módosítások, amelyeid a merge megkezdése előtt voltak, ugyanazok
+   maradnak, és a hozzájuk tartozó indexbejegyzések is úgy maradnak,
+   ahogy voltak, azaz egyeznek a `HEAD`-del.
 
-If you tried a merge which resulted in complex conflicts and
-want to start over, you can recover with `git merge --abort`.
+Ha megpróbáltál egy merge-et, amely bonyolult konfliktusokat
+eredményezett, és elölről akarod kezdeni, a `git merge --abort`-tal
+állhatsz vissza.
 
 MERGING TAG
 -----------
 
-When merging an annotated (and possibly signed) tag, Git always
-creates a merge commit even if a fast-forward merge is possible, and
-the commit message template is prepared with the tag message.
-Additionally, if the tag is signed, the signature check is reported
-as a comment in the message template. See also linkgit:git-tag[1].
+Egy annotált (és esetleg aláírt) tag merge-elésekor a Git mindig
+létrehoz egy merge commitot, még akkor is, ha fast-forward merge
+lehetséges, és a commit-üzenet sablonja a tag üzenetével készül el.
+Ezenfelül, ha a tag alá van írva, az aláírás-ellenőrzés kommentként
+jelenik meg az üzenetsablonban. Lásd még: linkgit:git-tag[1].
 
-When you want to just integrate with the work leading to the commit
-that happens to be tagged, e.g. synchronizing with an upstream
-release point, you may not want to make an unnecessary merge commit.
+Amikor csak azzal a munkával akarsz integrálódni, amely a történetesen
+megtagelt commithoz vezet, pl. egy upstream kiadási ponttal
+szinkronizálva, lehet, hogy nem akarsz szükségtelen merge commitot
+csinálni.
 
-In such a case, you can "unwrap" the tag yourself before feeding it
-to `git merge`, or pass `--ff-only` when you do not have any work on
-your own. e.g.
+Ilyen esetben magad „kicsomagolhatod" a taget, mielőtt a `git merge`-nek
+adnád, vagy megadhatod a `--ff-only`-t, amikor nincs saját munkád. Pl.
 
 ----
 git fetch origin
@@ -234,16 +238,17 @@ git merge --ff-only v1.2.3
 HOW CONFLICTS ARE PRESENTED
 ---------------------------
 
-During a merge, the working tree files are updated to reflect the result
-of the merge.  Among the changes made to the common ancestor's version,
-non-overlapping ones (that is, you changed an area of the file while the
-other side left that area intact, or vice versa) are incorporated in the
-final result verbatim.  When both sides made changes to the same area,
-however, Git cannot randomly pick one side over the other, and asks you to
-resolve it by leaving what both sides did to that area.
+Merge közben a working tree fájljai frissülnek, hogy a merge eredményét
+tükrözzék. A közös ős verzióján végzett változások közül a nem
+átfedőek (azaz te megváltoztattad a fájl egy területét, míg a másik
+oldal azt a területet érintetlenül hagyta, vagy fordítva) szó szerint
+beépülnek a végeredménybe. Amikor viszont mindkét oldal ugyanazt a
+területet módosította, a Git nem tud véletlenszerűen egyik oldalt a
+másik elé sorolni, és arra kér, hogy oldd fel úgy, hogy meghagyod, amit
+mindkét oldal tett azzal a területtel.
 
-By default, Git uses the same style as the one used by the "merge" program
-from the RCS suite to present such a conflicted hunk, like this:
+Alapból a Git ugyanazt a stílust használja egy ilyen konfliktusos hunk
+bemutatására, mint az RCS csomag „merge" programja, így:
 
 ------------
 Here are lines that are either unchanged from the common
@@ -258,130 +263,131 @@ Git makes conflict resolution easy.
 And here is another line that is cleanly resolved or unmodified.
 ------------
 
-The area where a pair of conflicting changes happened is marked with markers
-+<<<<<<<+, `=======`, and +>>>>>>>+.  The part before the `=======`
-is typically your side, and the part afterwards is typically their side.
+Az a terület, ahol egy konfliktusos változáspár keletkezett, a
++<<<<<<<+, `=======` és +>>>>>>>+ jelölőkkel van megjelölve. A `=======`
+előtti rész jellemzően a te oldalad, az utána következő rész pedig
+jellemzően az ő oldaluk.
 
-The default format does not show what the original said in the conflicting
-area.  You cannot tell how many lines are deleted and replaced with
-Barbie's remark on your side.  The only thing you can tell is that your
-side wants to say it is hard and you'd prefer to go shopping, while the
-other side wants to claim it is easy.
+Az alapértelmezett formátum nem mutatja meg, mit mondott az eredeti a
+konfliktusos területen. Nem tudod megmondani, hány sor törlődött, és
+cserélődött ki Barbie megjegyzésével a te oldaladon. Az egyetlen, amit
+meg tudsz mondani, hogy a te oldalad azt akarja mondani, hogy nehéz, és
+inkább vásárolni mennél, míg a másik oldal azt akarja állítani, hogy
+könnyű.
 
-An alternative style can be used by setting the `merge.conflictStyle`
-configuration variable to either `diff3` or `zdiff3`.  In `diff3`
-style, the above conflict may look like this:
+Egy alternatív stílus használható a `merge.conflictStyle` konfigurációs
+változó `diff3`-ra vagy `zdiff3`-ra állításával. `diff3` stílusban a
+fenti konfliktus így nézhet ki:
 
 ------------
 Here are lines that are either unchanged from the common
 ancestor, or cleanly resolved because only one side changed,
 <<<<<<< yours:sample.txt
 or cleanly resolved because both sides changed the same way.
-Conflict resolution is hard;
-let's go shopping.
-||||||| base:sample.txt
-or cleanly resolved because both sides changed identically.
-Conflict resolution is hard.
-=======
-or cleanly resolved because both sides changed the same way.
-Git makes conflict resolution easy.
->>>>>>> theirs:sample.txt
-And here is another line that is cleanly resolved or unmodified.
-------------
-
-while in `zdiff3` style, it may look like this:
-
-------------
-Here are lines that are either unchanged from the common
-ancestor, or cleanly resolved because only one side changed,
-or cleanly resolved because both sides changed the same way.
-<<<<<<< yours:sample.txt
 Conflict resolution is hard;
 let's go shopping.
 ||||||| base:sample.txt
 or cleanly resolved because both sides changed identically.
 Conflict resolution is hard.
 =======
+or cleanly resolved because both sides changed the same way.
 Git makes conflict resolution easy.
 >>>>>>> theirs:sample.txt
 And here is another line that is cleanly resolved or unmodified.
 ------------
 
-In addition to the +<<<<<<<+, `=======`, and +>>>>>>>+ markers, it uses
-another +|||||||+ marker that is followed by the original text.  You can
-tell that the original just stated a fact, and your side simply gave in to
-that statement and gave up, while the other side tried to have a more
-positive attitude.  You can sometimes come up with a better resolution by
-viewing the original.
+míg `zdiff3` stílusban így nézhet ki:
+
+------------
+Here are lines that are either unchanged from the common
+ancestor, or cleanly resolved because only one side changed,
+or cleanly resolved because both sides changed the same way.
+<<<<<<< yours:sample.txt
+Conflict resolution is hard;
+let's go shopping.
+||||||| base:sample.txt
+or cleanly resolved because both sides changed identically.
+Conflict resolution is hard.
+=======
+Git makes conflict resolution easy.
+>>>>>>> theirs:sample.txt
+And here is another line that is cleanly resolved or unmodified.
+------------
+
+A +<<<<<<<+, `=======` és +>>>>>>>+ jelölőkön felül egy másik +|||||||+
+jelölőt is használ, amelyet az eredeti szöveg követ. Meg tudod mondani,
+hogy az eredeti csak egy tényt állapított meg, és a te oldalad egyszerűen
+beadta a derekát ennek a kijelentésnek, és feladta, míg a másik oldal
+pozitívabb hozzáállással próbálkozott. Néha jobb feloldás juthat
+eszedbe, ha megnézed az eredetit.
 
 
 HOW TO RESOLVE CONFLICTS
 ------------------------
 
-After seeing a conflict, you can do two things:
+Miután láttál egy konfliktust, két dolgot tehetsz:
 
- * Decide not to merge.  The only clean-ups you need are to reset
-   the index file to the `HEAD` commit to reverse 2. and to clean
-   up working tree changes made by 2. and 3.; `git merge --abort`
-   can be used for this.
+ * Úgy döntesz, hogy nem merge-elsz. Az egyetlen takarítás, amire
+   szükséged van, hogy visszaállítsd az indexfájlt a `HEAD` commitra a
+   2. visszavonásához, és feltakarítsd a 2. és 3. által végzett
+   working tree-változásokat; ehhez a `git merge --abort` használható.
 
- * Resolve the conflicts.  Git will mark the conflicts in
-   the working tree.  Edit the files into shape and
-   `git add` them to the index.  Use `git commit` or
-   `git merge --continue` to seal the deal. The latter command
-   checks whether there is a (interrupted) merge in progress
-   before calling `git commit`.
+ * Feloldod a konfliktusokat. A Git megjelöli a konfliktusokat a
+   working tree-ben. Formába szerkeszted a fájlokat, és `git add`-del
+   hozzáadod őket az indexhez. A `git commit`-tal vagy a
+   `git merge --continue`-val nyélbe ütöd a dolgot. Az utóbbi parancs
+   ellenőrzi, van-e (megszakított) merge folyamatban, mielőtt meghívná
+   a `git commit`-ot.
 
-You can work through the conflict with a number of tools:
+A konfliktust számos eszközzel átdolgozhatod:
 
- * Use a mergetool.  `git mergetool` to launch a graphical
-   mergetool which will work through the merge with you.
+ * Használj mergetoolt. A `git mergetool` egy grafikus mergetoolt
+   indít, amely veled együtt átdolgozza a merge-et.
 
- * Look at the diffs.  `git diff` will show a three-way diff,
-   highlighting changes from both the `HEAD` and `MERGE_HEAD`
-   versions. `git diff AUTO_MERGE` will show what changes you've
-   made so far to resolve textual conflicts.
+ * Nézd meg a diffeket. A `git diff` egy háromutas diffet mutat,
+   kiemelve a `HEAD` és a `MERGE_HEAD` verzió változásait is. A
+   `git diff AUTO_MERGE` megmutatja, milyen változásokat végeztél
+   eddig a szöveges konfliktusok feloldásához.
 
- * Look at the diffs from each branch. `git log --merge -p <path>`
-   will show diffs first for the `HEAD` version and then the
-   `MERGE_HEAD` version.
+ * Nézd meg az egyes branchek diffjeit. A `git log --merge -p <path>`
+   először a `HEAD` verzióhoz, majd a `MERGE_HEAD` verzióhoz mutat
+   diffeket.
 
- * Look at the originals.  `git show :1:filename` shows the
-   common ancestor, `git show :2:filename` shows the `HEAD`
-   version, and `git show :3:filename` shows the `MERGE_HEAD`
-   version.
+ * Nézd meg az eredetieket. A `git show :1:filename` a közös őst
+   mutatja, a `git show :2:filename` a `HEAD` verziót, a
+   `git show :3:filename` pedig a `MERGE_HEAD` verziót.
 
 
 EXAMPLES
 --------
 
-* Merge branches `fixes` and `enhancements` on top of
-  the current branch, making an octopus merge:
+* A `fixes` és `enhancements` branch merge-elése az aktuális branch
+  tetejére, octopus merge-et készítve:
 +
 ------------------------------------------------
 $ git merge fixes enhancements
 ------------------------------------------------
 
-* Merge branch `obsolete` into the current branch, using `ours`
-  merge strategy:
+* Az `obsolete` branch merge-elése az aktuális branchbe, `ours`
+  merge-stratégiával:
 +
 ------------------------------------------------
 $ git merge -s ours obsolete
 ------------------------------------------------
 
-* Merge branch `maint` into the current branch, but do not make
-  a new commit automatically:
+* A `maint` branch merge-elése az aktuális branchbe, de új commit
+  automatikus készítése nélkül:
 +
 ------------------------------------------------
 $ git merge --no-commit maint
 ------------------------------------------------
 +
-This can be used when you want to include further changes to the
-merge, or want to write your own merge commit message.
+Ez akkor használható, ha további változásokat akarsz belefoglalni a
+merge-be, vagy a saját merge commit-üzenetedet akarod megírni.
 +
-You should refrain from abusing this option to sneak substantial
-changes into a merge commit.  Small fixups like bumping
-release/version name would be acceptable.
+Tartózkodj attól, hogy visszaélj ezzel a kapcsolóval, és jelentős
+változásokat csempéssz egy merge commitba. Kis igazítások, mint a
+kiadás-/verziónév megnövelése, elfogadhatók lennének.
 
 
 include::merge-strategies.adoc[]
@@ -390,9 +396,10 @@ CONFIGURATION
 -------------
 
 `branch.<name>.mergeOptions`::
-	Sets default options for merging into branch _<name>_. The syntax and
-	supported options are the same as those of `git merge`, but option
-	values containing whitespace characters are currently not supported.
+	Alapértelmezett opciókat állít be a `_<name>_` branchbe merge-eléshez.
+	A szintaxis és a támogatott opciók ugyanazok, mint a `git merge`-é,
+	de a whitespace-karaktereket tartalmazó opcióértékek jelenleg nem
+	támogatottak.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -409,4 +416,4 @@ linkgit:git-mergetool[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

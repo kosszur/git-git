@@ -1,137 +1,142 @@
 SPECIFYING REVISIONS
 --------------------
 
-A revision parameter '<rev>' typically, but not necessarily, names a
-commit object.  It uses what is called an 'extended SHA-1'
-syntax.  Here are various ways to spell object names.  The
-ones listed near the end of this list name trees and
-blobs contained in a commit.
+Egy '<rev>' revíziós paraméter jellemzően, de nem feltétlenül, egy
+commitobjektumot nevez meg. Az úgynevezett 'kiterjesztett SHA-1'
+szintaxist használja. Íme az objektumnevek leírásának különféle
+módjai. A lista vége felé felsoroltak egy commitban lévő fákat és
+blobokat neveznek meg.
 
-NOTE: This document shows the "raw" syntax as seen by git. The shell
-and other UIs might require additional quoting to protect special
-characters and to avoid word splitting.
+NOTE: Ez a dokumentum a git által látott „nyers" szintaxist mutatja. A
+shell és más felhasználói felületek további idézőjelezést igényelhetnek
+a speciális karakterek védelméhez és a szódarabolás elkerüléséhez.
 
 '<sha1>', e.g. 'dae86e1950b1277e545cee180551750029cfe735', 'dae86e'::
-  The full SHA-1 object name (40-byte hexadecimal string), or
-  a leading substring that is unique within the repository.
-  E.g. dae86e1950b1277e545cee180551750029cfe735 and dae86e both
-  name the same commit object if there is no other object in
-  your repository whose object name starts with dae86e.
+  A teljes SHA-1 objektumnév (40 bájtos hexadecimális sztring), vagy egy
+  kezdő részsztring, amely egyedi a repository-n belül.
+  Pl. a dae86e1950b1277e545cee180551750029cfe735 és a dae86e egyaránt
+  ugyanazt a commitobjektumot nevezi meg, ha nincs más objektum a
+  repository-dban, amelynek az objektumneve dae86e-vel kezdődik.
 
 '<describeOutput>', e.g. 'v1.7.4.2-679-g3bee7fb'::
-  Output from `git describe`; i.e. a closest tag, optionally
-  followed by a dash and a number of commits, followed by a dash, a
-  'g', and an abbreviated object name.
+  A `git describe` kimenete; azaz egy legközelebbi tag, opcionálisan egy
+  kötőjellel és egy commitszámmal, majd egy kötőjellel, egy 'g'-vel és
+  egy rövidített objektumnévvel követve.
 
 '<refname>', e.g. 'master', 'heads/master', 'refs/heads/master'::
-  A symbolic ref name.  E.g. 'master' typically means the commit
-  object referenced by 'refs/heads/master'.  If you
-  happen to have both 'heads/master' and 'tags/master', you can
-  explicitly say 'heads/master' to tell Git which one you mean.
-  When ambiguous, a '<refname>' is disambiguated by taking the
-  first match in the following rules:
+  Egy szimbolikus refnév. Pl. a 'master' jellemzően a
+  'refs/heads/master' által hivatkozott commitobjektumot jelenti. Ha
+  történetesen mind 'heads/master'-ed, mind 'tags/master'-ed van,
+  explicit módon megmondhatod, hogy 'heads/master', hogy közöld a
+  Gittel, melyikre gondolsz. Ha nem egyértelmű, egy '<refname>' úgy
+  válik egyértelművé, hogy a következő szabályok közül az első
+  illeszkedést veszi:
 +
-  . If '$GIT_DIR/<refname>' exists, that is what you mean (this is usually
-    useful only for `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`,
-    `REBASE_HEAD`, `REVERT_HEAD`, `CHERRY_PICK_HEAD`, `BISECT_HEAD`
-    and `AUTO_MERGE`);
+  . Ha a '$GIT_DIR/<refname>' létezik, arra gondolsz (ez általában csak a
+    `HEAD`, `FETCH_HEAD`, `ORIG_HEAD`, `MERGE_HEAD`, `REBASE_HEAD`,
+    `REVERT_HEAD`, `CHERRY_PICK_HEAD`, `BISECT_HEAD` és `AUTO_MERGE`
+    esetén hasznos);
 
-  . otherwise, 'refs/<refname>' if it exists;
+  . egyébként 'refs/<refname>', ha létezik;
 
-  . otherwise, 'refs/tags/<refname>' if it exists;
+  . egyébként 'refs/tags/<refname>', ha létezik;
 
-  . otherwise, 'refs/heads/<refname>' if it exists;
+  . egyébként 'refs/heads/<refname>', ha létezik;
 
-  . otherwise, 'refs/remotes/<refname>' if it exists;
+  . egyébként 'refs/remotes/<refname>', ha létezik;
 
-  . otherwise, 'refs/remotes/<refname>/HEAD' if it exists.
+  . egyébként 'refs/remotes/<refname>/HEAD', ha létezik.
 
 +
   `HEAD`:::
-    names the commit on which you based the changes in the working tree.
+    azt a commitot nevezi meg, amelyre a working tree-beli
+    változásaidat alapoztad.
   `FETCH_HEAD`:::
-    records the branch which you fetched from a remote repository with
-    your last `git fetch` invocation.
+    azt a branchet rögzíti, amelyet egy remote repository-ból
+    fetcheltél a legutóbbi `git fetch` híváskor.
   `ORIG_HEAD`:::
-    is created by commands that move your `HEAD` in a drastic way (`git
-    am`, `git merge`, `git rebase`, `git reset`), to record the position
-    of the `HEAD` before their operation, so that you can easily change
-    the tip of the branch back to the state before you ran them.
+    azok a parancsok hozzák létre, amelyek drasztikus módon mozgatják a
+    `HEAD`-edet (`git am`, `git merge`, `git rebase`, `git reset`), hogy
+    rögzítsék a `HEAD` pozícióját a műveletük előtt, hogy könnyen
+    visszaállíthasd a branch csúcsát a futtatásuk előtti állapotra.
   `MERGE_HEAD`:::
-    records the commit(s) which you are merging into your branch when you
-    run `git merge`.
+    azo(ka)t a commit(oka)t rögzíti, amelye(ke)t a branchedbe
+    merge-elsz, amikor lefuttatod a `git merge`-et.
   `REBASE_HEAD`:::
-    during a rebase, records the commit at which the operation is
-    currently stopped, either because of conflicts or an `edit` command in
-    an interactive rebase.
+    rebase közben azt a commitot rögzíti, amelynél a művelet éppen
+    megállt, akár konfliktusok, akár egy interaktív rebase-beli `edit`
+    parancs miatt.
   `REVERT_HEAD`:::
-    records the commit which you are reverting when you run `git revert`.
+    azt a commitot rögzíti, amelyet revertelsz, amikor lefuttatod a
+    `git revert`-et.
   `CHERRY_PICK_HEAD`:::
-    records the commit which you are cherry-picking when you run `git
-    cherry-pick`.
+    azt a commitot rögzíti, amelyet cherry-pickelsz, amikor lefuttatod a
+    `git cherry-pick`-et.
   `BISECT_HEAD`:::
-    records the current commit to be tested when you run `git bisect
-    --no-checkout`.
+    az aktuálisan tesztelendő commitot rögzíti, amikor lefuttatod a
+    `git bisect --no-checkout`-ot.
   `AUTO_MERGE`:::
-    records a tree object corresponding to the state the
-    'ort' merge strategy wrote to the working tree when a merge operation
-    resulted in conflicts.
+    egy olyan treeobjektumot rögzít, amely annak az állapotnak felel
+    meg, amelyet az 'ort' merge-stratégia a working tree-be írt, amikor
+    egy merge művelet konfliktusokat eredményezett.
 
 +
-Note that any of the 'refs/*' cases above may come either from
-the `$GIT_DIR/refs` directory or from the `$GIT_DIR/packed-refs` file.
-While the ref name encoding is unspecified, UTF-8 is preferred as
-some output processing may assume ref names in UTF-8.
+Vedd figyelembe, hogy a fenti 'refs/*' esetek bármelyike jöhet akár a
+`$GIT_DIR/refs` könyvtárból, akár a `$GIT_DIR/packed-refs` fájlból. Bár a
+refnév kódolása nincs meghatározva, az UTF-8 az előnyben részesített,
+mivel egyes kimenetfeldolgozások UTF-8-as refneveket feltételezhetnek.
 
 '@'::
-  '@' alone is a shortcut for `HEAD`.
+  Az '@' önmagában a `HEAD` rövidítése.
 
 '[<refname>]@{<date>}', e.g. 'master@\{yesterday\}', 'HEAD@{5 minutes ago}'::
-  A ref followed by the suffix '@' with a date specification
-  enclosed in a brace
-  pair (e.g. '\{yesterday\}', '{1 month 2 weeks 3 days 1 hour 1
-  second ago}' or '{1979-02-26 18:30:00}') specifies the value
-  of the ref at a prior point in time.  This suffix may only be
-  used immediately following a ref name and the ref must have an
-  existing log ('$GIT_DIR/logs/<ref>'). Note that this looks up the state
-  of your *local* ref at a given time; e.g., what was in your local
-  'master' branch last week. If you want to look at commits made during
-  certain times, see `--since` and `--until`.
+  Egy ref, amelyet a '@' utótag követ egy kapcsos zárójelpárba zárt
+  dátum-megadással (pl. '\{yesterday\}', '{1 month 2 weeks 3 days 1 hour 1
+  second ago}' vagy '{1979-02-26 18:30:00}'), a ref egy korábbi
+  időpontbeli értékét adja meg. Ez az utótag csak közvetlenül egy refnév
+  után használható, és a refnek léteznie kell egy naplójának
+  ('$GIT_DIR/logs/<ref>'). Vedd figyelembe, hogy ez a *helyi* refed
+  állapotát keresi ki egy adott időpontban; pl. mi volt a helyi
+  'master' branchedben a múlt héten. Ha bizonyos időszakokban készült
+  commitokat szeretnél megnézni, lásd a `--since` és `--until`
+  kapcsolót.
 
 '<refname>@{<n>}', e.g. 'master@\{1\}'::
-  A ref followed by the suffix '@' with an ordinal specification
-  enclosed in a brace pair (e.g. '\{1\}', '\{15\}') specifies
-  the n-th prior value of that ref.  For example 'master@\{1\}'
-  is the immediate prior value of 'master' while 'master@\{5\}'
-  is the 5th prior value of 'master'. This suffix may only be used
-  immediately following a ref name and the ref must have an existing
-  log ('$GIT_DIR/logs/<refname>').
+  Egy ref, amelyet a '@' utótag követ egy kapcsos zárójelpárba zárt
+  sorszám-megadással (pl. '\{1\}', '\{15\}'), az adott ref n-edik
+  korábbi értékét adja meg. Például a 'master@\{1\}' a 'master'
+  közvetlenül megelőző értéke, míg a 'master@\{5\}' a 'master' 5.
+  korábbi értéke. Ez az utótag csak közvetlenül egy refnév után
+  használható, és a refnek léteznie kell egy naplójának
+  ('$GIT_DIR/logs/<refname>').
 
 '@{<n>}', e.g. '@\{1\}'::
-  You can use the '@' construct with an empty ref part to get at a
-  reflog entry of the current branch. For example, if you are on
-  branch 'blabla' then '@\{1\}' means the same as 'blabla@\{1\}'.
+  Az '@' konstrukciót üres ref-résszel is használhatod, hogy az
+  aktuális branch egy reflog-bejegyzéséhez juss. Például ha a 'blabla'
+  branchen vagy, akkor a '@\{1\}' ugyanazt jelenti, mint a
+  'blabla@\{1\}'.
 
 '@{-<n>}', e.g. '@{-1}'::
-  The construct '@{-<n>}' means the <n>th branch/commit checked out
-  before the current one.
+  A '@{-<n>}' konstrukció az aktuális előtt <n>-edikként checkoutolt
+  branchet/commitot jelenti.
 
 '[<branchname>]@\{upstream\}', e.g. 'master@\{upstream\}', '@\{u\}'::
-  A branch B may be set up to build on top of a branch X (configured with
-  `branch.<name>.merge`) at a remote R (configured with
-  `branch.<name>.remote`). B@{u} refers to the remote-tracking branch for
-  the branch X taken from remote R, typically found at `refs/remotes/R/X`.
+  Egy B branch beállítható úgy, hogy egy X branchre (a
+  `branch.<name>.merge`-dzsel konfigurálva) épüljön egy R remote-on (a
+  `branch.<name>.remote`-tal konfigurálva). A B@{u} az R remote-ról vett
+  X branchhez tartozó remote-tracking branchre hivatkozik, amely
+  jellemzően a `refs/remotes/R/X`-nél található.
 
 '[<branchname>]@\{push\}', e.g. 'master@\{push\}', '@\{push\}'::
-  The suffix '@\{push}' reports the branch "where we would push to" if
-  `git push` were run while `branchname` was checked out (or the current
-  `HEAD` if no branchname is specified). Like for '@\{upstream\}', we report
-  the remote-tracking branch that corresponds to that branch at the remote.
-  If the push destination is a URL and exactly one configured remote uses
-  that URL for pushing, '@\{push}' reports that remote's remote-tracking
-  branch.
+  A '@\{push}' utótag azt a branchet jelenti, "ahová pusholnánk", ha a
+  `git push` akkor futna, amikor a `branchname` van checkoutolva (vagy
+  az aktuális `HEAD`, ha nincs branchname megadva). A '@\{upstream\}'-hoz
+  hasonlóan azt a remote-tracking branchet jelentjük, amely az adott
+  branchnek felel meg a remote-on. Ha a push célja egy URL, és pontosan
+  egy konfigurált remote használja ezt az URL-t pusholásra, a '@\{push}'
+  annak a remote-nak a remote-tracking branchét jelenti.
 +
-Here's an example to make it more clear:
+Íme egy példa, hogy világosabb legyen:
 +
 ------------------------------
 $ git config push.default current
@@ -145,99 +150,104 @@ $ git rev-parse --symbolic-full-name @{push}
 refs/remotes/myfork/mybranch
 ------------------------------
 +
-Note in the example that we set up a triangular workflow, where we pull
-from one location and push to another. In a non-triangular workflow,
-'@\{push}' is the same as '@\{upstream}', and there is no need for it.
+Figyeld meg a példában, hogy egy háromszög alakú munkafolyamatot
+állítottunk be, ahol az egyik helyről pull-olunk, és egy másikra
+pusholunk. Egy nem háromszög alakú munkafolyamatban a '@\{push}'
+ugyanaz, mint a '@\{upstream}', és nincs rá szükség.
 +
-This suffix is also accepted when spelled in uppercase, and means the same
-thing no matter the case.
+Ezt az utótagot nagybetűvel írva is elfogadja, és ugyanazt jelenti, a
+kis-/nagybetűtől függetlenül.
 
 '<rev>{caret}[<n>]', e.g. 'HEAD{caret}, v1.5.1{caret}0'::
-  A suffix '{caret}' to a revision parameter means the first parent of
-  that commit object.  '{caret}<n>' means the <n>th parent (i.e.
+  Egy revíziós paraméter '{caret}' utótagja az adott commitobjektum első
+  szülőjét jelenti. A '{caret}<n>' az <n>-edik szülőt jelenti (azaz a
   '<rev>{caret}'
-  is equivalent to '<rev>{caret}1').  As a special rule,
-  '<rev>{caret}0' means the commit itself and is used when '<rev>' is the
-  object name of a tag object that refers to a commit object.
+  egyenértékű a '<rev>{caret}1'-gyel). Speciális szabályként a
+  '<rev>{caret}0' magát a commitot jelenti, és akkor használatos, amikor
+  a '<rev>' egy commitobjektumra hivatkozó tagobjektum objektumneve.
 
 '<rev>{tilde}[<n>]', e.g. 'HEAD{tilde}, master{tilde}3'::
-  A suffix '{tilde}' to a revision parameter means the first parent of
-  that commit object.
-  A suffix '{tilde}<n>' to a revision parameter means the commit
-  object that is the <n>th generation ancestor of the named
-  commit object, following only the first parents.  I.e. '<rev>{tilde}3' is
-  equivalent to '<rev>{caret}{caret}{caret}' which is equivalent to
-  '<rev>{caret}1{caret}1{caret}1'.  See below for an illustration of
-  the usage of this form.
+  Egy revíziós paraméter '{tilde}' utótagja az adott commitobjektum első
+  szülőjét jelenti.
+  Egy revíziós paraméter '{tilde}<n>' utótagja azt a commitobjektumot
+  jelenti, amely a megnevezett commitobjektum <n>-edik generációs őse,
+  csak az első szülőket követve. Azaz a '<rev>{tilde}3' egyenértékű a
+  '<rev>{caret}{caret}{caret}'-tal, amely egyenértékű a
+  '<rev>{caret}1{caret}1{caret}1'-gyel. Lentebb lásd ennek az alaknak a
+  használatát szemléltető ábrát.
 
 '<rev>{caret}{<type>}', e.g. 'v0.99.8{caret}\{commit\}'::
-  A suffix '{caret}' followed by an object type name enclosed in
-  brace pair means dereference the object at '<rev>' recursively until
-  an object of type '<type>' is found or the object cannot be
-  dereferenced anymore (in which case, barf).
-  For example, if '<rev>' is a commit-ish, '<rev>{caret}\{commit\}'
-  describes the corresponding commit object.
-  Similarly, if '<rev>' is a tree-ish, '<rev>{caret}\{tree\}'
-  describes the corresponding tree object.
-  '<rev>{caret}0'
-  is a short-hand for '<rev>{caret}\{commit\}'.
+  Egy '{caret}' utótag, amelyet egy kapcsos zárójelpárba zárt
+  objektumtípusnév követ, azt jelenti, hogy a '<rev>'-nél lévő
+  objektumot rekurzívan dereferálni kell, amíg egy '<type>' típusú
+  objektum elő nem kerül, vagy az objektum már nem dereferálható tovább
+  (ez esetben hiba).
+  Például ha a '<rev>' egy commit-ish, a '<rev>{caret}\{commit\}' a
+  megfelelő commitobjektumot írja le.
+  Hasonlóan, ha a '<rev>' egy tree-ish, a '<rev>{caret}\{tree\}' a
+  megfelelő treeobjektumot írja le.
+  A '<rev>{caret}0'
+  a '<rev>{caret}\{commit\}' rövidítése.
 +
-'<rev>{caret}\{object\}' can be used to make sure '<rev>' names an
-object that exists, without requiring '<rev>' to be a tag, and
-without dereferencing '<rev>'; because a tag is already an object,
-it does not have to be dereferenced even once to get to an object.
+A '<rev>{caret}\{object\}' arra használható, hogy megbizonyosodj arról,
+hogy a '<rev>' egy létező objektumot nevez meg, anélkül, hogy a
+'<rev>'-nek tagnek kellene lennie, és a '<rev>' dereferálása nélkül;
+mivel egy tag már eleve egy objektum, egyszer sem kell dereferálni
+ahhoz, hogy egy objektumhoz juss.
 +
-'<rev>{caret}\{tag\}' can be used to ensure that '<rev>' identifies an
-existing tag object.
+A '<rev>{caret}\{tag\}' arra használható, hogy biztosítsd, hogy a
+'<rev>' egy létező tagobjektumot azonosít.
 
 '<rev>{caret}{}', e.g. 'v0.99.8{caret}{}'::
-  A suffix '{caret}' followed by an empty brace pair
-  means the object could be a tag,
-  and dereference the tag recursively until a non-tag object is
-  found.
+  Egy '{caret}' utótag, amelyet egy üres kapcsos zárójelpár követ, azt
+  jelenti, hogy az objektum lehet egy tag, és a taget rekurzívan
+  dereferálni kell, amíg egy nem-tag objektum elő nem kerül.
 
 '<rev>{caret}{/<text>}', e.g. 'HEAD^{/fix nasty bug}'::
-  A suffix '{caret}' to a revision parameter, followed by a brace
-  pair that contains a text led by a slash,
-  is the same as the ':/fix nasty bug' syntax below except that
-  it returns the youngest matching commit which is reachable from
-  the '<rev>' before '{caret}'.
+  Egy revíziós paraméter '{caret}' utótagja, amelyet egy kapcsos
+  zárójelpár követ, amely egy perjellel bevezetett szöveget tartalmaz,
+  ugyanaz, mint a lenti ':/fix nasty bug' szintaxis, azzal a
+  különbséggel, hogy a legfiatalabb illeszkedő commitot adja vissza,
+  amely a '{caret}' előtti '<rev>'-ből elérhető.
 
 ':/<text>', e.g. ':/fix nasty bug'::
-  A colon, followed by a slash, followed by a text, names
-  a commit whose commit message matches the specified regular expression.
-  This name returns the youngest matching commit which is
-  reachable from any ref, including HEAD.
-  The regular expression can match any part of the
-  commit message. To match messages starting with a string, one can use
-  e.g. ':/^foo'. The special sequence ':/!' is reserved for modifiers to what
-  is matched. ':/!-foo' performs a negative match, while ':/!!foo' matches a
-  literal '!' character, followed by 'foo'. Any other sequence beginning with
-  ':/!' is reserved for now.
-  Depending on the given text, the shell's word splitting rules might
-  require additional quoting.
+  Egy kettőspont, majd egy perjel, majd egy szöveg egy olyan commitot
+  nevez meg, amelynek a commit-üzenete illeszkedik a megadott reguláris
+  kifejezésre.
+  Ez a név a legfiatalabb illeszkedő commitot adja vissza, amely bármely
+  refből — beleértve a HEAD-et is — elérhető.
+  A reguláris kifejezés a commit-üzenet bármely részére illeszkedhet. Egy
+  sztringgel kezdődő üzenetekre illesztéshez használható pl. a ':/^foo'.
+  A ':/!' speciális szekvencia az illesztett dolog módosítói számára van
+  fenntartva. A ':/!-foo' negatív illesztést végez, míg a ':/!!foo' egy
+  literál '!' karakterre illeszkedik, amelyet 'foo' követ. A ':/!'-jellel
+  kezdődő bármely más szekvencia egyelőre fenntartott.
+  A megadott szövegtől függően a shell szódarabolási szabályai további
+  idézőjelezést igényelhetnek.
 
 '<rev>:<path>', e.g. 'HEAD:README', 'master:./README'::
-  A suffix ':' followed by a path names the blob or tree
-  at the given path in the tree-ish object named by the part
-  before the colon.
-  A path starting with './' or '../' is relative to the current working directory.
-  The given path will be converted to be relative to the working tree's root directory.
-  This is most useful to address a blob or tree from a commit or tree that has
-  the same tree structure as the working tree.
+  Egy ':' utótag, amelyet egy útvonal követ, a kettőspont előtti rész
+  által megnevezett tree-ish objektumban lévő, az adott útvonalon
+  található blobot vagy fát nevezi meg.
+  A './'-vel vagy '../'-vel kezdődő útvonal az aktuális munkakönyvtárhoz
+  relatív.
+  A megadott útvonal a working tree gyökérkönyvtárához relatívvá lesz
+  konvertálva.
+  Ez leginkább egy blob vagy fa címzésére hasznos egy olyan commitból
+  vagy fából, amelynek ugyanolyan a fastruktúrája, mint a working
+  tree-nek.
 
 ':[<n>:]<path>', e.g. ':0:README', ':README'::
-  A colon, optionally followed by a stage number (0 to 3) and a
-  colon, followed by a path, names a blob object in the
-  index at the given path. A missing stage number (and the colon
-  that follows it) names a stage 0 entry. During a merge, stage
-  1 is the common ancestor, stage 2 is the target branch's version
-  (typically the current branch), and stage 3 is the version from
-  the branch which is being merged.
+  Egy kettőspont, amelyet opcionálisan egy stage-szám (0-tól 3-ig) és
+  egy kettőspont követ, majd egy útvonal, egy blobobjektumot nevez meg
+  az indexben az adott útvonalon. A hiányzó stage-szám (és az azt követő
+  kettőspont) egy 0-s stage bejegyzést nevez meg. Merge közben az 1-es
+  stage a közös ős, a 2-es stage a cél branch verziója (jellemzően az
+  aktuális branch), a 3-as stage pedig a merge-elt branch verziója.
 
-Here is an illustration, by Jon Loeliger.  Both commit nodes B
-and C are parents of commit node A.  Parent commits are ordered
-left-to-right.
+Íme egy szemléltető ábra, Jon Loeliger-től. A B és C commitcsomópont
+egyaránt az A commitcsomópont szülője. A szülőcommitok balról jobbra
+vannak sorrendezve.
 
 ........................................
 G   H   I   J
@@ -267,136 +277,143 @@ G   H   I   J
 SPECIFYING RANGES
 -----------------
 
-History traversing commands such as `git log` operate on a set
-of commits, not just a single commit.
+A történetet bejáró parancsok, mint a `git log`, egy commithalmazon
+működnek, nem csupán egyetlen commiton.
 
-For these commands,
-specifying a single revision, using the notation described in the
-previous section, means the set of commits `reachable` from the given
-commit.
+Ezeknél a parancsoknál egyetlen revízió megadása az előző szakaszban
+leírt jelöléssel az adott commitból `elérhető` commitok halmazát
+jelenti.
 
-Specifying several revisions means the set of commits reachable from
-any of the given commits.
+Több revízió megadása a megadott commitok bármelyikéből elérhető
+commitok halmazát jelenti.
 
-A commit's reachable set is the commit itself and the commits in
-its ancestry chain.
+Egy commit elérhető halmaza maga a commit és az ősei láncolatában lévő
+commitok.
 
-There are several notations to specify a set of connected commits
-(called a "revision range"), illustrated below.
+Több jelölés is van egy összefüggő commithalmaz (amit
+„revíziótartománynak" neveznek) megadására, ezeket lentebb
+szemléltetjük.
 
 
-Commit Exclusions
-~~~~~~~~~~~~~~~~~
+[[_commit_exclusions]]
+Commit-kizárások
+~~~~~~~~~~~~~~~~
 
 '{caret}<rev>' (caret) Notation::
- To exclude commits reachable from a commit, a prefix '{caret}'
- notation is used.  E.g. '{caret}r1 r2' means commits reachable
- from 'r2' but exclude the ones reachable from 'r1' (i.e. 'r1' and
- its ancestors).
+ Egy commitból elérhető commitok kizárásához egy '{caret}' előtag-jelölés
+ használatos. Pl. a '{caret}r1 r2' azokat a commitokat jelenti, amelyek
+ az 'r2'-ből elérhetők, de kizárja azokat, amelyek az 'r1'-ből elérhetők
+ (azaz az 'r1'-et és az őseit).
 
-Dotted Range Notations
-~~~~~~~~~~~~~~~~~~~~~~
+[[_dotted_range_notations]]
+Pontos tartományjelölések
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The '..' (two-dot) Range Notation::
- The '{caret}r1 r2' set operation appears so often that there is a shorthand
- for it.  When you have two commits 'r1' and 'r2' (named according
- to the syntax explained in SPECIFYING REVISIONS above), you can ask
- for commits that are reachable from r2 excluding those that are reachable
- from r1 by '{caret}r1 r2' and it can be written as 'r1..r2'.
+ A '{caret}r1 r2' halmazművelet olyan gyakran előfordul, hogy van rá
+ rövidítés. Ha van két commitod, 'r1' és 'r2' (a fenti SPECIFYING
+ REVISIONS-ben leírt szintaxis szerint megnevezve), a '{caret}r1 r2'-vel
+ kérheted azokat a commitokat, amelyek az r2-ből elérhetők, kizárva
+ azokat, amelyek az r1-ből elérhetők, és ez 'r1..r2'-ként írható.
 
 The '\...' (three-dot) Symmetric Difference Notation::
- A similar notation 'r1\...r2' is called symmetric difference
- of 'r1' and 'r2' and is defined as
+ Egy hasonló jelölést, az 'r1\...r2'-t az 'r1' és 'r2' szimmetrikus
+ különbségének nevezik, és így definiálják:
  'r1 r2 --not $(git merge-base --all r1 r2)'.
- It is the set of commits that are reachable from either one of
- 'r1' (left side) or 'r2' (right side) but not from both.
+ Ez azoknak a commitoknak a halmaza, amelyek az 'r1' (bal oldal) vagy az
+ 'r2' (jobb oldal) valamelyikéből elérhetők, de nem mindkettőből.
 
-In these two shorthand notations, you can omit one end and let it default to HEAD.
-For example, 'origin..' is a shorthand for 'origin..HEAD' and asks "What
-did I do since I forked from the origin branch?"  Similarly, '..origin'
-is a shorthand for 'HEAD..origin' and asks "What did the origin do since
-I forked from them?"  Note that '..' would mean 'HEAD..HEAD' which is an
-empty range that is both reachable and unreachable from HEAD.
+Ebben a két rövidítés-jelölésben az egyik véget elhagyhatod, és hagyhatod,
+hogy alapból HEAD legyen. Például az 'origin..' az 'origin..HEAD'
+rövidítése, és azt kérdezi: "Mit csináltam azóta, hogy leágaztam az
+origin branchről?" Hasonlóan a '..origin' a 'HEAD..origin' rövidítése, és
+azt kérdezi: "Mit csinált az origin azóta, hogy leágaztam róla?" Vedd
+figyelembe, hogy a '..' azt jelentené, hogy 'HEAD..HEAD', ami egy üres
+tartomány, amely a HEAD-ből egyszerre elérhető és elérhetetlen.
 
-Commands that are specifically designed to take two distinct ranges
-(e.g. "git range-diff R1 R2" to compare two ranges) do exist, but
-they are exceptions.  Unless otherwise noted, all "git" commands
-that operate on a set of commits work on a single revision range.
-In other words, writing two "two-dot range notation" next to each
-other, e.g.
+Léteznek olyan parancsok, amelyeket kifejezetten két különálló
+tartomány fogadására terveztek (pl. a "git range-diff R1 R2" két
+tartomány összehasonlítására), de ezek kivételek. Ha másképp nincs
+jelezve, minden "git" parancs, amely egy commithalmazon működik,
+egyetlen revíziótartományon dolgozik. Más szóval két "kétpontos
+tartományjelölés" egymás mellé írása, pl.
 
     $ git log A..B C..D
 
-does *not* specify two revision ranges for most commands.  Instead
-it will name a single connected set of commits, i.e. those that are
-reachable from either B or D but are reachable from neither A or C.
-In a linear history like this:
+a legtöbb parancsnál *nem* ad meg két revíziótartományt. Ehelyett egyetlen
+összefüggő commithalmazt nevez meg, azaz azokat, amelyek a B-ből vagy a
+D-ből elérhetők, de sem az A-ból, sem a C-ből nem érhetők el. Egy ilyen
+lineáris történetben:
 
     ---A---B---o---o---C---D
 
-because A and B are reachable from C, the revision range specified
-by these two dotted ranges is a single commit D.
+mivel az A és a B elérhető a C-ből, az e két pontos tartomány által
+megadott revíziótartomány egyetlen commit, a D.
 
 
-Other <rev>{caret} Parent Shorthand Notations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Three other shorthands exist, particularly useful for merge commits,
-for naming a set that is formed by a commit and its parent commits.
+[[_other_rev_parent_shorthand_notations]]
+Egyéb <rev>{caret} szülő-rövidítésjelölések
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Létezik három másik rövidítés, amelyek különösen merge commitoknál
+hasznosak, egy olyan halmaz megnevezésére, amelyet egy commit és a
+szülőcommitjai alkotnak.
 
-The 'r1{caret}@' notation means all parents of 'r1'.
+Az 'r1{caret}@' jelölés az 'r1' összes szülőjét jelenti.
 
-The 'r1{caret}!' notation includes commit 'r1' but excludes all of its parents.
-By itself, this notation denotes the single commit 'r1'.
+Az 'r1{caret}!' jelölés magában foglalja az 'r1' commitot, de kizárja az
+összes szülőjét. Önmagában ez a jelölés az egyetlen 'r1' commitot
+jelöli.
 
-The '<rev>{caret}-[<n>]' notation includes '<rev>' but excludes the <n>th
-parent (i.e. a shorthand for '<rev>{caret}<n>..<rev>'), with '<n>' = 1 if
-not given. This is typically useful for merge commits where you
-can just pass '<commit>{caret}-' to get all the commits in the branch
-that was merged in merge commit '<commit>' (including '<commit>'
-itself).
+A '<rev>{caret}-[<n>]' jelölés magában foglalja a '<rev>'-et, de kizárja
+az <n>-edik szülőt (azaz a '<rev>{caret}<n>..<rev>' rövidítése), '<n>' =
+1-gyel, ha nincs megadva. Ez jellemzően merge commitoknál hasznos, ahol
+egyszerűen átadhatod a '<commit>{caret}-'-t, hogy megkapd az összes
+commitot abban a branchben, amelyet a '<commit>' merge commitban
+merge-eltek (magát a '<commit>'-ot is beleértve).
 
-While '<rev>{caret}<n>' was about specifying a single commit parent, these
-three notations also consider its parents. For example you can say
-'HEAD{caret}2{caret}@', however you cannot say 'HEAD{caret}@{caret}2'.
+Míg a '<rev>{caret}<n>' egyetlen commitszülő megadásáról szólt, ez a
+három jelölés a szülőit is figyelembe veszi. Például mondhatod, hogy
+'HEAD{caret}2{caret}@', viszont nem mondhatod, hogy 'HEAD{caret}@{caret}2'.
 
-Revision Range Summary
-----------------------
+[[_revision_range_summary]]
+Revíziótartomány-összefoglaló
+-----------------------------
 
 '<rev>'::
-	Include commits that are reachable from <rev> (i.e. <rev> and its
-	ancestors).
+	Beleveszi azokat a commitokat, amelyek a <rev>-ből elérhetők (azaz
+	a <rev>-et és az őseit).
 
 '{caret}<rev>'::
-	Exclude commits that are reachable from <rev> (i.e. <rev> and its
-	ancestors).
+	Kizárja azokat a commitokat, amelyek a <rev>-ből elérhetők (azaz a
+	<rev>-et és az őseit).
 
 '<rev1>..<rev2>'::
-	Include commits that are reachable from <rev2> but exclude
-	those that are reachable from <rev1>.  When either <rev1> or
-	<rev2> is omitted, it defaults to `HEAD`.
+	Beleveszi azokat a commitokat, amelyek a <rev2>-ből elérhetők, de
+	kizárja azokat, amelyek a <rev1>-ből elérhetők. Ha akár a <rev1>,
+	akár a <rev2> el van hagyva, alapból `HEAD`.
 
 '<rev1>\...<rev2>'::
-	Include commits that are reachable from either <rev1> or
-	<rev2> but exclude those that are reachable from both.  When
-	either <rev1> or <rev2> is omitted, it defaults to `HEAD`.
+	Beleveszi azokat a commitokat, amelyek a <rev1> vagy a <rev2>
+	valamelyikéből elérhetők, de kizárja azokat, amelyek mindkettőből
+	elérhetők. Ha akár a <rev1>, akár a <rev2> el van hagyva, alapból
+	`HEAD`.
 
 '<rev>{caret}@', e.g. 'HEAD{caret}@'::
-  A suffix '{caret}' followed by an at sign is the same as listing
-  all parents of '<rev>' (meaning, include anything reachable from
-  its parents, but not the commit itself).
+  Egy '{caret}' utótag, amelyet egy kukac követ, ugyanaz, mint a '<rev>'
+  összes szülőjének felsorolása (azaz belevesz mindent, ami a szülőiből
+  elérhető, de magát a commitot nem).
 
 '<rev>{caret}!', e.g. 'HEAD{caret}!'::
-  A suffix '{caret}' followed by an exclamation mark is the same
-  as giving commit '<rev>' and all its parents prefixed with
-  '{caret}' to exclude them (and their ancestors).
+  Egy '{caret}' utótag, amelyet egy felkiáltójel követ, ugyanaz, mint a
+  '<rev>' commit és az összes szülője megadása '{caret}' előtaggal, hogy
+  kizárja őket (és az őseiket).
 
 '<rev>{caret}-<n>', e.g. 'HEAD{caret}-, HEAD{caret}-2'::
-	Equivalent to '<rev>{caret}<n>..<rev>', with '<n>' = 1 if not
-	given.
+	Egyenértékű a '<rev>{caret}<n>..<rev>'-vel, '<n>' = 1-gyel, ha nincs
+	megadva.
 
-Here are a handful of examples using the Loeliger illustration above,
-with each step in the notation's expansion and selection carefully
-spelt out:
+Íme néhány példa a fenti Loeliger-ábra használatával, ahol a jelölés
+kifejtésének és kiválasztásának minden lépése gondosan ki van írva:
 
 ....
    Args   Expanded arguments    Selected commits

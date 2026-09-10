@@ -2920,3 +2920,138 @@ listájából a következő 10 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`
   `'thin-pack'` / `'no-thin'` / … compat-mode jelölés megtartva; RFC 2119 kulcsszavak
   (`SHOULD`/`MUST`/`MUST NOT`/`MAY`) angolul; `link:technical/api-trace2.html[api-trace2]` látható
   szöveg (doc-név) angolul; `OBJ_OFS_DELTA` / `PACKv2` / `DAG` / `SHA-1` bájtazonos.
+
+## 35. blokk — `git-repack.adoc`, `git-notes.adoc`, `git-merge.adoc`, `gitformat-index.adoc`, `revisions.adoc` — 2026-09-11
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| pack (fn, packelés kontextusában) | **marad „pack"**; toldalék: `packbe`, `packek`, `packet`, `packben` | `git-repack.adoc` — a `packfile` (0. blokk) rövid alakja; ahol a forrás idézőjelezi (`"pack"`), az idézőjel megmarad |
+| to repack / repacking | **„újracsomagolás" / „újracsomagol"**; `git repack` parancsnév marad | `git-repack.adoc` |
+| cruft pack | **marad „cruft pack"** (coined Git-fogalom) | `git-repack.adoc` — `cruft-expiration`, `max-cruft-size` config-tokenek angolul |
+| promisor packfile / promisor remote / promisor pack | **marad „promisor …"** (1. blokk) | `git-repack.adoc` |
+| unreachable / reachable object | **„elérhetetlen" / „elérhető objektum"** | `git-repack.adoc`, `revisions.adoc` |
+| loose object | **„laza objektum"** (0. blokk) | `git-repack.adoc` |
+| dangling (`git fsck` értelmében) | **„lógó"** | `git-repack.adoc` |
+| „dumb" protocol / „dumb" http protocol | **„dumb" protokoll** (idézőjelben, a 33. blokk „dumb"/„smart" HTTP ad hoc kezelésének folytatása) | `git-repack.adoc` — a forrás itt nem idézőjelezi, de a konzisztencia miatt idézőjelbe került |
+| geometric progression / „cut" / „roll-up" / „rolled-up" | **„geometriai progresszió" / „cut" / „roll-up" / „rolled-up"** (utóbbi három idézőjelben, angolul, ahogy a forrás) | `git-repack.adoc` |
+| multi-pack index (MIDX) / multi-pack bitmap | **marad „multi-pack index (MIDX)" / „többpackes bitmap"** | `git-repack.adoc` |
+| reachability bitmap index | **„elérhetőségi bitmap index"** | `git-repack.adoc` |
+| (object) note / notes | **„jegyzet" / „jegyzetek"**; `git notes` parancsnév marad; „object notes" → „objektumjegyzetek" | `git-notes.adoc` |
+| notes ref | **„jegyzet-ref"** (a `ref` literál angolul, 0. blokk) | `git-notes.adoc` |
+| to annotate (jegyzet-kontextusban) | **„annotál"** (0. blokk) | `git-notes.adoc` — „the objects they annotate" → „az általuk annotált objektumok" |
+| resolver (notes merge `manual` resolver) | **„feloldó"** | `git-notes.adoc` |
+| inter-paragraph separator | **„bekezdésközi elválasztó"** | `git-notes.adoc` |
+| patch commentary | **„patch-kommentár"** | `git-notes.adoc` |
+| "remote" / "local" (notes-merge oldalak neve, idézőjelben) | **bájtazonosan angolul, idézőjelben** | `git-notes.adoc` — a merge-oldalak megnevezett címkéi |
+| "cat \| sort \| uniq" shell pipeline | **bájtazonosan** | `git-notes.adoc` |
+| binary-safe / binary-safely | **„bináris-biztos" / „bináris-biztosan"** | `git-notes.adoc` |
+| development history / to join histories | **„fejlődéstörténet" / „történetek összekapcsolása"** | `git-merge.adoc` NAME + DESCRIPTION |
+| Octopus merge | **marad „Octopus merge"** (első előforduláskor „…amit szeretettel Octopus merge-nek neveznek") | `git-merge.adoc` |
+| conflict marker | **„konfliktusjelölő"** | `git-merge.adoc` — a `+<<<+` / `===` / `+>>>+` / `+\|\|\|\|\|\|\|+` compat-mode passthrough jelölések bájtazonosak |
+| conflicted hunk | **„konfliktusos hunk"** (0. blokk `hunk`) | `git-merge.adoc` |
+| autostash entry / stash entry / stash list | **„autostash bejegyzés" / „stash-bejegyzés" / „stash-lista"** | `git-merge.adoc` |
+| to "unwrap" a tag | **„kicsomagolod" a taget** (idézőjelben, ahogy a forrás) | `git-merge.adoc` |
+| triangular workflow | **„háromszög alakú munkafolyamat"** | `revisions.adoc` (`@{push}` példa) |
+| "Already up to date." (program-kimenet) | **bájtazonosan angolul, idézőjelben** | `git-merge.adoc` |
+| revision parameter / revision range | **„revíziós paraméter" / „revíziótartomány"** | `revisions.adoc` |
+| extended SHA-1 (syntax) | **„kiterjesztett SHA-1"** (idézőjelben, ahogy a forrás `'extended SHA-1'`) | `revisions.adoc` |
+| symbolic ref name | **„szimbolikus refnév"** (a `ref` literál angolul; „symbolic reference" → „szimbolikus referencia", 0. blokk) | `revisions.adoc` |
+| reachable / reachable set / ancestry chain | **„elérhető" / „elérhető halmaz" / „ősök láncolata"** | `revisions.adoc` — a `` `reachable` `` backtickes előfordulás bájtazonos |
+| symmetric difference | **„szimmetrikus különbség"** | `revisions.adoc` |
+| to dereference (an object) | **„dereferál"** | `revisions.adoc` — „…cannot be dereferenced anymore (in which case, barf)" → „…már nem dereferálható tovább (ez esetben hiba)" |
+| commit-ish / tree-ish | **marad „commit-ish" / „tree-ish"** (Git jargon) | `revisions.adoc` |
+| suffix / prefix / brace pair / ordinal specification | **„utótag" / „előtag" / „kapcsos zárójelpár" / „sorszám-megadás"** | `revisions.adoc` |
+| youngest matching commit | **„legfiatalabb illeszkedő commit"** | `revisions.adoc` |
+| index format / index entry | **„indexformátum" / „indexbejegyzés"** | `gitformat-index.adoc` |
+
+### Címsor-anchorok
+
+- **`git-notes.adoc`**: meglévő `[[CONFIGURATION]]` inline anchor + a DESCRIPTION-ben lévő
+  `<<CONFIGURATION,CONFIGURATION>>` xref **bájtazonos** (kanonikus man-page cím, a VÉGLEGES DÖNTÉS
+  szerint angolul marad, a linkszöveg is).
+- **`gitformat-index.adoc`** (format-spec doksi, `gitformat-*(5)`): 11 `==`/`===` cím, egyikük sem
+  volt anchorozva, és nincs rájuk `<<...>>` sehol a fában (grep). Mindegyik fölé defenzív
+  `[[<angol-autogen-slug>]]` került (`_` prefix, `_` separator, az **eredeti angol** címszövegből):
+  `[[_the_git_index_file_has_the_following_format]]` „A Git indexfájljának a következő formátuma van",
+  `[[_index_entry]]` „Indexbejegyzés", `[[_extensions]]` „Kiterjesztések", `[[_cache_tree]]`,
+  `[[_resolve_undo]]`, `[[_split_index]]`, `[[_untracked_cache]]`, `[[_file_system_monitor_cache]]`,
+  `[[_end_of_index_entry]]`, `[[_index_entry_offset_table]]`, `[[_sparse_directory_entries]]`. A
+  kiterjesztés-**tulajdonnevek** (`Cache tree`, `Resolve undo`, `Split index`, `Untracked cache`,
+  `File System Monitor cache`, `End of Index Entry`, `Index Entry Offset Table`,
+  `Sparse Directory Entries`) **címszövege angolul maradt** (a doksi törzse végig ezekre a szó
+  szerinti angol nevekre hivatkozik: „split index mode", „resolve undo extension" stb.); csak a
+  generikus `Index entry` / `Extensions` / a leíró mondat-cím fordult. Egysoros `==` címek → nincs
+  aláhúzás-igazítás.
+- **`revisions.adoc`** (`gitrevisions.adoc` `include`-célja): nincs meglévő `[[...]]`/`<<...>>`
+  (grep az egész fában). 4 Title Case setext alcím fölé defenzív `[[...]]` (aláhúzás a fordított
+  cím pontos hosszához igazítva, Python `len()` ellenőrzés): `[[_commit_exclusions]]`
+  „Commit-kizárások" (16 `~`), `[[_dotted_range_notations]]` „Pontos tartományjelölések" (25 `~`),
+  `[[_other_rev_parent_shorthand_notations]]` „Egyéb <rev>{caret} szülő-rövidítésjelölések"
+  (37 `~`; az autogen-slug a `{caret}`→`^` renderelt alakból), `[[_revision_range_summary]]`
+  „Revíziótartomány-összefoglaló" (29 `-`).
+
+### Man-page címként / csupa nagybetűs alcímként ANGOLUL hagyott címsorok (VÉGLEGES DÖNTÉS szerint)
+
+- **`git-merge.adoc`**: `PRE-MERGE CHECKS`, `FAST-FORWARD MERGE`, `TRUE MERGE`, `MERGING TAG`,
+  `HOW CONFLICTS ARE PRESENTED`, `HOW TO RESOLVE CONFLICTS` — csupa nagybetűs, kanonikus listán
+  kívüli, kétsoros aláhúzású (aláhúzás sem változott). A `--continue` opció leírásában lévő
+  `"HOW TO RESOLVE CONFLICTS" section` prózahivatkozás is angolul, idézőjelben.
+- **`git-notes.adoc`**: `SUBCOMMANDS`, `NOTES MERGE STRATEGIES` — csupa nagybetűs, kanonikus listán
+  kívüli. A `-s`/`--strategy` és a `merge` alparancs leírásában lévő `"NOTES MERGE STRATEGIES"
+  section` prózahivatkozások angolul, idézőjelben.
+- **`revisions.adoc`**: `SPECIFYING REVISIONS`, `SPECIFYING RANGES` — csupa nagybetűs, kétsoros
+  aláhúzású, a kanonikus listán kívül; a 14. blokk (`git-diff.adoc` idézőjeles prózahivatkozásai)
+  precedensét folytatva **bájtazonosan angolul** (aláhúzás sem változott). A „two-dot" Range
+  Notation `::` leírásában lévő `SPECIFYING REVISIONS above` prózahivatkozás is angolul.
+
+### Megőrzött markup / megjegyzések
+
+- **`git-repack.adoc`**: `[verse]` synopsis; a `--write-midx[=<mode>]` alatti `--`…`--` open-block a
+  `` `default`;; `` / `` `incremental`;; `` beágyazott def-listával változatlan (csak a törzs
+  fordult); 15 `+` folytatásjel bájtazonos; a `**WARNING:**` inline erős kiemelés megtartva; a
+  `"k"`/`"m"`/`"g"` méret-utótagok, `".promisor"` fájlnév, `.keep` / `pack-123.pack` literálok,
+  `repack.*` / `pack.*` config-kulcsok, `git prune`/`git gc`/`git pack-objects` parancsnevek
+  angolul.
+- **`git-notes.adoc`**: 2 `include::` sor (`includes/cmd-config-section-rest.adoc`,
+  `config/notes.adoc`) bájtazonos; a `copy` alparancsban lévő `----------` (10 kötőjel) blokk
+  (`<from-object> SP <to-object> …`) és 2 `--`…`--` open-block (`--stripspace` felsorolás)
+  változatlan; az EXAMPLES 4 `------------` blokkja (`$ git notes add …` / `$ cc *.c` …)
+  bájtazonos; a `footnote:[…]` makró törzse fordult, a `'bf'`/`'fe'`/… compat-mode literál-jelölés
+  megtartva; `refs/notes/commits`, `GIT_NOTES_*` env-változók, `.git/NOTES_MERGE_*` útvonalak,
+  `manual`/`ours`/`theirs`/`union`/`cat_sort_uniq` stratégianevek, `overwrite`/`concatenate`/…
+  módnevek angolul.
+- **`git-merge.adoc`**: `[synopsis]` blokk; `:git-merge: 1` attribútum-sor bájtazonos; 3
+  `include::` (`merge-options.adoc`, `rerere-options.adoc`, `merge-strategies.adoc`) + 2
+  config-`include::` változatlan; az `------------` ASCII-art commit-gráfok, a 3 konfliktus-példa
+  `------------` blokk (RCS/`diff3`/`zdiff3` stílus — tele `<<<<<<<`/`=======`/`|||||||`/`>>>>>>>`
+  jelekkel), a `----` (`git fetch origin` …) és az EXAMPLES 3 `------------------------------------------------`
+  (48 kötőjel) blokkja **bájtazonos**; `WARNING:` admonition-kulcsszó megtartva, próza fordult;
+  `ORIG_HEAD`/`MERGE_HEAD`/`AUTO_MERGE`/`FETCH_HEAD`, `ort` stratégianév, `merge.conflictStyle` /
+  `branch.<name>.mergeOptions` config-kulcsok angolul.
+- **`gitformat-index.adoc`**: a teljes format-spec törzs 2+ szóközzel behúzott **AsciiDoc literál
+  bekezdés** → a reftable/hash-function-transition/gitformat-commit-graph precedens (1./28. blokk)
+  szerint **bájtazonosan angolul** (bájtdiagramok, `{ 'D', 'I', 'R', 'C' }` szignatúrák,
+  `stat(2)` mezőleírások, `ewah` bitmap-leírások). Fordult: a NAME-leírás, a DESCRIPTION alatti
+  egyetlen flush-left „A Git index formátuma" sor, a 3 generikus cím + a leíró mondat-cím, és az
+  egyetlen flush-left `The remaining data of each directory block is grouped by type:` mondat.
+  Nincs `include`/`ifdef`/`----` blokk. `$GIT_DIR`/`$GIT_COMMON_DIR` placeholder változatlan.
+- **`revisions.adoc`**: `NOTE:` admonition-kulcsszó megtartva; a `::` **szintaxis-címkék**
+  (`'<sha1>', e.g. …::`, `'<refname>', e.g. …::`, `'{caret}<rev>' (caret) Notation::`,
+  `The '..' (two-dot) Range Notation::`, `The '\...' (three-dot) Symmetric Difference Notation::`,
+  a Revíziótartomány-összefoglaló összes `'<rev>'::` / `'{caret}<rev>'::` … címkéje) **bájtazonosan
+  angolul** — konzisztens a fájlon belül (a tiszta jelölés-címkék mintájára az összes címke marad);
+  csak a `::` utáni leírás-törzs fordult. A beágyazott `. …` implicit számozott lista `. ` jelölése
+  megtartva; a `+` folytatásjelek (9 db) bájtazonosak; a `........` (Loeliger commit-gráf) és a
+  `....`…`....` (példa-argumentum-táblázat) körülhatárolt blokkok, valamint a 4-szóközzel behúzott
+  `A = = A^0` … literál példasorok és a `---A---B---o---o---C---D` behúzott gráf **bájtazonos**;
+  `{caret}`/`{tilde}` attribútum-referenciák megtartva; `\{`/`\}`/`\...` escape-ek bájtazonosak;
+  `$GIT_DIR`/`branch.<name>.merge`/`branch.<name>.remote` config-tokenek, `--since`/`--until`
+  kapcsolók, `HEAD`/`@{u}`/`@{push}` konstrukciók angolul; a `$ git config …` / `$ git rev-parse …`
+  példablokk (`------------------------------`, 30 kötőjel) bájtazonos.

@@ -126,7 +126,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-merge-index.adoc | [x] |  | 2026-09-10 |
 | git-merge-one-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-tree.adoc | [x] |  | 2026-09-10 |
-| git-merge.adoc | [ ] |  |  |
+| git-merge.adoc | [x] |  | 2026-09-11 |
 | git-mergetool--lib.adoc | [x] |  | 2026-09-10 |
 | git-mergetool.adoc | [x] |  | 2026-09-10 |
 | git-mktag.adoc | [x] |  | 2026-09-10 |
@@ -134,7 +134,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-multi-pack-index.adoc | [x] |  | 2026-09-10 |
 | git-mv.adoc | [x] |  | 2026-09-10 |
 | git-name-rev.adoc | [x] |  | 2026-09-10 |
-| git-notes.adoc | [ ] |  |  |
+| git-notes.adoc | [x] |  | 2026-09-11 |
 | git-p4.adoc | [ ] |  |  |
 | git-pack-objects.adoc | [ ] |  |  |
 | git-pack-redundant.adoc | [x] |  | 2026-09-10 |
@@ -154,7 +154,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-remote-ext.adoc | [x] |  | 2026-09-10 |
 | git-remote-fd.adoc | [x] |  | 2026-09-10 |
 | git-remote.adoc | [x] |  | 2026-09-10 |
-| git-repack.adoc | [ ] |  |  |
+| git-repack.adoc | [x] |  | 2026-09-11 |
 | git-replace.adoc | [x] |  | 2026-09-10 |
 | git-replay.adoc | [x] |  | 2026-09-10 |
 | git-repo.adoc | [x] |  | 2026-09-10 |
@@ -242,7 +242,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
 | gitformat-chunk.adoc | [x] |  | 2026-09-10 |
 | gitformat-commit-graph.adoc | [x] |  | 2026-09-10 |
-| gitformat-index.adoc | [ ] |  |  |
+| gitformat-index.adoc | [x] |  | 2026-09-11 |
 | gitformat-loose.adoc | [x] |  | 2026-09-10 |
 | gitformat-pack.adoc | [ ] |  |  |
 | gitformat-signature.adoc | [x] |  | 2026-09-10 |
@@ -284,7 +284,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | rerere-options.adoc | [x] |  | 2026-09-10 |
 | rev-list-description.adoc | [x] |  | 2026-09-10 |
 | rev-list-options.adoc | [ ] |  |  |
-| revisions.adoc | [ ] |  |  |
+| revisions.adoc | [x] |  | 2026-09-11 |
 | scalar.adoc | [x] |  | 2026-09-10 |
 | sequencer.adoc | [x] |  | 2026-09-10 |
 | signoff-option.adoc | [x] |  | 2026-09-10 |
@@ -823,3 +823,22 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   A `fetch-options.adoc` include-fragmens: mind a 22 `ifdef/ifndef/endif::git-pull[]` guard és
   minden `::` opció-címke bájtazonos, nincs NAME/GIT. Orchestrátor végezte közvetlenül. Részletek:
   `glossary-git-git-docs.md` „34. blokk".
+- **2026-09-11 — az 5 legkisebb méretű, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; a két gyökér-tábla együttes, sorméret szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `git-repack.adoc` (367 sor), `git-notes.adoc` (397), `git-merge.adoc` (412),
+  `gitformat-index.adoc` (424), `revisions.adoc` (424, a `gitrevisions.adoc` `include`-célja).
+  Anchor-kezelés: `git-notes.adoc` meglévő `[[CONFIGURATION]]` anchorja + a `<<CONFIGURATION,CONFIGURATION>>`
+  xref **bájtazonos** (kanonikus cím, angolul marad). `gitformat-index.adoc` (11 db `==`/`===` cím,
+  format-spec doksi) és `revisions.adoc` (4 Title Case setext alcím) defenzív `[[...]]` anchorokat
+  kapott — l. `glossary-git-git-docs.md` „35. blokk". A `gitformat-index.adoc` 2 szóközzel behúzott
+  literál format-spec törzse a reftable/hash-function-transition precedens szerint bájtazonosan
+  angolul maradt (csak a címek + 2 flush-left mondat fordult). A `revisions.adoc` `::` szintaxis-
+  címkéi (`'<sha1>', e.g. …::`, `The '..' (two-dot) Range Notation::` stb.), a Loeliger-ábra és a
+  `....`/behúzott példablokkok bájtazonosak. Csupa nagybetűs, kanonikus listán kívüli címek a
+  VÉGLEGES DÖNTÉS szerint angolul: `SPECIFYING REVISIONS` / `SPECIFYING RANGES` (`revisions.adoc`,
+  + a `SPECIFYING REVISIONS` prózahivatkozás), `PRE-MERGE CHECKS` / `FAST-FORWARD MERGE` /
+  `TRUE MERGE` / `MERGING TAG` / `HOW CONFLICTS ARE PRESENTED` / `HOW TO RESOLVE CONFLICTS`
+  (`git-merge.adoc`, + a `"HOW TO RESOLVE CONFLICTS"` prózahivatkozás), `SUBCOMMANDS` /
+  `NOTES MERGE STRATEGIES` (`git-notes.adoc`, + a `"NOTES MERGE STRATEGIES"` prózahivatkozások).
+  Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „35. blokk".
