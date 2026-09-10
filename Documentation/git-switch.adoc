@@ -3,7 +3,7 @@ git-switch(1)
 
 NAME
 ----
-git-switch - Switch branches
+git-switch - Branchek közti váltás
 
 SYNOPSIS
 --------
@@ -15,66 +15,66 @@ git switch [<options>] --orphan <new-branch>
 
 DESCRIPTION
 -----------
-Switch to a specified branch. The working tree and the index are
-updated to match the branch. All new commits will be added to the tip
-of this branch.
+Átvált egy megadott branchre. A working tree és az index frissül, hogy
+megfeleljen a branchnek. Minden új commit ennek a branchnek a csúcsához
+adódik hozzá.
 
-Optionally a new branch could be created with either `-c`, `-C`,
-automatically from a remote branch of same name (see `--guess`), or
-detach the working tree from any branch with `--detach`, along with
-switching.
+Opcionálisan a váltással együtt új branch is létrehozható a `-c` vagy `-C`
+kapcsolóval, automatikusan egy azonos nevű remote branchből (lásd
+`--guess`), vagy a working tree leválasztható bármely branchről a
+`--detach` kapcsolóval.
 
-Switching branches does not require a clean index and working tree
-(i.e. no differences compared to `HEAD`). The operation is aborted
-however if the operation leads to loss of local changes, unless told
-otherwise with `--discard-changes` or `--merge`.
+A branchek közti váltás nem igényel tiszta indexet és working tree-t (azaz
+`HEAD`-hez képest nincs eltérés). A művelet azonban megszakad, ha lokális
+változások elvesztéséhez vezetne, hacsak a `--discard-changes` vagy a
+`--merge` mást nem ír elő.
 
 OPTIONS
 -------
 _<branch>_::
-	Branch to switch to.
+	A branch, amelyre váltani kell.
 
 _<new-branch>_::
-	Name for the new branch.
+	Az új branch neve.
 
 _<start-point>_::
-	The starting point for the new branch. Specifying a
-	_<start-point>_ allows you to create a branch based on some
-	other point in history than where `HEAD` currently points. (Or,
-	in the case of `--detach`, allows you to inspect and detach
-	from some other point.)
+	Az új branch kiindulópontja. A _<start-point>_ megadásával
+	olyan pontból hozhatsz létre branchet a történetben, amely eltér
+	attól, ahová a `HEAD` jelenleg mutat. (Vagy `--detach` esetén
+	lehetővé teszi egy másik pont megvizsgálását és az arról való
+	leválást.)
 +
-You can use the `@{-<N>}` syntax to refer to the _<N>_-th last
-branch/commit switched to using `git switch` or `git checkout`
-operation. You may also specify `-` which is synonymous to `@{-1}`.
-This is often used to switch quickly between two branches, or to undo
-a branch switch by mistake.
+Az `@{-<N>}` szintaxissal a `git switch` vagy `git checkout` művelettel
+utoljára _<N>_-ként érintett branchre/commitra hivatkozhatsz. Megadhatod a
+`-` jelet is, amely a `@{-1}` szinonimája. Ezt gyakran használják két branch
+közti gyors váltásra, vagy egy véletlen branchváltás visszavonására.
 +
-As a special case, you may use `<rev-a>...<rev-b>` as a shortcut for the merge
-base of _<rev-a>_ and _<rev-b>_ if there is exactly one merge base. You can leave
-out at most one of _<rev-a>_ and _<rev-b>_, in which case it defaults to `HEAD`.
+Speciális esetként a `<rev-a>...<rev-b>` alak rövidítésként használható a
+_<rev-a>_ és _<rev-b>_ merge-alapjára, ha pontosan egy merge-alap van.
+Legfeljebb az egyiket hagyhatod el a _<rev-a>_ és _<rev-b>_ közül, ekkor az
+alapértelmezés a `HEAD`.
 
 `-c <new-branch>`::
 `--create <new-branch>`::
-	Create a new branch named _<new-branch>_ starting at
-	_<start-point>_ before switching to the branch. This is the
-	transactional equivalent of
+	Létrehoz egy _<new-branch>_ nevű új branchet a _<start-point>_
+	pontnál, mielőtt átváltana rá. Ez a tranzakciós megfelelője a
+	következőnek:
 +
 ------------
 $ git branch <new-branch>
 $ git switch <new-branch>
 ------------
 +
-that is to say, the branch is not reset/created unless `git switch` is
-successful (e.g., when the branch is in use in another worktree, not
-just the current branch stays the same, but the branch is not reset to
-the start-point, either).
+azaz a branch nem áll vissza / jön létre, hacsak a `git switch` nem sikeres
+(pl. amikor a branch egy másik worktree-ben használatban van, nemcsak az
+aktuális branch marad ugyanaz, hanem a branch sem áll vissza a
+kiindulópontra).
 
 `-C <new-branch>`::
 `--force-create <new-branch>`::
-	Similar to `--create` except that if _<new-branch>_ already
-	exists, it will be reset to _<start-point>_. This is a
-	convenient shortcut for:
+	Hasonló a `--create`-hez, azzal a különbséggel, hogy ha a
+	_<new-branch>_ már létezik, visszaáll a _<start-point>_ pontra. Ez
+	egy kényelmes rövidítés a következőre:
 +
 ------------
 $ git branch -f _<new-branch>_
@@ -83,143 +83,142 @@ $ git switch _<new-branch>_
 
 `-d`::
 `--detach`::
-	Switch to a commit for inspection and discardable
-	experiments. See the "DETACHED HEAD" section in
-	linkgit:git-checkout[1] for details.
+	Átvált egy commitra vizsgálat és eldobható kísérletek céljából. A
+	részletekért lásd a "DETACHED HEAD" szakaszt a
+	linkgit:git-checkout[1] oldalon.
 
 `--guess`::
 `--no-guess`::
-	If _<branch>_ is not found but there does exist a tracking
-	branch in exactly one remote (call it _<remote>_) with a
-	matching name, treat as equivalent to
+	Ha a _<branch>_ nem található, de pontosan egy remote-on (hívjuk
+	_<remote>_-nak) létezik egy egyező nevű tracking branch, akkor a
+	következővel egyenértékűként kezeli:
 +
 ------------
 $ git switch -c <branch> --track <remote>/<branch>
 ------------
 +
-If the branch exists in multiple remotes and one of them is named by
-the `checkout.defaultRemote` configuration variable, we'll use that
-one for the purposes of disambiguation, even if the _<branch>_ isn't
-unique across all remotes. Set it to e.g. `checkout.defaultRemote=origin`
-to always checkout remote branches from there if _<branch>_ is
-ambiguous but exists on the 'origin' remote. See also
-`checkout.defaultRemote` in linkgit:git-config[1].
+Ha a branch több remote-on is létezik, és az egyiket a
+`checkout.defaultRemote` konfigurációs változó nevezi meg, akkor azt
+használjuk az egyértelműsítéshez, még akkor is, ha a _<branch>_ nem egyedi
+az összes remote között. Állítsd be például `checkout.defaultRemote=origin`
+értékre, hogy a remote brancheket mindig onnan checkoutolja, ha a _<branch>_
+kétértelmű, de létezik az 'origin' remote-on. Lásd még a
+`checkout.defaultRemote` beállítást a linkgit:git-config[1] oldalon.
 +
-`--guess` is the default behavior. Use `--no-guess` to disable it.
+A `--guess` az alapértelmezett viselkedés. A letiltásához használd a
+`--no-guess`-t.
 +
-The default behavior can be set via the `checkout.guess` configuration
-variable.
+Az alapértelmezett viselkedés a `checkout.guess` konfigurációs változóval
+állítható be.
 
 `-f`::
 `--force`::
-	An alias for `--discard-changes`.
+	A `--discard-changes` álneve.
 
 `--discard-changes`::
-	Proceed even if the index or the working tree differs from
-	`HEAD`. Both the index and working tree are restored to match
-	the switching target. If `--recurse-submodules` is specified,
-	submodule content is also restored to match the switching
-	target. This is used to throw away local changes.
+	Folytatás akkor is, ha az index vagy a working tree eltér a
+	`HEAD`-től. Az index és a working tree is visszaáll a váltás
+	céljához igazodva. Ha a `--recurse-submodules` meg van adva, a
+	submodule tartalma is visszaáll a váltás céljához. Ezt a lokális
+	változások eldobására használják.
 
 `-m`::
 `--merge`::
-	If you have local modifications to one or more files that
-	are different between the current branch and the branch to
-	which you are switching, the command normally refuses to
-	switch branches in order to preserve your modifications in
-	context.  However, with this option, the conflicting local
-	changes are automatically stashed before the switch and
-	reapplied afterwards.  If the local changes do not overlap
-	with the differences between branches, the switch proceeds
-	without stashing.  If reapplying the stash results in
-	conflicts, the entry is saved to the stash list.  Resolve
-	the conflicts and run `git stash drop` when done, or clear
-	the working tree (e.g. with `git reset --hard`) before
-	running `git stash pop` later to re-apply your changes.
+	Ha egy vagy több fájlban van lokális módosításod, amely eltér az
+	aktuális branch és a branch között, amelyre váltasz, a parancs
+	rendes esetben megtagadja a branchváltást, hogy a módosításaidat
+	kontextusban megőrizze.  Ezzel az opcióval azonban a konfliktusos
+	lokális változások a váltás előtt automatikusan stashelődnek, majd
+	utána újra alkalmazódnak.  Ha a lokális változások nem fednek át a
+	branchek közti eltérésekkel, a váltás stashelés nélkül folytatódik.
+	Ha a stash újbóli alkalmazása konfliktusokhoz vezet, a bejegyzés
+	elmentődik a stash-listába.  Oldd fel a konfliktusokat, és
+	végezetül futtasd a `git stash drop`-ot, vagy takarítsd ki a
+	working tree-t (pl. `git reset --hard` paranccsal), mielőtt később
+	lefuttatnád a `git stash pop`-ot a változásaid újbóli
+	alkalmazásához.
 
 `--conflict=<style>`::
-	The same as `--merge` option above, but changes the way the
-	conflicting hunks are presented, overriding the
-	`merge.conflictStyle` configuration variable.  Possible values are
-	`merge` (default), `diff3`, and `zdiff3`.
+	Ugyanaz, mint a fenti `--merge` opció, de megváltoztatja a
+	konfliktusos hunkok megjelenítésének módját, felülírva a
+	`merge.conflictStyle` konfigurációs változót.  Lehetséges értékek:
+	`merge` (alapértelmezett), `diff3` és `zdiff3`.
 
 `-q`::
 `--quiet`::
-	Quiet, suppress feedback messages.
+	Csendes mód, elnyomja a visszajelző üzeneteket.
 
 `--progress`::
 `--no-progress`::
-	Progress status is reported on the standard error stream
-	by default when it is attached to a terminal, unless `--quiet`
-	is specified. This flag enables progress reporting even if not
-	attached to a terminal, regardless of `--quiet`.
+	A folyamat állapota alapértelmezés szerint a standard hibakimeneten
+	jelenik meg, amikor az terminálhoz kapcsolódik, hacsak a `--quiet`
+	nincs megadva. Ez a kapcsoló akkor is engedélyezi a folyamatjelzést,
+	ha nincs terminálhoz kapcsolva, függetlenül a `--quiet`-tól.
 
 `-t`::
 `--track[ (direct|inherit)]`::
-	When creating a new branch, set up "upstream" configuration.
-	`-c` is implied. See `--track` in linkgit:git-branch[1] for
-	details.
+	Új branch létrehozásakor beállítja az "upstream" konfigurációt. A
+	`-c` beleértődik. A részletekért lásd a `--track`-et a
+	linkgit:git-branch[1] oldalon.
 +
-If no `-c` option is given, the name of the new branch will be derived
-from the remote-tracking branch, by looking at the local part of the
-refspec configured for the corresponding remote, and then stripping
-the initial part up to the "*".  This would tell us to use `hack` as
-the local branch when branching off of `origin/hack` (or
-`remotes/origin/hack`, or even `refs/remotes/origin/hack`).  If the
-given name has no slash, or the above guessing results in an empty
-name, the guessing is aborted.  You can explicitly give a name with
-`-c` in such a case.
+Ha nincs megadva `-c` opció, az új branch neve a remote-tracking branchből
+származik: a megfelelő remote-hoz konfigurált refspec lokális részét
+tekintve, majd a "*"-ig tartó kezdeti részt levágva.  Ez alapján a `hack`-et
+kellene lokális branchként használni, amikor az `origin/hack` (vagy
+`remotes/origin/hack`, vagy akár `refs/remotes/origin/hack`) alapján
+branchelünk.  Ha a megadott névben nincs perjel, vagy a fenti találgatás
+üres nevet eredményez, a találgatás megszakad.  Ilyenkor kifejezetten
+megadhatsz egy nevet a `-c` kapcsolóval.
 
 `--no-track`::
-	Do not set up "upstream" configuration, even if the
-	`branch.autoSetupMerge` configuration variable is true.
+	Ne állítsa be az "upstream" konfigurációt, még akkor sem, ha a
+	`branch.autoSetupMerge` konfigurációs változó igaz.
 
 `--orphan <new-branch>`::
-	Create a new unborn branch, named _<new-branch>_. All
-	tracked files are removed.
+	Létrehoz egy _<new-branch>_ nevű új, meg nem született branchet.
+	Minden nyomon követett fájl eltávolításra kerül.
 
 `--ignore-other-worktrees`::
-	`git switch` refuses when the wanted ref is already
-	checked out by another worktree. This option makes it check
-	the ref out anyway. In other words, the ref can be held by
-	more than one worktree.
+	A `git switch` megtagadja a műveletet, ha a kívánt ref már ki van
+	checkoutolva egy másik worktree-ben. Ezzel az opcióval mégis
+	checkoutolja a refet. Más szóval a refet több worktree is
+	birtokolhatja.
 
 `--recurse-submodules`::
 `--no-recurse-submodules`::
-	Using `--recurse-submodules` will update the content of all
-	active submodules according to the commit recorded in the
-	superproject. If nothing (or `--no-recurse-submodules`) is
-	used, submodules working trees will not be updated. Just
-	like linkgit:git-submodule[1], this will detach `HEAD` of the
-	submodules.
+	A `--recurse-submodules` használata az összes aktív submodule
+	tartalmát a szuperprojektben rögzített commit szerint frissíti. Ha
+	semmit (vagy a `--no-recurse-submodules`-t) nem használod, a
+	submodule-ok working tree-jei nem frissülnek. A
+	linkgit:git-submodule[1]-hez hasonlóan ez leválasztja a
+	submodule-ok `HEAD`-jét.
 
 EXAMPLES
 --------
 
-The following command switches to the "master" branch:
+A következő parancs a "master" branchre vált:
 
 ------------
 $ git switch master
 ------------
 
-After working in the wrong branch, switching to the correct branch
-would be done using:
+Miután rossz branchen dolgoztál, a helyes branchre a következővel válthatsz:
 
 ------------
 $ git switch mytopic
 ------------
 
-However, your "wrong" branch and correct "mytopic" branch may differ
-in files that you have modified locally, in which case the above
-switch would fail like this:
+A "rossz" branched és a helyes "mytopic" branch azonban eltérhet olyan
+fájlokban, amelyeket lokálisan módosítottál, ilyenkor a fenti váltás így
+hiúsul meg:
 
 ------------
 $ git switch mytopic
 error: You have local changes to 'frotz'; not switching branches.
 ------------
 
-You can give the `-m` flag to the command, which will carry your local
-changes to the new branch:
+Megadhatod a parancsnak a `-m` kapcsolót, amely átviszi a lokális
+változásaidat az új branchre:
 
 ------------
 $ git switch -m mytopic
@@ -229,27 +228,26 @@ The following paths have local changes:
 M	frotz
 ------------
 
-After the switch, the local modifications are reapplied and are _not_
-registered in your index file, so `git diff` would show you what
-changes you made since the tip of the new branch.
+A váltás után a lokális módosítások újra alkalmazódnak, és _nem_ kerülnek be
+az index fájlodba, így a `git diff` megmutatja, milyen változásokat végeztél
+az új branch csúcsa óta.
 
-To switch back to the previous branch before we switched to mytopic
-(i.e. "master" branch):
+Az előző branchre való visszaváltáshoz, mielőtt a mytopicra váltottunk
+(azaz a "master" branchre):
 
 ------------
 $ git switch -
 ------------
 
-You can grow a new branch from any commit. For example, switch to
-"`HEAD~3`" and create branch "`fixup`":
+Bármely commitból növeszthetsz új branchet. Például válts a "`HEAD~3`"-ra,
+és hozd létre a "`fixup`" branchet:
 
 ------------
 $ git switch -c fixup HEAD~3
 Switched to a new branch 'fixup'
 ------------
 
-If you want to start a new branch from a remote branch of the same
-name:
+Ha egy azonos nevű remote branchből szeretnél új branchet indítani:
 
 ------------
 $ git switch new-topic
@@ -257,16 +255,16 @@ Branch `new-topic` set up to track remote branch `new-topic` from `origin`
 Switched to a new branch `new-topic`
 ------------
 
-To check out commit `HEAD~3` for temporary inspection or experiment
-without creating a new branch:
+A `HEAD~3` commit checkoutolásához ideiglenes vizsgálat vagy kísérlet
+céljából, új branch létrehozása nélkül:
 
 ------------
 $ git switch --detach HEAD~3
 HEAD is now at 9fc9555312 Merge branch 'cc/shared-index-permbits'
 ------------
 
-If it turns out whatever you have done is worth keeping, you can
-always create a new name for it (without switching away):
+Ha kiderül, hogy amit csináltál, megőrzésre érdemes, bármikor létrehozhatsz
+hozzá egy új nevet (anélkül, hogy elváltanál):
 
 ------------
 $ git switch -c good-surprises
@@ -286,4 +284,4 @@ linkgit:git-branch[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

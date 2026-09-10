@@ -3,7 +3,7 @@ git-http-backend(1)
 
 NAME
 ----
-git-http-backend - Server side implementation of Git over HTTP
+git-http-backend - A Git HTTP feletti szerveroldali megvalósítása
 
 SYNOPSIS
 --------
@@ -12,72 +12,76 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-A simple CGI program to serve the contents of a Git repository to Git
-clients accessing the repository over http:// and https:// protocols.
-The program supports clients fetching using both the smart HTTP protocol
-and the backwards-compatible dumb HTTP protocol, as well as clients
-pushing using the smart HTTP protocol. It also supports Git's
-more-efficient "v2" protocol if properly configured; see the
-discussion of `GIT_PROTOCOL` in the ENVIRONMENT section below.
+Egyszerű CGI program, amely egy Git repository tartalmát szolgálja ki
+azoknak a Git klienseknek, amelyek http:// és https:// protokollon keresztül
+érik el a repositoryt. A program támogatja a „smart" HTTP-protokollal és a
+visszafelé kompatibilis „dumb" HTTP-protokollal fetchelő klienseket,
+valamint a „smart" HTTP-protokollal pusholó klienseket is. Megfelelő
+konfiguráció esetén támogatja a Git hatékonyabb „v2" protokollját is; lásd a
+`GIT_PROTOCOL` tárgyalását lentebb, az ENVIRONMENT szakaszban.
 
-It verifies that the directory has the magic file
-"git-daemon-export-ok", and it will refuse to export any Git directory
-that hasn't explicitly been marked for export this way (unless the
-`GIT_HTTP_EXPORT_ALL` environment variable is set).
+Ellenőrzi, hogy a könyvtárban megvan-e a „git-daemon-export-ok" mágikus
+fájl, és megtagad minden olyan Git-könyvtár exportálását, amelyet nem
+jelöltek meg kifejezetten így exportálásra (hacsak a `GIT_HTTP_EXPORT_ALL`
+környezeti változó nincs beállítva).
 
-By default, only the `upload-pack` service is enabled, which serves
-'git fetch-pack' and 'git ls-remote' clients, which are invoked from
-'git fetch', 'git pull', and 'git clone'.  If the client is authenticated,
-the `receive-pack` service is enabled, which serves 'git send-pack'
-clients, which is invoked from 'git push'.
+Alapértelmezés szerint csak az `upload-pack` szolgáltatás engedélyezett,
+amely a 'git fetch-pack' és 'git ls-remote' klienseket szolgálja ki, ezeket
+pedig a 'git fetch', a 'git pull' és a 'git clone' hívja meg.  Ha a kliens
+hitelesítve van, engedélyezetté válik a `receive-pack` szolgáltatás, amely a
+'git send-pack' klienseket szolgálja ki, ezt a 'git push' hívja meg.
 
 SERVICES
 --------
-These services can be enabled/disabled using the per-repository
-configuration file:
+Ezek a szolgáltatások a repositorynkénti konfigurációs fájllal
+engedélyezhetők/letilthatók:
 
 http.getanyfile::
-	This serves Git clients older than version 1.6.6 that are unable to use the
-	upload pack service.  When enabled, clients are able to read
-	any file within the repository, including objects that are
-	no longer reachable from a branch but are still present.
-	It is enabled by default, but a repository can disable it
-	by setting this configuration value to `false`.
+	Az 1.6.6-nál régebbi Git klienseket szolgálja ki, amelyek nem
+	tudják használni az upload pack szolgáltatást.  Engedélyezve a
+	kliensek a repositoryn belül bármely fájlt olvashatnak, beleértve
+	azokat az objektumokat is, amelyek egy branchből már nem elérhetők,
+	de még jelen vannak.
+	Alapértelmezés szerint engedélyezett, de egy repository letilthatja,
+	ha ezt a konfigurációs értéket `false`-ra állítja.
 
 http.uploadpack::
-	This serves 'git fetch-pack' and 'git ls-remote' clients.
-	It is enabled by default, but a repository can disable it
-	by setting this configuration value to `false`.
+	A 'git fetch-pack' és 'git ls-remote' klienseket szolgálja ki.
+	Alapértelmezés szerint engedélyezett, de egy repository letilthatja,
+	ha ezt a konfigurációs értéket `false`-ra állítja.
 
 http.receivepack::
-	This serves 'git send-pack' clients, allowing push.  It is
-	disabled by default for anonymous users, and enabled by
-	default for users authenticated by the web server.  It can be
-	disabled by setting this item to `false`, or enabled for all
-	users, including anonymous users, by setting it to `true`.
+	A 'git send-pack' klienseket szolgálja ki, lehetővé téve a
+	pusholást.  Anonim felhasználók számára alapértelmezés szerint
+	letiltott, a webszerver által hitelesített felhasználók számára
+	pedig alapértelmezés szerint engedélyezett.  Letiltható, ha ezt a
+	tételt `false`-ra állítod, vagy engedélyezhető minden felhasználó
+	számára, az anonim felhasználókat is beleértve, ha `true`-ra
+	állítod.
 
 http.uploadarchive::
-	This serves 'git archive' clients for remote archive over HTTP/HTTPS
-	protocols. It is disabled by default. It only works in protocol v2.
+	A 'git archive' klienseket szolgálja ki távoli archiváláshoz
+	HTTP/HTTPS protokollon. Alapértelmezés szerint letiltott. Csak a v2
+	protokollban működik.
 
 URL TRANSLATION
 ---------------
-To determine the location of the repository on disk, 'git http-backend'
-concatenates the environment variables PATH_INFO, which is set
-automatically by the web server, and GIT_PROJECT_ROOT, which must be set
-manually in the web server configuration.  If GIT_PROJECT_ROOT is not
-set, 'git http-backend' reads PATH_TRANSLATED, which is also set
-automatically by the web server.
+A repository lemezen lévő helyének meghatározásához a 'git http-backend'
+összefűzi a PATH_INFO környezeti változót, amelyet a webszerver
+automatikusan beállít, és a GIT_PROJECT_ROOT-ot, amelyet kézzel kell
+beállítani a webszerver konfigurációjában.  Ha a GIT_PROJECT_ROOT nincs
+beállítva, a 'git http-backend' a PATH_TRANSLATED-et olvassa, amelyet
+szintén a webszerver állít be automatikusan.
 
 EXAMPLES
 --------
-All of the following examples map `http://$hostname/git/foo/bar.git`
-to `/var/www/git/foo/bar.git`.
+Az összes alábbi példa a `http://$hostname/git/foo/bar.git` címet a
+`/var/www/git/foo/bar.git` helyre képezi le.
 
 Apache 2.x::
-	Ensure mod_cgi, mod_alias, and mod_env are enabled, set
-	GIT_PROJECT_ROOT (or DocumentRoot) appropriately, and
-	create a ScriptAlias to the CGI:
+	Győződj meg róla, hogy a mod_cgi, a mod_alias és a mod_env
+	engedélyezve van, állítsd be megfelelően a GIT_PROJECT_ROOT-ot
+	(vagy a DocumentRoot-ot), és hozz létre egy ScriptAliast a CGI-hez:
 +
 ----------------------------------------------------------------
 SetEnv GIT_PROJECT_ROOT /var/www/git
@@ -97,10 +101,10 @@ ScriptAlias /git/ /usr/libexec/git-core/git-http-backend/
 SetEnvIf Git-Protocol ".*" GIT_PROTOCOL=$0
 ----------------------------------------------------------------
 +
-To enable anonymous read access but authenticated write access,
-require authorization for both the initial ref advertisement (which we
-detect as a push via the service parameter in the query string), and the
-receive-pack invocation itself:
+Az anonim olvasási hozzáférés, de hitelesített írási hozzáférés
+engedélyezéséhez követeld meg az engedélyezést mind a kezdeti
+ref-hirdetéshez (amelyet a query stringben lévő service paraméter alapján
+pushként érzékelünk), mind magához a receive-pack híváshoz:
 +
 ----------------------------------------------------------------
 RewriteCond %{QUERY_STRING} service=git-receive-pack [OR]
@@ -119,9 +123,8 @@ RewriteRule ^/git/ - [E=AUTHREQUIRED:yes]
 </LocationMatch>
 ----------------------------------------------------------------
 +
-If you do not have `mod_rewrite` available to match against the query
-string, it is sufficient to just protect `git-receive-pack` itself,
-like:
+Ha nincs elérhető `mod_rewrite`-od a query stringre való illesztéshez,
+elegendő magát a `git-receive-pack`-et védeni, például így:
 +
 ----------------------------------------------------------------
 <LocationMatch "^/git/.*/git-receive-pack$">
@@ -132,17 +135,19 @@ like:
 </LocationMatch>
 ----------------------------------------------------------------
 +
-In this mode, the server will not request authentication until the
-client actually starts the object negotiation phase of the push, rather
-than during the initial contact.  For this reason, you must also enable
-the `http.receivepack` config option in any repositories that should
-accept a push. The default behavior, if `http.receivepack` is not set,
-is to reject any pushes by unauthenticated users; the initial request
-will therefore report `403 Forbidden` to the client, without even giving
-an opportunity for authentication.
+Ebben a módban a szerver nem kér hitelesítést addig, amíg a kliens
+ténylegesen el nem kezdi a push objektum-egyeztetési fázisát, nem pedig a
+kezdeti kapcsolatfelvételkor.  Ezért engedélyezned kell a
+`http.receivepack` konfigurációs opciót is minden olyan repositoryban,
+amelynek el kell fogadnia a pusholást. Ha a `http.receivepack` nincs
+beállítva, az alapértelmezett viselkedés az, hogy elutasít minden
+hitelesítetlen felhasználótól érkező pusholást; a kezdeti kérés így
+`403 Forbidden` hibát jelez a kliensnek, anélkül, hogy egyáltalán
+lehetőséget adna a hitelesítésre.
 +
-To require authentication for both reads and writes, use a Location
-directive around the repository, or one of its parent directories:
+Ha az olvasáshoz és az íráshoz is hitelesítést szeretnél megkövetelni,
+használj egy Location direktívát a repository vagy annak valamelyik
+szülőkönyvtára köré:
 +
 ----------------------------------------------------------------
 <Location /git/private>
@@ -153,9 +158,9 @@ directive around the repository, or one of its parent directories:
 </Location>
 ----------------------------------------------------------------
 +
-To serve gitweb at the same url, use a ScriptAliasMatch to only
-those URLs that 'git http-backend' can handle, and forward the
-rest to gitweb:
+Ha a gitwebet ugyanazon az url-en szeretnéd kiszolgálni, használj
+ScriptAliasMatch-et csak azokra az URL-ekre, amelyeket a 'git http-backend'
+kezelni tud, a többit pedig továbbítsd a gitwebnek:
 +
 ----------------------------------------------------------------
 ScriptAliasMatch \
@@ -170,19 +175,19 @@ ScriptAliasMatch \
 ScriptAlias /git/ /var/www/cgi-bin/gitweb.cgi/
 ----------------------------------------------------------------
 +
-To serve multiple repositories from different linkgit:gitnamespaces[7] in a
-single repository:
+Ha egyetlen repositoryban több repositoryt szeretnél kiszolgálni különböző
+linkgit:gitnamespaces[7] névterekből:
 +
 ----------------------------------------------------------------
 SetEnvIf Request_URI "^/git/([^/]*)" GIT_NAMESPACE=$1
 ScriptAliasMatch ^/git/[^/]*(.*) /usr/libexec/git-core/git-http-backend/storage.git$1
 ----------------------------------------------------------------
 
-Accelerated static Apache 2.x::
-	Similar to the above, but Apache can be used to return static
-	files that are stored on disk.  On many systems this may
-	be more efficient as Apache can ask the kernel to copy the
-	file contents from the file system directly to the network:
+Gyorsított statikus Apache 2.x::
+	Hasonló a fentihez, de az Apache használható a lemezen tárolt
+	statikus fájlok visszaadására.  Sok rendszeren ez hatékonyabb
+	lehet, mivel az Apache megkérheti a kernelt, hogy a fájl tartalmát
+	közvetlenül a fájlrendszerről a hálózatra másolja:
 +
 ----------------------------------------------------------------
 SetEnv GIT_PROJECT_ROOT /var/www/git
@@ -192,7 +197,7 @@ AliasMatch ^/git/(.*/objects/pack/pack-[0-9a-f]{40}.(pack|idx))$ /var/www/git/$1
 ScriptAlias /git/ /usr/libexec/git-core/git-http-backend/
 ----------------------------------------------------------------
 +
-This can be combined with the gitweb configuration:
+Ez kombinálható a gitweb konfigurációjával:
 +
 ----------------------------------------------------------------
 SetEnv GIT_PROJECT_ROOT /var/www/git
@@ -209,9 +214,9 @@ ScriptAlias /git/ /var/www/cgi-bin/gitweb.cgi/
 ----------------------------------------------------------------
 
 Lighttpd::
-	Ensure that `mod_cgi`, `mod_alias`, `mod_auth`, `mod_setenv` are
-	loaded, then set `GIT_PROJECT_ROOT` appropriately and redirect
-	all requests to the CGI:
+	Győződj meg róla, hogy a `mod_cgi`, `mod_alias`, `mod_auth`,
+	`mod_setenv` be van töltve, majd állítsd be megfelelően a
+	`GIT_PROJECT_ROOT`-ot, és irányíts át minden kérést a CGI-hez:
 +
 ----------------------------------------------------------------
 alias.url += ( "/git" => "/usr/lib/git-core/git-http-backend" )
@@ -224,7 +229,8 @@ $HTTP["url"] =~ "^/git" {
 }
 ----------------------------------------------------------------
 +
-To enable anonymous read access but authenticated write access:
+Az anonim olvasási hozzáférés, de hitelesített írási hozzáférés
+engedélyezéséhez:
 +
 ----------------------------------------------------------------
 $HTTP["querystring"] =~ "service=git-receive-pack" {
@@ -235,7 +241,7 @@ $HTTP["url"] =~ "^/git/.*/git-receive-pack$" {
 }
 ----------------------------------------------------------------
 +
-where `git-auth.conf` looks something like:
+ahol a `git-auth.conf` valahogy így néz ki:
 +
 ----------------------------------------------------------------
 auth.require = (
@@ -248,7 +254,7 @@ auth.require = (
 # ...and set up auth.backend here
 ----------------------------------------------------------------
 +
-To require authentication for both reads and writes:
+Ha az olvasáshoz és az íráshoz is hitelesítést szeretnél megkövetelni:
 +
 ----------------------------------------------------------------
 $HTTP["url"] =~ "^/git/private" {
@@ -259,47 +265,48 @@ $HTTP["url"] =~ "^/git/private" {
 
 ENVIRONMENT
 -----------
-'git http-backend' relies upon the `CGI` environment variables set
-by the invoking web server, including:
+A 'git http-backend' a hívó webszerver által beállított `CGI` környezeti
+változókra támaszkodik, többek között:
 
-* PATH_INFO (if GIT_PROJECT_ROOT is set, otherwise PATH_TRANSLATED)
+* PATH_INFO (ha a GIT_PROJECT_ROOT be van állítva, egyébként PATH_TRANSLATED)
 * REMOTE_USER
 * REMOTE_ADDR
 * CONTENT_TYPE
 * QUERY_STRING
 * REQUEST_METHOD
 
-The `GIT_HTTP_EXPORT_ALL` environment variable may be passed to
-'git-http-backend' to bypass the check for the "git-daemon-export-ok"
-file in each repository before allowing export of that repository.
+A `GIT_HTTP_EXPORT_ALL` környezeti változó átadható a
+'git-http-backend'-nek, hogy megkerülje az egyes repositorykban a
+"git-daemon-export-ok" fájl ellenőrzését, mielőtt engedélyezné az adott
+repository exportálását.
 
-The `GIT_HTTP_MAX_REQUEST_BUFFER` environment variable (or the
-`http.maxRequestBuffer` config option) may be set to change the
-largest ref negotiation request that git will handle during a fetch; any
-fetch requiring a larger buffer will not succeed.  This value should not
-normally need to be changed, but may be helpful if you are fetching from
-a repository with an extremely large number of refs.  The value can be
-specified with a unit (e.g., `100M` for 100 megabytes). The default is
-10 megabytes.
+A `GIT_HTTP_MAX_REQUEST_BUFFER` környezeti változó (vagy a
+`http.maxRequestBuffer` konfigurációs opció) beállításával módosítható a
+legnagyobb ref-egyeztetési kérés, amelyet a git egy fetch során kezel;
+minden nagyobb buffert igénylő fetch sikertelen lesz.  Rendes esetben ezt
+az értéket nem kell megváltoztatni, de hasznos lehet, ha rendkívül sok
+refet tartalmazó repositoryból fetchelsz.  Az érték egységgel is megadható
+(pl. `100M` 100 megabájthoz). Az alapértelmezés 10 megabájt.
 
-Clients may probe for optional protocol capabilities (like the v2
-protocol) using the `Git-Protocol` HTTP header. In order to support
-these, the contents of that header must appear in the `GIT_PROTOCOL`
-environment variable. Most webservers will pass this header to the CGI
-via the `HTTP_GIT_PROTOCOL` variable, and `git-http-backend` will
-automatically copy that to `GIT_PROTOCOL`. However, some webservers may
-be more selective about which headers they'll pass, in which case they
-need to be configured explicitly (see the mention of `Git-Protocol` in
-the Apache config from the earlier EXAMPLES section).
+A kliensek a `Git-Protocol` HTTP-fejléccel felderíthetik az opcionális
+protokollképességeket (például a v2 protokollt). Ezek támogatásához a
+fejléc tartalmának meg kell jelennie a `GIT_PROTOCOL` környezeti változóban.
+A legtöbb webszerver a `HTTP_GIT_PROTOCOL` változón keresztül adja át ezt a
+fejlécet a CGI-nek, és a `git-http-backend` automatikusan átmásolja azt a
+`GIT_PROTOCOL`-ba. Egyes webszerverek azonban válogatósabbak lehetnek abban,
+hogy mely fejléceket adják át, ilyenkor kifejezetten konfigurálni kell őket
+(lásd a `Git-Protocol` említését a korábbi EXAMPLES szakasz Apache
+konfigurációjában).
 
-The backend process sets GIT_COMMITTER_NAME to '$REMOTE_USER' and
-GIT_COMMITTER_EMAIL to '$\{REMOTE_USER}@http.$\{REMOTE_ADDR\}',
-ensuring that any reflogs created by 'git-receive-pack' contain some
-identifying information of the remote user who performed the push.
+A backend folyamat a GIT_COMMITTER_NAME értékét '$REMOTE_USER'-re, a
+GIT_COMMITTER_EMAIL értékét pedig '$\{REMOTE_USER}@http.$\{REMOTE_ADDR\}'-re
+állítja, biztosítva, hogy a 'git-receive-pack' által létrehozott reflogok
+tartalmazzanak valamiféle azonosító információt a pusholást végző remote
+felhasználóról.
 
-All `CGI` environment variables are available to each of the hooks
-invoked by the 'git-receive-pack'.
+Minden `CGI` környezeti változó elérhető a 'git-receive-pack' által
+meghívott összes hook számára.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

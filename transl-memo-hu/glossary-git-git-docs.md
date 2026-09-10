@@ -2631,3 +2631,124 @@ listájából a következő 5 legkisebb, még `[ ]` fájl. Orchestrátor végezt
   (benne a `usage: git describe …` súgókimenet, a `# correct` / `# NOT WHAT YOU MEANT` /
   `# if COMMIT_EDITMSG does not exist…` kommentek) **bájtazonosak**; a `lore.kernel.org` URL-ek
   változatlanok; a `'on'` / `'stuck'` / `'.'` compat-mode `'...'` jelölések megtartva.
+
+## 33. blokk — `gitsubmodules.adoc`, `git-switch.adoc`, `gitdatamodel.adoc`, `git-http-backend.adoc`, `git-range-diff.adoc` — 2026-09-10
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| „smart" / „dumb" HTTP protocol | **`„smart" HTTP-protokoll` / `„dumb" HTTP-protokoll`** — az angol jelző kettős idézőjelben, a protokoll/protokollt magyarul | `git-http-backend.adoc` — ez volt a 17./19./25. blokkban nyitva hagyott „jövőbeli döntési függőség"; a `dumb szerver` (17.) / `»smart« átviteli adatfolyam` (19.) / `dumb transzport` (32.) ad hoc, idézőjeles kezelésének folytatása. Jelző+főnév szerkezetnél csak az angol jelző marad idézőjelben |
+| superproject / subproject | **„szuperprojekt" / „alprojekt"** (0. blokk öröklött) | `gitsubmodules.adoc`, `gitdatamodel.adoc` |
+| unborn branch | **„meg nem született branch"** | `git-switch.adoc` `--orphan` |
+| unmatched commits (range-diff) | **„egyezés nélküli commitok"** | `git-range-diff.adoc` |
+| diff of diffs / "diff of diffs" | **„diffek diffje"** (idézőjelben, ahol a forrás is) | `git-range-diff.adoc` |
+| dual coloring / dual-color mode | **„kettős színezés" / `--dual-color` mód** | `git-range-diff.adoc` |
+| fudge factor (creation/deletion cost) | **„korrekciós tényező"** | `git-range-diff.adoc` Algoritmus |
+| bipartite graph / matching / assignment | **„páros gráf" / „párosítás" / „hozzárendelés"** | `git-range-diff.adoc` — matematikai szakszókincs |
+| least-cost assignment | **„legkisebb költségű hozzárendelés"** | `git-range-diff.adoc` |
+| false positives | **„téves találatok"** | `git-range-diff.adoc` (konzisztens a 9. blokk `false positive` → `téves` mintájával) |
+| patch series | **„patchsorozat"** (patch a 0. blokk szerint marad) | `git-range-diff.adoc` |
+| dimmed (diff sor) | **„halványítva"** (idézőjelben, ahol a forrás is) | `git-range-diff.adoc` |
+| to correspond / corresponding commits | **„megfelel" / „megfelelő commitok"** | `git-range-diff.adoc` |
+| reachable / unreachable (objektum) | **„elérhető" / „elérhetetlen"** (idézőjelben, ahol a forrás `"reachable"`) | `gitdatamodel.adoc` NOTE |
+| symbolic reference | **„szimbolikus referencia"** (0. blokk öröklött) | `gitdatamodel.adoc` |
+| object name / object ID | **„objektumnév" / „objektumazonosító"** | `gitdatamodel.adoc` — az `[[object-id]]` anchor bájtazonos, a `<<object-id,*object ID*>>` linkszöveg `*objektumazonosítót*`-ra fordult |
+| staging area | **marad „staging area"** (0. blokk öröklött) | `gitdatamodel.adoc`, `git-switch.adoc` |
+| annotated / lightweight tag | **„annotált tag" / „könnyűsúlyú tag"** (0. blokk öröklött) | `gitdatamodel.adoc` |
+| tip of a branch | **„a branch csúcsa"** | `git-switch.adoc`, `gitdatamodel.adoc` |
+| to stash / stashed (git-switch `--merge`) | **„stashelődik" / „stashelés"** (0. blokk `stashel`) | `git-switch.adoc` |
+| deinitialized / deinitialize (submodule) | **„deinicializált" / „deinicializál"** | `gitsubmodules.adoc` |
+| gitlink (tree/index bejegyzés) | **marad `gitlink`** angolul, backtick között | `gitsubmodules.adoc`, `gitdatamodel.adoc` |
+| ref advertisement | **„ref-hirdetés"** (ref a 0. blokk szerint marad) | `git-http-backend.adoc` |
+| porcelain (output) | **marad „porcelain"** (0. blokk öröklött) | `git-range-diff.adoc` |
+
+### Címsor-anchorok
+
+- **`gitdatamodel(7)`** — anchor-nehéz guide (NEM man page a szokásos értelemben, de section-7).
+  **14 meglévő `[[...]]` anchor bájtazonosan megmaradt**: `[[objects]]`, `[[object-id]]`,
+  `[[commit]]`, `[[tree]]`, `[[blob]]`, `[[tag-object]]`, `[[references]]`, `[[branch]]`, `[[tag]]`,
+  `[[HEAD]]`, `[[remote-tracking-branch]]`, `[[other-refs]]`, `[[index]]`, `[[reflogs]]`.
+  A rájuk mutató `<<id,látható szöveg>>` xref-ek **vessző utáni része fordult**:
+  `<<objects,Objektumok>>`, `<<references,Referenciák>>`, `<<index,Az index>>`,
+  `<<reflogs,Reflogok>>`, `<<commit,commitok>>`, `<<tree,tree-k>>`, `<<blob,blobok>>`,
+  `<<tag-object,tag objektumok>>`, `<<object-id,*objektumazonosítót*>>`,
+  `<<HEAD,aktuális branchedet>>`, `<<branch,aktuális branchedet>>`, `<<references,referenciához>>`,
+  `<<reflogs,reflogból>>` / `<<reflogs,reflogja>>` stb. A `blob`/`tree`/`commit` linkszövegben is
+  angolul, magyar toldalékkal (0. blokk: Git-objektum-típusnevek bájtazonosak). Az `[[other-refs]]`
+  fölötti `Other references::` def-lista-címke **fordult** (`Egyéb referenciák::`), mert nincs rá
+  `<<other-refs>>` xref és nem Git-kulcsszó; a `branches:`/`tags:`/`HEAD:`/`remote-tracking
+  branches:` címkék **bájtazonosak** (a `refs/...` útvonal literál).
+- **`gitsubmodules(7)`** — 4 defenzív `[[...]]` a Title Case setext alcímek fölé (nincs rájuk
+  `<<...>>`), aláhúzás a fordított cím pontos bájt-… ill. karakterhosszához igazítva:
+  `[[_the_configuration_of_submodules]]` „A submodule-ok konfigurációja",
+  `[[_workflow_for_a_third_party_library]]` „Munkafolyamat harmadik féltől származó könyvtárhoz",
+  `[[_workflow_for_an_artificially_split_repo]]` „Munkafolyamat mesterségesen felbontott
+  repositoryhoz", `[[_implementation_details]]` „Megvalósítási részletek".
+- **`git-range-diff(1)`** — 1 defenzív `[[_algorithm]]` az „Algoritmus" Title Case cím fölé (a
+  forrás `----` 1. szintű setext, NEM `==`); a prózában rá mutató `'Algorithm'` (compat-mode `'...'`,
+  NEM `<<...>>`) hivatkozások `'Algoritmus'`-ra átírva a konzisztenciáért. A `'SPECIFYING RANGES'`
+  (gitrevisions[7] szakasznév) angolul maradt.
+- `git-switch.adoc`, `git-http-backend.adoc`: nincs `[[...]]`/`<<...>>`.
+
+### Man-page címként / csupa nagybetűs alcímként ANGOLUL hagyott címsorok (VÉGLEGES DÖNTÉS szerint)
+
+- **`OBJECTS`** / **`REFERENCES`** / **`THE INDEX`** / **`REFLOGS`** (`gitdatamodel.adoc`) — csupa
+  nagybetűs, kétsoros aláhúzású, **explicit `[[...]]` anchorral** ellátott szakaszcímek; a
+  25. blokk `REMOTES`/`UPSTREAM BRANCHES` precedense szerint a cím **bájtazonosan angolul**, az
+  anchor és az aláhúzás változatlan, a rájuk mutató `<<...>>` xref látható szövege fordult.
+- **`FORMS`** / **`ACTIVE SUBMODULES`** (`gitsubmodules.adoc`) — csupa nagybetűs, kanonikus listán
+  kívül → angolul; a `see FORMS below`, `see DESCRIPTION`, `"ACTIVE SUBMODULES" section below`
+  prózahivatkozások szintén angolul (a `"ACTIVE SUBMODULES"` egyenes idézőjellel, bájtazonosan).
+- **`SERVICES`** / **`URL TRANSLATION`** (`git-http-backend.adoc`) — csupa nagybetűs, kanonikus
+  listán kívül → angolul (a `SERVICES` a 6. blokk `git-daemon.adoc` precedensével is egyezik). Az
+  `ENVIRONMENT` / `EXAMPLES` prózahivatkozások angolul (a címek angolok).
+- **`OUTPUT STABILITY`** (`git-range-diff.adoc`) — csupa nagybetűs, kanonikus listán kívül → angolul.
+- **`"DETACHED HEAD"`** (`git-switch.adoc`, `-d`/`--detach` leírásában, git-checkout[1] szakaszra
+  mutató prózahivatkozás) — egyenes idézőjelben, angolul (a 10. blokk `git-checkout.adoc`
+  `DETACHED HEAD` precedense). `gitdatamodel.adoc`-ban is: `DETACHED HEAD section` angolul, a
+  `"detached HEAD state"` idézőjeles kifejezés → `„leválasztott HEAD-állapotnak" (detached HEAD
+  state)` (0. blokk `detached HEAD` → „leválasztott HEAD", első előforduláskor gloss).
+
+### Megőrzött markup / megjegyzések
+
+- **`gitsubmodules.adoc`**: a `[submodule "foo"] … active = …` szóközzel behúzott config-blokkok, a
+  `  # Add a submodule` / `git submodule add …` szóközzel behúzott literál parancsblokkok
+  **bájtazonosak** (a `# See FORMS on removing submodules` komment is — `FORMS` angol); a `[NOTE]`
+  admonition-blokk kulcsszava megtartva, törzse fordult; `'foo'`/`'bar'`/`'baz'`/`'bob'` compat-mode
+  `'...'` jelölések megtartva; `linkgit:` / `include::` nincs (csak SEE ALSO linkgit-sorok).
+- **`git-switch.adoc`**: a 12 db `------------` (12 kötőjel) `$ git switch …` példablokk (benne a
+  `error: You have local changes…`, `Applied autostash.`, `Switched to branch 'mytopic'`,
+  `HEAD is now at 9fc9555312 …` program-kimenet és a `M\tfrotz` sor) **bájtazonos**; `[synopsis]`
+  blokk, `include::includes/cmd-config-section-all.adoc[]` + `include::config/checkout.adoc[]`
+  változatlan; `_<branch>_` / `_<start-point>_` / `_<N>_` / `_<rev-a>_` placeholderek és a
+  `` `-c` ``/`` `--track[ (direct|inherit)]` `` `::` opció-címkék bájtazonosak; `_not_` compat-mode
+  emphasis megtartva; `"master"`/`"mytopic"`/`"upstream"`/`"HEAD~3"`/`"fixup"` egyenes idézőjeles
+  literál-hivatkozások megtartva.
+- **`gitdatamodel.adoc`**: az 5 db `----` (4 kötőjel) listing-blokk (`git cat-file -p` objektum-
+  dumpök: `tree …`/`parent …`/`author …`, `100644 blob … README.md`, `object …`/`type commit`/
+  `tag v1.0.0`, `git ls-files --stage` és `git reflog main` kimenet) **bájtazonos**; a `NOTE:`
+  admonition-kulcsszavak megtartva, törzsük fordult; a `100644`/`100755`/`120000`/`040000`/`160000`
+  Unix-fájlmód-tokenek és a `refs/heads/<name>` stb. útvonalak változatlanok.
+- **`git-http-backend.adoc`**: a 12 db `----------------…` (64 kötőjel) Apache/Lighttpd
+  config-példablokk (benne `#` config-kommentek, `SetEnv`/`RewriteCond`/`ScriptAliasMatch`/
+  `$HTTP["url"]` direktívák, regexek) **bájtazonos**; `[verse]` blokk változatlan; a
+  `http.getanyfile`/`http.uploadpack`/`http.receivepack`/`http.uploadarchive` `::` config-címkék
+  bájtazonosak (csak a törzs fordult); a `PATH_INFO`/`REMOTE_USER`/… env-változó-lista tagjai
+  angolul (csak a `PATH_INFO (…)` zárójeles prózája fordult); `'$REMOTE_USER'` /
+  `'$\{REMOTE_USER}@http.$\{REMOTE_ADDR\}'` a `\{`/`\}` escape-ekkel bájtazonos; a
+  `"git-daemon-export-ok"` mágikus fájlnév egyenes idézőjelben, angolul.
+- **`git-range-diff.adoc`**: a 7 db `------------` (12 kötőjel) blokk (a példa range-diff kimenet a
+  `-:  ------- > 1:  0ddba11 …` sorokkal, `@@ -1,3 +1,3 @@` hunk-fejlécek, `-TODO:`/`+Describe` diff-
+  sorok, `#314`, `TO-UNDO`, valamint a 4 db bipartite-gráf ASCII-art `1  A` / `2 --------'  B` /
+  `c>0` tabos rajz) **bájtazonos**; `[synopsis]` blokk (benne a tabos `[[--] <path>...]` sor)
+  változatlan; a `` `--no-dual-color` ``/`` `--creation-factor=<percent>` ``/… `::` opció-címkék és a
+  `` `<range1> <range2>` `` / `` `<rev1>...<rev2>` `` / `` `<base> <rev1> <rev2>` `` argumentum-
+  címkék bájtazonosak; a `color.diff.<slot>` / `contextDimmed` stb. config-token, a
+  `Jonker–Volgenant` név, a `c>0` / `n+m` / `n*m` matematikai jelölések változatlanok; `Note:`
+  (kisbetűs, NEM `NOTE:` admonition) → „Megjegyzés:".

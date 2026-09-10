@@ -3,7 +3,7 @@ gitdatamodel(7)
 
 NAME
 ----
-gitdatamodel - Git's core data model
+gitdatamodel - A Git alapvető adatmodellje
 
 SYNOPSIS
 --------
@@ -12,59 +12,60 @@ gitdatamodel
 DESCRIPTION
 -----------
 
-It's not necessary to understand Git's data model to use Git, but it's
-very helpful when reading Git's documentation so that you know what it
-means when the documentation says "object", "reference" or "index".
+A Git használatához nem szükséges érteni a Git adatmodelljét, de nagyon
+hasznos a Git dokumentációjának olvasásakor, hogy tudd, mit jelent, amikor a
+dokumentáció „objektumot", „referenciát" vagy „indexet" említ.
 
-Git's core operations use 4 kinds of data:
+A Git alapvető műveletei négyféle adatot használnak:
 
-1. <<objects,Objects>>: commits, trees, blobs, and tag objects
-2. <<references,References>>: branches, tags,
-   remote-tracking branches, etc
-3. <<index,The index>>, also known as the staging area
-4. <<reflogs,Reflogs>>: logs of changes to references ("ref log")
+1. <<objects,Objektumok>>: commitok, tree-k, blobok és tag objektumok
+2. <<references,Referenciák>>: branchek, tagek,
+   remote-tracking branchek stb.
+3. <<index,Az index>>, más néven a staging area
+4. <<reflogs,Reflogok>>: a referenciák változásainak naplói („ref log")
 
 [[objects]]
 OBJECTS
 -------
 
-All of the commits and files in a Git repository are stored as "Git objects".
-Git objects never change after they're created, and every object has an ID,
-like `1b61de420a21a2f1aaef93e38ecd0e45e8bc9f0a`.
+Egy Git repository összes commitja és fájlja „Git objektumként" tárolódik.
+A Git objektumok a létrehozásuk után soha nem változnak, és minden
+objektumnak van azonosítója, például
+`1b61de420a21a2f1aaef93e38ecd0e45e8bc9f0a`.
 
-This means that if you have an object's ID, you can always recover its
-exact contents as long as the object hasn't been deleted.
+Ez azt jelenti, hogy ha megvan egy objektum azonosítója, mindig
+visszanyerheted a pontos tartalmát, amíg az objektumot nem törölték.
 
-Every object has:
+Minden objektumnak van:
 
 [[object-id]]
-1. an *ID* (aka "object name"), which is a cryptographic hash of its
-  type and contents.
-  It's fast to look up a Git object using its ID.
-  This is usually represented in hexadecimal, like
+1. egy *azonosítója* (más néven „objektumnév"), amely a típusának és
+  tartalmának kriptográfiai hashe.
+  Egy Git objektum az azonosítójával gyorsan kikereshető.
+  Ezt általában hexadecimálisan ábrázolják, például
   `1b61de420a21a2f1aaef93e38ecd0e45e8bc9f0a`.
-2. a *type*. There are 4 types of objects:
-   <<commit,commits>>, <<tree,trees>>, <<blob,blobs>>,
-   and <<tag-object,tag objects>>.
-3. *contents*. The structure of the contents depends on the type.
+2. egy *típusa*. Négyféle objektum létezik:
+   <<commit,commitok>>, <<tree,tree-k>>, <<blob,blobok>>
+   és <<tag-object,tag objektumok>>.
+3. *tartalma*. A tartalom szerkezete a típustól függ.
 
-Here's how each type of object is structured:
+Így épül fel az egyes objektumtípusok szerkezete:
 
 [[commit]]
 commit::
-    A commit contains these required fields
-    (though there are other optional fields):
+    Egy commit a következő kötelező mezőket tartalmazza
+    (bár vannak további, opcionális mezők is):
 +
-1. The full directory structure of all the files in that version of the
-   repository and each file's contents, stored as the *<<tree,tree>>* ID
-   of the commit's top-level directory
-2. Its *parent commit ID(s)*. The first commit in a repository has 0 parents,
-  regular commits have 1 parent, merge commits have 2 or more parents
-3. An *author* and the time the commit was authored
-4. A *committer* and the time the commit was committed
-5. A *commit message*
+1. A repository adott verziójában lévő összes fájl teljes
+   könyvtárszerkezete és az egyes fájlok tartalma, a commit legfelső szintű
+   könyvtárának *<<tree,tree>>*-azonosítójaként tárolva
+2. A *szülő commit(ok) azonosítója(i)*. Egy repository első commitjának 0
+  szülője van, a rendes commitoknak 1, a merge commitoknak 2 vagy több
+3. Egy *szerző* és a commit szerzőségének ideje
+4. Egy *committer* és a commit commitolásának ideje
+5. Egy *commit-üzenet*
 +
-Here's how an example commit is stored:
+Így tárolódik egy példa commit:
 +
 ----
 tree 1b61de420a21a2f1aaef93e38ecd0e45e8bc9f0a
@@ -75,68 +76,68 @@ committer Maya <maya@example.com> 1759173425 -0400
 Add README
 ----
 +
-Like all other objects, commits can never be changed after they're created.
-For example, "amending" a commit with `git commit --amend` creates a new
-commit with the same parent.
+Mint minden más objektum, a commitok sem változtathatók meg a
+létrehozásuk után. Egy commit „amendelése" a `git commit --amend`
+paranccsal például egy új, ugyanolyan szülőjű commitot hoz létre.
 +
-Git does not store the diff for a commit: when you ask Git to show
-the commit with linkgit:git-show[1], it calculates the diff from its
-parent on the fly.
+A Git nem tárolja egy commit diffjét: amikor a linkgit:git-show[1]
+paranccsal kéred a commit megjelenítését, menet közben számítja ki a
+diffet a szülőjéhez képest.
 
 [[tree]]
 tree::
-    A tree is how Git represents a directory.
-    It can contain files or other trees (which are subdirectories).
-    It lists, for each item in the tree:
+    A Git egy tree-vel ábrázol egy könyvtárat.
+    Fájlokat vagy további tree-ket (amelyek alkönyvtárak) tartalmazhat.
+    A tree minden eleméhez felsorolja:
 +
-1. The *filename*, for example `hello.py`
-2. The *file type*, which must be one of these five types:
-  - *regular file*
-  - *executable file*
-  - *symbolic link*
-  - *directory*
-  - *gitlink* (for use with submodules)
-3. The <<object-id,*object ID*>> with the contents of the file, directory,
-   or gitlink.
+1. A *fájlnevet*, például `hello.py`
+2. A *fájltípust*, amely az alábbi öt típus egyike kell hogy legyen:
+  - *közönséges fájl*
+  - *futtatható fájl*
+  - *szimbolikus link*
+  - *könyvtár*
+  - *gitlink* (submodule-okhoz)
+3. A <<object-id,*objektumazonosítót*>>, benne a fájl, könyvtár vagy gitlink
+   tartalmával.
 +
-For example, this is how a tree containing one directory (`src`) and one file
-(`README.md`) is stored:
+Így tárolódik például egy tree, amely egy könyvtárat (`src`) és egy fájlt
+(`README.md`) tartalmaz:
 +
 ----
 100644 blob 8728a858d9d21a8c78488c8b4e70e531b659141f README.md
 040000 tree 89b1d2e0495f66d6929f4ff76ff1bb07fc41947d src
 ----
 
-NOTE: In the output above, Git displays the file type of each tree entry
-using a format that's loosely modelled on Unix file modes (`100644` is
-"regular file", `100755` is "executable file", `120000` is "symbolic
-link", `040000` is "directory", and `160000` is "gitlink"). It also
-displays the object's type: `blob` for files and symlinks, `tree` for
-directories, and `commit` for gitlinks.
+NOTE: A fenti kimenetben a Git az egyes tree-bejegyzések fájltípusát olyan
+formátumban jeleníti meg, amely lazán a Unix fájlmódokra épül (a `100644`
+„közönséges fájl", a `100755` „futtatható fájl", a `120000` „szimbolikus
+link", a `040000` „könyvtár", a `160000` pedig „gitlink"). Megjeleníti az
+objektum típusát is: `blob` a fájlokhoz és szimbolikus linkekhez, `tree` a
+könyvtárakhoz, `commit` pedig a gitlinkekhez.
 
 [[blob]]
 blob::
-    A blob object contains a file's contents.
+    Egy blob objektum egy fájl tartalmát tárolja.
 +
-When you make a commit, Git stores the full contents of each file that
-you changed as a blob.
-For example, if you have a commit that changes 2 files in a repository
-with 1000 files, that commit will create 2 new blobs, and use the
-previous blob ID for the other 998 files.
-This means that commits can use relatively little disk space even in a
-very large repository.
+Amikor commitolsz, a Git minden általad megváltoztatott fájl teljes
+tartalmát blobként tárolja.
+Ha például van egy commitod, amely 2 fájlt módosít egy 1000 fájlos
+repositoryban, az a commit 2 új blobot hoz létre, a maradék 998 fájlhoz
+pedig a korábbi blob-azonosítót használja.
+Ez azt jelenti, hogy a commitok viszonylag kevés lemezterületet
+használhatnak még egy nagyon nagy repositoryban is.
 
 [[tag-object]]
 tag object::
-    Tag objects contain these required fields
-    (though there are other optional fields):
+    A tag objektumok a következő kötelező mezőket tartalmazzák
+    (bár vannak további, opcionális mezők is):
 +
-1. The *ID* of the object it references
-2. The *type* of the object it references
-3. The *tagger* and tag date
-4. A *tag message*, similar to a commit message
+1. A hivatkozott objektum *azonosítója*
+2. A hivatkozott objektum *típusa*
+3. A *tagelő* és a tagelés dátuma
+4. Egy *tag-üzenet*, hasonlóan a commit-üzenethez
 
-Here's how an example tag object is stored:
+Így tárolódik egy példa tag objektum:
 
 ----
 object 750b4ead9c87ceb3ddb7a390e6c7074521797fb3
@@ -147,126 +148,132 @@ tagger Maya <maya@example.com> 1759927359 -0400
 Release version 1.0.0
 ----
 
-NOTE: All of the examples in this section were generated with
-`git cat-file -p <object-id>`.
+NOTE: Az ebben a szakaszban szereplő összes példa a
+`git cat-file -p <object-id>` paranccsal készült.
 
 [[references]]
 REFERENCES
 ----------
 
-References are a way to give a name to a commit.
-It's easier to remember "the changes I'm working on are on the `turtle`
-branch" than "the changes are in commit bb69721404348e".
-Git often uses "ref" as shorthand for "reference".
+A referenciák segítségével nevet adhatunk egy commitnak.
+Könnyebb megjegyezni, hogy „amin dolgozom, az a `turtle` branchen van", mint
+azt, hogy „a változások a bb69721404348e commitban vannak".
+A Git gyakran használja a „ref"-et a „reference" rövidítéseként.
 
-References can either refer to:
+A referenciák a következőkre hivatkozhatnak:
 
-1. An object ID, usually a <<commit,commit>> ID
-2. Another reference. This is called a "symbolic reference"
+1. Egy objektumazonosítóra, általában egy <<commit,commit>> azonosítójára
+2. Egy másik referenciára. Ezt „szimbolikus referenciának" nevezzük
 
-References are stored in a hierarchy, and Git handles references
-differently based on where they are in the hierarchy.
-Most references are under `refs/`. Here are the main types:
+A referenciák hierarchiában tárolódnak, és a Git eltérően kezeli a
+referenciákat aszerint, hogy hol helyezkednek el a hierarchiában.
+A legtöbb referencia a `refs/` alatt van. Íme a fő típusok:
 
 [[branch]]
 branches: `refs/heads/<name>`::
-    A branch refers to a commit ID.
-    That commit is the latest commit on the branch.
+    Egy branch egy commit azonosítójára hivatkozik.
+    Az a commit a branch legutóbbi commitja.
 +
-To get the history of commits on a branch, Git will start at the commit
-ID the branch references, and then look at the commit's parent(s),
-the parent's parent, etc.
+Egy branch commitjainak történetét úgy kapja meg a Git, hogy elindul a
+commit azonosítójától, amelyre a branch hivatkozik, majd megnézi a commit
+szülőjét (szülőit), a szülő szülőjét stb.
 
 [[tag]]
 tags: `refs/tags/<name>`::
-    A tag refers to a commit ID, tag object ID, or other object ID.
-    There are two types of tags:
-    1. "Annotated tags", which reference a <<tag-object,tag object>> ID
-       which contains a tag message
-    2. "Lightweight tags", which reference a commit, blob, or tree ID
-       directly
+    Egy tag egy commit azonosítójára, tag objektum azonosítójára vagy más
+    objektumazonosítóra hivatkozik.
+    Kétféle tag van:
+    1. „Annotált tagek", amelyek egy <<tag-object,tag objektum>>
+       azonosítójára hivatkoznak, amely egy tag-üzenetet tartalmaz
+    2. „Könnyűsúlyú tagek", amelyek közvetlenül egy commit, blob vagy tree
+       azonosítójára hivatkoznak
 +
-Even though branches and tags both refer to a commit ID, Git
-treats them very differently.
-Branches are expected to change over time: when you make a commit, Git
-will update your <<HEAD,current branch>> to point to the new commit.
-Tags are usually not changed after they're created.
+Bár a branchek és a tagek egyaránt egy commit azonosítójára hivatkoznak, a
+Git nagyon eltérően kezeli őket.
+A branchektől azt várjuk, hogy idővel változzanak: amikor commitolsz, a Git
+frissíti az <<HEAD,aktuális branchedet>>, hogy az új commitra mutasson.
+A tageket a létrehozásuk után általában nem változtatják meg.
 
 [[HEAD]]
 HEAD: `HEAD`::
-    `HEAD` is where Git stores your current <<branch,branch>>,
-    if there is a current branch. `HEAD` can either be:
+    A `HEAD`-ben tárolja a Git az <<branch,aktuális branchedet>>, ha van
+    aktuális branch. A `HEAD` a következők egyike lehet:
 +
-1. A symbolic reference to your current branch, for example `ref:
-   refs/heads/main` if your current branch is `main`.
-2. A direct reference to a commit ID. In this case there is no current branch.
-   This is called "detached HEAD state", see the DETACHED HEAD section
-   of linkgit:git-checkout[1] for more.
+1. Szimbolikus referencia az aktuális branchedre, például `ref:
+   refs/heads/main`, ha az aktuális branched a `main`.
+2. Közvetlen referencia egy commit azonosítójára. Ebben az esetben nincs
+   aktuális branch. Ezt „leválasztott HEAD-állapotnak" (detached HEAD state)
+   nevezzük; bővebben lásd a DETACHED HEAD szakaszt a linkgit:git-checkout[1]
+   oldalon.
 
 [[remote-tracking-branch]]
 remote-tracking branches: `refs/remotes/<remote>/<branch>`::
-    A remote-tracking branch refers to a commit ID.
-    It's how Git stores the last-known state of a branch in a remote
-    repository. `git fetch` updates remote-tracking branches. When
-    `git status` says "you're up to date with origin/main", it's looking at
-    this.
+    Egy remote-tracking branch egy commit azonosítójára hivatkozik.
+    Így tárolja a Git egy remote repository-beli branch utoljára ismert
+    állapotát. A `git fetch` frissíti a remote-tracking brancheket. Amikor a
+    `git status` azt mondja, hogy „you're up to date with origin/main",
+    akkor ezt nézi.
 +
-`refs/remotes/<remote>/HEAD` is a symbolic reference to the remote's
-default branch. This is the branch that `git clone` checks out by default.
+A `refs/remotes/<remote>/HEAD` egy szimbolikus referencia a remote
+alapértelmezett branchére. Ezt a branchet checkoutolja a `git clone`
+alapértelmezés szerint.
 
 [[other-refs]]
-Other references::
-    Git tools may create references anywhere under `refs/`.
-    For example, linkgit:git-stash[1], linkgit:git-bisect[1],
-    and linkgit:git-notes[1] all create their own references
-    in `refs/stash`, `refs/bisect`, etc.
-    Third-party Git tools may also create their own references.
+Egyéb referenciák::
+    A Git eszközök bárhol létrehozhatnak referenciákat a `refs/` alatt.
+    Például a linkgit:git-stash[1], a linkgit:git-bisect[1] és a
+    linkgit:git-notes[1] mind saját referenciákat hoz létre a
+    `refs/stash`, `refs/bisect` stb. helyeken.
+    Harmadik féltől származó Git eszközök szintén létrehozhatnak saját
+    referenciákat.
 +
-Git may also create references other than `HEAD` at the base of the
-hierarchy, like `ORIG_HEAD`.
+A Git a `HEAD`-en kívül is létrehozhat referenciákat a hierarchia alján,
+például az `ORIG_HEAD`-et.
 
-NOTE: Git may delete objects that aren't "reachable" from any reference
-or <<reflogs,reflog>>.
-An object is "reachable" if we can find it by following tags to whatever
-they tag, commits to their parents or trees, and trees to the trees or
-blobs that they contain.
-For example, if you amend a commit with `git commit --amend`,
-there will no longer be a branch that points at the old commit.
-The old commit is recorded in the current branch's <<reflogs,reflog>>,
-so it is still "reachable", but when the reflog entry expires it may
-become unreachable and get deleted.
-Reachable objects will never be deleted.
+NOTE: A Git törölhet olyan objektumokat, amelyek egyetlen referenciából vagy
+<<reflogs,reflogból>> sem „elérhetők".
+Egy objektum „elérhető", ha megtaláljuk úgy, hogy követjük a tageket ahhoz,
+amit tagelnek, a commitokat a szüleikhez vagy fáikhoz, a fákat pedig az
+általuk tartalmazott fákhoz vagy blobokhoz.
+Ha például amendelsz egy commitot a `git commit --amend` paranccsal, többé
+nem lesz olyan branch, amely a régi commitra mutat.
+A régi commitot az aktuális branch <<reflogs,reflogja>> rögzíti, így még
+mindig „elérhető", de amikor a reflog-bejegyzés lejár, elérhetetlenné
+válhat, és törlődhet.
+Az elérhető objektumok soha nem törlődnek.
 
 [[index]]
 THE INDEX
 ---------
-The index, also known as the "staging area", is a list of files and
-the contents of each file, stored as a <<blob,blob>>.
-You can add files to the index or update the contents of a file in the
-index with linkgit:git-add[1]. This is called "staging" the file for commit.
+Az index, más néven a „staging area", fájlok listája és az egyes fájlok
+tartalma, <<blob,blobként>> tárolva.
+Fájlokat a linkgit:git-add[1] paranccsal adhatsz az indexhez, vagy
+frissítheted egy indexbeli fájl tartalmát. Ezt a fájl commithoz való
+„stage-elésének" nevezzük.
 
-Unlike a <<tree,tree>>, the index is a flat list of files.
-When you commit, Git converts the list of files in the index to a
-directory <<tree,tree>> and uses that tree in the new <<commit,commit>>.
+Egy <<tree,tree>>-vel ellentétben az index fájlok lapos listája.
+Amikor commitolsz, a Git az indexbeli fájllistát könyvtár-<<tree,tree>>-vé
+alakítja, és azt a fát használja az új <<commit,commitban>>.
 
-Each index entry has 4 fields:
+Minden indexbejegyzésnek 4 mezője van:
 
-1. The *file type*, which must be one of:
-  - *regular file*
-  - *executable file*
-  - *symbolic link*
-  - *gitlink* (for use with submodules)
-2. The *<<blob,blob>>* ID of the file,
-   or (rarely) the *<<commit,commit>>* ID of the submodule
-3. The *stage number*, either 0, 1, 2, or 3. This is normally 0, but if
-   there's a merge conflict there can be multiple versions of the same
-   filename in the index.
-4. The *file path*, for example `src/hello.py`
+1. A *fájltípus*, amely a következők egyike kell hogy legyen:
+  - *közönséges fájl*
+  - *futtatható fájl*
+  - *szimbolikus link*
+  - *gitlink* (submodule-okhoz)
+2. A fájl *<<blob,blob>>*-azonosítója,
+   vagy (ritkán) a submodule *<<commit,commit>>*-azonosítója
+3. A *stage-szám*, amely 0, 1, 2 vagy 3. Ez általában 0, de ha merge
+   konfliktus van, ugyanabból a fájlnévből több verzió is lehet az
+   indexben.
+4. A *fájlútvonal*, például `src/hello.py`
 
-It's extremely uncommon to look at the index directly: normally you'd
-run `git status` to see a list of changes between the index and <<HEAD,HEAD>>.
-But you can use `git ls-files --stage` to see the index.
-Here's the output of `git ls-files --stage` in a repository with 2 files:
+Rendkívül ritka, hogy közvetlenül az indexet nézzük: az ember általában a
+`git status`-t futtatja, hogy lássa az index és a <<HEAD,HEAD>> közti
+változások listáját.
+De a `git ls-files --stage` paranccsal megtekintheted az indexet.
+Íme a `git ls-files --stage` kimenete egy 2 fájlos repositoryban:
 
 ----
 100644 8728a858d9d21a8c78488c8b4e70e531b659141f 0 README.md
@@ -277,22 +284,23 @@ Here's the output of `git ls-files --stage` in a repository with 2 files:
 REFLOGS
 -------
 
-Every time a branch, remote-tracking branch, or HEAD is updated, Git
-updates a log called a "reflog" for that <<references,reference>>.
-This means that if you make a mistake and "lose" a commit, you can
-generally recover the commit ID by running `git reflog <reference>`.
+Valahányszor egy branch, remote-tracking branch vagy a HEAD frissül, a Git
+frissít egy „reflog" nevű naplót az adott <<references,referenciához>>.
+Ez azt jelenti, hogy ha hibázol, és „elveszítesz" egy commitot, általában
+visszanyerheted a commit azonosítóját a `git reflog <reference>`
+futtatásával.
 
-A reflog is a list of log entries. Each entry has:
+A reflog naplóbejegyzések listája. Minden bejegyzésben van:
 
-1. The *commit ID*
-2. *Timestamp* when the change was made
-3. *Log message*, for example `pull: Fast-forward`
+1. A *commit azonosítója*
+2. *Időbélyeg* arról, mikor történt a változás
+3. *Naplóüzenet*, például `pull: Fast-forward`
 
-Reflogs only log changes made in your local repository.
-They are not shared with remotes.
+A reflogok csak a lokális repositoryban végzett változásokat naplózzák.
+Ezek nem oszlanak meg a remote-okkal.
 
-You can view a reflog with `git reflog <reference>`.
-For example, here's the reflog for a `main` branch which has changed twice:
+Egy reflogot a `git reflog <reference>` paranccsal tekinthetsz meg.
+Íme például egy kétszer módosult `main` branch reflogja:
 
 ----
 $ git reflog main --date=iso --no-decorate
@@ -302,4 +310,4 @@ $ git reflog main --date=iso --no-decorate
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

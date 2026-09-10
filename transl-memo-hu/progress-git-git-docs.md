@@ -104,7 +104,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-help.adoc | [x] |  | 2026-09-10 |
 | git-history.adoc | [x] |  | 2026-09-10 |
 | git-hook.adoc | [x] |  | 2026-09-10 |
-| git-http-backend.adoc | [ ] |  |  |
+| git-http-backend.adoc | [x] |  | 2026-09-10 |
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
 | git-http-push.adoc | [x] |  | 2026-09-10 |
 | git-imap-send.adoc | [x] |  | 2026-09-10 |
@@ -145,7 +145,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-pull.adoc | [x] |  | 2026-09-10 |
 | git-push.adoc | [ ] |  |  |
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
-| git-range-diff.adoc | [ ] |  |  |
+| git-range-diff.adoc | [x] |  | 2026-09-10 |
 | git-read-tree.adoc | [ ] |  |  |
 | git-rebase.adoc | [ ] |  |  |
 | git-receive-pack.adoc | [x] |  | 2026-09-10 |
@@ -184,7 +184,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-stripspace.adoc | [x] |  | 2026-09-10 |
 | git-submodule.adoc | [ ] |  |  |
 | git-svn.adoc | [ ] |  |  |
-| git-switch.adoc | [ ] |  |  |
+| git-switch.adoc | [x] |  | 2026-09-10 |
 | git-symbolic-ref.adoc | [x] |  | 2026-09-10 |
 | git-tag.adoc | [ ] |  |  |
 | git-tools.adoc | [x] |  | 2026-09-10 |
@@ -235,7 +235,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitcore-tutorial.adoc | [ ] |  |  |
 | gitcredentials.adoc | [ ] |  |  |
 | gitcvs-migration.adoc | [x] |  | 2026-09-10 |
-| gitdatamodel.adoc | [ ] |  |  |
+| gitdatamodel.adoc | [x] |  | 2026-09-10 |
 | gitdiffcore.adoc | [ ] |  |  |
 | giteveryday.adoc | [ ] |  |  |
 | gitfaq.adoc | [ ] |  |  |
@@ -262,7 +262,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitremote-helpers.adoc | [ ] |  |  |
 | gitrepository-layout.adoc | [ ] |  |  |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
-| gitsubmodules.adoc | [ ] |  |  |
+| gitsubmodules.adoc | [x] |  | 2026-09-10 |
 | gittutorial-2.adoc | [ ] |  |  |
 | gittutorial.adoc | [ ] |  |  |
 | gitweb.adoc | [ ] |  |  |
@@ -766,3 +766,28 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `SHOULD` / `*NOT*` (`gitcli.adoc`) — 21./23. blokk precedens. `gitcli.adoc` `"Values"`
   (git-config[1] szakasznév) angolul (a `config.adoc` még lefordítatlan). Orchestrátor végezte
   közvetlenül. Részletek: `glossary-git-git-docs.md` „32. blokk".
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; a két gyökér-tábla együttes, sorméret szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `gitsubmodules.adoc`, `git-switch.adoc`, `gitdatamodel.adoc`, `git-http-backend.adoc`,
+  `git-range-diff.adoc`. A `gitdatamodel.adoc` volt a batch anchor-nehéz fájlja: 14 meglévő
+  `[[...]]` anchor (`[[objects]]`, `[[commit]]`, `[[def]]`-szerű `[[object-id]]`, `[[branch]]`,
+  `[[HEAD]]` stb.) **mind bájtazonosan** megmaradt; a rájuk mutató `<<id,látható szöveg>>` xref-ek
+  vessző utáni része fordult (`<<objects,Objektumok>>`, `<<commit,commitok>>`, `<<HEAD,aktuális
+  branchedet>>` stb.), a Git-objektum-típusnevek (`blob`/`tree`/`commit`/`tag`) a linkszövegben is
+  angolul maradtak (magyar toldalékkal). A `gitdatamodel.adoc` `OBJECTS`/`REFERENCES`/`THE INDEX`/
+  `REFLOGS` csupa nagybetűs, explicit anchorral ellátott szakaszcímei a VÉGLEGES DÖNTÉS szerint
+  **angolul** maradtak (a 25. blokk `REMOTES`/`UPSTREAM BRANCHES` precedense). Defenzív `[[...]]`
+  anchorok: `gitsubmodules.adoc` (4 — Title Case setext alcímek: `_the_configuration_of_submodules`,
+  `_workflow_for_a_third_party_library`, `_workflow_for_an_artificially_split_repo`,
+  `_implementation_details`), `git-range-diff.adoc` (1 — `[[_algorithm]]` az „Algoritmus" Title Case
+  cím fölé; a prózában rá mutató `'Algorithm'` compat-mode hivatkozások `'Algoritmus'`-ra átírva).
+  Csupa nagybetűs, kanonikus listán kívüli alcímek a VÉGLEGES DÖNTÉS szerint angolul: `FORMS` /
+  `ACTIVE SUBMODULES` (`gitsubmodules.adoc`, + a `see FORMS below` / `"ACTIVE SUBMODULES" section`
+  prózahivatkozások angolul), `SERVICES` / `URL TRANSLATION` (`git-http-backend.adoc`),
+  `OUTPUT STABILITY` (`git-range-diff.adoc`). A `git-switch.adoc` `"DETACHED HEAD"` prózahivatkozása
+  (git-checkout[1] szakaszra) angolul, idézőjelben. **smart/dumb protokoll-terminológia** eldöntve
+  (`git-http-backend.adoc` volt a nyitott döntési függőség): `„smart" HTTP-protokoll` /
+  `„dumb" HTTP-protokoll` — az angol jelző kettős idézőjelben, a 17./19./32. blokk ad hoc
+  kezelésének folytatása. Orchestrátor végezte közvetlenül. Részletek:
+  `glossary-git-git-docs.md` „33. blokk".
