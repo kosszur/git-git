@@ -3,7 +3,7 @@ git-stash(1)
 
 NAME
 ----
-git-stash - Stash the changes in a dirty working directory away
+git-stash - Egy piszkos munkakönyvtár változásainak elstashelése
 
 SYNOPSIS
 --------
@@ -29,306 +29,315 @@ git stash import <commit>
 DESCRIPTION
 -----------
 
-Use `git stash` when you want to record the current state of the
-working directory and the index, but want to go back to a clean
-working directory.  The command saves your local modifications away
-and reverts the working directory to match the `HEAD` commit.
+Használd a `git stash`-t, amikor rögzíteni akarod a munkakönyvtár és az
+index aktuális állapotát, de vissza akarsz térni egy tiszta
+munkakönyvtárhoz. A parancs félreteszi a helyi módosításaidat, és a
+munkakönyvtárat visszaállítja a `HEAD` commithoz.
 
-The modifications stashed away by this command can be listed with
-`git stash list`, inspected with `git stash show`, and restored
-(potentially on top of a different commit) with `git stash apply`.
-Calling `git stash` without any arguments is equivalent to `git stash push`.
-A stash is by default listed as "WIP on '<branchname>' ...", but
-you can give a more descriptive message on the command line when
-you create one.
+Az e parancs által elstashelt módosítások a `git stash list`-tel
+kilistázhatók, a `git stash show`-val megvizsgálhatók, és a
+`git stash apply`-jal visszaállíthatók (esetleg egy másik commit
+tetejére). A `git stash` argumentumok nélküli hívása egyenértékű a
+`git stash push`-sal. Egy stash alapból "WIP on '<branchname>' ..."-ként
+szerepel a listában, de adhatsz egy leíróbb üzenetet a parancssorban,
+amikor létrehozol egyet.
 
-The latest stash you created is stored in `refs/stash`; older
-stashes are found in the reflog of this reference and can be named using
-the usual reflog syntax (e.g. `stash@{0}` is the most recently
-created stash, `stash@{1}` is the one before it, `stash@{2.hours.ago}`
-is also possible). Stashes may also be referenced by specifying just the
-stash index (e.g. the integer `<n>` is equivalent to `stash@{<n>}`).
+A legutóbb létrehozott stashed a `refs/stash`-ben van tárolva; a
+régebbi stashek ennek a referenciának a reflogjában találhatók, és a
+szokásos reflog-szintaxissal nevezhetők meg (pl. a `stash@{0}` a
+legutóbb létrehozott stash, a `stash@{1}` az azt megelőző, a
+`stash@{2.hours.ago}` is lehetséges). A stashekre úgy is lehet
+hivatkozni, hogy csak a stash-indexet adod meg (pl. az `<n>` egész szám
+egyenértékű a `stash@{<n>}`-nel).
 
 COMMANDS
 --------
 
 `push [-p | --patch] [-S | --staged] [-k | --[no-]keep-index] [-u | --include-untracked] [ -a | --all] [-q | --quiet] [(-m|--message) <message>] [--pathspec-from-file=<file> [--pathspec-file-nul]] [--] [<pathspec>...]`::
 
-	Save your local modifications to a new 'stash entry' and roll them
-	back to `HEAD` (in the working tree and in the index).
-	The _<message>_ part is optional and gives
-	the description along with the stashed state.
+	Elmenti a helyi módosításaidat egy új 'stash-bejegyzésbe', és
+	visszagörgeti őket `HEAD`-re (a working tree-ben és az indexben).
+	A `_<message>_` rész opcionális, és a leírást adja meg az stashelt
+	állapot mellé.
 +
-For quickly making a snapshot, you can omit "push".  In this mode,
-pathspec elements are only allowed after a double hyphen `--`
-to prevent a misspelled subcommand from making an unwanted stash entry.
+Gyors pillanatkép készítéséhez elhagyhatod a "push"-t. Ebben a módban a
+pathspec-elemek csak egy dupla kötőjel `--` után engedélyezettek, hogy
+egy elgépelt alparancs ne hozzon létre nem kívánt stash-bejegyzést.
 
 `save [-p | --patch] [-S | --staged] [-k | --[no-]keep-index] [-u | --include-untracked] [-a | --all] [-q | --quiet] [<message>]`::
 
-	This option is deprecated in favour of 'git stash push'.  It
-	differs from "stash push" in that it cannot take pathspec.
-	Instead, all non-option arguments are concatenated to form the stash
-	message.
+	Ez a kapcsoló elavult, helyette a 'git stash push' használandó.
+	Abban különbözik a "stash push"-tól, hogy nem fogad pathspecet.
+	Ehelyett az összes nem opció argumentum összefűződik, hogy a
+	stash-üzenetet alkossa.
 
 `list [<log-options>]`::
 
-	List the stash entries that you currently have.  Each 'stash entry' is
-	listed with its name (e.g. `stash@{0}` is the latest entry, `stash@{1}` is
-	the one before, etc.), the name of the branch that was current when the
-	entry was made, and a short description of the commit the entry was
-	based on.
+	Kilistázza a stash-bejegyzéseket, amelyek jelenleg megvannak.
+	Minden 'stash-bejegyzés' a nevével (pl. a `stash@{0}` a legutóbbi
+	bejegyzés, a `stash@{1}` az azt megelőző, stb.), annak a branchnek a
+	nevével, amely aktuális volt a bejegyzés készültekor, és annak a
+	commitnak a rövid leírásával szerepel, amelyen a bejegyzés alapult.
 +
 ----------------------------------------------------------------
 stash@{0}: WIP on submit: 6ebd0e2... Update git-stash documentation
 stash@{1}: On master: 9cc0589... Add git-stash
 ----------------------------------------------------------------
 +
-The command takes options applicable to the 'git log'
-command to control what is shown and how. See linkgit:git-log[1].
+A parancs a 'git log' parancsra alkalmazható opciókat fogad annak
+szabályozására, hogy mi és hogyan jelenjen meg. Lásd: linkgit:git-log[1].
 
 `show [-u | --include-untracked | --only-untracked] [<diff-options>] [<stash>]`::
 
-	Show the changes recorded in the stash entry as a diff between the
-	stashed contents and the commit back when the stash entry was first
-	created.
-	By default, the command shows the diffstat, but it will accept any
-	format known to 'git diff' (e.g., `git stash show -p stash@{1}`
-	to view the second most recent entry in patch form).
-	If no _<diff-option>_ is provided, the default behavior will be given
-	by the `stash.showStat`, and `stash.showPatch` config variables. You
-	can also use `stash.showIncludeUntracked` to set whether
-	`--include-untracked` is enabled by default.
+	Megmutatja a stash-bejegyzésben rögzített változásokat diffként az
+	stashelt tartalom és aközött a commit között, amikor a
+	stash-bejegyzés eredetileg létrejött.
+	Alapból a parancs a diffstatot mutatja, de elfogad minden formátumot,
+	amit a 'git diff' ismer (pl. `git stash show -p stash@{1}` a
+	második legutóbbi bejegyzés patch formájában való megtekintéséhez).
+	Ha nincs `_<diff-option>_` megadva, az alapértelmezett viselkedést a
+	`stash.showStat` és a `stash.showPatch` konfigurációs változók
+	adják. A `stash.showIncludeUntracked`-et is használhatod annak
+	beállítására, hogy a `--include-untracked` alapból engedélyezve
+	legyen-e.
 
 `pop [--index] [-q | --quiet] [<stash>]`::
 
-	Remove a single stashed state from the stash list and apply it
-	on top of the current working tree state, i.e., do the inverse
-	operation of `git stash push`. The working directory must
-	match the index.
+	Eltávolít egyetlen stashelt állapotot a stash-listából, és
+	alkalmazza az aktuális working tree állapot tetejére, azaz a
+	`git stash push` fordított műveletét végzi. A munkakönyvtárnak
+	egyeznie kell az indexszel.
 +
-Applying the state can fail with conflicts; in this case, it is not
-removed from the stash list. You need to resolve the conflicts by hand
-and call `git stash drop` manually afterwards.
+Az állapot alkalmazása konfliktusokkal meghiúsulhat; ebben az esetben
+nem távolítódik el a stash-listából. Kézzel kell feloldanod a
+konfliktusokat, és utána kézzel meghívnod a `git stash drop`-ot.
 
 `apply [--index] [-q | --quiet] [<stash>]`::
 
-	Like `pop`, but do not remove the state from the stash list. Unlike `pop`,
-	`<stash>` may be any commit that looks like a commit created by
-	`stash push` or `stash create`.
+	Mint a `pop`, de nem távolítja el az állapotot a stash-listából. A
+	`pop`-pal ellentétben a `<stash>` bármely commit lehet, amely úgy
+	néz ki, mint egy `stash push` vagy `stash create` által létrehozott
+	commit.
 
 `branch <branchname> [<stash>]`::
 
-	Creates and checks out a new branch named _<branchname>_ starting from
-	the commit at which the _<stash>_ was originally created, applies the
-	changes recorded in _<stash>_ to the new working tree and index.
-	If that succeeds, and _<stash>_ is a reference of the form
-	`stash@{<revision>}`, it then drops the _<stash>_.
+	Létrehoz és checkoutol egy `_<branchname>_` nevű új branchet, abból a
+	commitból kiindulva, amelynél a `_<stash>_` eredetileg létrejött,
+	majd alkalmazza a `_<stash>_`-ben rögzített változásokat az új
+	working tree-re és indexre. Ha ez sikerül, és a `_<stash>_` egy
+	`stash@{<revision>}` alakú referencia, akkor dropolja a `_<stash>_`-t.
 +
-This is useful if the branch on which you ran `git stash push` has
-changed enough that `git stash apply` fails due to conflicts. Since
-the stash entry is applied on top of the commit that was HEAD at the
-time `git stash` was run, it restores the originally stashed state
-with no conflicts.
+Ez akkor hasznos, ha az a branch, amelyen a `git stash push`-t
+futtattad, eleget változott ahhoz, hogy a `git stash apply`
+konfliktusok miatt meghiúsuljon. Mivel a stash-bejegyzés arra a
+commitra alkalmazódik, amely HEAD volt a `git stash` futtatásának
+idején, konfliktusok nélkül állítja vissza az eredetileg stashelt
+állapotot.
 
 `clear`::
-	Remove all the stash entries. Note that those entries will then
-	be subject to pruning, and may be impossible to recover (see
-	'EXAMPLES' below for a possible strategy).
+	Eltávolítja az összes stash-bejegyzést. Vedd figyelembe, hogy azok
+	a bejegyzések ezután prune-olás alá esnek, és lehet, hogy nem lehet
+	őket helyreállítani (egy lehetséges stratégiához lásd az 'EXAMPLES'
+	szakaszt lentebb).
 
 `drop [-q | --quiet] [<stash>]`::
-	Remove a single stash entry from the list of stash entries.
+	Eltávolít egyetlen stash-bejegyzést a stash-bejegyzések listájából.
 
 `create`::
-	Create a stash entry (which is a regular commit object) and
-	return its object name, without storing it anywhere in the ref
-	namespace.
-	This is intended to be useful for scripts.  It is probably not
-	the command you want to use; see "push" above.
+	Létrehoz egy stash-bejegyzést (amely egy közönséges commitobjektum),
+	és visszaadja az objektumnevét, anélkül, hogy bárhol tárolná a
+	ref-névtérben.
+	Ez szkriptek számára hasznos. Valószínűleg nem ezt a parancsot
+	akarod használni; lásd a "push"-t fentebb.
 
 `store`::
 
-	Store a given stash created via 'git stash create' (which is a
-	dangling merge commit) in the stash ref, updating the stash
-	reflog.  This is intended to be useful for scripts.  It is
-	probably not the command you want to use; see "push" above.
+	Egy adott, 'git stash create' által létrehozott stash (amely egy
+	lógó merge commit) tárolása a stash refben, a stash reflogjának
+	frissítésével. Ez szkriptek számára hasznos. Valószínűleg nem ezt a
+	parancsot akarod használni; lásd a "push"-t fentebb.
 
 `export ( --print | --to-ref <ref> ) [<stash>...]`::
 
-	Export the specified stashes, or all of them if none are specified, to
-	a chain of commits which can be transferred using the normal fetch and
-	push mechanisms, then imported using the `import` subcommand.
+	Exportálja a megadott stasheket, vagy mindet, ha egy sincs megadva,
+	egy commit-láncba, amely a normál fetch- és push-mechanizmusokkal
+	átvihető, majd az `import` alparanccsal importálható.
 
 `import <commit>`::
-	Import the specified stashes from the specified commit, which must have been
-	created by `export`, and add them to the list of stashes.  To replace the
-	existing stashes, use `clear` first.
+	Importálja a megadott stasheket a megadott commitból, amelyet az
+	`export`-nak kellett létrehoznia, és hozzáadja őket a stashek
+	listájához. A meglévő stashek lecseréléséhez előbb használd a
+	`clear`-t.
 
 OPTIONS
 -------
 `-a`::
 `--all`::
-	This option is only valid for `push` and `save` commands.
+	Ez a kapcsoló csak a `push` és `save` parancsnál érvényes.
 +
-All ignored and untracked files are also stashed and then cleaned
-up with `git clean`.
+Az összes ignorált és nem követett fájl is stashelődik, majd a
+`git clean`-nel feltakarításra kerül.
 
 `-u`::
 `--include-untracked`::
 `--no-include-untracked`::
-	When used with the `push` and `save` commands,
-	all untracked files are also stashed and then cleaned up with
-	`git clean`.
+	A `push` és `save` paranccsal együtt használva az összes nem
+	követett fájl is stashelődik, majd a `git clean`-nel feltakarításra
+	kerül.
 +
-When used with the `show` command, show the untracked files in the stash
-entry as part of the diff.
+A `show` paranccsal együtt használva a diff részeként megjeleníti a
+stash-bejegyzésben lévő nem követett fájlokat.
 
 `--only-untracked`::
-	This option is only valid for the `show` command.
+	Ez a kapcsoló csak a `show` parancsnál érvényes.
 +
-Show only the untracked files in the stash entry as part of the diff.
+A diff részeként csak a stash-bejegyzésben lévő nem követett fájlokat
+jeleníti meg.
 
 `--index`::
-	This option is only valid for `pop` and `apply` commands.
+	Ez a kapcsoló csak a `pop` és `apply` parancsnál érvényes.
 +
-Tries to reinstate not only the working tree's changes, but also
-the index's ones. However, this can fail, when you have conflicts
-(which are stored in the index, where you therefore can no longer
-apply the changes as they were originally).
+Megpróbálja visszaállítani nemcsak a working tree változásait, hanem az
+indexéit is. Ez azonban meghiúsulhat, ha konfliktusaid vannak (amelyek
+az indexben tárolódnak, ahol ezért már nem tudod alkalmazni a
+változásokat úgy, ahogy eredetileg voltak).
 
 `--label-ours=<label>`::
 `--label-theirs=<label>`::
 `--label-base=<label>`::
-	These options are only valid for the `apply` command.
+	Ezek a kapcsolók csak az `apply` parancsnál érvényesek.
 +
-Use the given labels in conflict markers instead of the default
-"Updated upstream", "Stashed changes", and "Stash base".
-`--label-base` only has an effect with merge.conflictStyle=diff3.
+A konfliktusjelölőkben a megadott címkéket használja az alapértelmezett
+"Updated upstream", "Stashed changes" és "Stash base" helyett. A
+`--label-base` csak a merge.conflictStyle=diff3 mellett fejt ki hatást.
 
 `-k`::
 `--keep-index`::
 `--no-keep-index`::
-	This option is only valid for `push` and `save` commands.
+	Ez a kapcsoló csak a `push` és `save` parancsnál érvényes.
 +
-All changes already added to the index are left intact.
+Az összes, az indexhez már hozzáadott változás érintetlenül marad.
 
 `-p`::
 `--patch`::
-	This option is only valid for `push` and `save` commands.
+	Ez a kapcsoló csak a `push` és `save` parancsnál érvényes.
 +
-Interactively select hunks from the diff between HEAD and the
-working tree to be stashed.  The stash entry is constructed such
-that its index state is the same as the index state of your
-repository, and its worktree contains only the changes you selected
-interactively.  The selected changes are then rolled back from your
-worktree. See the ``Interactive Mode'' section of linkgit:git-add[1]
-to learn how to operate the `--patch` mode.
+Interaktívan választhatsz ki stashelendő hunkokat a HEAD és a working
+tree közötti diffből. A stash-bejegyzés úgy épül fel, hogy az
+indexállapota megegyezik a repository-d indexállapotával, a worktree-je
+pedig csak az interaktívan kiválasztott változásokat tartalmazza. A
+kiválasztott változások ezután visszagörgetődnek a worktree-dből. A
+`--patch` mód működtetésének megtanulásához lásd a linkgit:git-add[1]
+``Interaktív mód'' szakaszát.
 +
-The `--patch` option implies `--keep-index`.  You can use
-`--no-keep-index` to override this.
+A `--patch` kapcsoló maga után vonja a `--keep-index`-et. A
+`--no-keep-index`-szel felülbírálhatod ezt.
 
 include::diff-context-options.adoc[]
 
 `-S`::
 `--staged`::
-	This option is only valid for `push` and `save` commands.
+	Ez a kapcsoló csak a `push` és `save` parancsnál érvényes.
 +
-Stash only the changes that are currently staged. This is similar to
-basic `git commit` except the state is committed to the stash instead
-of current branch.
+Csak a jelenleg stage-elt változásokat stasheli. Ez hasonló az
+alapszintű `git commit`-hoz, azzal a különbséggel, hogy az állapot a
+stashbe commitolódik, nem az aktuális branchbe.
 +
-The `--patch` option has priority over this one.
+A `--patch` kapcsolónak elsőbbsége van ezzel szemben.
 
 `--pathspec-from-file=<file>`::
-	This option is only valid for `push` command.
+	Ez a kapcsoló csak a `push` parancsnál érvényes.
 +
-Pathspec is passed in _<file>_ instead of commandline args. If
-_<file>_ is exactly `-` then standard input is used. Pathspec
-elements are separated by LF or CR/LF. Pathspec elements can be
-quoted as explained for the configuration variable `core.quotePath`
-(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-global `--literal-pathspecs`.
+A pathspec a `_<file>_`-ban adódik át, nem parancssori argumentumként.
+Ha a `_<file>_` pontosan `-`, akkor a standard bemenet kerül
+felhasználásra. A pathspec-elemeket LF vagy CR/LF választja el. A
+pathspec-elemek idézőjelezhetők a `core.quotePath` konfigurációs
+változónál elmagyarázott módon (lásd: linkgit:git-config[1]). Lásd még a
+`--pathspec-file-nul`-t és a globális `--literal-pathspecs`-et.
 
 `--pathspec-file-nul`::
-	This option is only valid for `push` command.
+	Ez a kapcsoló csak a `push` parancsnál érvényes.
 +
-Only meaningful with `--pathspec-from-file`. Pathspec elements are
-separated with NUL character and all other characters are taken
-literally (including newlines and quotes).
+Csak a `--pathspec-from-file`-lal van értelme. A pathspec-elemeket NUL
+karakter választja el, és minden más karakter literálisan értendő (a
+sortöréseket és az idézőjeleket is beleértve).
 
 `-q`::
 `--quiet`::
-	This option is only valid for `apply`, `drop`, `pop`, `push`,
-	`save`, `store` commands.
+	Ez a kapcsoló csak az `apply`, `drop`, `pop`, `push`, `save`,
+	`store` parancsnál érvényes.
 +
-Quiet, suppress feedback messages.
+Csendes, elnyomja a visszajelző üzeneteket.
 
 `--print`::
-	This option is only valid for the `export` command.
+	Ez a kapcsoló csak az `export` parancsnál érvényes.
 +
-Create the chain of commits representing the exported stashes without
-storing it anywhere in the ref namespace and print the object ID to
-standard output.  This is designed for scripts.
+Létrehozza az exportált stasheket képviselő commit-láncot anélkül, hogy
+bárhol tárolná a ref-névtérben, és kiírja az objektumazonosítót a
+standard kimenetre. Ez szkriptekhez készült.
 
 `--to-ref`::
-	This option is only valid for the `export` command.
+	Ez a kapcsoló csak az `export` parancsnál érvényes.
 +
-Create the chain of commits representing the exported stashes and store
-it to the specified ref.
+Létrehozza az exportált stasheket képviselő commit-láncot, és a megadott
+refbe tárolja.
 
 `--`::
-	This option is only valid for `push` command.
+	Ez a kapcsoló csak a `push` parancsnál érvényes.
 +
-Separates pathspec from options for disambiguation purposes.
+Elválasztja a pathspecet az opcióktól egyértelműsítési céllal.
 
 `<pathspec>...`::
-	This option is only valid for `push` command.
+	Ez a kapcsoló csak a `push` parancsnál érvényes.
 +
-The new stash entry records the modified states only for the files
-that match the pathspec.  The index entries and working tree files
-are then rolled back to the state in HEAD only for these files,
-too, leaving files that do not match the pathspec intact.
+Az új stash-bejegyzés csak azoknak a fájloknak a módosított állapotát
+rögzíti, amelyek illeszkednek a pathspecre. Az indexbejegyzések és a
+working tree fájljai ezután szintén csak ezeknél a fájloknál görgetődnek
+vissza a HEAD-beli állapotra, érintetlenül hagyva azokat a fájlokat,
+amelyek nem illeszkednek a pathspecre.
 +
-For more details, see the 'pathspec' entry in linkgit:gitglossary[7].
+A további részletekért lásd a 'pathspec' bejegyzést a
+linkgit:gitglossary[7]-ben.
 
 _<stash>_::
-	This option is only valid for `apply`, `branch`, `drop`, `pop`,
-	`show`, and `export` commands.
+	Ez a kapcsoló csak az `apply`, `branch`, `drop`, `pop`, `show` és
+	`export` parancsnál érvényes.
 +
-A reference of the form `stash@{<revision>}`. When no _<stash>_ is
-given, the latest stash is assumed (that is, `stash@{0}`).
+Egy `stash@{<revision>}` alakú referencia. Ha nincs `_<stash>_` megadva,
+a legutóbbi stash feltételezett (azaz a `stash@{0}`).
 
 DISCUSSION
 ----------
 
-A stash entry is represented as a commit whose tree records the state
-of the working directory, and its first parent is the commit at `HEAD`
-when the entry was created.  The tree of the second parent records the
-state of the index when the entry is made, and it is made a child of
-the `HEAD` commit.  The ancestry graph looks like this:
+Egy stash-bejegyzést egy commit képvisel, amelynek a fája a
+munkakönyvtár állapotát rögzíti, az első szülője pedig az a commit,
+amely `HEAD` volt a bejegyzés létrehozásakor. A második szülő fája az
+index állapotát rögzíti a bejegyzés készültekor, és a `HEAD` commit
+gyermekévé válik. Az ősgráf így néz ki:
 
             .----W
            /    /
      -----H----I
 
-where `H` is the `HEAD` commit, `I` is a commit that records the state
-of the index, and `W` is a commit that records the state of the working
-tree.
+ahol `H` a `HEAD` commit, `I` egy olyan commit, amely az index
+állapotát rögzíti, `W` pedig egy olyan commit, amely a working tree
+állapotát rögzíti.
 
 
 EXAMPLES
 --------
 
-Pulling into a dirty tree::
+Pull-olás egy piszkos fába::
 
-When you are in the middle of something, you learn that there are
-upstream changes that are possibly relevant to what you are
-doing.  When your local changes do not conflict with the changes in
-the upstream, a simple `git pull` will let you move forward.
+Amikor valaminek a közepén vagy, megtudod, hogy vannak upstream
+változások, amelyek esetleg relevánsak ahhoz, amit csinálsz. Amikor a
+helyi változásaid nem ütköznek az upstream változásaival, egy egyszerű
+`git pull` engedi, hogy előrelépj.
 +
-However, there are cases in which your local changes do conflict with
-the upstream changes, and `git pull` refuses to overwrite your
-changes.  In such a case, you can stash your changes away,
-perform a pull, and then unstash, like this:
+Vannak azonban esetek, amikor a helyi változásaid tényleg ütköznek az
+upstream változásaival, és a `git pull` megtagadja a változásaid
+felülírását. Ilyen esetben elstashelheted a változásaidat, végrehajthatsz
+egy pull-t, majd unstashelhetsz, így:
 +
 ----------------------------------------------------------------
 $ git pull
@@ -339,12 +348,12 @@ $ git pull
 $ git stash pop
 ----------------------------------------------------------------
 
-Interrupted workflow::
+Megszakított munkafolyamat::
 
-When you are in the middle of something, your boss comes in and
-demands that you fix something immediately.  Traditionally, you would
-make a commit to a temporary branch to store your changes away, and
-return to your original branch to make the emergency fix, like this:
+Amikor valaminek a közepén vagy, bejön a főnököd, és követeli, hogy
+azonnal javíts meg valamit. Hagyományosan egy ideiglenes branchre
+commitolnál, hogy félretedd a változásaidat, majd visszatérnél az
+eredeti branchedre, hogy elvégezd a sürgős javítást, így:
 +
 ----------------------------------------------------------------
 # ... hack hack hack ...
@@ -358,7 +367,7 @@ $ git reset --soft HEAD^
 # ... continue hacking ...
 ----------------------------------------------------------------
 +
-You can use 'git stash' to simplify the above, like this:
+A fentiek egyszerűsítéséhez használhatod a 'git stash'-t, így:
 +
 ----------------------------------------------------------------
 # ... hack hack hack ...
@@ -369,11 +378,11 @@ $ git stash pop
 # ... continue hacking ...
 ----------------------------------------------------------------
 
-Testing partial commits::
+Részleges commitok tesztelése::
 
-You can use `git stash push --keep-index` when you want to make two or
-more commits out of the changes in the work tree, and you want to test
-each change before committing:
+Használhatod a `git stash push --keep-index`-et, amikor a work tree
+változásaiból két vagy több commitot akarsz csinálni, és minden
+változást tesztelni akarsz a commitolás előtt:
 +
 ----------------------------------------------------------------
 # ... hack hack hack ...
@@ -387,13 +396,14 @@ $ edit/build/test remaining parts
 $ git commit foo -m 'Remaining parts'
 ----------------------------------------------------------------
 
-Saving unrelated changes for future use::
+Nem kapcsolódó változások mentése jövőbeli felhasználásra::
 
-When you are in the middle of massive changes and you find some
-unrelated issue that you don't want to forget to fix, you can do the
-change(s), stage them, and use `git stash push --staged` to stash them
-out for future use. This is similar to committing the staged changes,
-only the commit ends-up being in the stash and not on the current branch.
+Amikor hatalmas változtatások közepén vagy, és találsz valami nem
+kapcsolódó problémát, amit nem akarsz elfelejteni megjavítani,
+elvégezheted a változás(oka)t, stage-elheted őket, és a
+`git stash push --staged`-dzsel elstashelheted őket jövőbeli
+felhasználásra. Ez hasonló a stage-elt változások commitolásához, csak a
+commit a stashben köt ki, nem az aktuális branchen.
 +
 ----------------------------------------------------------------
 # ... hack hack hack ...
@@ -405,12 +415,13 @@ $ git switch fixup-branch       # switch to another branch
 $ git stash pop                 # to finish work on the saved changes
 ----------------------------------------------------------------
 
-Recovering stash entries that were cleared/dropped erroneously::
+Tévedésből kiürített/dropolt stash-bejegyzések helyreállítása::
 
-If you mistakenly drop or clear stash entries, they cannot be recovered
-through the normal safety mechanisms.  However, you can try the
-following incantation to get a list of stash entries that are still in
-your repository, but not reachable any more:
+Ha tévedésből dropolsz vagy kiürítesz stash-bejegyzéseket, azok nem
+állíthatók helyre a normál biztonsági mechanizmusokkal. Kipróbálhatod
+azonban a következő varázsigét, hogy megkapd azoknak a
+stash-bejegyzéseknek a listáját, amelyek még a repository-dban vannak,
+de már nem elérhetők:
 +
 ----------------------------------------------------------------
 git fsck --unreachable |
@@ -437,4 +448,4 @@ linkgit:git-switch[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -3,7 +3,7 @@ git-read-tree(1)
 
 NAME
 ----
-git-read-tree - Reads tree information into the index
+git-read-tree - Fa-információt olvas be az indexbe
 
 
 SYNOPSIS
@@ -16,158 +16,161 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Reads the tree information given by <tree-ish> into the index,
-but does not actually *update* any of the files it "caches". (see:
-linkgit:git-checkout-index[1])
+Beolvassa a <tree-ish> által megadott fa-információt az indexbe, de
+valójában *nem* frissíti egyik fájlt sem, amelyet „gyorsítótáraz".
+(lásd: linkgit:git-checkout-index[1])
 
-Optionally, it can merge a tree into the index, perform a
-fast-forward (i.e. 2-way) merge, or a 3-way merge, with the `-m`
-flag.  When used with `-m`, the `-u` flag causes it to also update
-the files in the work tree with the result of the merge.
+Opcionálisan a `-m` kapcsolóval merge-elhet egy fát az indexbe,
+végrehajthat egy fast-forward (azaz kétutas) merge-et, vagy egy
+háromutas merge-et. A `-m`-mel együtt használva a `-u` kapcsoló azt is
+előidézi, hogy a work tree fájljait a merge eredményével frissítse.
 
-Only trivial merges are done by 'git read-tree' itself.  Only conflicting paths
-will be in an unmerged state when 'git read-tree' returns.
+Csak triviális merge-eket végez maga a 'git read-tree'. Amikor a
+'git read-tree' visszatér, csak a konfliktusos útvonalak lesznek
+nem merge-elt állapotban.
 
 OPTIONS
 -------
 -m::
-	Perform a merge, not just a read.  The command will
-	refuse to run if your index file has unmerged entries,
-	indicating that you have not finished a previous merge you
-	started.
+	Merge-et hajt végre, nem csak beolvasást. A parancs megtagadja a
+	futást, ha az indexfájlodban nem merge-elt bejegyzések vannak, ami
+	azt jelzi, hogy nem fejeztél be egy korábban elkezdett merge-et.
 
 --reset::
-	Same as -m, except that unmerged entries are discarded instead
-	of failing.  When used with `-u`, updates leading to loss of
-	working tree changes or untracked files or directories will not
-	abort the operation.
+	Ugyanaz, mint a -m, azzal a különbséggel, hogy a nem merge-elt
+	bejegyzéseket eldobja, ahelyett, hogy hibázna. A `-u`-val együtt
+	használva a working tree-változások vagy nem követett fájlok, ill.
+	könyvtárak elvesztéséhez vezető frissítések nem szakítják meg a
+	műveletet.
 
 -u::
-	After a successful merge, update the files in the work
-	tree with the result of the merge.
+	Egy sikeres merge után frissíti a work tree fájljait a merge
+	eredményével.
 
 -i::
-	Usually a merge requires the index file as well as the
-	files in the working tree to be up to date with the
-	current head commit, in order not to lose local
-	changes.  This flag disables the check with the working
-	tree and is meant to be used when creating a merge of
-	trees that are not directly related to the current
-	working tree status into a temporary index file.
+	Egy merge általában megköveteli, hogy mind az indexfájl, mind a
+	working tree fájljai naprakészek legyenek az aktuális fejcommittal,
+	hogy ne vesszenek el a helyi változások. Ez a kapcsoló letiltja a
+	working tree-vel való ellenőrzést, és arra való, hogy olyan fák
+	merge-ét hozd létre egy ideiglenes indexfájlba, amelyek nincsenek
+	közvetlen kapcsolatban az aktuális working tree állapotával.
 
 -n::
 --dry-run::
-	Check if the command would error out, without updating the index
-	or the files in the working tree for real.
+	Ellenőrzi, hogy a parancs hibázna-e, anélkül, hogy ténylegesen
+	frissítené az indexet vagy a working tree fájljait.
 
 -v::
-	Show the progress of checking files out.
+	Megjeleníti a fájlok checkoutolásának folyamatát.
 
 --trivial::
-	Restrict three-way merge by 'git read-tree' to happen
-	only if there is no file-level merging required, instead
-	of resolving merge for trivial cases and leaving
-	conflicting files unresolved in the index.
+	Korlátozza a 'git read-tree' általi háromutas merge-et, hogy csak
+	akkor történjen meg, ha nincs szükség fájlszintű merge-elésre,
+	ahelyett, hogy triviális esetekben feloldaná a merge-et, és a
+	konfliktusos fájlokat feloldatlanul hagyná az indexben.
 
 --aggressive::
-	Usually a three-way merge by 'git read-tree' resolves
-	the merge for really trivial cases and leaves other
-	cases unresolved in the index, so that porcelains can
-	implement different merge policies.  This flag makes the
-	command resolve a few more cases internally:
+	A 'git read-tree' általi háromutas merge általában a valóban
+	triviális eseteknél feloldja a merge-et, a többi esetet pedig
+	feloldatlanul hagyja az indexben, hogy a porcelainek különböző
+	merge-politikákat valósíthassanak meg. Ez a kapcsoló ráveszi a
+	parancsot, hogy néhány további esetet belsőleg feloldjon:
 +
-* when one side removes a path and the other side leaves the path
-  unmodified.  The resolution is to remove that path.
-* when both sides remove a path.  The resolution is to remove that path.
-* when both sides add a path identically.  The resolution
-  is to add that path.
+* amikor az egyik oldal eltávolít egy útvonalat, a másik oldal pedig
+  módosítatlanul hagyja. A feloldás az útvonal eltávolítása.
+* amikor mindkét oldal eltávolít egy útvonalat. A feloldás az útvonal
+  eltávolítása.
+* amikor mindkét oldal azonos módon ad hozzá egy útvonalat. A feloldás
+  az útvonal hozzáadása.
 
 --prefix=<prefix>::
-	Keep the current index contents, and read the contents
-	of the named tree-ish under the directory at `<prefix>`.
-	The command will refuse to overwrite entries that already
-	existed in the original index file.
+	Megtartja az aktuális indextartalmat, és beolvassa a megnevezett
+	tree-ish tartalmát a `<prefix>`-nél lévő könyvtár alá. A parancs
+	megtagadja azoknak a bejegyzéseknek a felülírását, amelyek már
+	léteztek az eredeti indexfájlban.
 
 --index-output=<file>::
-	Instead of writing the results out to `$GIT_INDEX_FILE`,
-	write the resulting index in the named file.  While the
-	command is operating, the original index file is locked
-	with the same mechanism as usual.  The file must allow
-	to be rename(2)ed into from a temporary file that is
-	created next to the usual index file; typically this
-	means it needs to be on the same filesystem as the index
-	file itself, and you need write permission to the
-	directories the index file and index output file are
-	located in.
+	Ahelyett, hogy az eredményeket a `$GIT_INDEX_FILE`-ba írná, a
+	kapott indexet a megnevezett fájlba írja. Amíg a parancs működik,
+	az eredeti indexfájl a szokásos mechanizmussal van zárolva. A
+	fájlnak lehetővé kell tennie, hogy egy ideiglenes fájlból
+	rename(2)-eljenek bele, amely a szokásos indexfájl mellett jön
+	létre; ez jellemzően azt jelenti, hogy ugyanazon a fájlrendszeren
+	kell lennie, mint magának az indexfájlnak, és írási jogosultsággal
+	kell rendelkezned azokhoz a könyvtárakhoz, amelyekben az indexfájl
+	és az indexkimeneti fájl található.
 
 --recurse-submodules::
 --no-recurse-submodules::
-	Using --recurse-submodules will update the content of all active
-	submodules according to the commit recorded in the superproject by
-	calling read-tree recursively, also setting the submodules' HEAD to be
-	detached at that commit.
+	A --recurse-submodules használata az összes aktív submodule
+	tartalmát a szuperprojektben rögzített commitnak megfelelően
+	frissíti, a read-tree rekurzív meghívásával, egyben a submodule-ok
+	HEAD-jét is arra a commitra leválasztva állítja be.
 
 --no-sparse-checkout::
-	Disable sparse checkout support even if `core.sparseCheckout`
-	is true.
+	Letiltja a sparse checkout támogatását, még akkor is, ha a
+	`core.sparseCheckout` true.
 
 --empty::
-	Instead of reading tree object(s) into the index, just empty
-	it.
+	Ahelyett, hogy faobjektumo(ka)t olvasna be az indexbe, egyszerűen
+	kiüríti azt.
 
 -q::
 --quiet::
-	Quiet, suppress feedback messages.
+	Csendes, elnyomja a visszajelző üzeneteket.
 
 <tree-ish#>::
-	The id of the tree object(s) to be read/merged.
+	A beolvasandó/merge-elendő faobjektumo(k) azonosítója.
 
 
 MERGING
 -------
-If `-m` is specified, 'git read-tree' can perform 3 kinds of
-merge, a single tree merge if only 1 tree is given, a
-fast-forward merge with 2 trees, or a 3-way merge if 3 or more trees are
-provided.
+Ha a `-m` meg van adva, a 'git read-tree' 3 fajta merge-et tud
+végrehajtani: egyfás merge-et, ha csak 1 fa van megadva, fast-forward
+merge-et 2 fával, vagy háromutas merge-et, ha 3 vagy több fa van
+megadva.
 
 
-Single Tree Merge
-~~~~~~~~~~~~~~~~~
-If only 1 tree is specified, 'git read-tree' operates as if the user did not
-specify `-m`, except that if the original index has an entry for a
-given pathname, and the contents of the path match with the tree
-being read, the stat info from the index is used. (In other words, the
-index's stat()s take precedence over the merged tree's).
+[[_single_tree_merge]]
+Egyfás merge
+~~~~~~~~~~~~
+Ha csak 1 fa van megadva, a 'git read-tree' úgy működik, mintha a
+felhasználó nem adta volna meg a `-m`-et, azzal a különbséggel, hogy ha
+az eredeti indexnek van bejegyzése egy adott útvonalnévhez, és az
+útvonal tartalma egyezik a beolvasott fával, akkor az indexből származó
+stat-információ kerül felhasználásra. (Más szóval az index stat()-jai
+elsőbbséget élveznek a merge-elt fáéval szemben.)
 
-That means that if you do a `git read-tree -m <newtree>` followed by a
-`git checkout-index -f -u -a`, the 'git checkout-index' only checks out
-the stuff that really changed.
+Ez azt jelenti, hogy ha egy `git read-tree -m <newtree>`-t egy
+`git checkout-index -f -u -a` követ, a 'git checkout-index' csak azt
+checkoutolja ki, ami valóban megváltozott.
 
-This is used to avoid unnecessary false hits when 'git diff-files' is
-run after 'git read-tree'.
+Ez arra szolgál, hogy elkerülje a felesleges hamis találatokat, amikor a
+'git diff-files' a 'git read-tree' után fut.
 
 
-Two Tree Merge
-~~~~~~~~~~~~~~
+[[_two_tree_merge]]
+Kétfás merge
+~~~~~~~~~~~~
 
-Typically, this is invoked as `git read-tree -m $H $M`, where $H
-is the head commit of the current repository, and $M is the head
-of a foreign tree, which is simply ahead of $H (i.e. we are in a
-fast-forward situation).
+Ezt jellemzően `git read-tree -m $H $M`-ként hívják meg, ahol $H az
+aktuális repository fejcommitja, $M pedig egy idegen fa feje, amely
+egyszerűen előrébb van, mint $H (azaz fast-forward helyzetben vagyunk).
 
-When two trees are specified, the user is telling 'git read-tree'
-the following:
+Amikor két fa van megadva, a felhasználó a következőt közli a
+'git read-tree'-vel:
 
-     1. The current index and work tree is derived from $H, but
-	the user may have local changes in them since $H.
+     1. Az aktuális index és work tree $H-ból származik, de a
+	felhasználónak lehetnek benne helyi változásai $H óta.
 
-     2. The user wants to fast-forward to $M.
+     2. A felhasználó $M-ig akar fast-forwardolni.
 
-In this case, the `git read-tree -m $H $M` command makes sure
-that no local change is lost as the result of this "merge".
-Here are the "carry forward" rules, where "I" denotes the index,
-"clean" means that index and work tree coincide, and "exists"/"nothing"
-refer to the presence of a path in the specified commit:
+Ebben az esetben a `git read-tree -m $H $M` parancs biztosítja, hogy
+egyetlen helyi változás se vesszen el ennek a „merge"-nek az
+eredményeként. Íme a „carry forward" szabályok, ahol az „I" az indexet
+jelöli, a „clean" azt jelenti, hogy az index és a work tree egybeesik, az
+„exists"/„nothing" pedig egy útvonal jelenlétére utal a megadott
+commitban:
 
 ....
 	I                   H        M        Result
@@ -210,142 +213,145 @@ refer to the presence of a path in the specified commit:
      21 no    yes   no      exists   exists   fail
 ....
 
-In all "keep index" cases, the index entry stays as in the
-original index file.  If the entry is not up to date,
-'git read-tree' keeps the copy in the work tree intact when
-operating under the -u flag.
+Minden „keep index" esetben az indexbejegyzés úgy marad, ahogy az
+eredeti indexfájlban volt. Ha a bejegyzés nem naprakész, a
+'git read-tree' a -u kapcsoló alatt működve érintetlenül hagyja a
+work tree-ben lévő másolatot.
 
-When this form of 'git read-tree' returns successfully, you can
-see which of the "local changes" that you made were carried forward by running
-`git diff-index --cached $M`.  Note that this does not
-necessarily match what `git diff-index --cached $H` would have
-produced before such a two tree merge.  This is because of cases
-18 and 19 -- if you already had the changes in $M (e.g. maybe
-you picked it up via e-mail in a patch form), `git diff-index
---cached $H` would have told you about the change before this
-merge, but it would not show in `git diff-index --cached $M`
-output after the two-tree merge.
+Amikor a 'git read-tree' ez a formája sikeresen visszatér, a
+`git diff-index --cached $M` futtatásával láthatod, hogy az általad
+végzett „local changes" közül melyeket vittél tovább. Vedd figyelembe,
+hogy ez nem feltétlenül egyezik azzal, amit a `git diff-index --cached
+$H` produkált volna egy ilyen kétfás merge előtt. Ez a 18-as és 19-es
+eset miatt van – ha a $M változásai már megvoltak (pl. talán e-mailben
+kaptad meg patch formájában), a `git diff-index --cached $H` a merge
+előtt közölte volna veled a változást, de a kétfás merge után nem
+jelenne meg a `git diff-index --cached $M` kimenetében.
 
-Case 3 is slightly tricky and needs explanation.  The result from this
-rule logically should be to remove the path if the user staged the removal
-of the path and then switching to a new branch.  That however will prevent
-the initial checkout from happening, so the rule is modified to use M (new
-tree) only when the content of the index is empty.  Otherwise the removal
-of the path is kept as long as $H and $M are the same.
+A 3-as eset kissé trükkös, és magyarázatra szorul. Ennek a szabálynak az
+eredménye logikailag az útvonal eltávolítása kellene legyen, ha a
+felhasználó stage-elte az útvonal eltávolítását, majd egy új branchre
+váltott. Ez azonban megakadályozná a kezdeti checkout megtörténtét, így a
+szabály úgy módosul, hogy csak akkor használja M-et (az új fát), amikor
+az index tartalma üres. Egyébként az útvonal eltávolítása megmarad, amíg
+$H és $M megegyezik.
 
-3-Way Merge
-~~~~~~~~~~~
-Each "index" entry has two bits worth of "stage" state. stage 0 is the
-normal one, and is the only one you'd see in any kind of normal use.
+[[_3_way_merge]]
+Háromutas merge
+~~~~~~~~~~~~~~~
+Minden „index" bejegyzésnek van két bitnyi „stage" állapota. A 0-s stage
+a normál, és ez az egyetlen, amit bármilyen normál használat során
+látnál.
 
-However, when you do 'git read-tree' with three trees, the "stage"
-starts out at 1.
+Amikor viszont a 'git read-tree'-t három fával futtatod, a „stage" 1-nél
+kezdődik.
 
-This means that you can do
+Ez azt jelenti, hogy megteheted a következőt:
 
 ----------------
 $ git read-tree -m <tree1> <tree2> <tree3>
 ----------------
 
-and you will end up with an index with all of the <tree1> entries in
-"stage1", all of the <tree2> entries in "stage2" and all of the
-<tree3> entries in "stage3".  When performing a merge of another
-branch into the current branch, we use the common ancestor tree
-as <tree1>, the current branch head as <tree2>, and the other
-branch head as <tree3>.
+és a végén egy olyan indexed lesz, amelyben az összes <tree1> bejegyzés
+a „stage1"-ben, az összes <tree2> bejegyzés a „stage2"-ben, az összes
+<tree3> bejegyzés pedig a „stage3"-ban van. Amikor egy másik branch
+merge-ét végzed az aktuális branchbe, a közös ős fáját használjuk
+<tree1>-ként, az aktuális branch fejét <tree2>-ként, a másik branch
+fejét pedig <tree3>-ként.
 
-Furthermore, 'git read-tree' has special-case logic that says: if you see
-a file that matches in all respects in the following states, it
-"collapses" back to "stage0":
+Továbbá a 'git read-tree' rendelkezik egy speciális esetlogikával, amely
+azt mondja: ha látsz egy fájlt, amely minden szempontból egyezik a
+következő állapotokban, az „összeomlik" vissza „stage0"-ra:
 
-   - stage 2 and 3 are the same; take one or the other (it makes no
-     difference - the same work has been done on our branch in
-     stage 2 and their branch in stage 3)
+   - a 2-es és 3-as stage egyforma; vedd az egyiket vagy a másikat (nem
+     számít – ugyanaz a munka lett elvégezve a mi branchünkön a 2-es
+     stage-ben és az ő branchükön a 3-as stage-ben)
 
-   - stage 1 and stage 2 are the same and stage 3 is different; take
-     stage 3 (our branch in stage 2 did not do anything since the
-     ancestor in stage 1 while their branch in stage 3 worked on
-     it)
+   - az 1-es és a 2-es stage egyforma, a 3-as stage pedig más; vedd a
+     3-as stage-et (a mi branchünk a 2-es stage-ben nem tett semmit az
+     1-es stage-beli ős óta, míg az ő branchük a 3-as stage-ben dolgozott
+     rajta)
 
-   - stage 1 and stage 3 are the same and stage 2 is different take
-     stage 2 (we did something while they did nothing)
+   - az 1-es és a 3-as stage egyforma, a 2-es stage pedig más; vedd a
+     2-es stage-et (mi tettünk valamit, míg ők nem tettek semmit)
 
-The 'git write-tree' command refuses to write a nonsensical tree, and it
-will complain about unmerged entries if it sees a single entry that is not
-stage 0.
+A 'git write-tree' parancs megtagadja egy értelmetlen fa írását, és a
+nem merge-elt bejegyzésekre panaszkodik, ha egyetlen olyan bejegyzést is
+lát, amely nem 0-s stage-ben van.
 
-OK, this all sounds like a collection of totally nonsensical rules,
-but it's actually exactly what you want in order to do a fast
-merge. The different stages represent the "result tree" (stage 0, aka
-"merged"), the original tree (stage 1, aka "orig"), and the two trees
-you are trying to merge (stage 2 and 3 respectively).
+Oké, ez az egész úgy hangzik, mint teljesen értelmetlen szabályok
+gyűjteménye, de valójában pontosan ez az, amire szükséged van egy gyors
+merge elvégzéséhez. A különböző stage-ek az „result tree"-t (0-s stage,
+azaz „merged"), az eredeti fát (1-es stage, azaz „orig") és a két fát
+képviselik, amelyeket merge-elni próbálsz (2-es, ill. 3-as stage).
 
-The order of stages 1, 2 and 3 (hence the order of three
-<tree-ish> command-line arguments) are significant when you
-start a 3-way merge with an index file that is already
-populated.  Here is an outline of how the algorithm works:
+Az 1-es, 2-es és 3-as stage sorrendje (és így a három <tree-ish>
+parancssori argumentum sorrendje) jelentős, amikor egy háromutas
+merge-et olyan indexfájllal kezdesz, amely már fel van töltve. Íme egy
+vázlat arról, hogyan működik az algoritmus:
 
-- if a file exists in identical format in all three trees, it will
-  automatically collapse to "merged" state by 'git read-tree'.
+- ha egy fájl azonos formában létezik mind a három fában, a
+  'git read-tree' automatikusan „merged" állapotba omlasztja.
 
-- a file that has _any_ difference what-so-ever in the three trees
-  will stay as separate entries in the index. It's up to "porcelain
-  policy" to determine how to remove the non-0 stages, and insert a
-  merged version.
+- egy olyan fájl, amelynek _bármilyen_ különbsége van a három fában,
+  külön bejegyzésekként marad az indexben. A „porcelain policy" dolga
+  meghatározni, hogyan távolítsa el a nem 0-s stage-eket, és szúrjon be
+  egy merge-elt verziót.
 
-- the index file saves and restores with all this information, so you
-  can merge things incrementally, but as long as it has entries in
-  stages 1/2/3 (i.e., "unmerged entries") you can't write the result. So
-  now the merge algorithm ends up being really simple:
+- az indexfájl mindezt az információt elmenti és visszaállítja, így
+  inkrementálisan merge-elhetsz dolgokat, de amíg vannak 1/2/3-as
+  stage-ben lévő bejegyzései (azaz „unmerged entries"), nem tudod
+  kiírni az eredményt. Így most a merge algoritmus nagyon egyszerűvé
+  válik:
 
-  * you walk the index in order, and ignore all entries of stage 0,
-    since they've already been done.
+  * sorban végigjárod az indexet, és figyelmen kívül hagysz minden 0-s
+    stage-ben lévő bejegyzést, mivel azok már készen vannak.
 
-  * if you find a "stage1", but no matching "stage2" or "stage3", you
-    know it's been removed from both trees (it only existed in the
-    original tree), and you remove that entry.
+  * ha találsz egy „stage1"-et, de nincs hozzá illő „stage2" vagy
+    „stage3", tudod, hogy mindkét fából eltávolították (csak az eredeti
+    fában létezett), és eltávolítod azt a bejegyzést.
 
-  * if you find a matching "stage2" and "stage3" tree, you remove one
-    of them, and turn the other into a "stage0" entry. Remove any
-    matching "stage1" entry if it exists too.  .. all the normal
-    trivial rules ..
+  * ha találsz egymáshoz illő „stage2" és „stage3" fát, az egyiket
+    eltávolítod, a másikat pedig „stage0" bejegyzéssé alakítod. Ha van
+    hozzá illő „stage1" bejegyzés is, azt is eltávolítod. .. az összes
+    normál triviális szabály ..
 
-You would normally use 'git merge-index' with supplied
-'git merge-one-file' to do this last step.  The script updates
-the files in the working tree as it merges each path and at the
-end of a successful merge.
+Ezt az utolsó lépést általában a 'git merge-index'-szel végeznéd a
+mellékelt 'git merge-one-file'-lal. A szkript frissíti a working tree
+fájljait, ahogy merge-eli az egyes útvonalakat, és egy sikeres merge
+végén.
 
-When you start a 3-way merge with an index file that is already
-populated, it is assumed that it represents the state of the
-files in your work tree, and you can even have files with
-changes unrecorded in the index file.  It is further assumed
-that this state is "derived" from the stage 2 tree.  The 3-way
-merge refuses to run if it finds an entry in the original index
-file that does not match stage 2.
+Amikor egy háromutas merge-et olyan indexfájllal kezdesz, amely már fel
+van töltve, feltételezzük, hogy az a work tree-dben lévő fájlok
+állapotát képviseli, és lehetnek akár olyan fájljaid is, amelyeknek a
+változásai nincsenek rögzítve az indexfájlban. Továbbá feltételezzük,
+hogy ez az állapot a 2-es stage fájból „származik". A háromutas merge
+megtagadja a futást, ha olyan bejegyzést talál az eredeti indexfájlban,
+amely nem egyezik a 2-es stage-gel.
 
-This is done to prevent you from losing your work-in-progress
-changes, and mixing your random changes in an unrelated merge
-commit.  To illustrate, suppose you start from what has been
-committed last to your repository:
+Ez azért van, hogy megakadályozza, hogy elveszítsd a folyamatban lévő
+munkád változásait, és hogy a véletlenszerű változásaidat egy nem
+kapcsolódó merge commitba keverd. Szemléltetésképp tegyük fel, hogy
+abból indulsz ki, amit utoljára commitoltak a repository-dba:
 
 ----------------
 $ JC=`git rev-parse --verify "HEAD^0"`
 $ git checkout-index -f -u -a $JC
 ----------------
 
-You do random edits, without running 'git update-index'.  And then
-you notice that the tip of your "upstream" tree has advanced
-since you pulled from him:
+Véletlenszerű szerkesztéseket végzel, a 'git update-index' futtatása
+nélkül. Aztán észreveszed, hogy az „upstream" fád csúcsa előrébb jutott,
+mióta pull-oltál róla:
 
 ----------------
 $ git fetch git://.... linus
 $ LT=`git rev-parse FETCH_HEAD`
 ----------------
 
-Your work tree is still based on your HEAD ($JC), but you have
-some edits since.  Three-way merge makes sure that you have not
-added or modified index entries since $JC, and if you haven't,
-then does the right thing.  So with the following sequence:
+A work tree-d még mindig a HEAD-eden ($JC) alapul, de van néhány
+szerkesztésed azóta. A háromutas merge biztosítja, hogy $JC óta nem
+adtál hozzá vagy módosítottál indexbejegyzéseket, és ha nem tetted,
+akkor a helyes dolgot teszi. Így a következő sorozattal:
 
 ----------------
 $ git read-tree -m -u `git merge-base $JC $LT` $JC $LT
@@ -354,78 +360,83 @@ $ echo "Merge with Linus" | \
   git commit-tree `git write-tree` -p $JC -p $LT
 ----------------
 
-what you would commit is a pure merge between $JC and $LT without
-your work-in-progress changes, and your work tree would be
-updated to the result of the merge.
+amit commitolnál, az egy tiszta merge $JC és $LT között, a folyamatban
+lévő munkád változásai nélkül, és a work tree-d a merge eredményére
+frissülne.
 
-However, if you have local changes in the working tree that
-would be overwritten by this merge, 'git read-tree' will refuse
-to run to prevent your changes from being lost.
+Ha viszont vannak olyan helyi változásaid a working tree-ben, amelyeket
+ez a merge felülírna, a 'git read-tree' megtagadja a futást, hogy
+megakadályozza a változásaid elvesztését.
 
-In other words, there is no need to worry about what exists only
-in the working tree.  When you have local changes in a part of
-the project that is not involved in the merge, your changes do
-not interfere with the merge, and are kept intact.  When they
-*do* interfere, the merge does not even start ('git read-tree'
-complains loudly and fails without modifying anything).  In such
-a case, you can simply continue doing what you were in the
-middle of doing, and when your working tree is ready (i.e. you
-have finished your work-in-progress), attempt the merge again.
+Más szóval nem kell aggódnod amiatt, ami csak a working tree-ben
+létezik. Amikor helyi változásaid vannak a projekt egy olyan részén,
+amely nem érintett a merge-ben, a változásaid nem zavarják a merge-et,
+és érintetlenül maradnak. Amikor *tényleg* zavarnak, a merge el sem
+kezdődik (a 'git read-tree' hangosan panaszkodik, és hibázik anélkül,
+hogy bármit módosítana). Ilyen esetben egyszerűen folytathatod, amit
+éppen csináltál, és amikor a working tree-d készen áll (azaz befejezted
+a folyamatban lévő munkádat), próbáld meg újra a merge-et.
 
 
 SPARSE CHECKOUT
 ---------------
 
-Note: The skip-worktree capabilities in linkgit:git-update-index[1]
-and `read-tree` predated the introduction of
-linkgit:git-sparse-checkout[1].  Users are encouraged to use the
-`sparse-checkout` command in preference to these plumbing commands for
-sparse-checkout/skip-worktree related needs.  However, the information
-below might be useful to users trying to understand the pattern style
-used in non-cone mode of the `sparse-checkout` command.
+Megjegyzés: A skip-worktree képességek a linkgit:git-update-index[1]-ben
+és a `read-tree`-ben megelőzték a linkgit:git-sparse-checkout[1]
+bevezetését. A felhasználóknak azt javasoljuk, hogy a
+sparse-checkout/skip-worktree jellegű igényekhez ezekkel a plumbing
+parancsokkal szemben inkább a `sparse-checkout` parancsot használják. Az
+alábbi információ azonban hasznos lehet azoknak a felhasználóknak, akik
+megpróbálják megérteni a `sparse-checkout` parancs non-cone módjában
+használt mintastílust.
 
-"Sparse checkout" allows populating the working directory sparsely.
-It uses the skip-worktree bit (see linkgit:git-update-index[1]) to
-tell Git whether a file in the working directory is worth looking at.
+A „Sparse checkout" lehetővé teszi a munkakönyvtár ritka feltöltését.
+A skip-worktree bitet (lásd: linkgit:git-update-index[1]) használja
+arra, hogy közölje a Gittel, hogy egy fájl a munkakönyvtárban
+érdemes-e a megtekintésre.
 
-'git read-tree' and other merge-based commands ('git merge', 'git
-checkout'...) can help maintaining the skip-worktree bitmap and working
-directory update. `$GIT_DIR/info/sparse-checkout` is used to
-define the skip-worktree reference bitmap. When 'git read-tree' needs
-to update the working directory, it resets the skip-worktree bit in the index
-based on this file, which uses the same syntax as .gitignore files.
-If an entry matches a pattern in this file, or the entry corresponds to
-a file present in the working tree, then skip-worktree will not be
-set on that entry. Otherwise, skip-worktree will be set.
+A 'git read-tree' és más merge-alapú parancsok ('git merge', 'git
+checkout'...) segíthetnek a skip-worktree bitmap karbantartásában és a
+munkakönyvtár frissítésében. A `$GIT_DIR/info/sparse-checkout` a
+skip-worktree referencia-bitmap definiálására szolgál. Amikor a
+'git read-tree'-nek frissítenie kell a munkakönyvtárat, e fájl alapján
+alaphelyzetbe állítja a skip-worktree bitet az indexben, amely ugyanazt a
+szintaxist használja, mint a .gitignore fájlok. Ha egy bejegyzés
+illeszkedik egy mintára ebben a fájlban, vagy a bejegyzés egy a working
+tree-ben jelen lévő fájlnak felel meg, akkor a skip-worktree nem lesz
+beállítva azon a bejegyzésen. Egyébként a skip-worktree be lesz
+állítva.
 
-Then it compares the new skip-worktree value with the previous one. If
-skip-worktree turns from set to unset, it will add the corresponding
-file back. If it turns from unset to set, that file will be removed.
+Ezután összehasonlítja az új skip-worktree értéket az előzővel. Ha a
+skip-worktree beállítottból beállítatlanná válik, visszaadja a
+megfelelő fájlt. Ha beállítatlanból beállítottá válik, az a fájl
+eltávolításra kerül.
 
-While `$GIT_DIR/info/sparse-checkout` is usually used to specify what
-files are in, you can also specify what files are _not_ in, using
-negate patterns. For example, to remove the file `unwanted`:
+Míg a `$GIT_DIR/info/sparse-checkout`-ot általában annak megadására
+használják, mely fájlok vannak benne, azt is megadhatod, mely fájlok
+_nincsenek_ benne, negáló minták használatával. Például az `unwanted`
+fájl eltávolításához:
 
 ----------------
 /*
 !unwanted
 ----------------
 
-Another tricky thing is fully repopulating the working directory when you
-no longer want sparse checkout. You cannot just disable "sparse
-checkout" because skip-worktree bits are still in the index and your working
-directory is still sparsely populated. You should re-populate the working
-directory with the `$GIT_DIR/info/sparse-checkout` file content as
-follows:
+Egy másik trükkös dolog a munkakönyvtár teljes újratöltése, amikor már
+nem akarsz sparse checkoutot. Nem tilthatod le egyszerűen a „sparse
+checkout"-ot, mert a skip-worktree bitek még mindig az indexben vannak,
+és a munkakönyvtárad még mindig ritkán van feltöltve. A munkakönyvtárat
+a `$GIT_DIR/info/sparse-checkout` fájl tartalmával kell újratöltened, a
+következőképp:
 
 ----------------
 /*
 ----------------
 
-Then you can disable sparse checkout. Sparse checkout support in 'git
-read-tree' and similar commands is disabled by default. You need to
-turn `core.sparseCheckout` on in order to have sparse checkout
-support.
+Ezután letilthatod a sparse checkoutot. A sparse checkout támogatása a
+'git read-tree'-ben és a hasonló parancsokban alapból le van tiltva. A
+`core.sparseCheckout`-ot be kell kapcsolnod ahhoz, hogy sparse checkout
+támogatásod legyen.
 
 
 SEE ALSO
@@ -435,4 +446,4 @@ linkgit:gitignore[5], linkgit:git-sparse-checkout[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

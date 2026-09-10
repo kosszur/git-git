@@ -3,7 +3,7 @@ git-tag(1)
 
 NAME
 ----
-git-tag - Create, list, delete or verify tags
+git-tag - Tagek létrehozása, listázása, törlése vagy ellenőrzése
 
 
 SYNOPSIS
@@ -22,283 +22,287 @@ git tag -v [--format=<format>] <tagname>...
 DESCRIPTION
 -----------
 
-Add a tag reference in `refs/tags/`, unless `-d`/`-l`/`-v` is given
-to delete, list or verify tags.
+Hozzáad egy tag-referenciát a `refs/tags/`-be, hacsak a `-d`/`-l`/`-v`
+nincs megadva tagek törléséhez, listázásához vagy ellenőrzéséhez.
 
-Unless `-f` is given, the named tag must not yet exist.
+Hacsak a `-f` nincs megadva, a megnevezett tag még nem létezhet.
 
-If one of `-a`, `-s`, or `-u <key-id>` is passed, the command
-creates a 'tag' object, and requires a tag message.  Unless
-`-m <msg>` or `-F <file>` is given, an editor is started for the user to type
-in the tag message.
+Ha a `-a`, `-s` vagy `-u <key-id>` egyike át van adva, a parancs egy
+'tag' objektumot hoz létre, és tag-üzenetet igényel. Hacsak a
+`-m <msg>` vagy `-F <file>` nincs megadva, egy szerkesztő indul, hogy a
+felhasználó begépelje a tag-üzenetet.
 
-If `-m <msg>` or `-F <file>` or `--trailer <token>[=<value>]` is given
-and `-a`, `-s`, and `-u <key-id>` are absent, `-a` is implied.
+Ha a `-m <msg>` vagy `-F <file>` vagy `--trailer <token>[=<value>]` meg
+van adva, és a `-a`, `-s`, `-u <key-id>` hiányzik, a `-a` implikált.
 
-Otherwise, a tag reference that points directly at the given object
-(i.e., a lightweight tag) is created.
+Egyébként egy olyan tag-referencia jön létre, amely közvetlenül a
+megadott objektumra mutat (azaz egy könnyűsúlyú tag).
 
-A cryptographically signed tag object will be created when `-s` or
-`-u <key-id>` is used. The signing backend (GPG, X.509, SSH, etc.) is
-controlled by the `gpg.format` configuration variable, defaulting to
-OpenPGP. When `-u <key-id>` is not used, the committer identity for
-the current user is used to find the key for signing. The
-configuration variable `gpg.program` is used to specify a custom
-signing binary.
+Kriptográfiailag aláírt tagobjektum jön létre, amikor a `-s` vagy
+`-u <key-id>` van használatban. Az aláíró backendet (GPG, X.509, SSH
+stb.) a `gpg.format` konfigurációs változó vezérli, amely alapból
+OpenPGP. Amikor a `-u <key-id>` nincs használatban, az aktuális
+felhasználó committer-identitása kerül felhasználásra az aláírókulcs
+megtalálásához. A `gpg.program` konfigurációs változó egyéni aláíró
+bináris megadására szolgál.
 
-Tag objects (created with `-a`, `-s`, or `-u`) are called "annotated"
-tags; they contain a creation date, the tagger name and e-mail, a
-tagging message, and an optional cryptographic signature. Whereas a
-"lightweight" tag is simply a name for an object (usually a commit
-object).
+A tagobjektumokat (amelyek a `-a`, `-s` vagy `-u`-val jönnek létre)
+„annotált" tageknek nevezik; tartalmaznak egy létrehozási dátumot, a
+tagelő nevét és e-mail-címét, egy tagelési üzenetet és egy opcionális
+kriptográfiai aláírást. Míg egy „könnyűsúlyú" tag egyszerűen egy név
+egy objektumhoz (általában egy commitobjektumhoz).
 
-Annotated tags are meant for release while lightweight tags are meant
-for private or temporary object labels. For this reason, some git
-commands for naming objects (like `git describe`) will ignore
-lightweight tags by default.
+Az annotált tagek kiadáshoz valók, míg a könnyűsúlyú tagek privát vagy
+ideiglenes objektumcímkékhez. Emiatt egyes git parancsok, amelyek
+objektumokat neveznek meg (mint a `git describe`), alapból figyelmen
+kívül hagyják a könnyűsúlyú tageket.
 
 
 OPTIONS
 -------
 `-a`::
 `--annotate`::
-	Make an unsigned, annotated tag object
+	Aláíratlan, annotált tagobjektumot készít
 
 `-s`::
 `--sign`::
-	Make a cryptographically signed tag, using the default signing
-	key. The signing backend used depends on the `gpg.format`
-	configuration variable. The default key is determined by the
-	backend. For GPG, it's based on the committer's email address,
-	while for SSH it may be a specific key file or agent
-	identity. See linkgit:git-config[1].
+	Kriptográfiailag aláírt taget készít, az alapértelmezett
+	aláírókulcs használatával. A használt aláíró backend a `gpg.format`
+	konfigurációs változótól függ. Az alapértelmezett kulcsot a backend
+	határozza meg. A GPG esetén a committer e-mail-címén alapul, míg az
+	SSH esetén lehet egy konkrét kulcsfájl vagy ágensidentitás. Lásd:
+	linkgit:git-config[1].
 
 `--no-sign`::
-	Override `tag.gpgSign` configuration variable that is
-	set to force each and every tag to be signed.
+	Felülbírálja a `tag.gpgSign` konfigurációs változót, amely úgy van
+	beállítva, hogy minden egyes tag aláírását kikényszerítse.
 
 `-u <key-id>`::
 `--local-user=<key-id>`::
-	Make a cryptographically signed tag using the given key. The
-	format of the <key-id> and the backend used depend on the
-	`gpg.format` configuration variable. See
-	linkgit:git-config[1].
+	Kriptográfiailag aláírt taget készít a megadott kulccsal. A
+	<key-id> formátuma és a használt backend a `gpg.format`
+	konfigurációs változótól függ. Lásd: linkgit:git-config[1].
 
 `-f`::
 `--force`::
-	Replace an existing tag with the given name (instead of failing)
+	Lecseréli a megadott nevű meglévő taget (hiba helyett)
 
 `-d`::
 `--delete`::
-	Delete existing tags with the given names.
+	Törli a megadott nevű meglévő tageket.
 
 `-v`::
 `--verify`::
-	Verify the cryptographic signature of the given tags.
+	Ellenőrzi a megadott tagek kriptográfiai aláírását.
 
 `-n<num>`::
-	_<num>_ specifies how many lines from the annotation, if any,
-	are printed when using `-l`. Implies `--list`.
+	A `_<num>_` megadja, hogy az annotációból hány sor kerül kiírásra,
+	ha van, a `-l` használatakor. Maga után vonja a `--list`-et.
 +
-The default is not to print any annotation lines.
-If no number is given to `-n`, only the first line is printed.
-If the tag is not annotated, the commit message is displayed instead.
+Alapból egyetlen annotációs sor sem kerül kiírásra. Ha nincs szám
+megadva a `-n`-hez, csak az első sor kerül kiírásra. Ha a tag nem
+annotált, helyette a commit-üzenet jelenik meg.
 
 `-l`::
 `--list`::
-	List tags. With optional `<pattern>...`, e.g. `git tag --list
-	'v-*'`, list only the tags that match the pattern(s).
+	Kilistázza a tageket. Az opcionális `<pattern>...`-nal, pl.
+	`git tag --list 'v-*'`, csak azokat a tageket listázza, amelyek
+	illeszkednek a minta(ák)ra.
 +
-Running `git tag` without arguments also lists all tags. The pattern
-is a shell wildcard (i.e., matched using `fnmatch`(3)). Multiple
-patterns may be given; if any of them matches, the tag is shown.
+A `git tag` argumentumok nélküli futtatása szintén kilistázza az összes
+taget. A minta egy shell helyettesítő karakter (azaz `fnmatch`(3)-mal
+illesztve). Több minta is megadható; ha bármelyik illeszkedik, a tag
+megjelenik.
 +
-This option is implicitly supplied if any other list-like option such
-as `--contains` is provided. See the documentation for each of those
-options for details.
+Ez a kapcsoló implicit módon megadódik, ha bármely más listaszerű
+kapcsoló, például a `--contains` meg van adva. A részletekért lásd az
+egyes ilyen kapcsolók dokumentációját.
 
 `--sort=<key>`::
-	Sort based on the key given.  Prefix `-` to sort in
-	descending order of the value. You may use the `--sort=<key>` option
-	multiple times, in which case the last _<key>_ becomes the primary
-	key. Also supports "`version:refname`" or "`v:refname`" (tag
-	names are treated as versions). The "`version:refname`" sort
-	order can also be affected by the "`versionsort.suffix`"
-	configuration variable.
-	The keys supported are the same as those in `git for-each-ref`.
-	Sort order defaults to the value configured for the `tag.sort`
-	variable if it exists, or lexicographic order otherwise. See
+	A megadott kulcs alapján rendez. A `-` előtaggal az érték szerint
+	csökkenő sorrendben rendez. A `--sort=<key>` kapcsolót többször is
+	használhatod, amely esetben az utolsó `_<key>_` lesz az elsődleges
+	kulcs. Támogatja a "`version:refname`"-et vagy a "`v:refname`"-et is
+	(a tagneveket verziókként kezeli). A "`version:refname`" rendezési
+	sorrendjét a "`versionsort.suffix`" konfigurációs változó is
+	befolyásolhatja.
+	A támogatott kulcsok ugyanazok, mint a `git for-each-ref`-nél. A
+	rendezési sorrend alapból a `tag.sort` változóhoz konfigurált érték,
+	ha az létezik, egyébként pedig lexikografikus sorrend. Lásd:
 	linkgit:git-config[1].
 
 `--color[=<when>]`::
-	Respect any colors specified in the `--format` option. The
-	_<when>_ field must be one of `always`, `never`, or `auto` (if
-	_<when>_ is absent, behave as if `always` was given).
+	Tiszteletben tartja a `--format` kapcsolóban megadott színeket. A
+	`_<when>_` mezőnek az `always`, `never` vagy `auto` egyikének kell
+	lennie (ha a `_<when>_` hiányzik, úgy viselkedik, mintha `always`
+	lett volna megadva).
 
 `-i`::
 `--ignore-case`::
-	Sorting and filtering tags are case insensitive.
+	A tagek rendezése és szűrése kis-nagybetűt nem különböztet meg.
 
 `--omit-empty`::
-	Do not print a newline after formatted refs where the format expands
-	to the empty string.
+	Nem ír ki sortörést a formázott refek után, ahol a formátum üres
+	sztringgé fejlik ki.
 
 `--column[=<options>]`::
 `--no-column`::
-	Display tag listing in columns. See configuration variable
-	`column.tag` for option syntax. `--column` and `--no-column`
-	without options are equivalent to `always` and `never` respectively.
+	A tag-listát oszlopokban jeleníti meg. Az opciók szintaxisáért lásd
+	a `column.tag` konfigurációs változót. Az opciók nélküli `--column`
+	és `--no-column` az `always`-zel, ill. a `never`-rel egyenértékű.
 +
-This option is only applicable when listing tags without annotation lines.
+Ez a kapcsoló csak akkor alkalmazható, amikor a tageket annotációs
+sorok nélkül listázod.
 
 `--contains [<commit>]`::
-	Only list tags which contain _<commit>_ (`HEAD` if not
-	specified). Implies `--list`.
+	Csak azokat a tageket listázza, amelyek tartalmazzák a
+	`_<commit>_`-ot (`HEAD`, ha nincs megadva). Maga után vonja a
+	`--list`-et.
 
 `--no-contains [<commit>]`::
-	Only list tags which don't contain _<commit>_ (`HEAD` if
-	not specified). Implies `--list`.
+	Csak azokat a tageket listázza, amelyek nem tartalmazzák a
+	`_<commit>_`-ot (`HEAD`, ha nincs megadva). Maga után vonja a
+	`--list`-et.
 
 `--merged [<commit>]`::
-	Only list tags whose commits are reachable from
-	_<commit>_ (`HEAD` if not specified).
+	Csak azokat a tageket listázza, amelyeknek a commitjai elérhetők a
+	`_<commit>_`-ból (`HEAD`, ha nincs megadva).
 
 `--no-merged [<commit>]`::
-	Only list tags whose commits are not reachable from
-	_<commit>_ (`HEAD` if not specified).
+	Csak azokat a tageket listázza, amelyeknek a commitjai nem elérhetők
+	a `_<commit>_`-ból (`HEAD`, ha nincs megadva).
 
 `--points-at [<object>]`::
-	Only list tags of _<object>_ (`HEAD` if not
-	specified). Implies `--list`.
+	Csak a `_<object>_` tagjeit listázza (`HEAD`, ha nincs megadva).
+	Maga után vonja a `--list`-et.
 
 `-m <msg>`::
 `--message=<msg>`::
-	Use _<msg>_ (instead of prompting).
-	If multiple `-m` options are given, their values are
-	concatenated as separate paragraphs.
-	Implies `-a` if none of `-a`, `-s`, or `-u <key-id>`
-	is given.
+	A `_<msg>_`-t használja (bekérés helyett). Ha több `-m` kapcsoló van
+	megadva, az értékeik külön bekezdésekként fűződnek össze. Maga után
+	vonja a `-a`-t, ha a `-a`, `-s`, `-u <key-id>` egyike sincs megadva.
 
 `-F <file>`::
 `--file=<file>`::
-	Take the tag message from _<file>_.  Use `-` to
-	read the message from the standard input.
-	Implies `-a` if none of `-a`, `-s`, or `-u <key-id>`
-	is given.
+	A tag-üzenetet a `_<file>_`-ból veszi. A `-`-t használva a
+	standard bemenetről olvassa be az üzenetet. Maga után vonja a
+	`-a`-t, ha a `-a`, `-s`, `-u <key-id>` egyike sincs megadva.
 
 `--trailer <token>[(=|:)<value>]`::
-	Specify a (_<token>_, _<value>_) pair that should be applied as a
-	trailer. (e.g. `git tag --trailer "Custom-Key: value"`
-	will add a "Custom-Key" trailer to the tag message.)
-	The `trailer.*` configuration variables
-	(linkgit:git-interpret-trailers[1]) can be used to define if
-	a duplicated trailer is omitted, where in the run of trailers
-	each trailer would appear, and other details.
-	The trailers can be extracted in `git tag --list`, using
-	`--format="%(trailers)"` placeholder.
+	Megad egy (`_<token>_`, `_<value>_`) párt, amelyet trailerként kell
+	alkalmazni. (pl. a `git tag --trailer "Custom-Key: value"` egy
+	"Custom-Key" trailert ad a tag-üzenethez.) A `trailer.*`
+	konfigurációs változók (linkgit:git-interpret-trailers[1]) annak
+	meghatározására használhatók, hogy egy duplikált trailer
+	kihagyódjon-e, hol jelenjen meg az egyes trailerek a trailerek
+	sorában, és egyéb részletek.
+	A trailerek a `git tag --list`-ben kinyerhetők a
+	`--format="%(trailers)"` helyőrzővel.
 
 `-e`::
 `--edit`::
-	Let further edit the message taken from file with `-F` and command line with
-	`-m`.
+	Lehetővé teszi a `-F`-fel fájlból és a `-m`-mel a parancssorból
+	vett üzenet további szerkesztését.
 
 `--cleanup=<mode>`::
-	Set how the tag message is cleaned up.
-	The  _<mode>_ can be one of `verbatim`, `whitespace` and `strip`.  The
-	`strip` mode is default. The `verbatim` mode does not change message at
-	all, `whitespace` removes just leading/trailing whitespace lines and
-	`strip` removes both whitespace and commentary.
+	Beállítja, hogyan takarítódik fel a tag-üzenet. A `_<mode>_` a
+	`verbatim`, `whitespace` és `strip` egyike lehet. A `strip` mód az
+	alapértelmezett. A `verbatim` mód egyáltalán nem változtatja meg az
+	üzenetet, a `whitespace` csak a sorvégi/sor eleji whitespace-sorokat
+	távolítja el, a `strip` pedig a whitespace-t és a kommentárt is
+	eltávolítja.
 
 `--create-reflog`::
-	Create a reflog for the tag. To globally enable reflogs for tags, see
-	`core.logAllRefUpdates` in linkgit:git-config[1].
-	The negated form `--no-create-reflog` only overrides an earlier
-	`--create-reflog`, but currently does not negate the setting of
-	`core.logAllRefUpdates`.
+	Reflogot hoz létre a taghez. Ahhoz, hogy globálisan engedélyezd a
+	reflogokat a tagekhez, lásd a `core.logAllRefUpdates`-et a
+	linkgit:git-config[1]-ben. A tagadott `--no-create-reflog` alak
+	csak egy korábbi `--create-reflog`-ot bírál felül, de jelenleg nem
+	tagadja a `core.logAllRefUpdates` beállítását.
 
 `--format=<format>`::
-	A string that interpolates `%(fieldname)` from a tag ref being shown
-	and the object it points at.  The format is the same as
-	that of linkgit:git-for-each-ref[1].  When unspecified,
-	defaults to `%(refname:strip=2)`.
+	Egy sztring, amely a megjelenített tag-refből és az általa mutatott
+	objektumból `%(fieldname)`-eket interpolál. A formátum ugyanaz, mint
+	a linkgit:git-for-each-ref[1]-é. Ha nincs megadva, alapból
+	`%(refname:strip=2)`.
 
 _<tagname>_::
-	The name of the tag to create, delete, or describe.
-	The new tag name must pass all checks defined by
-	linkgit:git-check-ref-format[1].  Some of these checks
-	may restrict the characters allowed in a tag name.
+	A létrehozandó, törlendő vagy leírandó tag neve. Az új tagnévnek át
+	kell mennie a linkgit:git-check-ref-format[1] által definiált összes
+	ellenőrzésen. Ezen ellenőrzések némelyike korlátozhatja a tagnévben
+	megengedett karaktereket.
 
 _<commit>_::
 _<object>_::
-	The object that the new tag will refer to, usually a commit.
-	Defaults to `HEAD`.
+	Az objektum, amelyre az új tag hivatkozni fog, általában egy
+	commit. Alapból `HEAD`.
 
 CONFIGURATION
 -------------
-By default, `git tag` in sign-with-default mode (`-s`) will use your
-committer identity (of the form `Your Name <your@email.address>`) to
-find a key.  If you want to use a different default key, you can specify
-it in the repository configuration as follows:
+Alapból a `git tag` az alapértelmezettel-aláírás módban (`-s`) a
+committer-identitásodat (`Your Name <your@email.address>` alakban)
+használja egy kulcs megtalálásához. Ha másik alapértelmezett kulcsot
+szeretnél használni, megadhatod a repository konfigurációjában a
+következőképp:
 
 -------------------------------------
 [user]
     signingKey = <key-id>
 -------------------------------------
 
-The signing backend can be chosen via the `gpg.format` configuration
-variable, which defaults to `openpgp`. See linkgit:git-config[1]
-for a list of other supported formats.
+Az aláíró backend a `gpg.format` konfigurációs változóval választható
+ki, amely alapból `openpgp`. A többi támogatott formátum listájáért
+lásd: linkgit:git-config[1].
 
-The path to the program used for each signing backend can be specified
-with the `gpg.<format>.program` configuration variable. For the
-`openpgp` backend, `gpg.program` can be used as a synonym for
-`gpg.openpgp.program`. See linkgit:git-config[1] for details.
+Az egyes aláíró backendekhez használt program útvonala a
+`gpg.<format>.program` konfigurációs változóval adható meg. Az `openpgp`
+backendnél a `gpg.program` a `gpg.openpgp.program` szinonimájaként
+használható. A részletekért lásd: linkgit:git-config[1].
 
-`pager.tag` is only respected when listing tags, i.e., when `-l` is
-used or implied. The default is to use a pager.
+A `pager.tag`-et csak tagek listázásakor veszi figyelembe, azaz amikor a
+`-l` van használatban vagy implikálva. Alapból pagert használ.
 
-See linkgit:git-config[1] for more details and other configuration
-variables.
+A további részletekért és egyéb konfigurációs változókért lásd:
+linkgit:git-config[1].
 
 DISCUSSION
 ----------
 
-On Re-tagging
-~~~~~~~~~~~~~
+[[_on_re_tagging]]
+Az újratagelésről
+~~~~~~~~~~~~~~~~~
 
-What should you do when you tag a wrong commit and you would
-want to re-tag?
+Mit tegyél, amikor rossz commitot tagelsz, és újra szeretnél tagelni?
 
-If you never pushed anything out, just re-tag it. Use `-f` to
-replace the old one. And you're done.
+Ha soha nem pusholtál ki semmit, egyszerűen tageld újra. A `-f`-fel
+cseréld le a régit. És kész is vagy.
 
-But if you have pushed things out (or others could just read
-your repository directly), then others will have already seen
-the old tag. In that case you can do one of two things:
+De ha kipusholtál dolgokat (vagy mások közvetlenül is olvashatták a
+repository-dat), akkor mások már látták a régi taget. Ebben az esetben
+egyet a két dolog közül tehetsz:
 
-. The sane thing.
-  Just admit you screwed up, and use a different name. Others have
-  already seen one tag-name, and if you keep the same name, you
-  may be in the situation that two people both have "version X",
-  but they actually have 'different' "X"'s.  So just call it "X.1"
-  and be done with it.
+. A józan dolog.
+  Egyszerűen ismerd be, hogy elszúrtad, és használj másik nevet. Mások
+  már láttak egy tagnevet, és ha megtartod ugyanazt a nevet, olyan
+  helyzetbe kerülhetsz, hogy két embernek is van "version X"-e, de
+  valójában 'különböző' "X"-eik vannak. Így egyszerűen nevezd el
+  "X.1"-nek, és ennyi.
 
-. The insane thing.
-  You really want to call the new version "X" too, 'even though'
-  others have already seen the old one. So just use `git tag -f`
-  again, as if you hadn't already published the old one.
+. Az őrült dolog.
+  Tényleg az új verziót is "X"-nek akarod hívni, 'annak ellenére', hogy
+  mások már látták a régit. Így egyszerűen használd újra a `git tag
+  -f`-et, mintha a régit még nem publikáltad volna.
 
-However, Git does *not* (and it should not) change tags behind
-users back. So if somebody already got the old tag, doing a
-`git pull` on your tree shouldn't just make them overwrite the old
-one.
+A Git azonban *nem* változtatja meg (és nem is szabadna) a tageket a
+felhasználók háta mögött. Így ha valaki már megkapta a régi taget, egy
+`git pull` a fádon nem szabad, hogy egyszerűen felülírassa vele a
+régit.
 
-If somebody got a release tag from you, you cannot just change
-the tag for them by updating your own one. This is a big
-security issue, in that people MUST be able to trust their
-tag-names.  If you really want to do the insane thing, you need
-to just fess up to it, and tell people that you messed up. You
-can do that by making a very public announcement saying:
+Ha valaki egy kiadási taget kapott tőled, nem változtathatod meg
+egyszerűen a tagjét úgy, hogy a sajátodat frissíted. Ez nagy biztonsági
+probléma, abban az értelemben, hogy az embereknek meg KELL tudniuk
+bízni a tag-neveikben. Ha tényleg az őrült dolgot akarod tenni, egyszerűen
+be kell vallanod, és el kell mondanod az embereknek, hogy elrontottad.
+Ezt egy nagyon nyilvános bejelentéssel teheted meg, amelyben ezt mondod:
 
 ------------
 Ok, I messed up, and I pushed out an earlier version tagged as X. I
@@ -321,29 +325,30 @@ which should return 0123456789abcdef.. if you have the new version.
 Sorry for the inconvenience.
 ------------
 
-Does this seem a bit complicated?  It *should* be. There is no
-way that it would be correct to just "fix" it automatically.
-People need to know that their tags might have been changed.
+Kicsit bonyolultnak tűnik ez? *Kell is*, hogy az legyen. Nincs mód arra,
+hogy helyes legyen egyszerűen automatikusan „megjavítani". Az embereknek
+tudniuk kell, hogy a tagjeik esetleg megváltoztak.
 
 
-On Automatic following
-~~~~~~~~~~~~~~~~~~~~~~
+[[_on_automatic_following]]
+Az automatikus követésről
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you are following somebody else's tree, you are most likely
-using remote-tracking branches (eg. `refs/remotes/origin/master`).
-You usually want the tags from the other end.
+Ha valaki más fáját követed, akkor nagy valószínűséggel
+remote-tracking brancheket használsz (pl. `refs/remotes/origin/master`).
+Általában szeretnéd a tageket a másik végről.
 
-On the other hand, if you are fetching because you would want a
-one-shot merge from somebody else, you typically do not want to
-get tags from there.  This happens more often for people near
-the toplevel but not limited to them.  Mere mortals when pulling
-from each other do not necessarily want to automatically get
-private anchor point tags from the other person.
+Másrészről, ha azért fetchelsz, mert egy egyszeri merge-et szeretnél
+valaki mástól, jellemzően nem akarsz onnan tageket kapni. Ez gyakrabban
+fordul elő a felső szinthez közeli embereknél, de nem korlátozódik
+rájuk. Az egyszerű halandók, amikor egymástól pull-olnak, nem
+feltétlenül akarnak automatikusan privát horgonypont-tageket kapni a
+másik személytől.
 
-Often, "please pull" messages on the mailing list just provide
-two pieces of information: a repo URL and a branch name; this
-is designed to be easily cut&pasted at the end of a `git fetch`
-command line:
+A levelezőlistán a „please pull" üzenetek gyakran csak két információt
+adnak: egy repo URL-t és egy branchnevet; ez úgy van kialakítva, hogy
+könnyen kivágható-beilleszthető legyen egy `git fetch` parancssor
+végére:
 
 ------------
 Linus, please pull from
@@ -353,56 +358,52 @@ Linus, please pull from
 to get the following updates...
 ------------
 
-becomes:
+ebből:
 
 ------------
 $ git pull git://git..../proj.git master
 ------------
 
-In such a case, you do not want to automatically follow the other
-person's tags.
+Ilyen esetben nem akarod automatikusan követni a másik személy tagjeit.
 
-One important aspect of Git is its distributed nature, which
-largely means there is no inherent "upstream" or
-"downstream" in the system.  On the face of it, the above
-example might seem to indicate that the tag namespace is owned
-by the upper echelon of people and that tags only flow downwards, but
-that is not the case.  It only shows that the usage pattern
-determines who are interested in whose tags.
+A Git egyik fontos aspektusa az elosztott természete, ami nagyrészt azt
+jelenti, hogy nincs eleve „upstream" vagy „downstream" a rendszerben.
+Első ránézésre a fenti példa látszólag arra utalhat, hogy a
+tag-névteret az emberek felső rétegei birtokolják, és hogy a tagek csak
+lefelé áramlanak, de ez nem így van. Csak azt mutatja, hogy a
+használati minta határozza meg, hogy kit érdekelnek kinek a tagjei.
 
-A one-shot pull is a sign that a commit history is now crossing
-the boundary between one circle of people (e.g. "people who are
-primarily interested in the networking part of the kernel") who may
-have their own set of tags (e.g. "this is the third release
-candidate from the networking group to be proposed for general
-consumption with 2.6.21 release") to another circle of people
-(e.g. "people who integrate various subsystem improvements").
-The latter are usually not interested in the detailed tags used
-internally in the former group (that is what "internal" means).
-That is why it is desirable not to follow tags automatically in
-this case.
+Egy egyszeri pull annak a jele, hogy egy commit-történet most átlépi a
+határt az egyik embercsoport (pl. „azok, akiket elsősorban a kernel
+hálózati része érdekel"), amelynek lehet saját tag-készlete (pl. „ez a
+harmadik kiadásjelölt a hálózati csoporttól, amelyet a 2.6.21 kiadással
+általános fogyasztásra javasolnak"), és egy másik embercsoport (pl.
+„azok, akik különböző alrendszer-fejlesztéseket integrálnak") között. Az
+utóbbiakat általában nem érdeklik a részletes tagek, amelyeket az előbbi
+csoportban belsőleg használnak (ez az, amit a „belső" jelent). Ezért
+kívánatos, hogy ebben az esetben ne kövessük automatikusan a tageket.
 
-It may well be that among networking people, they may want to
-exchange the tags internal to their group, but in that workflow
-they are most likely tracking each other's progress by
-having remote-tracking branches.  Again, the heuristic to automatically
-follow such tags is a good thing.
+Könnyen lehet, hogy a hálózati emberek egymás közt szeretnék cserélni a
+csoportjukon belüli tageket, de abban a munkafolyamatban nagy
+valószínűséggel remote-tracking branchekkel követik egymás haladását.
+Itt is jó dolog az a heurisztika, amely automatikusan követi az ilyen
+tageket.
 
 
-On Backdating Tags
-~~~~~~~~~~~~~~~~~~
+[[_on_backdating_tags]]
+A tagek visszadátumozásáról
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have imported some changes from another VCS and would like
-to add tags for major releases of your work, it is useful to be able
-to specify the date to embed inside of the tag object; such data in
-the tag object affects, for example, the ordering of tags in the
-gitweb interface.
+Ha importáltál néhány változást egy másik VCS-ből, és szeretnél tageket
+hozzáadni a munkád főbb kiadásaihoz, hasznos, ha meg tudod adni a
+tagobjektumba beágyazandó dátumot; az ilyen adat a tagobjektumban
+befolyásolja például a tagek sorrendjét a gitweb felületen.
 
-To set the date used in future tag objects, set the environment
-variable GIT_COMMITTER_DATE (see the later discussion of possible
-values; the most common form is "YYYY-MM-DD HH:MM").
+Ahhoz, hogy beállítsd a jövőbeli tagobjektumokban használt dátumot,
+állítsd be a GIT_COMMITTER_DATE környezeti változót (lásd a lehetséges
+értékek későbbi tárgyalását; a leggyakoribb alak a "YYYY-MM-DD HH:MM").
 
-For example:
+Például:
 
 ------------
 $ GIT_COMMITTER_DATE="2006-10-02 10:31" git tag -s v1.0.1
@@ -414,11 +415,11 @@ FILES
 -----
 
 `$GIT_DIR/TAG_EDITMSG`::
-	This file contains the message of an in-progress annotated
-	tag. If `git tag` exits due to an error before creating an
-	annotated tag then the tag message that has been provided by the
-	user in an editor session will be available in this file, but
-	may be overwritten by the next invocation of `git tag`.
+	Ez a fájl egy folyamatban lévő annotált tag üzenetét tartalmazza.
+	Ha a `git tag` egy hiba miatt kilép, mielőtt létrehozna egy
+	annotált taget, akkor a felhasználó által egy szerkesztő-munkamenetben
+	megadott tag-üzenet elérhető lesz ebben a fájlban, de a `git tag`
+	következő hívása felülírhatja.
 
 CONFIGURATION
 -------------
@@ -440,4 +441,4 @@ linkgit:git-config[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

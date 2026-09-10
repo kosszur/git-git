@@ -3055,3 +3055,138 @@ listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`g
   `$GIT_DIR`/`branch.<name>.merge`/`branch.<name>.remote` config-tokenek, `--since`/`--until`
   kapcsolók, `HEAD`/`@{u}`/`@{push}` konstrukciók angolul; a `$ git config …` / `$ git rev-parse …`
   példablokk (`------------------------------`, 30 kötőjel) bájtazonos.
+
+## 36. blokk — `gittutorial-2.adoc`, `git-read-tree.adoc`, `git-stash.adoc`, `git-tag.adoc`, `git-maintenance.adoc` — 2026-09-11
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorszám szerint növekvő
+listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte közvetlenül, célzott
+`Edit`-ekkel.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| tutorial (mint dokumentumtípus) | **„ismertető"** | `gittutorial-2.adoc` — „A tutorial introduction to Git: part two" → „Bevezető ismertető a Githez: második rész" |
+| object database / object store | **„objektumadatbázis"** (0. blokk) | `gittutorial-2.adoc`, `git-maintenance.adoc` |
+| hex name / hex digits | **„hex név" / „hex számjegy"** | `gittutorial-2.adoc` |
+| jargon | **„szakzsargon"** | `gittutorial-2.adoc` |
+| `"blob"` / `"tree"` / `"commit"` / `"tag"` / `"parent"` / `"status"` / `"tree-ish"` (idézőjeles Git objektum-típusnevek / jargon a prózában) | **bájtazonosan angolul, idézőjelben** | `gittutorial-2.adoc` — a 0. blokk objektum-típusnév-szabályát idézőjeles kontextusban is alkalmazva |
+| tree information | **„fa-információ"** | `git-read-tree.adoc` NAME |
+| single tree merge / two tree merge / 3-way merge (`git-read-tree.adoc` alcímek) | **„Egyfás merge" / „Kétfás merge" / „Háromutas merge"** | a „three-way merge" → „háromutas merge" (0. blokk) mintáját követve; **a `git-diff.adoc` (már `[x]`) egyetlen `"3-Way Merge"` prózahivatkozását `"Háromutas merge"`-re átírtam** (a 14. blokkban jelzett „jövőben nyomon követni" függőség ezzel lezárva) |
+| trivial merge / trivial rules | **„triviális merge" / „triviális szabályok"** | `git-read-tree.adoc` |
+| carry forward (rules) / `"clean"` / `"exists"` / `"nothing"` / `"keep index"` / `"result tree"` / `"merged"` / `"orig"` / `"collapses"` / `"stage0/1/2/3"` / `"unmerged entries"` / `"porcelain policy"` / `"internal"` | **bájtazonosan angolul, idézőjelben** | `git-read-tree.adoc` — a `....` szabálytáblázat saját címkéi és a hozzájuk fűzött próza idézőjeles hivatkozásai |
+| head commit | **„fejcommit"** | `git-read-tree.adoc` |
+| stat info / stat()s | **„stat-információ"** (3. blokk) / „az index stat()-jai" | `git-read-tree.adoc` |
+| work-in-progress (változások) | **„folyamatban lévő munka"** | `git-read-tree.adoc` |
+| negate patterns / pattern style | **„negáló minták" / „mintastílus"** | `git-read-tree.adoc` (SPARSE CHECKOUT szakasz) |
+| to stash (away) / stash entry / stash list / the stash | **„elstashel" / „stash-bejegyzés" / „stash-lista" / „a stash"**; `git stash` parancsnév marad | `git-stash.adoc` — a 0. blokk `stashel` igéjének kiterjesztése; „unstash" → „unstashel" |
+| dirty working directory | **„piszkos munkakönyvtár"** | `git-stash.adoc` NAME |
+| `"WIP on …"` / `"Updated upstream"` / `"Stashed changes"` / `"Stash base"` | **bájtazonosan angolul, idézőjelben** (program-kimenet / konfliktusjelölő-címke) | `git-stash.adoc` |
+| dangling merge commit | **„lógó merge commit"** | `git-stash.adoc` |
+| ancestry graph | **„ősgráf"** | `git-stash.adoc` DISCUSSION |
+| incantation (jokey) | **„varázsige"** | `git-stash.adoc` EXAMPLES |
+| `` ``Interactive Mode'' `` (prózahivatkozás linkgit:git-add[1] szakaszra) | **`` ``Interaktív mód'' ``** (a `git-add.adoc` már lefordított `Interaktív mód` címéhez igazítva; a `` `` … '' `` compat-mode tipográfiai idézőjel megtartva) | `git-stash.adoc` |
+| annotated tag / lightweight tag / tag object | **„annotált tag" / „könnyűsúlyú tag" / „tagobjektum"** (0. blokk) | `git-tag.adoc` |
+| tag reference / tag ref | **„tag-referencia" / „tag-ref"** (a `ref` literál angolul) | `git-tag.adoc` |
+| signing backend | **„aláíró backend"** | `git-tag.adoc` |
+| committer identity | **„committer-identitás"** | `git-tag.adoc`, `git-maintenance.adoc` mintájára |
+| tagger / tagging message | **„tagelő" / „tagelési üzenet"** | `git-tag.adoc` |
+| trailer | **marad „trailer"** (Git jargon; `git-interpret-trailers`) | `git-tag.adoc` |
+| backdating (tags) | **„visszadátumozás"** | `git-tag.adoc` DISCUSSION alcím |
+| anchor point tags | **„horgonypont-tagek"** | `git-tag.adoc` |
+| upper echelon (of people) | **„az emberek felső rétegei"** | `git-tag.adoc` |
+| Mere mortals | **„egyszerű halandók"** | `git-tag.adoc` |
+| `"please pull"` messages | **„please pull" üzenetek** (angolul, idézőjelben) | `git-tag.adoc` |
+| cut&pasted | **„kivágható-beilleszthető"** | `git-tag.adoc` |
+| people MUST be able to trust (emfatikus, csupa nagybetűs modális ige folyó szövegben) | **„meg KELL tudniuk bízni"** (nagybetűs `KELL` megtartva) | `git-tag.adoc` — NEM formális RFC 2119, csak emfázis; a 3. blokk csupa-nagybetűs formázás-megtartás mintája |
+| maintenance / maintenance task | **„karbantartás" / „karbantartási feladat"** | `git-maintenance.adoc` |
+| background / foreground (maintenance, scheduler, process) | **„háttér-" / „előtér-"** | `git-maintenance.adoc` |
+| scheduler / (background) schedule | **„ütemező" / „(háttér-)ütemezés"** | `git-maintenance.adoc` |
+| job (a `commit-graph`/`loose-objects`/`incremental-repack` job) | **marad „job"** (a `task`/„feladat" szinonimája; a forrás maga is vegyesen használja) | `git-maintenance.adoc` |
+| pack-file (kötőjeles, ahogy a forrás) | **marad „pack-file"** (a 0. blokk `packfile` kötőjeles változata, a forráshoz igazítva) | `git-maintenance.adoc` |
+| race conditions | **„versenyhelyzetek"** | `git-maintenance.adoc` |
+| batch size | **„kötegméret"** | `git-maintenance.adoc` |
+| object database lock / to take a lock | **„objektumadatbázis-zár" / „zárol"** | `git-maintenance.adoc` |
+| maintenance window | **„karbantartási ablak"** | `git-maintenance.adoc` |
+| drop-in file | **„drop-in fájl"** | `git-maintenance.adoc` (systemd szakasz) |
+| console application / console window | **„konzolalkalmazás" / „konzolablak"** | `git-maintenance.adoc` (Windows szakasz) |
+| Task Scheduler (Windows app) | **marad „Task Scheduler"** (tulajdonnév) | `git-maintenance.adoc` |
+| `"Run whether user is logged in or not"` (Windows UI-string) | **bájtazonosan angolul, idézőjelben** | `git-maintenance.adoc` |
+| `"hourly"` / `"daily"` / `"weekly"` (ütemezési gyakoriság idézőjelben) | **„óránkénti" / „napi" / „heti"** (fordítva, idézőjel megtartva); a `--schedule=hourly` stb. literál kapcsoló-érték angolul | `git-maintenance.adoc` |
+| `disabled` / `hourly` / `daily` (az `incremental` stratégia `--` open-block listájában) | **„letiltva" / „óránként" / „naponta"** | `git-maintenance.adoc` |
+
+### Címsor-anchorok
+
+- **`gittutorial-2.adoc`** (NEM man page, `gittutorial-2(7)` tutorial): 3 Title Case setext (`----`)
+  alcím, egyik sem anchorozott, nincs rájuk `<<...>>` a fában → mindegyik fölé defenzív
+  `[[<angol-autogen-slug>]]` (az **eredeti angol** címszövegből): `[[_the_git_object_database]]`
+  „A Git objektumadatbázisa" (24 `-`), `[[_the_index_file]]` „Az indexfájl" (12 `-`),
+  `[[_what_next]]` „Mi a következő?" (15 `-`). A NAME/SYNOPSIS/DESCRIPTION/SEE ALSO/GIT kanonikus.
+  A `link:user-manual.html[...]` látható szövege fordult („A Git felhasználói kézikönyve").
+- **`git-read-tree.adoc`**: 3 defenzív `[[...]]` a `~~~~` alcímek fölé (aláhúzás pontos hosszra
+  igazítva, Python `len()` ellenőrzés): `[[_single_tree_merge]]` (12), `[[_two_tree_merge]]` (12),
+  `[[_3_way_merge]]` (15). `MERGING`, `SPARSE CHECKOUT` csupa nagybetűs → VÉGLEGES DÖNTÉS szerint
+  angolul (aláhúzás sem változott). **`git-diff.adoc` (már `[x]`) 1 soros javítás:**
+  `"3-Way Merge"` → `"Háromutas merge"` a lefordított célcímhez igazítva.
+- **`git-stash.adoc`**: nincs `[[...]]`/`<<...>>`. `COMMANDS` csupa nagybetűs → VÉGLEGES DÖNTÉS
+  szerint angolul. Az EXAMPLES 5 `Cím::` definíciós-lista-címkéje fordult (nincs rájuk xref):
+  „Pull-olás egy piszkos fába", „Megszakított munkafolyamat", „Részleges commitok tesztelése",
+  „Nem kapcsolódó változások mentése jövőbeli felhasználásra", „Tévedésből kiürített/dropolt
+  stash-bejegyzések helyreállítása". A `'EXAMPLES'` compat-mode prózahivatkozás (a `clear`
+  leírásában) angolul.
+- **`git-tag.adoc`**: 3 defenzív `[[...]]` a DISCUSSION `~~~~` alcímei fölé (aláhúzás pontos
+  hosszra igazítva): `[[_on_re_tagging]]` „Az újratagelésről" (17), `[[_on_automatic_following]]`
+  „Az automatikus követésről" (25), `[[_on_backdating_tags]]` „A tagek visszadátumozásáról" (27).
+  Csak kanonikus man-page címek egyébként.
+- **`git-maintenance.adoc`**: nincs `[[...]]`/`<<...>>`. Csupa nagybetűs, kanonikus listán kívüli
+  szakaszcímek a VÉGLEGES DÖNTÉS szerint angolul: `SUBCOMMANDS`, `TASKS` (+ a `'TASKS' section`
+  prózahivatkozás a `--task` leírásában), `TROUBLESHOOTING`, `BACKGROUND MAINTENANCE ON POSIX
+  SYSTEMS`, `BACKGROUND MAINTENANCE ON LINUX SYSTEMD SYSTEMS`, `BACKGROUND MAINTENANCE ON MACOS
+  SYSTEMS`, `BACKGROUND MAINTENANCE ON WINDOWS SYSTEMS` (aláhúzások sem változtak).
+
+### Megőrzött markup / megjegyzések
+
+- **`gittutorial-2.adoc`**: 42 db `------------------------------------------------` (48 kötőjel)
+  körülhatárolt blokk (`$ git init` … kimenetek, `$ git cat-file` / `$ git ls-files --stage` /
+  `$ find .git/objects/` / `$ git status` kimenetek, `git diff` diffek) **bájtazonos**; a
+  `Notes (_<refname>_):` … idézőjeles utalás megtartva; `.git/HEAD`, `.git/refs/heads/`,
+  `refs/heads/master`, `blob`/`tree`/`commit`/`tag` literálok angolul.
+- **`git-read-tree.adoc`**: `[verse]` synopsis; 2 db `....` körülhatárolt blokk (a „carry forward"
+  szabálytáblázat, `I H M Result` fejléccel) és 12 db `----------------` (16 kötőjel) blokk
+  (`$ git read-tree …` / `$ JC=…` / `git fetch git://…` / `/*` `!unwanted` példák) **bájtazonos**;
+  1 db `+` folytatásjel (a `--aggressive` felsorolás előtt) megtartva; `SKIP_WORKTREE`,
+  `skip-worktree`, `core.sparseCheckout`, `$GIT_INDEX_FILE`, `$GIT_DIR/info/sparse-checkout`,
+  `.gitignore`, `rename(2)`, `fnmatch`(3) literálok angolul.
+- **`git-stash.adoc`**: `[synopsis]` blokk; 14 db `----…----` (64 kötőjel) körülhatárolt blokk
+  (`stash@{0}: WIP on …` listakimenet, `$ git pull` / `# ... hack hack hack ...` / `$ git add
+  --patch foo` … shell-példák) **bájtazonos**; 32 db `+` folytatásjel megtartva; a DISCUSSION
+  ASCII-art stash-ősgráf (`.----W` / `-----H----I`) behúzva, bájtazonos; `include::diff-context-options.adoc[]`
+  + `include::includes/cmd-config-section-all.adoc[]` + `:git-stash: 1` + `include::config/stash.adoc[]`
+  változatlan; `refs/stash`, `stash@{0}` / `stash@{<n>}` / `stash@{2.hours.ago}` konstrukciók,
+  `MERGE_HEAD`, `MERGE_AUTOSTASH`, `stash.showStat` / `stash.showPatch` / `stash.showIncludeUntracked`
+  config-kulcsok angolul.
+- **`git-tag.adoc`**: `[synopsis]` blokk; 8 db `------------` (12 kötőjel) + 2 db
+  `-------------------------------------` (37 kötőjel) körülhatárolt blokk **bájtazonos** — köztük
+  a `Ok, I messed up, …` **teljes bejelentés-minta** (egy `------------` blokkba zárt példa e-mail,
+  a `howto/` sample-e-mail-precedens szerint bájtazonosan angolul), a `[user]\n signingKey = <key-id>`
+  config-példa, a `$ GIT_COMMITTER_DATE="…" git tag -s v1.0.1` és a „please pull" `git://git..../proj.git
+  master` példák; `include::date-formats.adoc[]` + `include::includes/cmd-config-section-all.adoc[]` +
+  `:git-tag: 1` + `include::config/tag.adoc[]` + `include::ref-reachability-filters.adoc[]` változatlan;
+  `%(fieldname)` / `%(refname:strip=2)` / `%(trailers)` formátum-placeholderek, `gpg.format` /
+  `gpg.program` / `tag.gpgSign` / `tag.sort` / `core.logAllRefUpdates` config-kulcsok,
+  `"version:refname"` / `"v:refname"` / `"versionsort.suffix"` rendezőkulcs-tokenek, `GIT_COMMITTER_DATE`
+  env-változó, `$GIT_DIR/TAG_EDITMSG` útvonal angolul; `fnmatch`(3) hívásnév megtartva.
+- **`git-maintenance.adoc`**: `[verse]` synopsis; 1 pár `--`…`--` open-block (az `incremental`
+  stratégia menetrend-felsorolása) — a `*` bulletek és a `--` határolók változatlanok, csak a
+  státuszszavak fordultak; 9 `+` folytatásjel megtartva; 8 db `-----…-----` (71 kötőjel)
+  körülhatárolt blokk (`# BEGIN GIT MAINTENANCE SCHEDULE` crontab, `$ systemctl --user list-timers`
+  kimenet, `~/.config/systemd/user/…` fájllista, `$ ls ~/Library/LaunchAgents/…` kimenet)
+  **bájtazonos**; `include::includes/cmd-config-section-all.adoc[]` + `include::config/maintenance.adoc[]`
+  változatlan; `maintenance.<task>.enabled` / `maintenance.repo` / `maintenance.strategy` /
+  `maintenance.loose-objects.batchSize` / `gc.auto` / `gc.autoPackLimit` / `remote.<name>.skipFetchAll`
+  config-kulcsok, `crontab`/`systemd-timer`/`launchctl`/`schtasks`/`systemctl`/`schtasks` eszköznevek,
+  `cron(8)` / `crontab(5)` / `systemd.timer(5)` / `launchctl.plist(5)` man-hivatkozások, a
+  `Git Maintenance (<frequency>)` Windows-feladatnév, `refs/prefetch/`, `.graph` /
+  `commit-graph-chain` fájlnevek angolul; a „GC" a "garbage collection" glosszájában
+  „(szemétgyűjtés)" zárójeles fordítás.

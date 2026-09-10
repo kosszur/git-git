@@ -146,7 +146,7 @@ include::diff-options.adoc[]
 +
 Az index csak a nem merge-elt bejegyzések esetén, azaz a konfliktusok
 feloldása közben tartalmazza ezeket a stage-eket. Részletes információért
-lásd a linkgit:git-read-tree[1] "3-Way Merge" szakaszát.
+lásd a linkgit:git-read-tree[1] "Háromutas merge" szakaszát.
 
 `-0`::
 	Elhagyja a diff kimenetét a nem merge-elt bejegyzéseknél, és csak

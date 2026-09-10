@@ -120,7 +120,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-ls-tree.adoc | [x] |  | 2026-09-10 |
 | git-mailinfo.adoc | [x] |  | 2026-09-10 |
 | git-mailsplit.adoc | [x] |  | 2026-09-10 |
-| git-maintenance.adoc | [ ] |  |  |
+| git-maintenance.adoc | [x] |  | 2026-09-11 |
 | git-merge-base.adoc | [x] |  | 2026-09-10 |
 | git-merge-file.adoc | [x] |  | 2026-09-10 |
 | git-merge-index.adoc | [x] |  | 2026-09-10 |
@@ -146,7 +146,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-push.adoc | [ ] |  |  |
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
 | git-range-diff.adoc | [x] |  | 2026-09-10 |
-| git-read-tree.adoc | [ ] |  |  |
+| git-read-tree.adoc | [x] |  | 2026-09-11 |
 | git-rebase.adoc | [ ] |  |  |
 | git-receive-pack.adoc | [x] |  | 2026-09-10 |
 | git-reflog.adoc | [x] |  | 2026-09-10 |
@@ -179,14 +179,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-show.adoc | [x] |  | 2026-09-10 |
 | git-sparse-checkout.adoc | [ ] |  |  |
 | git-stage.adoc | [x] |  | 2026-09-10 |
-| git-stash.adoc | [ ] |  |  |
+| git-stash.adoc | [x] |  | 2026-09-11 |
 | git-status.adoc | [ ] |  |  |
 | git-stripspace.adoc | [x] |  | 2026-09-10 |
 | git-submodule.adoc | [ ] |  |  |
 | git-svn.adoc | [ ] |  |  |
 | git-switch.adoc | [x] |  | 2026-09-10 |
 | git-symbolic-ref.adoc | [x] |  | 2026-09-10 |
-| git-tag.adoc | [ ] |  |  |
+| git-tag.adoc | [x] |  | 2026-09-11 |
 | git-tools.adoc | [x] |  | 2026-09-10 |
 | git-unpack-file.adoc | [x] |  | 2026-09-10 |
 | git-unpack-objects.adoc | [x] |  | 2026-09-10 |
@@ -263,7 +263,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitrepository-layout.adoc | [x] |  | 2026-09-10 |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
 | gitsubmodules.adoc | [x] |  | 2026-09-10 |
-| gittutorial-2.adoc | [ ] |  |  |
+| gittutorial-2.adoc | [x] |  | 2026-09-11 |
 | gittutorial.adoc | [ ] |  |  |
 | gitweb.adoc | [ ] |  |  |
 | gitweb.conf.adoc | [ ] |  |  |
@@ -842,3 +842,24 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   (`git-merge.adoc`, + a `"HOW TO RESOLVE CONFLICTS"` prózahivatkozás), `SUBCOMMANDS` /
   `NOTES MERGE STRATEGIES` (`git-notes.adoc`, + a `"NOTES MERGE STRATEGIES"` prózahivatkozások).
   Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „35. blokk".
+- **2026-09-11 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; a két gyökér-tábla együttes, sorszám szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `gittutorial-2.adoc` (436 sor, NEM man page), `git-read-tree.adoc` (438), `git-stash.adoc` (440),
+  `git-tag.adoc` (443), `git-maintenance.adoc` (448). Defenzív `[[...]]` anchorok: `gittutorial-2.adoc`
+  (3 — `_the_git_object_database`, `_the_index_file`, `_what_next`), `git-read-tree.adoc` (3 — a
+  `~~~~` alcímek fölé: `_single_tree_merge` „Egyfás merge", `_two_tree_merge` „Kétfás merge",
+  `_3_way_merge` „Háromutas merge"), `git-tag.adoc` (3 — a DISCUSSION `~~~~` alcímei fölé:
+  `_on_re_tagging`, `_on_automatic_following`, `_on_backdating_tags`). A `git-diff.adoc` (már `[x]`)
+  egyetlen prózahivatkozása `"3-Way Merge"` → `"Háromutas merge"`-re átírva a `git-read-tree.adoc`
+  lefordított címéhez igazítva (a 14. blokkban jelzett jövőbeli függőség lezárva). `git-stash.adoc`:
+  nincs anchor; az EXAMPLES `Cím::` definíciós-lista-címkéi (pl. `Pulling into a dirty tree::`)
+  fordultak; a `` ``Interactive Mode'' `` (linkgit:git-add[1] szakaszra) prózahivatkozás
+  `` ``Interaktív mód'' ``-ra átírva (a `git-add.adoc` már lefordított címéhez igazítva).
+  `git-maintenance.adoc`: nincs anchor; a `TASKS`/`SUBCOMMANDS`/`TROUBLESHOOTING`/`BACKGROUND
+  MAINTENANCE ON … SYSTEMS` csupa nagybetűs szakaszcímek a VÉGLEGES DÖNTÉS szerint angolul; a
+  crontab/systemd/launchctl/`schtasks` kimeneti blokkok (`-----…` 71 kötőjel) bájtazonosak; a
+  Windows UI-string `"Run whether user is logged in or not"` angolul. Csupa nagybetűs, kanonikus
+  listán kívüli címek angolul: `SUBCOMMANDS`/`TASKS` (`git-read-tree.adoc` `MERGING`/`SPARSE
+  CHECKOUT`; `git-stash.adoc` `COMMANDS`; `git-tag.adoc` csak kanonikus). Orchestrátor végezte
+  közvetlenül. Részletek: `glossary-git-git-docs.md` „36. blokk".
