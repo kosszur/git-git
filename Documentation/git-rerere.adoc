@@ -3,7 +3,7 @@ git-rerere(1)
 
 NAME
 ----
-git-rerere - Reuse recorded resolution of conflicted merges
+git-rerere - Konfliktusos merge-ek rögzített feloldásának újrafelhasználása
 
 SYNOPSIS
 --------
@@ -13,73 +13,75 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-In a workflow employing relatively long lived topic branches,
-the developer sometimes needs to resolve the same conflicts over
-and over again until the topic branches are done (either merged
-to the "release" branch, or sent out and accepted upstream).
+Egy viszonylag hosszú életű topic brancheket használó munkafolyamatban a
+fejlesztőnek olykor újra és újra fel kell oldania ugyanazokat a
+konfliktusokat, amíg a topic branchek el nem készülnek (vagy merge-elik őket
+a "release" branchbe, vagy elküldik és upstream elfogadják).
 
-This command assists the developer in this process by recording
-conflicted automerge results and corresponding hand resolve results
-on the initial manual merge, and applying previously recorded
-hand resolutions to their corresponding automerge results.
+Ez a parancs úgy segíti a fejlesztőt ebben a folyamatban, hogy az első kézi
+merge-nél rögzíti a konfliktusos automerge-eredményeket és a hozzájuk tartozó
+kézi feloldási eredményeket, majd a korábban rögzített kézi feloldásokat
+alkalmazza a hozzájuk tartozó automerge-eredményekre.
 
 [NOTE]
-You need to set the configuration variable `rerere.enabled` in order to
-enable this command.
+A parancs engedélyezéséhez be kell állítanod a `rerere.enabled` konfigurációs
+változót.
 
 
 COMMANDS
 --------
 
-Normally, 'git rerere' is run without arguments or user-intervention.
-However, it has several commands that allow users to interact with
-its working state.
+Normál esetben a 'git rerere' argumentumok vagy felhasználói beavatkozás
+nélkül fut. Van azonban több parancsa, amellyel a felhasználók
+interakcióba léphetnek a munkaállapotával.
 
 'clear'::
 
-Reset the metadata used by rerere if a merge resolution is to be
-aborted.  Calling 'git am [--skip|--abort]' or 'git rebase [--skip|--abort]'
-will automatically invoke this command.
+Visszaállítja a rerere által használt metaadatokat, ha egy merge-feloldást
+meg kell szakítani.  A 'git am [--skip|--abort]' vagy a
+'git rebase [--skip|--abort]' hívása automatikusan meghívja ezt a parancsot.
 
 'forget' <pathspec>::
 
-Reset the conflict resolutions which rerere has recorded for the current
-conflicts in paths that match <pathspec>.
+Visszaállítja azokat a konfliktusfeloldásokat, amelyeket a rerere a
+<pathspec>-re illeszkedő elérési utakban lévő aktuális konfliktusokhoz
+rögzített.
 
 'diff'::
 
-Display diffs for the current state of the resolution.  It is
-useful for tracking what has changed while the user is resolving
-conflicts.  Additional arguments are passed directly to the system
-'diff' command installed in PATH.
+Megjeleníti a feloldás aktuális állapotának diffjeit.  Hasznos annak
+nyomon követéséhez, mi változott, miközben a felhasználó feloldja a
+konfliktusokat.  A további argumentumokat közvetlenül a PATH-ban telepített
+rendszerbeli 'diff' parancsnak adja át.
 
 'status'::
 
-Print paths with conflicts whose merge resolution rerere will record.
+Kiírja azokat az elérési utakat, amelyekben olyan konfliktusok vannak,
+amelyek merge-feloldását a rerere rögzíteni fogja.
 
 'remaining'::
 
-Print paths with conflicts that have not been autoresolved by rerere.
-This includes paths whose resolutions cannot be tracked by rerere,
-such as conflicting submodules.
+Kiírja azokat az elérési utakat, amelyekben lévő konfliktusokat a rerere
+nem oldott fel automatikusan.  Ide tartoznak azok az elérési utak is,
+amelyek feloldását a rerere nem tudja nyomon követni, például a konfliktusos
+submodule-ok.
 
 'gc'::
 
-Prune records of conflicted merges that
-occurred a long time ago.  By default, unresolved conflicts older
-than 15 days and resolved conflicts older than 60
-days are pruned.  These defaults are controlled via the
-`gc.rerereUnresolved` and `gc.rerereResolved` configuration
-variables respectively.
+Kigyomlálja a rég történt konfliktusos merge-ek rekordjait.
+Alapértelmezés szerint a 15 napnál régebbi feloldatlan konfliktusok és a 60
+napnál régebbi feloldott konfliktusok kerülnek kigyomlálásra.  Ezeket az
+alapértelmezéseket a `gc.rerereUnresolved`, illetve a `gc.rerereResolved`
+konfigurációs változó szabályozza.
 
 
 DISCUSSION
 ----------
 
-When your topic branch modifies an overlapping area that your
-master branch (or upstream) touched since your topic branch
-forked from it, you may want to test it with the latest master,
-even before your topic branch is ready to be pushed upstream:
+Amikor a topic branched egy olyan átfedő területet módosít, amelyet a
+master branched (vagy az upstream) is érintett azóta, hogy a topic branched
+elágazott róla, érdemes lehet a legfrissebb masterrel tesztelned, még mielőtt
+a topic branched készen állna az upstream pusholásra:
 
 ------------
               o---*---o topic
@@ -87,8 +89,8 @@ even before your topic branch is ready to be pushed upstream:
     o---o---o---*---o---o master
 ------------
 
-For such a test, you need to merge master and topic somehow.
-One way to do it is to pull master into the topic branch:
+Egy ilyen teszthez valahogy merge-elned kell a mastert és a topicot.
+Az egyik módja, hogy a mastert pull-olod a topic branchbe:
 
 ------------
 	$ git switch topic
@@ -99,18 +101,18 @@ One way to do it is to pull master into the topic branch:
     o---o---o---*---o---o master
 ------------
 
-The commits marked with `*` touch the same area in the same
-file; you need to resolve the conflicts when creating the commit
-marked with `+`.  Then you can test the result to make sure your
-work-in-progress still works with what is in the latest master.
+A `*`-gal jelölt commitok ugyanazt a területet érintik ugyanabban a
+fájlban; a `+`-szal jelölt commit létrehozásakor fel kell oldanod a
+konfliktusokat.  Ezután tesztelheted az eredményt, hogy megbizonyosodj róla,
+a folyamatban lévő munkád továbbra is működik azzal, ami a legfrissebb
+masterben van.
 
-After this test merge, there are two ways to continue your work
-on the topic.  The easiest is to build on top of the test merge
-commit `+`, and when your work in the topic branch is finally
-ready, pull the topic branch into master, and/or ask the
-upstream to pull from you.  By that time, however, the master or
-the upstream might have been advanced since the test merge `+`,
-in which case the final commit graph would look like this:
+E teszt-merge után kétféleképpen folytathatod a munkádat a topicon.  A
+legegyszerűbb a `+` teszt-merge commit tetejére építeni, és amikor a topic
+branchbeli munkád végre készen áll, a topic branchet a masterbe pull-olod,
+és/vagy megkéred az upstreamet, hogy pull-oljon tőled.  Addigra azonban a
+master vagy az upstream továbbléphetett a `+` teszt-merge óta, amely esetben
+a végső commit-gráf így nézne ki:
 
 ------------
 	$ git switch topic
@@ -124,16 +126,16 @@ in which case the final commit graph would look like this:
     o---o---o---*---o---o---o---o---+ master
 ------------
 
-When your topic branch is long-lived, however, your topic branch
-would end up having many such "Merge from master" commits on it,
-which would unnecessarily clutter the development history.
-Readers of the Linux kernel mailing list may remember that Linus
-complained about such too frequent test merges when a subsystem
-maintainer asked to pull from a branch full of "useless merges".
+Ha viszont a topic branched hosszú életű, a topic branched végül sok ilyen
+"Merge from master" commitot halmozna fel, ami feleslegesen zsúfolná tele a
+fejlesztési előzményt.  A Linux kernel levelezőlista olvasói emlékezhetnek
+rá, hogy Linus panaszkodott az ilyen túl gyakori teszt-merge-ekre, amikor
+egy alrendszer-maintainer egy "useless merge"-ekkel teli branchből kért
+pull-t.
 
-As an alternative, to keep the topic branch clean of test
-merges, you could blow away the test merge, and keep building on
-top of the tip before the test merge:
+Alternatívaként, hogy a topic branchet tisztán tartsd a teszt-merge-ektől,
+eltüntetheted a teszt-merge-et, és tovább építkezhetsz a teszt-merge előtti
+csúcs tetején:
 
 ------------
 	$ git switch topic
@@ -148,49 +150,47 @@ top of the tip before the test merge:
     o---o---o---*---o---o---o---o---+ master
 ------------
 
-This would leave only one merge commit when your topic branch is
-finally ready and merged into the master branch.  This merge
-would require you to resolve the conflict, introduced by the
-commits marked with `*`.  However, this conflict is often the
-same conflict you resolved when you created the test merge you
-blew away.  'git rerere' helps you resolve this final
-conflicted merge using the information from your earlier hand
-resolve.
+Ez csak egyetlen merge-commitot hagyna hátra, amikor a topic branched végre
+készen áll, és merge-elik a master branchbe.  Ez a merge megkövetelné, hogy
+feloldd a `*`-gal jelölt commitok által bevezetett konfliktust.  Ez a
+konfliktus azonban gyakran ugyanaz a konfliktus, amelyet az eltüntetett
+teszt-merge létrehozásakor oldottál fel.  A 'git rerere' segít feloldani ezt
+a végső konfliktusos merge-et a korábbi kézi feloldásból származó információ
+felhasználásával.
 
-Running the 'git rerere' command immediately after a conflicted
-automerge records the conflicted working tree files, with the
-usual conflict markers `<<<<<<<`, `=======`, and `>>>>>>>` in
-them.  Later, after you are done resolving the conflicts,
-running 'git rerere' again will record the resolved state of these
-files.  Suppose you did this when you created the test merge of
-master into the topic branch.
+A 'git rerere' parancs futtatása közvetlenül egy konfliktusos automerge után
+rögzíti a konfliktusos munkakönyvtárbeli fájlokat, a bennük lévő szokásos
+`<<<<<<<`, `=======` és `>>>>>>>` konfliktusjelölőkkel együtt.  Később,
+miután befejezted a konfliktusok feloldását, a 'git rerere' ismételt
+futtatása rögzíti e fájlok feloldott állapotát.  Tegyük fel, hogy ezt akkor
+tetted meg, amikor létrehoztad a master topic branchbe való teszt-merge-ét.
 
-Next time, after seeing the same conflicted automerge,
-running 'git rerere' will perform a three-way merge between the
-earlier conflicted automerge, the earlier manual resolution, and
-the current conflicted automerge.
-If this three-way merge resolves cleanly, the result is written
-out to your working tree file, so you do not have to manually
-resolve it.  Note that 'git rerere' leaves the index file alone,
-so you still need to do the final sanity checks with `git diff`
-(or `git diff -c`) and 'git add' when you are satisfied.
+Legközelebb, miután ugyanazt a konfliktusos automerge-et látod, a
+'git rerere' futtatása háromutas merge-et hajt végre a korábbi konfliktusos
+automerge, a korábbi kézi feloldás és a jelenlegi konfliktusos automerge
+között.
+Ha ez a háromutas merge tisztán feloldódik, az eredmény a munkakönyvtárbeli
+fájlodba íródik, így nem kell kézzel feloldanod.  Vedd figyelembe, hogy a
+'git rerere' az indexfájlt érintetlenül hagyja, így továbbra is neked kell
+elvégezned a végső épségvizsgálatokat a `git diff`-fel (vagy a
+`git diff -c`-vel) és a 'git add'-del, amikor elégedett vagy.
 
-As a convenience measure, 'git merge' automatically invokes
-'git rerere' upon exiting with a failed automerge and 'git rerere'
-records the hand resolve when it is a new conflict, or reuses the earlier hand
-resolve when it is not.  'git commit' also invokes 'git rerere'
-when committing a merge result.  What this means is that you do
-not have to do anything special yourself (besides enabling
-the rerere.enabled config variable).
+Kényelmi okokból a 'git merge' automatikusan meghívja a 'git rerere'-t,
+amikor sikertelen automerge-dzsel lép ki, és a 'git rerere' rögzíti a kézi
+feloldást, ha új konfliktusról van szó, vagy újrafelhasználja a korábbi kézi
+feloldást, ha nem.  A 'git commit' szintén meghívja a 'git rerere'-t egy
+merge-eredmény commitolásakor.  Ez azt jelenti, hogy neked magadnak semmi
+különöset nem kell tenned (azon kívül, hogy engedélyezed a rerere.enabled
+konfigurációs változót).
 
-In our example, when you do the test merge, the manual
-resolution is recorded, and it will be reused when you do the
-actual merge later with the updated master and topic branch, as long
-as the recorded resolution is still applicable.
+A példánkban, amikor elvégzed a teszt-merge-et, a kézi feloldás rögzül, és
+újrafelhasználódik, amikor később elvégzed a tényleges merge-et a frissített
+master és topic branchcsel, feltéve, hogy a rögzített feloldás még
+alkalmazható.
 
-The information 'git rerere' records is also used when running
-'git rebase'.  After blowing away the test merge and continuing
-development on the topic branch:
+A 'git rerere' által rögzített információt a 'git rebase' futtatásakor is
+felhasználja.  A teszt-merge eltüntetése és a topic branchen való fejlesztés
+folytatása után:
 
 ------------
               o---*---o-------o---o topic
@@ -204,19 +204,19 @@ development on the topic branch:
     o---o---o---*---o---o---o---o   master
 ------------
 
-you could run `git rebase master topic`, to bring yourself
-up to date before your topic is ready to be sent upstream.
-This would result in falling back to a three-way merge, and it
-would conflict the same way as the test merge you resolved earlier.
-'git rerere' will be run by 'git rebase' to help you resolve this
-conflict.
+futtathatnád a `git rebase master topic`-ot, hogy naprakész legyél, mielőtt a
+topicod készen áll az upstreamre küldésre.  Ez háromutas merge-re való
+visszaeséshez vezetne, és ugyanúgy konfliktusba kerülne, mint a korábban
+feloldott teszt-merge.  A 'git rerere'-t a 'git rebase' fogja futtatni, hogy
+segítsen feloldani ezt a konfliktust.
 
-[NOTE] 'git rerere' relies on the conflict markers in the file to
-detect the conflict.  If the file already contains lines that look the
-same as lines with conflict markers, 'git rerere' may fail to record a
-conflict resolution.  To work around this, the `conflict-marker-size`
-setting in linkgit:gitattributes[5] can be used.
+[NOTE] A 'git rerere' a fájlban lévő konfliktusjelölőkre támaszkodik a
+konfliktus észleléséhez.  Ha a fájl már tartalmaz olyan sorokat, amelyek
+ugyanúgy néznek ki, mint a konfliktusjelölőket tartalmazó sorok, a
+'git rerere' nem biztos, hogy rögzíteni tudja a konfliktusfeloldást.  Ennek
+megkerülésére a linkgit:gitattributes[5]-beli `conflict-marker-size`
+beállítás használható.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

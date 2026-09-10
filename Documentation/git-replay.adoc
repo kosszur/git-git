@@ -3,102 +3,106 @@ git-replay(1)
 
 NAME
 ----
-git-replay - EXPERIMENTAL: Replay commits on a new base, works with bare repos too
+git-replay - KÍSÉRLETI: Commitok újrajátszása egy új alapon, bare repókkal is működik
 
 
 SYNOPSIS
 --------
 [verse]
-(EXPERIMENTAL!) 'git replay' ([--contained] --onto=<newbase> | --advance=<branch> | --revert=<branch>)
+(KÍSÉRLETI!) 'git replay' ([--contained] --onto=<newbase> | --advance=<branch> | --revert=<branch>)
 			     [--ref=<ref>] [--ref-action=<mode>] <revision-range>
 
 DESCRIPTION
 -----------
 
-Takes a range of commits and replays them onto a new location. Leaves
-the working tree and the index untouched. By default, updates the
-relevant references using an atomic transaction (all refs update or
-none). Use `--ref-action=print` to avoid automatic ref updates and
-instead get update commands that can be piped to `git update-ref --stdin`
-(see the <<output,OUTPUT>> section below).
+Vesz egy committartományt, és újrajátssza őket egy új helyre. A
+munkakönyvtárat és az indexet érintetlenül hagyja. Alapértelmezés szerint a
+vonatkozó referenciákat atomi tranzakcióval frissíti (vagy minden ref
+frissül, vagy egyik sem). A `--ref-action=print` használatával elkerülhető az
+automatikus ref-frissítés, helyette olyan frissítő parancsokat kapsz,
+amelyek a `git update-ref --stdin`-be csövezhetők (lásd lentebb a
+<<output,OUTPUT>> szakaszt).
 
-THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.
+EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT.
 
 OPTIONS
 -------
 
 --onto=<newbase>::
-	Starting point at which to create the new commits.  May be any
-	valid commit, and not just an existing branch name.
+	Kiindulópont, amelyen az új commitok létrejönnek.  Bármely érvényes
+	commit lehet, nem csak egy meglévő branchnév.
 +
-When `--onto` is specified, the branch(es) in the revision range will be
-updated to point at the new commits, similar to the way `git rebase --update-refs`
-updates multiple branches in the affected range.
+Ha a `--onto` meg van adva, a revíziótartományba eső branch(ek) frissülnek,
+hogy az új commitokra mutassanak, hasonlóan ahhoz, ahogy a
+`git rebase --update-refs` frissít több branchet az érintett tartományban.
 
 --advance=<branch>::
-	Starting point at which to create the new commits; must be a
-	branch name.
+	Kiindulópont, amelyen az új commitok létrejönnek; branchnévnek kell
+	lennie.
 +
-The history is replayed on top of the <branch> and <branch> is updated to
-point at the tip of the resulting history. This is different from `--onto`,
-which uses the target only as a starting point without updating it.
+Az előzmény a <branch> tetejére kerül újrajátszásra, és a <branch> frissül,
+hogy a kapott előzmény csúcsára mutasson. Ez eltér a `--onto`-tól, amely a
+célt csak kiindulópontként használja, anélkül hogy frissítené.
 
 --revert=<branch>::
-	Starting point at which to create the reverted commits; must be a
-	branch name.
+	Kiindulópont, amelyen a visszavont commitok létrejönnek; branchnévnek
+	kell lennie.
 +
-When `--revert` is specified, the commits in the revision range are reverted
-(their changes are undone) and the reverted commits are created on top of
-<branch>. The <branch> is then updated to point at the new commits. This is
-the same as running `git revert <revision-range>` but does not update the
-working tree.
+Ha a `--revert` meg van adva, a revíziótartományba eső commitokat visszavonja
+(a változtatásaikat visszacsinálja), és a visszavont commitok a <branch>
+tetejére jönnek létre. A <branch> ezután frissül, hogy az új commitokra
+mutasson. Ez ugyanaz, mint a `git revert <revision-range>` futtatása, de nem
+frissíti a munkakönyvtárat.
 +
-The commit messages follow `git revert` conventions: they are prefixed with
-"Revert" and include "This reverts commit <hash>." When reverting a commit
-whose message starts with "Revert", the new message uses "Reapply" instead.
-Unlike cherry-pick which preserves the original author, revert commits use
-the current user as the author, matching the behavior of `git revert`.
+A commit-üzenetek a `git revert` konvencióit követik: "Revert" előtaggal
+kezdődnek, és tartalmazzák a "This reverts commit <hash>." sort. Amikor egy
+olyan commitot vonsz vissza, amelynek üzenete "Revert"-tel kezdődik, az új
+üzenet helyette a "Reapply" szót használja. A cherry-pickkel ellentétben,
+amely megőrzi az eredeti szerzőt, a revert-commitok az aktuális felhasználót
+használják szerzőként, összhangban a `git revert` viselkedésével.
 +
-This option is mutually exclusive with `--onto` and `--advance`. It is also
-incompatible with `--contained` (which is a modifier for `--onto` only).
+Ez a kapcsoló kölcsönösen kizárja egymást a `--onto`-val és az `--advance`-szel.
+Emellett nem kompatibilis a `--contained`-del sem (amely csak az `--onto`
+módosítója).
 
 --contained::
-	Update all branches that point at commits in
-	<revision-range>. Requires `--onto`.
+	Minden olyan branch frissítése, amely a <revision-range> commitjaira
+	mutat. A `--onto`-t igényli.
 
 --ref=<ref>::
-	Override which reference is updated with the result of the replay.
-	The ref must be fully qualified.
-	When used with `--onto`, the `<revision-range>` should have a
-	single tip and only the specified reference is updated instead of
-	inferring refs from the revision range.
-	When used with `--advance` or `--revert`, the specified reference is
-	updated instead of the branch given to those options.
-	This option is incompatible with `--contained`.
+	Felülírja, hogy melyik referencia frissüljön az újrajátszás
+	eredményével. A refnek teljesen minősítettnek kell lennie.
+	Az `--onto`-val használva a `<revision-range>`-nek egyetlen csúccsal
+	kell rendelkeznie, és csak a megadott referencia frissül, ahelyett
+	hogy a refeket a revíziótartományból következtetné ki.
+	Az `--advance`-szel vagy a `--revert`-tel használva a megadott
+	referencia frissül az ezen kapcsolóknak adott branch helyett.
+	Ez a kapcsoló nem kompatibilis a `--contained`-del.
 
 --ref-action[=<mode>]::
-	Control how references are updated. The mode can be:
+	Szabályozza, hogyan frissülnek a referenciák. A mód lehet:
 +
 --
 ////
 Expanded description list compared to 'replay.refAction'.
 ////
-`update`;; (default) Update refs directly using an atomic transaction.
-	All refs are updated or none are (all-or-nothing behavior).
-`print`;; Output update-ref commands for pipeline use. This is the
-	traditional behavior where output can be piped to `git update-ref --stdin`.
+`update`;; (alapértelmezett) A refek közvetlen frissítése atomi
+	tranzakcióval. Vagy minden ref frissül, vagy egyik sem (mindent vagy
+	semmit viselkedés).
+`print`;; Update-ref parancsok kiírása pipeline-használatra. Ez a
+	hagyományos viselkedés, ahol a kimenet a `git update-ref --stdin`-be csövezhető.
 --
 +
-The default mode can be configured via the `replay.refAction` configuration variable.
+Az alapértelmezett mód a `replay.refAction` konfigurációs változóval állítható be.
 
 <revision-range>::
-	Range of commits to replay; see "Specifying Ranges" in
-	linkgit:git-rev-parse[1]. In `--advance=<branch>` or
-	`--revert=<branch>` mode, the range should have a single tip,
-	so that it's clear to which tip the advanced or reverted
-	<branch> should point. Any commits in the range whose changes
-	are already present in the branch the commits are being
-	replayed onto will be dropped.
+	Az újrajátszandó commitok tartománya; lásd a "Specifying Ranges"
+	szakaszt a linkgit:git-rev-parse[1]-ben. `--advance=<branch>` vagy
+	`--revert=<branch>` módban a tartománynak egyetlen csúccsal kell
+	rendelkeznie, hogy egyértelmű legyen, melyik csúcsra mutasson az
+	előreléptetett vagy visszavont <branch>. A tartomány azon commitjai,
+	amelyek változtatásai már jelen vannak abban a branchben, amelyre a
+	commitokat újrajátsszák, eldobásra kerülnek.
 
 :git-replay: 1
 include::rev-list-options.adoc[]
@@ -107,110 +111,110 @@ include::rev-list-options.adoc[]
 OUTPUT
 ------
 
-By default, or with `--ref-action=update`, this command produces no output on
-success, as refs are updated directly using an atomic transaction.
+Alapértelmezés szerint, vagy `--ref-action=update` esetén, ez a parancs siker
+esetén nem állít elő kimenetet, mivel a refek közvetlenül, atomi
+tranzakcióval frissülnek.
 
-When using `--ref-action=print`, the output is usable as input to
-`git update-ref --stdin`. It is of the form:
+`--ref-action=print` használatakor a kimenet felhasználható a
+`git update-ref --stdin` bemeneteként. A formája:
 
 	update refs/heads/branch1 ${NEW_branch1_HASH} ${OLD_branch1_HASH}
 	update refs/heads/branch2 ${NEW_branch2_HASH} ${OLD_branch2_HASH}
 	update refs/heads/branch3 ${NEW_branch3_HASH} ${OLD_branch3_HASH}
 
-where the number of refs updated depends on the arguments passed and
-the shape of the history being replayed.  When using `--advance` or
-`--revert`, the number of refs updated is always one, but for `--onto`,
-it can be one or more (rebasing multiple branches simultaneously is
-supported).
+ahol a frissített refek száma az átadott argumentumoktól és az újrajátszott
+előzmény alakjától függ.  Az `--advance` vagy a `--revert` használatakor a
+frissített refek száma mindig egy, de az `--onto` esetén lehet egy vagy több
+(több branch egyidejű rebase-elése támogatott).
 
-There is no stderr output on conflicts; see the <<exit-status,EXIT
-STATUS>> section below.
+Konfliktusok esetén nincs stderr-kimenet; lásd lentebb a
+<<exit-status,EXIT STATUS>> szakaszt.
 
 [[exit-status]]
 EXIT STATUS
 -----------
 
-For a successful, non-conflicted replay, the exit status is 0.  When
-the replay has conflicts, the exit status is 1.  If the replay is not
-able to complete (or start) due to some kind of error, the exit status
-is something other than 0 or 1.
+Sikeres, konfliktusmentes újrajátszás esetén a kilépési állapot 0.  Ha az
+újrajátszásban konfliktusok vannak, a kilépési állapot 1.  Ha az újrajátszás
+valamilyen hiba miatt nem tud befejeződni (vagy elindulni), a kilépési
+állapot 0-tól és 1-től eltérő valami.
 
 EXAMPLES
 --------
 
-To simply rebase `mybranch` onto `target`:
+A `mybranch` egyszerű rebase-eléséhez a `target`-ra:
 
 ------------
 $ git replay --onto=target origin/main..mybranch
 ------------
 
-The refs are updated atomically and no output is produced on success.
+A refek atomian frissülnek, és siker esetén nem keletkezik kimenet.
 
-To see what would be updated without actually updating:
+Annak megtekintéséhez, hogy mi frissülne, tényleges frissítés nélkül:
 
 ------------
 $ git replay --ref-action=print --onto=target origin/main..mybranch
 update refs/heads/mybranch ${NEW_mybranch_HASH} ${OLD_mybranch_HASH}
 ------------
 
-To cherry-pick the commits from mybranch onto target:
+A commitok cherry-pickeléséhez a mybranchből a targetre:
 
 ------------
 $ git replay --advance=target origin/main..mybranch
 ------------
 
-Note that the first two examples replay the exact same commits and on
-top of the exact same new base, they only differ in that the first
-updates mybranch to point at the new commits and the second updates
-target to point at them.
+Vedd figyelembe, hogy az első két példa pontosan ugyanazokat a commitokat
+játssza újra, pontosan ugyanazon új alap tetejére; csak abban különböznek,
+hogy az első a mybranchöt frissíti, hogy az új commitokra mutasson, a
+második pedig a targetet frissíti, hogy azokra mutasson.
 
-What if you have a stack of branches, one depending upon another, and
-you'd really like to rebase the whole set?
+Mi van, ha van egy egymásra épülő branchek verme, egyik a másiktól függ, és
+tényleg szeretnéd az egész készletet rebase-elni?
 
 ------------
 $ git replay --contained --onto=origin/main origin/main..tipbranch
 ------------
 
-All three branches (`branch1`, `branch2`, and `tipbranch`) are updated
-atomically.
+Mindhárom branch (`branch1`, `branch2` és `tipbranch`) atomian frissül.
 
-When calling `git replay`, one does not need to specify a range of
-commits to replay using the syntax `A..B`; any range expression will
-do:
+A `git replay` hívásakor nem szükséges az újrajátszandó committartományt az
+`A..B` szintaxissal megadni; bármilyen tartománykifejezés megfelel:
 
 ------------
 $ git replay --onto=origin/main ^base branch1 branch2 branch3
 ------------
 
-This will simultaneously rebase `branch1`, `branch2`, and `branch3`,
-all commits they have since `base`, playing them on top of
-`origin/main`. These three branches may have commits on top of `base`
-that they have in common, but that does not need to be the case.
+Ez egyidejűleg rebase-eli a `branch1`, `branch2` és `branch3` branchet,
+minden commitjukat a `base` óta, az `origin/main` tetejére játszva őket. E
+három branchnek lehetnek közös commitjai a `base` tetején, de ennek nem kell
+így lennie.
 
-To revert commits on a branch:
+Egy branchen lévő commitok visszavonásához:
 
 ------------
 $ git replay --revert=main topic~2..topic
 ------------
 
-This reverts the last two commits from `topic`, creating revert commits on
-top of `main`, and updates `main` to point at the result. This is useful when
-commits from `topic` were previously merged or cherry-picked into `main` and
-need to be undone.
+Ez visszavonja az utolsó két commitot a `topic`-ból, revert-commitokat
+létrehozva a `main` tetején, és frissíti a `main`-t, hogy az eredményre
+mutasson. Ez akkor hasznos, ha a `topic` commitjait korábban merge-elték vagy
+cherry-pickelték a `main`-be, és vissza kell csinálni őket.
 
-NOTE: For reverting an entire merge request as a single commit (rather than
-commit-by-commit), consider using `git merge-tree --merge-base $TIP HEAD $BASE`
-which can avoid unnecessary merge conflicts.
+NOTE: Egy teljes merge request egyetlen commitként való visszavonásához
+(commitonkénti helyett) fontold meg a `git merge-tree --merge-base $TIP HEAD $BASE`
+használatát, amely elkerülheti a felesleges merge-konfliktusokat.
 
-To replay onto a specific commit while updating a different reference:
+Egy adott commitra való újrajátszáshoz, miközben egy másik referenciát
+frissítesz:
 
 ------------
 $ git replay --onto=112233 --ref=refs/heads/mybranch aabbcc..ddeeff
 ------------
 
-This replays the range `aabbcc..ddeeff` onto commit `112233` and updates
-`refs/heads/mybranch` to point at the result. This can be useful when you want
-to use bare commit IDs instead of branch names.
+Ez újrajátssza az `aabbcc..ddeeff` tartományt a `112233` commitra, és
+frissíti a `refs/heads/mybranch`-et, hogy az eredményre mutasson. Ez akkor
+lehet hasznos, ha branchnevek helyett puszta commit-azonosítókat szeretnél
+használni.
 
 CONFIGURATION
 -------------
@@ -219,4 +223,4 @@ include::config/replay.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

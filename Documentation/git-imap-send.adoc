@@ -3,7 +3,7 @@ git-imap-send(1)
 
 NAME
 ----
-git-imap-send - Send a collection of patches from stdin to an IMAP folder
+git-imap-send - Patchek gyűjteményének küldése a stdinről egy IMAP mappába
 
 
 SYNOPSIS
@@ -15,14 +15,14 @@ git imap-send --list
 
 DESCRIPTION
 -----------
-This command uploads a mailbox generated with `git format-patch`
-into an IMAP drafts folder.  This allows patches to be sent as
-other email is when using mail clients that cannot read mailbox
-files directly. The command also works with any general mailbox
-in which emails have the fields `From`, `Date`, and `Subject` in
-that order.
+Ez a parancs egy `git format-patch`-csel generált postaládát tölt fel
+egy IMAP-piszkozatmappába.  Ez lehetővé teszi, hogy a patcheket ugyanúgy
+küldd el, mint bármely más e-mailt, olyan levelezőprogramok használatakor,
+amelyek nem tudják közvetlenül olvasni a postaláda-fájlokat. A parancs
+bármilyen általános postaládával is működik, amelyben az e-mailek a `From`,
+`Date` és `Subject` mezőket ebben a sorrendben tartalmazzák.
 
-Typical usage is something like:
+A tipikus használat valahogy így néz ki:
 
 ----
 $ git format-patch --signoff --stdout --attach origin | git imap-send
@@ -34,35 +34,36 @@ OPTIONS
 
 `-v`::
 `--verbose`::
-	Be verbose.
+	Legyen bőbeszédű.
 
 `-q`::
 `--quiet`::
-	Be quiet.
+	Legyen csendes.
 
 `-f <folder>`::
 `--folder=<folder>`::
-	Specify the folder in which the emails have to saved.
-	For example: `--folder=[Gmail]/Drafts` or `-f INBOX/Drafts`.
+	Add meg a mappát, amelybe az e-maileket menteni kell.
+	Például: `--folder=[Gmail]/Drafts` vagy `-f INBOX/Drafts`.
 
 `--curl`::
-	Use libcurl to communicate with the IMAP server, unless tunneling
-	into it.  Ignored if Git was built without the USE_CURL_FOR_IMAP_SEND
-	option set.
+	A libcurl használata az IMAP-szerverrel való kommunikációhoz, kivéve
+	ha tunnelezel bele.  Figyelmen kívül marad, ha a Git a
+	USE_CURL_FOR_IMAP_SEND opció beállítása nélkül lett fordítva.
 
 `--no-curl`::
-	Talk to the IMAP server using git's own IMAP routines instead of
-	using libcurl.  Ignored if Git was built with the NO_OPENSSL option
-	set.
+	Kommunikáció az IMAP-szerverrel a git saját IMAP-rutinjaival a
+	libcurl helyett.  Figyelmen kívül marad, ha a Git a NO_OPENSSL opció
+	beállításával lett fordítva.
 
 `--list`::
-	Run the IMAP LIST command to output a list of all the folders present.
+	Az IMAP LIST parancs futtatása az összes jelenlévő mappa listájának
+	kiírásához.
 
 CONFIGURATION
 -------------
 
-To use the tool, `imap.folder` and either `imap.tunnel` or `imap.host` must be set
-to appropriate values.
+Az eszköz használatához az `imap.folder`, valamint az `imap.tunnel` vagy az
+`imap.host` egyikét megfelelő értékre kell állítani.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -71,14 +72,14 @@ include::config/imap.adoc[]
 GETTING A LIST OF AVAILABLE FOLDERS
 -----------------------------------
 
-In order to send an email to a specific folder, you need to know the correct name of
-intended folder in your mailbox. The names like "Junk", "Trash" etc. displayed by
-various email clients need not be the actual names of the folders stored in the mail
-server of your email provider.
+Ahhoz, hogy egy adott mappába küldj e-mailt, ismerned kell a kívánt mappa
+helyes nevét a postaládádban. A különböző levelezőprogramok által megjelenített
+nevek, mint a "Junk", "Trash" stb., nem feltétlenül egyeznek meg az e-mail-
+szolgáltatód levelezőszerverén tárolt mappák tényleges neveivel.
 
-In order to get the correct folder name to be used with `git imap-send`, you can run
-`git imap-send --list`. This will display a list of valid folder names. An example
-of such an output when run on a Gmail account is:
+Ahhoz, hogy megkapd a `git imap-send`-del használandó helyes mappanevet, futtathatod
+a `git imap-send --list` parancsot. Ez megjeleníti az érvényes mappanevek listáját. Egy
+példa az ilyen kimenetre, ha egy Gmail-fiókon futtatod:
 
 .........................
 * LIST (\HasNoChildren) "/" "INBOX"
@@ -92,13 +93,12 @@ of such an output when run on a Gmail account is:
 * LIST (\HasNoChildren \Trash) "/" "[Gmail]/Trash"
 .........................
 
-Here, you can observe that the correct name for the "Junk" folder is `[Gmail]/Spam`
-and for the "Trash" folder is `[Gmail]/Trash`. Similar logic can be used to determine
-other folders as well.
+Itt megfigyelheted, hogy a "Junk" mappa helyes neve `[Gmail]/Spam`, a "Trash"
+mappáé pedig `[Gmail]/Trash`. Hasonló logikával a többi mappa is meghatározható.
 
 EXAMPLES
 --------
-Using tunnel mode:
+Tunnel mód használata:
 
 ..........................
 [imap]
@@ -106,7 +106,7 @@ Using tunnel mode:
     tunnel = "ssh -q -C user@example.com /usr/bin/imapd ./Maildir 2> /dev/null"
 ..........................
 
-Using direct mode:
+Közvetlen mód használata:
 
 .........................
 [imap]
@@ -116,7 +116,7 @@ Using direct mode:
     pass = p4ssw0rd
 .........................
 
-Using direct mode with SSL:
+Közvetlen mód használata SSL-lel:
 
 .........................
 [imap]
@@ -130,13 +130,12 @@ Using direct mode with SSL:
 
 
 [NOTE]
-You may want to use `sslVerify=false`
-while troubleshooting, if you suspect that the reason you are
-having trouble connecting is because the certificate you use at
-the private server `example.com` you are trying to set up (or
-have set up) may not be verified correctly.
+Hibakeresés közben érdemes lehet az `sslVerify=false` beállítást
+használnod, ha azt gyanítod, hogy a kapcsolódási gondok oka az, hogy a
+beállítani kívánt (vagy már beállított) `example.com` privát szerveren
+használt tanúsítvány nem ellenőrizhető helyesen.
 
-Using Gmail's IMAP interface:
+A Gmail IMAP-felületének használata:
 
 ----
 [imap]
@@ -146,26 +145,27 @@ Using Gmail's IMAP interface:
     port = 993
 ----
 
-Gmail does not allow using your regular password for `git imap-send`.
-If you have multi-factor authentication set up on your Gmail account, you
-can generate an app-specific password for use with `git imap-send`.
-Visit https://security.google.com/settings/security/apppasswords to create
-it. Alternatively, use OAuth2.0 authentication as described below.
+A Gmail nem engedi a szokásos jelszavad használatát a `git imap-send`-hez.
+Ha többfaktoros hitelesítést állítottál be a Gmail-fiókodon, generálhatsz
+egy alkalmazásspecifikus jelszót a `git imap-send`-del való használatra.
+A létrehozásához látogass el a
+https://security.google.com/settings/security/apppasswords oldalra. Vagy
+használhatod az alább leírt OAuth2.0-hitelesítést.
 
 [NOTE]
-You might need to instead use: `folder = "[Google Mail]/Drafts"` if you get an error
-that the "Folder doesn't exist". You can also run `git imap-send --list` to get a
-list of available folders.
+Előfordulhat, hogy helyette a `folder = "[Google Mail]/Drafts"` beállítást kell
+használnod, ha "Folder doesn't exist" hibát kapsz. Az elérhető mappák listájáért
+a `git imap-send --list` parancsot is futtathatod.
 
 [NOTE]
-If your Gmail account is set to another language than English, the name of the "Drafts"
-folder will be localized.
+Ha a Gmail-fiókod az angoltól eltérő nyelvre van állítva, a "Drafts" mappa neve
+lokalizálva lesz.
 
-If you want to use OAuth2.0 based authentication, you can specify
-`OAUTHBEARER` or `XOAUTH2` mechanism in your config. It is more secure
-than using app-specific passwords, and also does not enforce the need of
-having multi-factor authentication. You will have to use an OAuth2.0
-access token in place of your password when using this authentication.
+Ha OAuth2.0-alapú hitelesítést szeretnél használni, megadhatod az
+`OAUTHBEARER` vagy az `XOAUTH2` mechanizmust a konfigurációdban. Ez
+biztonságosabb, mint az alkalmazásspecifikus jelszavak használata, és nem
+teszi kötelezővé a többfaktoros hitelesítést sem. Ennél a hitelesítésnél a
+jelszavad helyett egy OAuth2.0-hozzáférési tokent kell használnod.
 
 ----
 [imap]
@@ -176,10 +176,10 @@ access token in place of your password when using this authentication.
     authmethod = OAUTHBEARER
 ----
 
-Using Outlook's IMAP interface:
+Az Outlook IMAP-felületének használata:
 
-Unlike Gmail, Outlook only supports OAuth2.0 based authentication. Also, it
-supports only `XOAUTH2` as the mechanism.
+A Gmaillel ellentétben az Outlook csak OAuth2.0-alapú hitelesítést támogat.
+Ráadásul mechanizmusként csak az `XOAUTH2`-t támogatja.
 
 ----
 [imap]
@@ -190,31 +190,31 @@ supports only `XOAUTH2` as the mechanism.
     authmethod = XOAUTH2
 ----
 
-Once the commits are ready to be sent, run the following command:
+Amint a commitok készen állnak az elküldésre, futtasd a következő parancsot:
 
 ----
 $ git format-patch --cover-letter -M --stdout origin/master | git imap-send
 ----
 
-Just make sure to disable line wrapping in the email client (Gmail's web
-interface will wrap lines no matter what, so you need to use a real
-IMAP client).
+Csak ügyelj arra, hogy kikapcsold a sortördelést a levelezőprogramban (a
+Gmail webes felülete mindenképp tördeli a sorokat, ezért valódi IMAP-klienst
+kell használnod).
 
-In case you are using OAuth2.0 authentication, it is easier to use credential
-helpers to generate tokens. Credential helpers suggested in
-linkgit:git-send-email[1] can be used for `git imap-send` as well.
+Ha OAuth2.0-hitelesítést használsz, egyszerűbb credential helperekkel
+generálni a tokeneket. A linkgit:git-send-email[1]-ben javasolt credential
+helperek a `git imap-send`-hez is használhatók.
 
 CAUTION
 -------
-It is still your responsibility to make sure that the email message
-sent by your email program meets the standards of your project.
-Many projects do not like patches to be attached.  Some mail
-agents will transform patches (e.g. wrap lines, send them as
-format=flowed) in ways that make them fail.  You will get angry
-flames ridiculing you if you don't check this.
+Továbbra is a te felelősséged megbizonyosodni arról, hogy a levelezőprogramod
+által küldött e-mail üzenet megfelel a projekted szabványainak.
+Sok projekt nem szereti a mellékletként csatolt patcheket.  Egyes
+levelezőügynökök úgy alakítják át a patcheket (pl. tördelik a sorokat,
+format=flowed formában küldik), hogy azok használhatatlanná válnak.  Dühös,
+gúnyolódó flame-eket fogsz kapni, ha ezt nem ellenőrzöd.
 
-Thunderbird in particular is known to be problematic.  Thunderbird
-users may wish to visit this web page for more information:
+Különösen a Thunderbird ismert problémásként.  A Thunderbird-felhasználók
+további információért felkereshetik ezt a weboldalt:
   https://kb.mozillazine.org/Plain_text_e-mail_-_Thunderbird#Completely_plain_email
 
 SEE ALSO
@@ -223,4 +223,4 @@ linkgit:git-format-patch[1], linkgit:git-send-email[1], `mbox`(5)
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

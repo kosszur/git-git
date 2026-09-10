@@ -3,7 +3,7 @@ git-log(1)
 
 NAME
 ----
-git-log - Show commit logs
+git-log - Commit-naplók megjelenítése
 
 
 SYNOPSIS
@@ -13,109 +13,111 @@ git log [<options>] [<revision-range>] [[--] <path>...]
 
 DESCRIPTION
 -----------
-Shows the commit logs.
+Megjeleníti a commit-naplókat.
 
 :git-log: 1
 include::rev-list-description.adoc[]
 
-The command takes options applicable to the linkgit:git-rev-list[1]
-command to control what is shown and how, and options applicable to
-the linkgit:git-diff[1] command to control how the changes
-each commit introduces are shown.
+A parancs elfogadja a linkgit:git-rev-list[1] parancsra alkalmazható
+kapcsolókat annak szabályozására, hogy mi és hogyan jelenjen meg, valamint
+a linkgit:git-diff[1] parancsra alkalmazható kapcsolókat annak
+szabályozására, hogyan jelenjenek meg az egyes commitok által bevezetett
+változtatások.
 
 
 OPTIONS
 -------
 
 `--follow`::
-	Continue listing the history of a file beyond renames
-	(works only for a single file).
+	Egy fájl előzményeinek listázása az átnevezéseken túl is
+	(csak egyetlen fájlnál működik).
 
 `--no-decorate`::
 `--decorate[=(short|full|auto|no)]`::
-	Print out the ref names of any commits that are shown. Possible values
-	are:
+	Kiírja a megjelenített commitok ref-neveit. A lehetséges értékek:
 +
 --
-`short`;; the ref name prefixes `refs/heads/`, `refs/tags/` and
-	`refs/remotes/` are not printed.
-`full`;; the full ref name (including prefix) is printed.
-`auto`;; if the output is going to a terminal, the ref names
-	are shown as if `short` were given, otherwise no ref names are
-	shown.
+`short`;; a `refs/heads/`, `refs/tags/` és `refs/remotes/` ref-név-előtagok
+	nem kerülnek kiírásra.
+`full`;; a teljes ref-nevet (az előtaggal együtt) írja ki.
+`auto`;; ha a kimenet terminálra megy, a ref-nevek úgy jelennek meg,
+	mintha a `short` lenne megadva, egyébként nem jelennek meg
+	ref-nevek.
 --
 +
-The option `--decorate` is short-hand for `--decorate=short`. Default to
-configuration value of `log.decorate` if configured, otherwise, `auto`.
+A `--decorate` kapcsoló a `--decorate=short` rövidítése. Ha be van állítva, a
+`log.decorate` konfigurációs értékre áll alapból, egyébként az `auto`-ra.
 
 `--decorate-refs=<pattern>`::
 `--decorate-refs-exclude=<pattern>`::
-	For each candidate reference, do not use it for decoration if it
-	matches any of the _<pattern>_ parameters given to
-	`--decorate-refs-exclude` or if it doesn't match any of the
-	_<pattern>_ parameters given to `--decorate-refs`.
-	The `log.excludeDecoration` config option allows excluding refs from
-	the decorations, but an explicit `--decorate-refs` pattern will
-	override a match in `log.excludeDecoration`.
+	Minden jelölt referenciára: ne használd díszítéshez, ha illeszkedik a
+	`--decorate-refs-exclude`-nak adott _<pattern>_ paraméterek
+	bármelyikére, vagy ha nem illeszkedik a `--decorate-refs`-nek adott
+	_<pattern>_ paraméterek egyikére sem.
+	A `log.excludeDecoration` konfigurációs beállítás lehetővé teszi
+	referenciák kizárását a díszítésből, de egy explicit `--decorate-refs`
+	minta felülírja a `log.excludeDecoration`-beli találatot.
 +
-If none of these options or config settings are given, then references are
-used as decoration if they match `HEAD`, `refs/heads/`, `refs/remotes/`,
-`refs/stash/`, or `refs/tags/`.
+Ha ezen kapcsolók és konfigurációs beállítások egyike sincs megadva, akkor a
+referenciák akkor kerülnek díszítésként felhasználásra, ha illeszkednek a
+`HEAD`, `refs/heads/`, `refs/remotes/`, `refs/stash/` vagy `refs/tags/`
+mintára.
 
 `--clear-decorations`::
-	When specified, this option clears all previous `--decorate-refs`
-	or `--decorate-refs-exclude` options and relaxes the default
-	decoration filter to include all references. This option is
-	assumed if the config value `log.initialDecorationSet` is set to
-	`all`.
+	Megadva ez a kapcsoló törli az összes korábbi `--decorate-refs` vagy
+	`--decorate-refs-exclude` kapcsolót, és fellazítja az alapértelmezett
+	díszítésszűrőt, hogy az minden referenciát tartalmazzon. Ez a kapcsoló
+	érvényesül, ha a `log.initialDecorationSet` konfigurációs érték `all`-ra
+	van állítva.
 
 `--source`::
-	Print out the ref name given on the command line by which each
-	commit was reached.
+	Kiírja a parancssorban megadott azon ref-nevet, amelyen keresztül az
+	egyes commitokat elérte.
 
 `--mailmap`::
 `--no-mailmap`::
 `--use-mailmap`::
 `--no-use-mailmap`::
-	Use mailmap file to map author and committer names and email
-	addresses to canonical real names and email addresses. See
-	linkgit:git-shortlog[1].
+	A mailmap fájl használata a szerzők és committerek neveinek és e-mail-
+	címeinek kanonikus valódi nevekre és e-mail-címekre való leképezéséhez.
+	Lásd linkgit:git-shortlog[1].
 
 `--full-diff`::
-	Without this flag, `git log -p <path>...` shows commits that
-	touch the specified paths, and diffs about the same specified
-	paths.  With this, the full diff is shown for commits that touch
-	the specified paths; this means that "`<path>...`" limits only
-	commits, and doesn't limit diff for those commits.
+	E kapcsoló nélkül a `git log -p <path>...` azokat a commitokat
+	mutatja, amelyek érintik a megadott elérési utakat, és a diffeket
+	ugyanezen megadott elérési utakról.  Ezzel a teljes diff jelenik meg a
+	megadott elérési utakat érintő commitokra; ez azt jelenti, hogy a
+	"`<path>...`" csak a commitokat korlátozza, és nem korlátozza a diffet
+	ezekre a commitokra.
 +
-Note that this affects all diff-based output types, e.g. those
-produced by `--stat`, etc.
+Vedd figyelembe, hogy ez minden diff-alapú kimeneti típust érint, pl. a
+`--stat` stb. által előállítottakat.
 
 `--log-size`::
-	Include a line `log size <number>` in the output for each commit,
-	where _<number>_ is the length of that commit's message in bytes.
-	Intended to speed up tools that read log messages from `git log`
-	output by allowing them to allocate space in advance.
+	Minden commitnál beszúr egy `log size <number>` sort a kimenetbe, ahol
+	a _<number>_ az adott commit üzenetének hossza bájtban. Célja azon
+	eszközök felgyorsítása, amelyek a `git log` kimenetéből olvassák a
+	naplóüzeneteket, azáltal, hogy előre le tudnak foglalni helyet.
 
 include::line-range-options.adoc[]
 
 _<revision-range>_::
-	Show only commits in the specified revision range.  When no
-	_<revision-range>_ is specified, it defaults to `HEAD` (i.e. the
-	whole history leading to the current commit).  `origin..HEAD`
-	specifies all the commits reachable from the current commit
-	(i.e. `HEAD`), but not from `origin`. For a complete list of
-	ways to spell _<revision-range>_, see the 'Specifying Ranges'
-	section of linkgit:gitrevisions[7].
+	Csak a megadott revíziótartományba eső commitokat mutatja.  Ha nincs
+	megadva _<revision-range>_, az alapértelmezése `HEAD` (azaz az aktuális
+	commithoz vezető teljes előzmény).  Az `origin..HEAD` az összes olyan
+	commitot jelöli, amely elérhető az aktuális commitból (azaz a
+	`HEAD`-ből), de az `origin`-ból nem. A _<revision-range>_ leírási
+	módjainak teljes listájáért lásd a linkgit:gitrevisions[7] 'Specifying
+	Ranges' szakaszát.
 
 `[--] <path>...`::
-	Show only commits that are enough to explain how the files
-	that match the specified paths came to be.  See 'History
-	Simplification' below for details and other simplification
-	modes.
+	Csak azokat a commitokat mutatja, amelyek elegendők annak
+	magyarázatához, hogyan jöttek létre a megadott elérési utakra
+	illeszkedő fájlok.  A részletekért és a további egyszerűsítési
+	módokért lásd lentebb a 'History Simplification' szakaszt.
 +
-Paths may need to be prefixed with `--` to separate them from
-options or the revision range, when confusion arises.
+Az elérési utak elé `--`-t kell tenni, hogy elváljanak a kapcsolóktól
+vagy a revíziótartománytól, ha félreértés adódhat.
 
 include::rev-list-options.adoc[]
 
@@ -124,15 +126,16 @@ include::pretty-formats.adoc[]
 DIFF FORMATTING
 ---------------
 
-By default, `git log` does not generate any diff output. The options
-below can be used to show the changes made by each commit.
+Alapértelmezés szerint a `git log` nem állít elő diff-kimenetet. Az alábbi
+kapcsolókkal megjeleníthetők az egyes commitok által végzett változtatások.
 
-Note that unless one of `--diff-merges` variants (including short
-`-m`, `-c`, `--cc`, and `--dd` options) is explicitly given, merge commits
-will not show a diff, even if a diff format like `--patch` is
-selected, nor will they match search options like `-S`. The exception
-is when `--first-parent` is in use, in which case `first-parent` is
-the default format for merge commits.
+Vedd figyelembe, hogy hacsak nincs explicit módon megadva a `--diff-merges`
+valamely változata (beleértve a rövid `-m`, `-c`, `--cc` és `--dd`
+kapcsolókat), a merge-commitok nem mutatnak diffet, még akkor sem, ha egy
+diff-formátum, például a `--patch` van kiválasztva, és nem illeszkednek az
+olyan keresési kapcsolókra sem, mint a `-S`. Kivétel, amikor a
+`--first-parent` van használatban; ilyenkor a `first-parent` az
+alapértelmezett formátum a merge-commitokhoz.
 
 :git-log: 1
 :diff-merges-default: `off`
@@ -144,58 +147,60 @@ EXAMPLES
 --------
 `git log --no-merges`::
 
-	Show the whole commit history, but skip any merges
+	A teljes commit-előzmény megjelenítése, de a merge-ek kihagyásával
 
 `git log v2.6.12.. include/scsi drivers/scsi`::
 
-	Show all commits since version 'v2.6.12' that changed any file
-	in the `include/scsi` or `drivers/scsi` subdirectories
+	Az összes olyan commit megjelenítése a 'v2.6.12' verzió óta, amely
+	módosított bármely fájlt az `include/scsi` vagy a `drivers/scsi`
+	alkönyvtárban
 
 `git log --since="2 weeks ago" -- gitk`::
 
-	Show the changes during the last two weeks to the file `gitk`.
-	The `--` is necessary to avoid confusion with the *branch* named
-	`gitk`
+	A `gitk` fájlon az elmúlt két hétben történt változások megjelenítése.
+	A `--` szükséges a `gitk` nevű *branch*-csel való összekeverés
+	elkerüléséhez
 
 `git log --name-status release..test`::
 
-	Show the commits that are in the "`test`" branch but not yet
-	in the "`release`" branch, along with the list of paths
-	each commit modifies.
+	Azon commitok megjelenítése, amelyek a "`test`" branchen vannak, de a
+	"`release`" branchen még nincsenek, az egyes commitok által módosított
+	elérési utak listájával együtt.
 
 `git log --follow builtin/rev-list.c`::
 
-	Shows the commits that changed `builtin/rev-list.c`, including
-	those commits that occurred before the file was given its
-	present name.
+	Megjeleníti azokat a commitokat, amelyek módosították a
+	`builtin/rev-list.c`-t, beleértve azokat is, amelyek azelőtt
+	történtek, hogy a fájl a jelenlegi nevét kapta.
 
 `git log --branches --not --remotes=origin`::
 
-	Shows all commits that are in any of local branches but not in
-	any of remote-tracking branches for `origin` (what you have that
-	origin doesn't).
+	Megjeleníti az összes olyan commitot, amely valamelyik lokális
+	branchen rajta van, de az `origin` egyik remote-tracking branchén sem
+	(amid megvan, de az originnek nincs).
 
 `git log master --not --remotes=*/master`::
 
-	Shows all commits that are in local master but not in any remote
-	repository master branches.
+	Megjeleníti az összes olyan commitot, amely a lokális masteren rajta
+	van, de egyik remote repository master branchén sincs.
 
 `git log -p -m --first-parent`::
 
-	Shows the history including change diffs, but only from the
-	``main branch'' perspective, skipping commits that come from merged
-	branches, and showing full diffs of changes introduced by the merges.
-	This makes sense only when following a strict policy of merging all
-	topic branches when staying on a single integration branch.
+	Megjeleníti az előzményt a változtatások diffjeivel együtt, de csak a
+	``fő branch'' szemszögéből, kihagyva a merge-elt branchekből származó
+	commitokat, és megjelenítve a merge-ek által bevezetett változtatások
+	teljes diffjeit.
+	Ennek csak akkor van értelme, ha szigorú elvet követsz: minden topic
+	branchet merge-elsz, miközben egyetlen integrációs branchen maradsz.
 
 `git log -L '/int main/',/^}/:main.c`::
 
-	Shows how the function `main()` in the file `main.c` evolved
-	over time.
+	Megmutatja, hogyan fejlődött időben a `main()` függvény a `main.c`
+	fájlban.
 
 `git log -3`::
 
-	Limits the number of commits to show to 3.
+	A megjelenítendő commitok számát 3-ra korlátozza.
 
 DISCUSSION
 ----------
@@ -205,17 +210,17 @@ include::i18n.adoc[]
 CONFIGURATION
 -------------
 
-See linkgit:git-config[1] for core variables and linkgit:git-diff[1]
-for settings related to diff generation.
+Az alapvető változókért lásd linkgit:git-config[1], a diff-generálással
+kapcsolatos beállításokért pedig linkgit:git-diff[1].
 
 `format.pretty`::
-	Default for the `--format` option.  (See 'Pretty Formats' above.)
-	Defaults to `medium`.
+	A `--format` kapcsoló alapértelmezése.  (Lásd fentebb a 'Pretty
+	Formats' szakaszt.)  Az alapértelmezése `medium`.
 
 `i18n.logOutputEncoding`::
-	Encoding to use when displaying logs.  (See 'Discussion' above.)
-	Defaults to the value of `i18n.commitEncoding` if set, and UTF-8
-	otherwise.
+	A naplók megjelenítésekor használandó kódolás.  (Lásd fentebb a
+	'Discussion' szakaszt.)  Ha be van állítva, az `i18n.commitEncoding`
+	értékére áll alapból, egyébként UTF-8-ra.
 
 include::includes/cmd-config-section-rest.adoc[]
 
@@ -225,4 +230,4 @@ include::config/notes.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

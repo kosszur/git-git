@@ -107,14 +107,14 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-http-backend.adoc | [ ] |  |  |
 | git-http-fetch.adoc | [x] |  | 2026-09-10 |
 | git-http-push.adoc | [x] |  | 2026-09-10 |
-| git-imap-send.adoc | [ ] |  |  |
+| git-imap-send.adoc | [x] |  | 2026-09-10 |
 | git-index-pack.adoc | [x] |  | 2026-09-10 |
 | git-init-db.adoc | [x] |  | 2026-09-10 |
 | git-init.adoc | [x] |  | 2026-09-10 |
 | git-instaweb.adoc | [x] |  | 2026-09-10 |
 | git-interpret-trailers.adoc | [ ] |  |  |
 | git-last-modified.adoc | [x] |  | 2026-09-10 |
-| git-log.adoc | [ ] |  |  |
+| git-log.adoc | [x] |  | 2026-09-10 |
 | git-ls-files.adoc | [ ] |  |  |
 | git-ls-remote.adoc | [x] |  | 2026-09-10 |
 | git-ls-tree.adoc | [x] |  | 2026-09-10 |
@@ -156,12 +156,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-remote.adoc | [ ] |  |  |
 | git-repack.adoc | [ ] |  |  |
 | git-replace.adoc | [x] |  | 2026-09-10 |
-| git-replay.adoc | [ ] |  |  |
+| git-replay.adoc | [x] |  | 2026-09-10 |
 | git-repo.adoc | [x] |  | 2026-09-10 |
 | git-request-pull.adoc | [x] |  | 2026-09-10 |
-| git-rerere.adoc | [ ] |  |  |
+| git-rerere.adoc | [x] |  | 2026-09-10 |
 | git-reset.adoc | [ ] |  |  |
-| git-restore.adoc | [ ] |  |  |
+| git-restore.adoc | [x] |  | 2026-09-10 |
 | git-rev-list.adoc | [x] |  | 2026-09-10 |
 | git-rev-parse.adoc | [ ] |  |  |
 | git-revert.adoc | [x] |  | 2026-09-10 |
@@ -708,3 +708,18 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   előtag → „KÍSÉRLETI:", a `(EXPERIMENTAL!)` synopsis-előtag → „(KÍSÉRLETI!)", a `THIS COMMAND IS
   EXPERIMENTAL…` csupa nagybetűs mondat lefordítva a nagybetűs formázás megtartásával (3. blokk
   precedens). Orchestrátor végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „29. blokk".
+- **2026-09-10 — a következő 5 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  5-ös bontást kért; a két gyökér-tábla együttes, sorméret szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva):
+  `git-imap-send.adoc`, `git-log.adoc`, `git-replay.adoc`, `git-rerere.adoc`, `git-restore.adoc`.
+  Egyik fájlban sem kellett új `[[...]]` anchort adni. A `git-replay.adoc` meglévő `[[output]]` és
+  `[[exit-status]]` anchorjai + a rájuk mutató `<<output,OUTPUT>>` és `<<exit-status,EXIT STATUS>>`
+  xref-ek (linkszöveggel együtt) **bájtazonosan** megmaradtak (az `OUTPUT` a 3. blokkban, az
+  `EXIT STATUS` a kanonikus listán zárt kategória → a címek angolul maradnak, a 29. blokk
+  `git-format-rev.adoc` precedense). Csupa nagybetűs, kanonikus listán kívüli alcímek a VÉGLEGES
+  DÖNTÉS szerint angolul: `GETTING A LIST OF AVAILABLE FOLDERS`, `CAUTION` (`git-imap-send.adoc`),
+  `DIFF FORMATTING` (`git-log.adoc`), `COMMANDS` (`git-rerere.adoc`). `git-replay.adoc` NAME
+  `EXPERIMENTAL:` előtag → „KÍSÉRLETI:", `(EXPERIMENTAL!)` synopsis-előtag → „(KÍSÉRLETI!)", a
+  `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` csupa nagybetűs mondat lefordítva a
+  nagybetűs formázás megtartásával (3./29. blokk precedens). Orchestrátor végezte közvetlenül.
+  Részletek: `glossary-git-git-docs.md` „30. blokk".

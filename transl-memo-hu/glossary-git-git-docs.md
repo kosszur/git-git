@@ -2329,3 +2329,94 @@ fordította közvetlenül. Fájlok: `git-show-branch.adoc`, `git-show-ref.adoc`,
   setext-aláhúzás-eltérés (a script által jelzett esetek mind `----` listing-blokk-határolók);
   `ifdef`/`endif` páros a `merge-options.adoc`-ban (11/11); az anchorok és xref-ek a
   `git-format-rev.adoc`-ban változatlanok.
+
+## 30. blokk — `git-imap-send.adoc`, `git-log.adoc`, `git-replay.adoc`, `git-rerere.adoc`, `git-restore.adoc` — 2026-09-10
+
+**Módszer:** a felhasználó 5-ös bontást kért — a két gyökér-tábla együttes, sorméret szerint növekvő
+listájából a 5 legkisebb, még `[ ]` jelölésű fájl (`gitglossary.adoc`/`git.adoc`/`config.adoc`/
+`git-fast-import.adoc`/`glossary-content.adoc` a skill szerint kihagyva). Orchestrátor végezte
+közvetlenül, célzott `Edit`-ekkel, a triviális méret miatt subagent nélkül.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| replay (parancsnév / ige) | **marad „git replay"** parancsnév; ige-jellegű használatban „újrajátszás" / „újrajátssza" | `git-replay.adoc` — a doksi maga „replays them onto a new location"; a `git replay` parancsnév és a `--onto`/`--advance`/`--revert` kapcsolók angolul |
+| revert commit / reverted commit (git replay kontextus) | **„revert-commit" / „visszavont commit"** | a `git revert` parancsnév marad; a „reverted" mn.-i igenév → „visszavont" |
+| atomic transaction (ref-frissítés) | **„atomi tranzakció"**; „updated atomically" → „atomian frissül" | `git-replay.adoc` |
+| bare commit ID | **„puszta commit-azonosító"** | branchnevek helyett használt nyers SHA |
+| restore source / restore location (git restore) | **„visszaállítási forrás" / „a visszaállítás helye"** | `git-restore.adoc` — a `--source` és a `--staged`/`--worktree` szemantikájának magyarázatában |
+| overlay / no-overlay mode | **marad „overlay" / „no-overlay mód"** | `git-restore.adoc` — kapcsoló-tokenek |
+| decoration / decorate (git log ref-nevek) | **„díszítés" / „díszít"**; „decoration filter" → „díszítésszűrő" | `git-log.adoc` `--decorate*` kapcsolók |
+| automerge (rerere) | **marad „automerge"**; „conflicted automerge" → „konfliktusos automerge" | `git-rerere.adoc` |
+| hand resolve / manual resolution (rerere) | **„kézi feloldás"** | |
+| blow away (a test merge) | **„eltüntet"** (eltüntetheted a teszt-merge-et) | `git-rerere.adoc` DISCUSSION |
+| conflict marker | **„konfliktusjelölő"** | `git-rerere.adoc` — a `<<<<<<<` / `=======` / `>>>>>>>` literálok bájtazonosak |
+| sanity check | **„épségvizsgálat"** | `git-rerere.adoc` |
+| drafts folder (IMAP) | **„piszkozatmappa"** | `git-imap-send.adoc` |
+| mailbox (git format-patch kimenet) | **„postaláda"** | `git-imap-send.adoc` |
+| pipe (ige, `\|` update-ref --stdin) | **„csövez"** (a `git update-ref --stdin`-be csövezhető) | `git-replay.adoc` |
+
+### Címsor-anchorok
+
+- **`git-replay.adoc`** — az egyetlen fájl a blokkban `[[...]]`/`<<...>>`-vel. A meglévő `[[output]]`
+  és `[[exit-status]]` anchorok, valamint a rájuk mutató `<<output,OUTPUT>>` és
+  `<<exit-status,EXIT STATUS>>` xref-ek **a látható linkszöveggel együtt bájtazonosan** megmaradtak.
+  Indok: az `OUTPUT` a 3. blokkban lezárt kanonikus-kategória, az `EXIT STATUS` a skill kanonikus
+  listáján van → mindkét cím angolul marad, tehát a címszöveget tükröző linkszöveg fordítása
+  inkonzisztenciát okozna (a `git-format-rev.adoc` `<<io,INPUT AND OUTPUT FORMATS>>` precedense,
+  29. blokk).
+- `git-imap-send.adoc`, `git-log.adoc`, `git-rerere.adoc`, `git-restore.adoc`: nincs `[[...]]` és
+  nincs `<<...>>`; új defenzív anchort egyikük sem kapott (kizárólag kanonikus man-page szekciók,
+  ill. csupa nagybetűs, kanonikus listán kívüli alcímek vannak, amelyek angolul maradnak — l. lent).
+
+### Man-page címként angolul hagyott kétes címsorok
+
+- **`GETTING A LIST OF AVAILABLE FOLDERS`**, **`CAUTION`** (`git-imap-send.adoc`),
+  **`DIFF FORMATTING`** (`git-log.adoc`), **`COMMANDS`** (`git-rerere.adoc`) — csupa nagybetűs,
+  kétsoros aláhúzású, a kanonikus man-page-szekció listán kívüli alcímek; a VÉGLEGES DÖNTÉS szerint
+  **bájtazonosan angolul** (aláhúzás sem változott). A `git-log.adoc` `DISCUSSION`/`CONFIGURATION`
+  és a `git-replay.adoc` `OUTPUT`/`EXIT STATUS`/`CONFIGURATION` a kanonikus/lezárt listán vannak.
+
+### Megőrzött markup / megjegyzések
+
+- Mindegyik fájl GIT szakasza „A linkgit:git[1] csomag része" alakra fordítva (4. blokk).
+- **`git-replay.adoc`**: NAME `EXPERIMENTAL:` előtag → „KÍSÉRLETI:", `[verse]` synopsis
+  `(EXPERIMENTAL!)` előtag → „(KÍSÉRLETI!)" (29. blokk `git-format-rev.adoc` precedens); a
+  `THIS COMMAND IS EXPERIMENTAL. THE BEHAVIOR MAY CHANGE.` csupa nagybetűs mondat lefordítva a
+  nagybetűs formázás megtartásával („EZ A PARANCS KÍSÉRLETI. A VISELKEDÉSE MEGVÁLTOZHAT.", 3. blokk
+  `git-backfill.adoc` precedens). A `////` … `////` komment-blokk a `--ref-action` def-listában,
+  a `update`;; / `print`;; másodszintű címkék, a `--` … `--` nyílt blokk határolói és a behúzott
+  `update refs/heads/branchN …` literál blokk **bájtazonosak**; a „Specifying Ranges" (git-rev-parse[1])
+  és a `<<output,OUTPUT>>` idézett/xref szakasznevek angolul (a cél még lefordítatlan / a cím angol).
+- **`git-restore.adoc`**: a "Reset, restore and revert" (git[1]) és a „Interaktív mód" (git-add[1],
+  az ottani, már lefordított `Interaktív mód` címre) prózahivatkozás — előbbi angolul (a git.adoc
+  szakasznév még lefordítatlan), utóbbi a `git-add.adoc` meglévő fordításához igazítva. A
+  `------------` (12 kötőjeles) EXAMPLES-blokkok (`$ git switch/restore …`), a `<1>`/`<2>` callout-
+  jelölők a kódban és a `include::diff-context-options.adoc[]` sor **bájtazonosak**; a callout-
+  magyarázatok szövege fordult.
+- **`git-log.adoc`**: az összes `include::…` sor (`rev-list-description`, `line-range-options`,
+  `rev-list-options`, `pretty-formats`, `diff-options`, `diff-generate-patch`, `i18n`,
+  `includes/cmd-config-section-rest`, `config/log`, `config/notes`) és a `:git-log: 1` /
+  `:diff-merges-default:` attribútum-sorok **bájtazonosak**. A `--` … `--` nyílt blokk a
+  `--decorate` def-listában + a `short`;;/`full`;;/`auto`;; másodszintű címkék változatlanok. A
+  `'Specifying Ranges'` / `'History Simplification'` / `'Pretty Formats'` / `'Discussion'` idézett
+  szakasznevek (compat-mode `'...'`) angolul maradtak (a hivatkozott szakaszok / fájlok
+  — `rev-list-options.adoc`, `pretty-formats.adoc`, `revisions.adoc`, `gitrevisions.adoc` — még
+  lefordítatlanok, ill. `git-log`-on belüli, angolul maradó címre mutatnak). A ``main branch''
+  → ``fő branch'' (a `` `` `` compat-mode idézőjel-markup megtartva).
+- **`git-imap-send.adoc`**: a `.........` (pontokból álló) és `----` körülhatárolt blokkok
+  (`* LIST (\HasNoChildren) …` IMAP-kimenet, `[imap]` config-példák, `$ git format-patch … | git
+  imap-send` parancssorok) **bájtazonosak**; az `[NOTE]` egysoros admonition-kulcsszó változatlan,
+  a törzs fordult. A lokalizálatlan program-üzenet-szövegek (`"Folder doesn't exist"`, `"Drafts"`,
+  `"Junk"`, `"Trash"`, `"INBOX"`) idézőjelben, angolul (5./6. blokk precedens). Az
+  `include::includes/cmd-config-section-rest.adoc[]` és `include::config/imap.adoc[]` sorok
+  bájtazonosak.
+- **`git-rerere.adoc`**: a `[verse]` synopsis (`'git rerere' [clear | forget <pathspec>... | …]`)
+  és a `'clear'`/`'forget'`/`'diff'`/`'status'`/`'remaining'`/`'gc'` `::` definíciós lista-címkék
+  (a ténylegesen begépelendő alparancs-szavak, compat-mode `'...'`) **bájtazonosak** — csak a
+  törzs fordult (5. blokk `git-clean.adoc` interaktív-alparancs precedens). A `------------`
+  ASCII-art commit-gráf blokkok (`o---*---o topic` stb., `$ git switch/merge/reset …` beágyazott
+  parancsokkal) **bájtazonosak**. A `<<<<<<<` / `=======` / `>>>>>>>` konfliktusjelölő-literálok
+  és a `[NOTE]` admonition-kulcsszavak változatlanok. A `"release"` / `"Merge from master"` /
+  `"useless merges"` idézett kifejezések angolul maradtak (idézőjelben).

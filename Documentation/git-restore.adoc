@@ -3,7 +3,7 @@ git-restore(1)
 
 NAME
 ----
-git-restore - Restore working tree files
+git-restore - Munkakönyvtárbeli fájlok visszaállítása
 
 SYNOPSIS
 --------
@@ -14,41 +14,41 @@ git restore (-p|--patch) [<options>] [--source=<tree>] [--staged] [--worktree] [
 
 DESCRIPTION
 -----------
-Restore specified paths in the working tree with some contents from a
-restore source. If a path is tracked but does not exist in the restore
-source, it will be removed to match the source.
+A munkakönyvtárban megadott elérési utakat állítja vissza egy visszaállítási
+forrás valamely tartalmával. Ha egy elérési út követett, de a visszaállítási
+forrásban nem létezik, akkor eltávolítja, hogy megegyezzen a forrással.
 
-The command can also be used to restore the content in the index with
-`--staged`, or restore both the working tree and the index with
-`--staged --worktree`.
+A parancs az index tartalmának visszaállítására is használható a `--staged`
+kapcsolóval, vagy a munkakönyvtár és az index együttes visszaállítására a
+`--staged --worktree` kapcsolókkal.
 
-By default, if `--staged` is given, the contents are restored from `HEAD`,
-otherwise from the index. Use `--source` to restore from a different commit.
+Alapértelmezés szerint, ha a `--staged` meg van adva, a tartalom a `HEAD`-ből
+áll vissza, egyébként az indexből. A `--source` használatával egy másik
+commitból állíthatsz vissza.
 
-See "Reset, restore and revert" in linkgit:git[1] for the differences
-between the three commands.
+A három parancs közötti különbségekért lásd a "Reset, restore and revert"
+szakaszt a linkgit:git[1] man oldalon.
 
 OPTIONS
 -------
 `-s <tree>`::
 `--source=<tree>`::
-	Restore the working tree files with the content from the given
-	tree. It is common to specify the source tree by naming a
-	commit, branch or tag associated with it.
+	A munkakönyvtárbeli fájlokat a megadott fa tartalmával állítja
+	vissza. Bevett szokás a forrásfát egy hozzá tartozó commit, branch
+	vagy tag nevével megadni.
 +
-If not specified, the contents are restored from `HEAD` if `--staged` is
-given, otherwise from the index.
+Ha nincs megadva, a tartalom a `HEAD`-ből áll vissza, ha a `--staged` meg van
+adva, egyébként az indexből.
 +
-As a special case, you may use `"<rev-A>...<rev-B>"` as a shortcut for the
-merge base of _<rev-A>_ and _<rev-B>_ if there is exactly one merge base. You can
-leave out at most one of _<rev-A>_ and _<rev-B>_, in which case it defaults to `HEAD`.
+Speciális esetként a `"<rev-A>...<rev-B>"` alak rövidítésként használható
+_<rev-A>_ és _<rev-B>_ merge-alapjára, ha pontosan egy merge-alap van. _<rev-A>_
+és _<rev-B>_ közül legfeljebb az egyik elhagyható, ilyenkor az alapértelmezése `HEAD`.
 
 `-p`::
 `--patch`::
-	Interactively select hunks in the difference between the
-	restore source and the restore location. See the "Interactive
-	Mode" section of linkgit:git-add[1] to learn how to operate
-	the `--patch` mode.
+	Interaktívan válaszd ki a hunkokat a visszaállítási forrás és a
+	visszaállítási hely közötti eltérésben. A `--patch` mód kezeléséről
+	a linkgit:git-add[1] „Interaktív mód" szakaszában olvashatsz.
 
 include::diff-context-options.adoc[]
 
@@ -56,103 +56,107 @@ include::diff-context-options.adoc[]
 `--worktree`::
 `-S`::
 `--staged`::
-	Specify the restore location. If neither option is specified,
-	by default the working tree is restored. Specifying `--staged`
-	will only restore the index. Specifying both restores both.
+	A visszaállítás helyének megadása. Ha egyik kapcsoló sincs megadva,
+	alapértelmezés szerint a munkakönyvtár áll vissza. A `--staged`
+	megadása csak az indexet állítja vissza. Mindkettő megadása mindkettőt
+	visszaállítja.
 
 `-q`::
 `--quiet`::
-	Quiet, suppress feedback messages. Implies `--no-progress`.
+	Csendes mód, elnyomja a visszajelző üzeneteket. Magában foglalja a
+	`--no-progress`-t.
 
 `--progress`::
 `--no-progress`::
-	Progress status is reported on the standard error stream
-	by default when it is attached to a terminal, unless `--quiet`
-	is specified. This flag enables progress reporting even if not
-	attached to a terminal, regardless of `--quiet`.
+	Az előrehaladás állapotát alapértelmezés szerint a standard hibakimenetre
+	írja, ha az terminálhoz kapcsolódik, kivéve ha a `--quiet` meg van adva.
+	Ez a kapcsoló akkor is bekapcsolja az előrehaladás jelzését, ha nem
+	terminálhoz kapcsolódik, a `--quiet`-tól függetlenül.
 
 `--ours`::
 `--theirs`::
-	When restoring files in the working tree from the index, use
-	stage #2 (`ours`) or #3 (`theirs`) for unmerged paths.
-	This option cannot be used when checking out paths from a
-	tree-ish (i.e. with the `--source` option).
+	Amikor a munkakönyvtárbeli fájlokat az indexből állítod vissza, a
+	nem merge-elt elérési utakhoz a #2 (`ours`) vagy a #3 (`theirs`)
+	stage-et használja. Ez a kapcsoló nem használható, amikor egy
+	tree-ish-ből (azaz a `--source` kapcsolóval) checkoutolsz elérési utakat.
 +
-Note that during `git rebase` and `git pull --rebase`, `ours` and
-`theirs` may appear swapped. See the explanation of the same options
-in linkgit:git-checkout[1] for details.
+Vedd figyelembe, hogy `git rebase` és `git pull --rebase` közben az `ours` és
+a `theirs` felcserélve tűnhet fel. Részletekért lásd ugyanezen kapcsolók
+magyarázatát a linkgit:git-checkout[1] man oldalon.
 
 `-m`::
 `--merge`::
-	When restoring files on the working tree from the index,
-	recreate the conflicted merge in the unmerged paths.
-	This option cannot be used when checking out paths from a
-	tree-ish (i.e. with the `--source` option).
+	Amikor a munkakönyvtárbeli fájlokat az indexből állítod vissza, a
+	nem merge-elt elérési utakban újra létrehozza a konfliktusos merge-et.
+	Ez a kapcsoló nem használható, amikor egy tree-ish-ből (azaz a
+	`--source` kapcsolóval) checkoutolsz elérési utakat.
 
 `--conflict=<style>`::
-	The same as `--merge` option above, but changes the way the
-	conflicting hunks are presented, overriding the
-	`merge.conflictStyle` configuration variable.  Possible values
-	are `merge` (default), `diff3`, and `zdiff3`.
+	Ugyanaz, mint a fenti `--merge` kapcsoló, de megváltoztatja a
+	konfliktusos hunkok megjelenítésének módját, felülírva a
+	`merge.conflictStyle` konfigurációs változót.  A lehetséges értékek:
+	`merge` (alapértelmezett), `diff3` és `zdiff3`.
 
 `--ignore-unmerged`::
-	When restoring files on the working tree from the index, do
-	not abort the operation if there are unmerged entries and
-	neither `--ours`, `--theirs`, `--merge` or `--conflict` is
-	specified. Unmerged paths on the working tree are left alone.
+	Amikor a munkakönyvtárbeli fájlokat az indexből állítod vissza, ne
+	szakítsa meg a műveletet, ha vannak nem merge-elt bejegyzések, és
+	sem a `--ours`, sem a `--theirs`, sem a `--merge`, sem a `--conflict`
+	nincs megadva. A munkakönyvtárban lévő nem merge-elt elérési utakat
+	érintetlenül hagyja.
 
 `--ignore-skip-worktree-bits`::
-	In sparse checkout mode, the default is to only update entries
-	matched by _<pathspec>_ and sparse patterns in
-	`$GIT_DIR/info/sparse-checkout`. This option ignores the sparse
-	patterns and unconditionally restores any files in
-	_<pathspec>_.
+	Sparse checkout módban alapértelmezés szerint csak azok a bejegyzések
+	frissülnek, amelyekre a _<pathspec>_ és a `$GIT_DIR/info/sparse-checkout`
+	fájlbeli sparse minták is illeszkednek. Ez a kapcsoló figyelmen kívül
+	hagyja a sparse mintákat, és feltétel nélkül visszaállít minden
+	_<pathspec>_ által megadott fájlt.
 
 `--recurse-submodules`::
 `--no-recurse-submodules`::
-	If _<pathspec>_ names an active submodule and the restore location
-	includes the working tree, the submodule will only be updated if
-	this option is given, in which case its working tree will be
-	restored to the commit recorded in the superproject, and any local
-	modifications overwritten. If nothing (or
-	`--no-recurse-submodules`) is used, submodules working trees will
-	not be updated. Just like linkgit:git-checkout[1], this will detach
-	`HEAD` of the submodule.
+	Ha a _<pathspec>_ egy aktív submodule-t nevez meg, és a visszaállítás
+	helye tartalmazza a munkakönyvtárat, a submodule csak akkor frissül,
+	ha ez a kapcsoló meg van adva; ilyenkor a munkakönyvtára a
+	szuperprojektben rögzített commitra áll vissza, és minden helyi
+	módosítás felülíródik. Ha semmi (vagy a `--no-recurse-submodules`)
+	nincs használatban, a submodule-ok munkakönyvtárai nem frissülnek.
+	A linkgit:git-checkout[1]-hoz hasonlóan ez leválasztja a submodule
+	`HEAD`-jét.
 
 `--overlay`::
 `--no-overlay`::
-	In overlay mode, never remove files when restoring. In no-overlay mode,
-	remove tracked files that do not appear in the _<tree>_ of
-	`--source=<tree>`, to make them match _<tree>_ exactly. The default
-	is no-overlay mode.
+	Overlay módban a visszaállítás sosem távolít el fájlokat. No-overlay
+	módban eltávolítja azokat a követett fájlokat, amelyek nem szerepelnek
+	a `--source=<tree>` _<tree>_-jében, hogy pontosan megegyezzenek a
+	_<tree>_-vel. Az alapértelmezés a no-overlay mód.
 
 `--pathspec-from-file=<file>`::
-	Pathspec is passed in _<file>_ instead of commandline args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR_/_LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec a _<file>_-ban kerül átadásra a parancssori argumentumok
+	helyett. Ha a _<file>_ pontosan `-`, akkor a standard bemenetet
+	használja. A pathspec-elemeket _LF_ vagy _CR_/_LF_ választja el. A
+	pathspec-elemek idézőjelezhetők, ahogyan azt a `core.quotePath`
+	konfigurációs változónál leírtuk (lásd linkgit:git-config[1]). Lásd
+	még a `--pathspec-file-nul` és a globális `--literal-pathspecs`
+	kapcsolót.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file`-lal van értelme. A pathspec-elemeket
+	_NUL_ karakter választja el, és minden más karakter szó szerint
+	értendő (a soremeléseket és az idézőjeleket is beleértve).
 
 `--`::
-	Do not interpret any more arguments as options.
+	Ne értelmezzen több argumentumot kapcsolóként.
 
 `<pathspec>...`::
-	Limits the paths affected by the operation.
+	Korlátozza a művelet által érintett elérési utakat.
 +
-For more details, see the 'pathspec' entry in linkgit:gitglossary[7].
+További részletekért lásd a 'pathspec' bejegyzést a linkgit:gitglossary[7]-ben.
 
 EXAMPLES
 --------
 
-The following sequence switches to the `master` branch, reverts the
-`Makefile` to two revisions back, deletes `hello.c` by mistake, and gets
-it back from the index.
+A következő szekvencia átvált a `master` branchre, két revízióval korábbi
+állapotra állítja vissza a `Makefile`-t, tévedésből törli a `hello.c`-t,
+majd visszaszerzi az indexből.
 
 ------------
 $ git switch master
@@ -161,49 +165,49 @@ $ rm -f hello.c
 $ git restore hello.c                     <2>
 ------------
 
-<1> take a file out of another commit
-<2> restore `hello.c` from the index
+<1> egy fájl kivétele egy másik commitból
+<2> a `hello.c` visszaállítása az indexből
 
-If you want to restore _all_ C source files to match the version in
-the index, you can say
+Ha _minden_ C forrásfájlt vissza akarsz állítani úgy, hogy megegyezzen az
+indexben lévő verzióval, ezt mondhatod
 
 ------------
 $ git restore '*.c'
 ------------
 
-Note the quotes around `*.c`.  The file `hello.c` will also be
-restored, even though it is no longer in the working tree, because the
-file globbing is used to match entries in the index (not in the
-working tree by the shell).
+Figyeld meg a `*.c` körüli idézőjeleket.  A `hello.c` fájl is
+visszaáll, még akkor is, ha már nincs a munkakönyvtárban, mert a
+fájlnév-globbing az indexben lévő bejegyzésekre illeszkedik (nem a
+munkakönyvtárban a shell által).
 
-To restore all files in the current directory
+Az aktuális könyvtár összes fájljának visszaállításához
 
 ------------
 $ git restore .
 ------------
 
-or to restore all working tree files with 'top' pathspec magic (see
+vagy a munkakönyvtár összes fájljának visszaállításához a 'top' pathspec-mágiával (lásd
 linkgit:gitglossary[7])
 
 ------------
 $ git restore :/
 ------------
 
-To restore a file in the index to match the version in `HEAD` (this is
-the same as using linkgit:git-reset[1])
+Egy indexbeli fájl visszaállításához úgy, hogy megegyezzen a `HEAD`-ben
+lévő verzióval (ez ugyanaz, mint a linkgit:git-reset[1] használata)
 
 ------------
 $ git restore --staged hello.c
 ------------
 
-or you can restore both the index and the working tree (this is the same
-as using linkgit:git-checkout[1])
+vagy visszaállíthatod az indexet és a munkakönyvtárat is (ez ugyanaz, mint
+a linkgit:git-checkout[1] használata)
 
 ------------
 $ git restore --source=HEAD --staged --worktree hello.c
 ------------
 
-or the short form which is more practical but less readable:
+vagy a rövid alak, amely praktikusabb, de kevésbé olvasható:
 
 ------------
 $ git restore -s@ -SW hello.c
@@ -216,4 +220,4 @@ linkgit:git-reset[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
