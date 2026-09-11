@@ -3759,3 +3759,74 @@ sor, man page). 2 párhuzamos subagent végezte.
 
 Orchestrátor konszolidálta, a fent leírt 2 javítással (`git-format-patch.adoc`-on). Részletek
 fent, „42. blokk".
+
+## 43. blokk — `diff-options.adoc`, `gitprotocol-v2.adoc` — 2026-09-11
+
+**Fájlok:** `diff-options.adoc` (34,3KB, 925 sor, SHARED INCLUDE FRAGMENS — `git-diff.adoc`,
+`git-log.adoc`, `git-format-patch.adoc` stb. include-olja `ifdef::`/`ifndef::`/`endif::`
+guardokkal), `gitprotocol-v2.adoc` (36,8KB, 904→974 sor, RFC-stílusú protokoll-spec, a
+`gitprotocol-pack.adoc` [39. blokk] közvetlen mintáját követve). 2 párhuzamos subagent végezte.
+
+### Orchestrátor-javítások a subagent-eredményben
+
+- **`diff-options.adoc` — grammatikai javítás**: a `--diff-filter` opció leírásában a subagent
+  fordítása („...amelyeknek a típusa ... megváltozott (T), Nem Merge-eltek (U), Ismeretlenek
+  (X), vagy amelyeknek a párosítása Megszakadt (B)") a „Nem Merge-eltek (U), Ismeretlenek (X)"
+  részt kötőszó nélkül, ragozatlanul hagyta lógni a felsorolásban. Javítva: „...megváltozott
+  (T), amelyek Nem Merge-eltek (U) vagy Ismeretlenek (X), vagy amelyeknek a párosítása
+  Megszakadt (B)" — az „amelyek" pótlásával a mondat mind a hét státuszbetűre (`A/C/D/M/R/T/U/X/B`)
+  nyelvtanilag helyes relatív mellékmondat-láncot alkot.
+- **`gitprotocol-http.adoc` — elmulasztott NAME-fordítás pótolva** (nem ennek a blokknak a
+  fájlja, hanem a korábbi 38. blokké, de itt tűnt fel): a NAME-sor egysoros leírása
+  („Git HTTP-based protocols") angolul maradt, holott a projekt 2. blokkban rögzített szabálya
+  szerint a NAME szakasz egysoros leírása **mindig fordul** (l. minden más man page precedense).
+  Javítva: „Git HTTP-alapú protokollok"-ra. A `gitprotocol-v2.adoc` és a `gitprotocol-pack.adoc`
+  NAME-sora már helyesen fordítva készült el, ez utóbbi kettő volt a helyes minta, nem a
+  `gitprotocol-http.adoc`.
+- **`gitprotocol-v2.adoc`**: nem igényelt tartalmi javítást, csak a strukturális ellenőrzés
+  (dash-számlálás) adott hamis riasztást — a fájl NEM tartalmaz `----`-delimitált kódblokkot
+  (a protokoll-grammatika behúzott literál bekezdésekben van, ahogy a `gitprotocol-pack.adoc`-ban
+  is), így minden `----` előfordulás egy-egy setext-cím aláhúzása, nem párban álló blokkhatároló.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| NAME szakasz egysoros leírása | **VÉGLEGESEN megerősítve: mindig fordul** | a 2. blokk szabályának újbóli megerősítése, miután a `gitprotocol-http.adoc` egy korábbi kivétel volt (most javítva) |
+| Packet-Line Framing (cím) | **„Pkt-line keretezés"** | `gitprotocol-v2.adoc` — a „pkt-line" a `gitprotocol-pack.adoc`/`gitprotocol-common.adoc` bevett terminusa |
+| Capability Advertisement | **„Képesség-hirdetés"** | ua. |
+| Command Request / Capabilities / Initial Client Request | **„Parancskérés" / „Képességek" / „Kezdeti klienskérés"** | ua. |
+| ALL-CAPS `::` definíciós-lista-címke, mint ad hoc „mini-alcím" (NEM kétsoros setext cím) | **fordul** (a leíró angol kifejezés lefordul, a `bundle-uri` identifier-rész angolul marad) | `gitprotocol-v2.adoc` bundle-uri szekció: „URI CONTENTS::" → „URI-TARTALOM::", „bundle-uri CLIENT ERROR RECOVERY::" → „bundle-uri KLIENSOLDALI HIBAKEZELÉS::" stb. **Fontos megkülönböztetés a 39. blokk VÉGLEGES DÖNTÉSÉTŐL**: az ALL-CAPS „mindig angolul marad" szabály kizárólag a **kétsoros setext man-page-stílusú címekre** vonatkozik; egy `::` definíciós-lista-címke szintaktikailag NEM cím, hanem egy fogalom leíró neve, ezért — ha nem szó szerinti azonosító (mint egy config-kulcs vagy hook-fájlnév) — a leíró angol szövege fordul, ahogy bármely más `::`-címke leírás-törzse is |
+| bundle-uri (protokoll-parancsnév, funkciónév) | **marad „bundle-uri"** angolul, a leíró szöveg körülötte fordul | ua. — Git-specifikus parancsnév |
+
+### Címsor-anchorok
+
+- **`diff-options.adoc`**: nincs saját címe (include-fragmens, csak `--option::` bejegyzések és
+  szabad próza), ezért nem kapott anchort. Az egyetlen `<<generate_patch_text_with_p>>` xref
+  (bare, látható szöveg nélkül) a `diff-generate-patch.adoc`-beli anchorra mutat — bájtazonosan
+  érintetlen.
+- **`gitprotocol-v2.adoc`**: 21 defenzív `[[...]]` anchor minden valódi (nem man-page-canonikus,
+  nem `::`-címke) cím fölött, a `gitprotocol-pack.adoc` anchor-mintáját követve (l. subagent-
+  jelentés a teljes listáért). Nincs `<<...>>` a fájlban, így egyik anchor sem igényelt
+  hivatkozás-átírást.
+
+### Man-page címként angolul hagyott, kétes címsorok
+
+- `gitprotocol-v2.adoc`: `Git Transport`, `SSH and File Transport`, `HTTP Transport` — a
+  `gitprotocol-pack.adoc` „Transport" kezelésének (39. blokk) közvetlen folytatása. Protokoll-
+  parancs-/képességnevek címként (`agent`, `ls-refs`, `fetch`, `server-option`, `object-format`,
+  `session-id=<session-id>`, `object-info`, `bundle-uri`, `promisor-remote=<pr-info>`) —
+  identifierek, nem fordulnak.
+
+### Megőrzött markup / megjegyzések
+
+- `diff-options.adoc`: 7 `--`/`--` nyitott-blokk pár és 1 `----`/`----` listing-blokk-pár
+  (a `frotz(nitfol...)` kódpélda) bájtazonos; a `--diff-filter` állapotbetűk (`A/C/D/M/R/T/U/X/B`)
+  és minden `--option::`/`<pathspec>::` címke bájtazonos.
+- `gitprotocol-v2.adoc`: minden ABNF-grammatika (behúzott literál bekezdésekben, NEM
+  `----`-blokkban) és a protokoll-token-identifierek (l. fent) bájtazonosak; RFC 2119
+  kulcsszavak a `gitcli.adoc`/`gitprotocol-http.adoc`/`gitprotocol-pack.adoc` szórend-mintája
+  szerint.
+
+Orchestrátor konszolidálta, 2 javítással (`diff-options.adoc` grammatika, `gitprotocol-http.adoc`
+elmulasztott NAME-fordítás pótlása). Részletek fent, „43. blokk".

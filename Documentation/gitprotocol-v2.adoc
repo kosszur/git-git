@@ -3,7 +3,7 @@ gitprotocol-v2(5)
 
 NAME
 ----
-gitprotocol-v2 - Git Wire Protocol, Version 2
+gitprotocol-v2 - A Git vezetékprotokoll 2. verziója
 
 SYNOPSIS
 --------
@@ -13,77 +13,87 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-This document presents a specification for a version 2 of Git's wire
-protocol.  Protocol v2 will improve upon v1 in the following ways:
+Ez a dokumentum a Git vezetékprotokolljának 2. verziójára vonatkozó
+specifikációt mutatja be.  A v2 protokoll az alábbi módokon javít a v1-en:
 
-  * Instead of multiple service names, multiple commands will be
-    supported by a single service
-  * Easily extendable as capabilities are moved into their own section
-    of the protocol, no longer being hidden behind a NUL byte and
-    limited by the size of a pkt-line
-  * Separate out other information hidden behind NUL bytes (e.g. agent
-    string as a capability and symrefs can be requested using 'ls-refs')
-  * Reference advertisement will be omitted unless explicitly requested
-  * ls-refs command to explicitly request some refs
-  * Designed with http and stateless-rpc in mind.  With clear flush
-    semantics the http remote helper can simply act as a proxy
+  * Több szolgáltatásnév helyett több parancsot fog támogatni egyetlen
+    szolgáltatás
+  * Könnyen bővíthető, mivel a képességek a protokoll saját szekciójába
+    kerülnek, és nem rejtőznek tovább egy NUL bájt mögött, sem a pkt-line
+    méretkorlátja nem korlátozza őket
+  * A NUL bájtok mögé rejtett egyéb információk különválasztása (pl. az
+    agent sztring képességként, a symrefek pedig az 'ls-refs' paranccsal
+    kérhetők le)
+  * A referencia-hirdetés elmarad, hacsak explicit módon nem kérik
+  * ls-refs parancs egyes refek explicit lekéréséhez
+  * A tervezés a http és a stateless-rpc szem előtt tartásával készült.
+    A világos flush-szemantikának köszönhetően a http remote helper
+    egyszerűen proxyként tud eljárni
 
-In protocol v2 communication is command oriented.  When first contacting a
-server a list of capabilities will be advertised.  Some of these capabilities
-will be commands which a client can request be executed.  Once a command
-has completed, a client can reuse the connection and request that other
-commands be executed.
+A v2 protokollban a kommunikáció parancs-orientált.  A szerverrel való első
+kapcsolatfelvételkor a szerver hirdet egy képességlistát.  Ezen képességek
+egy része olyan parancs lesz, amelynek végrehajtását a kliens kérheti.  Egy
+parancs befejeződése után a kliens újra felhasználhatja a kapcsolatot, és
+kérheti további parancsok végrehajtását.
 
-Packet-Line Framing
+[[_packet_line_framing]]
+Pkt-line keretezés
+------------------
+
+Minden kommunikáció pkt-line keretezéssel történik, csakúgy, mint a
+v1-ben.  További információért lásd a linkgit:gitprotocol-pack[5]-öt és a
+linkgit:gitprotocol-common[5]-öt.
+
+A v2 protokollban ezeknek a speciális csomagoknak a következő szemantikája van:
+
+  * '0000' Flush Packet (flush-pkt) - egy üzenet végét jelzi
+  * '0001' Delimiter Packet (delim-pkt) - egy üzenet szekcióit választja el
+  * '0002' Response End Packet (response-end-pkt) - egy válasz végét jelzi
+    stateless kapcsolatok esetén
+
+[[_initial_client_request]]
+Kezdeti klienskérés
 -------------------
 
-All communication is done using packet-line framing, just as in v1.  See
-linkgit:gitprotocol-pack[5] and linkgit:gitprotocol-common[5] for more information.
+Egy kliens általában úgy kérheti, hogy a v2 protokollon kommunikáljanak,
+hogy elküldi a `version=2` értéket a használt transporthoz tartozó
+megfelelő side-channelen keresztül, ami elkerülhetetlenül beállítja a
+`GIT_PROTOCOL`-t.  További információ található a linkgit:gitprotocol-pack[5]-ben
+és a linkgit:gitprotocol-http[5]-ben, valamint a `GIT_PROTOCOL` definíciójában a
+linkgit:git[1]-ben. Minden esetben a szervertől érkező válasz a
+képesség-hirdetés.
 
-In protocol v2 these special packets will have the following semantics:
-
-  * '0000' Flush Packet (flush-pkt) - indicates the end of a message
-  * '0001' Delimiter Packet (delim-pkt) - separates sections of a message
-  * '0002' Response End Packet (response-end-pkt) - indicates the end of a
-    response for stateless connections
-
-Initial Client Request
-----------------------
-
-In general a client can request to speak protocol v2 by sending
-`version=2` through the respective side-channel for the transport being
-used which inevitably sets `GIT_PROTOCOL`.  More information can be
-found in linkgit:gitprotocol-pack[5] and linkgit:gitprotocol-http[5], as well as the
-`GIT_PROTOCOL` definition in linkgit:git[1]. In all cases the
-response from the server is the capability advertisement.
-
+[[_git_transport]]
 Git Transport
 ~~~~~~~~~~~~~
 
-When using the git:// transport, you can request to use protocol v2 by
-sending "version=2" as an extra parameter:
+A git:// transport használatakor a v2 protokoll használatát úgy lehet
+kérni, hogy a "version=2" értéket extra paraméterként küldjük el:
 
    003egit-upload-pack /project.git\0host=myserver.com\0\0version=2\0
 
+[[_ssh_and_file_transport]]
 SSH and File Transport
 ~~~~~~~~~~~~~~~~~~~~~~
 
-When using either the ssh:// or file:// transport, the GIT_PROTOCOL
-environment variable must be set explicitly to include "version=2".
-The server may need to be configured to allow this environment variable
-to pass.
+Az ssh:// vagy a file:// transport használatakor a GIT_PROTOCOL
+környezeti változót explicit módon úgy kell beállítani, hogy tartalmazza
+a "version=2"-t.  Előfordulhat, hogy a szervert be kell konfigurálni,
+hogy engedélyezze ennek a környezeti változónak az átadását.
 
+[[_http_transport]]
 HTTP Transport
 ~~~~~~~~~~~~~~
 
-When using the http:// or https:// transport a client makes a "smart"
-info/refs request as described in linkgit:gitprotocol-http[5] and requests that
-v2 be used by supplying "version=2" in the `Git-Protocol` header.
+A http:// vagy https:// transport használatakor a kliens egy "smart"
+info/refs kérést hajt végre, ahogy azt a linkgit:gitprotocol-http[5] leírja, és
+kéri, hogy a v2-t használják, a "version=2" megadásával a `Git-Protocol`
+fejlécben.
 
    C: GET $GIT_URL/info/refs?service=git-upload-pack HTTP/1.0
    C: Git-Protocol: version=2
 
-A v2 server would reply:
+Egy v2 szerver erre így válaszolna:
 
    S: 200 OK
    S: <Some headers>
@@ -92,25 +102,29 @@ A v2 server would reply:
    S: 000eversion 2\n
    S: <capability-advertisement>
 
-Subsequent requests are then made directly to the service
-`$GIT_URL/git-upload-pack`. (This works the same for git-receive-pack).
+A további kéréseket ezután közvetlenül a
+`$GIT_URL/git-upload-pack` szolgáltatáshoz intézik. (Ez ugyanígy működik
+a git-receive-pack esetén is).
 
-Uses the `--http-backend-info-refs` option to
-linkgit:git-upload-pack[1].
+A `--http-backend-info-refs` opciót használja a
+linkgit:git-upload-pack[1]-hez.
 
-The server may need to be configured to pass this header's contents via
-the `GIT_PROTOCOL` variable. See the discussion in linkgit:git-http-backend[1].
+Előfordulhat, hogy a szervert be kell konfigurálni, hogy ennek a
+fejlécnek a tartalmát a `GIT_PROTOCOL` változón keresztül adja tovább.
+Lásd a témával kapcsolatos leírást a linkgit:git-http-backend[1]-ben.
 
-Capability Advertisement
-------------------------
+[[_capability_advertisement]]
+Képesség-hirdetés
+-----------------
 
-A server which decides to communicate (based on a request from a client)
-using protocol version 2, notifies the client by sending a version string
-in its initial response followed by an advertisement of its capabilities.
-Each capability is a key with an optional value.  Clients must ignore all
-unknown keys.  Semantics of unknown values are left to the definition of
-each key.  Some capabilities will describe commands which can be requested
-to be executed by the client.
+Egy szerver, amely úgy dönt (egy kliens kérése alapján), hogy a 2-es
+protokollverzión kommunikál, ezt úgy jelzi a kliensnek, hogy a
+kezdeti válaszában elküld egy verziósztringet, amelyet a képességeinek
+hirdetése követ.  Minden képesség egy kulcs egy opcionális értékkel.
+A klienseknek figyelmen kívül kell hagyniuk minden ismeretlen kulcsot.
+Az ismeretlen értékek szemantikáját az adott kulcs definíciója határozza
+meg.  Néhány képesség olyan parancsot ír le, amelynek végrehajtását a
+kliens kérheti.
 
     capability-advertisement = protocol-version
 			       capability-list
@@ -123,14 +137,15 @@ to be executed by the client.
     key = 1*(ALPHA | DIGIT | "-_")
     value = 1*(ALPHA | DIGIT | " -_.,?\/{}[]()<>!@#$%^&*+=:;")
 
-Command Request
----------------
+[[_command_request]]
+Parancskérés
+------------
 
-After receiving the capability advertisement, a client can then issue a
-request to select the command it wants with any particular capabilities
-or arguments.  There is then an optional section where the client can
-provide any command specific parameters or queries.  Only a single
-command can be requested at a time.
+A képesség-hirdetés fogadása után a kliens kiadhat egy kérést, amellyel
+kiválasztja a kívánt parancsot, tetszőleges konkrét képességekkel vagy
+argumentumokkal.  Ezt egy opcionális szekció követi, amelyben a kliens
+megadhatja a parancsra jellemző paramétereket vagy lekérdezéseket.
+Egyszerre csak egyetlen parancs kérhető.
 
     request = empty-request | command-request
     empty-request = flush-pkt
@@ -145,90 +160,96 @@ command can be requested at a time.
     command-specific-args are packet line framed arguments defined by
     each individual command.
 
-The server will then check to ensure that the client's request is
-comprised of a valid command as well as valid capabilities which were
-advertised.  If the request is valid the server will then execute the
-command.  A server MUST wait till it has received the client's entire
-request before issuing a response.  The format of the response is
-determined by the command being executed, but in all cases a flush-pkt
-indicates the end of the response.
+A szerver ezután ellenőrzi, hogy a kliens kérése egy érvényes parancsból,
+valamint a hirdetett érvényes képességekből áll-e.  Ha a kérés érvényes,
+a szerver ezután végrehajtja a parancsot.  A szervernek MUST megvárnia,
+amíg meg nem kapta a kliens teljes kérését, mielőtt választ adna.  A
+válasz formátumát a végrehajtott parancs határozza meg, de minden
+esetben egy flush-pkt jelzi a válasz végét.
 
-When a command has finished, and the client has received the entire
-response from the server, a client can either request that another
-command be executed or can terminate the connection.  A client may
-optionally send an empty request consisting of just a flush-pkt to
-indicate that no more requests will be made.
+Amikor egy parancs befejeződött, és a kliens megkapta a szervertől
+érkező teljes választ, a kliens vagy egy másik parancs végrehajtását
+kérheti, vagy megszakíthatja a kapcsolatot.  A kliens opcionálisan
+küldhet egy csak egy flush-pktből álló üres kérést is, jelezve, hogy nem
+küld több kérést.
 
-Capabilities
-------------
+[[_capabilities]]
+Képességek
+----------
 
-There are two different types of capabilities: normal capabilities,
-which can be used to convey information or alter the behavior of a
-request, and commands, which are the core actions that a client wants to
-perform (fetch, push, etc).
+Kétféle képesség létezik: normál képességek, amelyek információ
+átadására vagy egy kérés viselkedésének megváltoztatására használhatók,
+és parancsok, amelyek azok a fő műveletek, amelyeket a kliens el akar
+végezni (fetch, push, stb).
 
-Protocol version 2 is stateless by default.  This means that all commands
-must only last a single round and be stateless from the perspective of the
-server side, unless the client has requested a capability indicating that
-state should be maintained by the server.  Clients MUST NOT require state
-management on the server side in order to function correctly.  This
-permits simple round-robin load-balancing on the server side, without
-needing to worry about state management.
+A 2-es protokollverzió alapértelmezés szerint stateless.  Ez azt
+jelenti, hogy minden parancsnak csak egyetlen körig szabad tartania, és
+a szerveroldal szempontjából stateless-nek kell lennie, hacsak a kliens
+nem kért olyan képességet, amely jelzi, hogy a szervernek állapotot
+kell fenntartania.  A klienseknek MUST NOT megkövetelniük a
+szerveroldali állapotkezelést a helyes működéshez.  Ez lehetővé teszi az
+egyszerű round-robin terheléselosztást a szerveroldalon, anélkül, hogy
+az állapotkezeléssel kellene foglalkozni.
 
+[[_agent]]
 agent
 ~~~~~
 
-The server can advertise the `agent` capability with a value `X` (in the
-form `agent=X`) to notify the client that the server is running version
-`X`.  The client may optionally send its own agent string by including
-the `agent` capability with a value `Y` (in the form `agent=Y`) in its
-request to the server (but it MUST NOT do so if the server did not
-advertise the agent capability). The `X` and `Y` strings may contain any
-printable ASCII characters except space (i.e., the byte range 33 <= x <=
-126), and are typically of the form "package/version-os" (e.g.,
-"git/1.8.3.1-Linux") where `os` is the operating system name (e.g.,
-"Linux"). `X` and `Y` can be configured using the GIT_USER_AGENT
-environment variable and it takes priority. The `os` is
-retrieved using the 'sysname' field of the `uname(2)` system call
-or its equivalent. The agent strings are purely informative for statistics
-and debugging purposes, and MUST NOT be used to programmatically assume
-the presence or absence of particular features.
+A szerver hirdetheti az `agent` képességet egy `X` értékkel (az
+`agent=X` formában), hogy tájékoztassa a klienst arról, hogy a szerver
+az `X` verziót futtatja.  A kliens opcionálisan elküldheti a saját agent
+sztringjét úgy, hogy az `agent` képességet egy `Y` értékkel (az
+`agent=Y` formában) belefoglalja a szerverhez intézett kérésébe (de
+ezt MUST NOT megtennie, ha a szerver nem hirdette az agent képességet).
+Az `X` és `Y` sztringek bármilyen nyomtatható ASCII karaktert
+tartalmazhatnak a szóköz kivételével (azaz a 33 <= x <= 126 bájttartományt),
+és jellemzően "package/version-os" alakúak (pl. "git/1.8.3.1-Linux"),
+ahol az `os` az operációs rendszer neve (pl. "Linux"). Az `X` és `Y` a
+GIT_USER_AGENT környezeti változóval konfigurálható, és ez élvez
+elsőbbséget. Az `os`-t az `uname(2)` rendszerhívás 'sysname' mezőjéből
+vagy annak megfelelőjéből kérik le. Az agent sztringek pusztán
+statisztikai és hibakeresési célú, informatív jellegűek, és MUST NOT
+használhatók arra, hogy programozottan feltételezzék bizonyos funkciók
+jelenlétét vagy hiányát.
 
+[[_ls_refs]]
 ls-refs
 ~~~~~~~
 
-`ls-refs` is the command used to request a reference advertisement in v2.
-Unlike the current reference advertisement, ls-refs takes in arguments
-which can be used to limit the refs sent from the server.
+Az `ls-refs` az a parancs, amelyet a v2-ben egy referencia-hirdetés
+kérésére használnak.  A jelenlegi referencia-hirdetéstől eltérően az
+ls-refs argumentumokat vesz fel, amelyekkel korlátozható a szerver által
+küldött refek köre.
 
-Additional features not supported in the base command will be advertised
-as the value of the command in the capability advertisement in the form
-of a space separated list of features: "<command>=<feature-1> <feature-2>"
+Az alapparancsban nem támogatott további funkciókat a parancs értékeként
+hirdetik a képesség-hirdetésben, szóközzel elválasztott funkciólista
+formájában: "<command>=<feature-1> <feature-2>"
 
-ls-refs takes in the following arguments:
+Az ls-refs a következő argumentumokat veszi fel:
 
     symrefs
-	In addition to the object pointed by it, show the underlying ref
-	pointed by it when showing a symbolic ref.
+	Az általa mutatott objektumon kívül mutassa meg az általa mutatott
+	alapul szolgáló refet is, amikor egy szimbolikus refet jelenít meg.
     peel
-	Show peeled tags.
+	Mutassa meg a peelelt tageket.
     ref-prefix <prefix>
-	When specified, only references having a prefix matching one of
-	the provided prefixes are displayed. Multiple instances may be
-	given, in which case references matching any prefix will be
-	shown. Note that this is purely for optimization; a server MAY
-	show refs not matching the prefix if it chooses, and clients
-	should filter the result themselves.
+	Ha meg van adva, csak azok a referenciák jelennek meg, amelyeknek
+	az előtagja megegyezik a megadott előtagok valamelyikével. Több
+	példány is megadható, ez esetben bármelyik előtaggal egyező
+	referenciák megjelennek. Vegyük észre, hogy ez pusztán
+	optimizációs célú; a szerver MAY olyan refeket is megmutathat,
+	amelyek nem egyeznek az előtaggal, ha úgy dönt, és a
+	klienseknek maguknak kell kiszűrniük az eredményt.
 
-If the 'unborn' feature is advertised the following argument can be
-included in the client's request.
+Ha az 'unborn' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe.
 
     unborn
-	The server will send information about HEAD even if it is a symref
-	pointing to an unborn branch in the form "unborn HEAD
-	symref-target:<target>".
+	A szerver akkor is elküldi a HEAD-re vonatkozó információt, ha az
+	egy meg nem született branchre mutató symref, "unborn HEAD
+	symref-target:<target>" formában.
 
-The output of ls-refs is as follows:
+Az ls-refs kimenete a következő:
 
     output = *ref
 	     flush-pkt
@@ -238,155 +259,161 @@ The output of ls-refs is as follows:
     symref = "symref-target:" symref-target
     peeled = "peeled:" obj-id
 
+[[_fetch]]
 fetch
 ~~~~~
 
-`fetch` is the command used to fetch a packfile in v2.  It can be looked
-at as a modified version of the v1 fetch where the ref-advertisement is
-stripped out (since the `ls-refs` command fills that role) and the
-message format is tweaked to eliminate redundancies and permit easy
-addition of future extensions.
+A `fetch` az a parancs, amelyet egy packfile v2-ben történő
+lekérésére használnak.  Úgy is tekinthető, mint a v1 fetch egy
+módosított változata, amelyből a ref-hirdetés ki van hagyva (mivel ezt a
+szerepet az `ls-refs` parancs tölti be), és amelynek üzenetformátuma úgy
+lett módosítva, hogy kiküszöbölje a redundanciákat és megkönnyítse a
+jövőbeli bővítmények hozzáadását.
 
-Additional features not supported in the base command will be advertised
-as the value of the command in the capability advertisement in the form
-of a space separated list of features: "<command>=<feature-1> <feature-2>"
+Az alapparancsban nem támogatott további funkciókat a parancs értékeként
+hirdetik a képesség-hirdetésben, szóközzel elválasztott funkciólista
+formájában: "<command>=<feature-1> <feature-2>"
 
-A `fetch` request can take the following arguments:
+Egy `fetch` kérés a következő argumentumokat veheti fel:
 
     want <oid>
-	Indicates to the server an object which the client wants to
-	retrieve.  Wants can be anything and are not limited to
-	advertised objects.
+	Jelzi a szervernek azt az objektumot, amelyet a kliens le akar
+	kérni.  A want-ok bármik lehetnek, nem korlátozódnak a hirdetett
+	objektumokra.
 
     have <oid>
-	Indicates to the server an object which the client has locally.
-	This allows the server to make a packfile which only contains
-	the objects that the client needs. Multiple 'have' lines can be
-	supplied.
+	Jelzi a szervernek azt az objektumot, amellyel a kliens helyben
+	rendelkezik.  Ez lehetővé teszi, hogy a szerver egy olyan
+	packfile-t készítsen, amely csak a kliens számára szükséges
+	objektumokat tartalmazza. Több 'have' sor is megadható.
 
     done
-	Indicates to the server that negotiation should terminate (or
-	not even begin if performing a clone) and that the server should
-	use the information supplied in the request to construct the
-	packfile.
+	Jelzi a szervernek, hogy az egyeztetésnek véget kell érnie (vagy
+	klónozás esetén el sem kell kezdődnie), és hogy a szervernek a
+	kérésben megadott információt kell felhasználnia a packfile
+	felépítéséhez.
 
     thin-pack
-	Request that a thin pack be sent, which is a pack with deltas
-	which reference base objects not contained within the pack (but
-	are known to exist at the receiving end). This can reduce the
-	network traffic significantly, but it requires the receiving end
-	to know how to "thicken" these packs by adding the missing bases
-	to the pack.
+	Kéri egy thin pack elküldését, amely egy olyan pack, amelynek
+	deltái a packon belül nem szereplő bázisobjektumokra hivatkoznak
+	(amelyekről azonban tudott, hogy léteznek a fogadó oldalon).
+	Ez jelentősen csökkentheti a hálózati forgalmat, de megköveteli,
+	hogy a fogadó oldal tudja, hogyan "vastagítsa meg" ezeket a
+	packeket a hiányzó bázisok packhoz adásával.
 
     no-progress
-	Request that progress information that would normally be sent on
-	side-band channel 2, during the packfile transfer, should not be
-	sent.  However, the side-band channel 3 is still used for error
-	responses.
+	Kéri, hogy a normál esetben a side-band 2-es csatornán, a
+	packfile átvitele közben küldött folyamatinformáció ne kerüljön
+	elküldésre.  A side-band 3-as csatornát azonban továbbra is
+	használják a hibaválaszokhoz.
 
     include-tag
-	Request that annotated tags should be sent if the objects they
-	point to are being sent.
+	Kéri, hogy az annotált tagek is elküldésre kerüljenek, ha az
+	általuk mutatott objektumok elküldésre kerülnek.
 
     ofs-delta
-	Indicate that the client understands PACKv2 with delta referring
-	to its base by position in pack rather than by an oid.  That is,
-	they can read OBJ_OFS_DELTA (aka type 6) in a packfile.
+	Jelzi, hogy a kliens érti a PACKv2-t olyan deltával, amely a
+	bázisára a packon belüli pozíció alapján hivatkozik, nem pedig
+	egy oid alapján.  Azaz képes beolvasni az OBJ_OFS_DELTA-t (más
+	néven a 6-os típust) egy packfile-ban.
 
-If the 'shallow' feature is advertised the following arguments can be
-included in the clients request as well as the potential addition of the
-'shallow-info' section in the server's response as explained below.
+Ha a 'shallow' funkció hirdetve van, a következő argumentumok
+belefoglalhatók a kliens kérésébe, valamint a szerver válaszában
+esetlegesen megjelenhet a 'shallow-info' szekció, ahogy azt alább
+ismertetjük.
 
     shallow <oid>
-	A client must notify the server of all commits for which it only
-	has shallow copies (meaning that it doesn't have the parents of
-	a commit) by supplying a 'shallow <oid>' line for each such
-	object so that the server is aware of the limitations of the
-	client's history.  This is so that the server is aware that the
-	client may not have all objects reachable from such commits.
+	A kliensnek értesítenie kell a szervert minden olyan commitról,
+	amelynek csak sekély (shallow) másolatával rendelkezik (azaz nem
+	rendelkezik a commit szülőivel), egy 'shallow <oid>' sor
+	megadásával minden ilyen objektumhoz, hogy a szerver tisztában
+	legyen a kliens történetének korlátaival.  Ez azért van, hogy a
+	szerver tudja, hogy a kliens esetleg nem rendelkezik az ilyen
+	commitokból elérhető összes objektummal.
 
     deepen <depth>
-	Requests that the fetch/clone should be shallow having a commit
-	depth of <depth> relative to the remote side.
+	Kéri, hogy a fetch/clone legyen sekély, a remote oldalhoz
+	viszonyítva <depth> commit-mélységgel.
 
     deepen-relative
-	Requests that the semantics of the "deepen" command be changed
-	to indicate that the depth requested is relative to the client's
-	current shallow boundary, instead of relative to the requested
-	commits.
+	Kéri, hogy a "deepen" parancs szemantikája úgy változzon meg,
+	hogy a kért mélység a kliens jelenlegi shallow-határához legyen
+	relatív, ne pedig a kért commitokhoz.
 
     deepen-since <timestamp>
-	Requests that the shallow clone/fetch should be cut at a
-	specific time, instead of depth.  Internally it's equivalent to
-	doing "git rev-list --max-age=<timestamp>". Cannot be used with
-	"deepen".
+	Kéri, hogy a shallow clone/fetch egy adott időpontnál legyen
+	elvágva, mélység helyett.  Belsőleg ez egyenértékű a
+	"git rev-list --max-age=<timestamp>" végrehajtásával. Nem
+	használható a "deepen"-nel együtt.
 
     deepen-not <rev>
-	Requests that the shallow clone/fetch should be cut at a
-	specific revision specified by '<rev>', instead of a depth.
-	Internally it's equivalent of doing "git rev-list --not <rev>".
-	Cannot be used with "deepen", but can be used with
-	"deepen-since".
+	Kéri, hogy a shallow clone/fetch a '<rev>' által megadott adott
+	revíziónál legyen elvágva, mélység helyett.  Belsőleg ez
+	egyenértékű a "git rev-list --not <rev>" végrehajtásával. Nem
+	használható a "deepen"-nel együtt, de használható a
+	"deepen-since"-vel.
 
-If the 'filter' feature is advertised, the following argument can be
-included in the client's request:
+Ha a 'filter' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe:
 
     filter <filter-spec>
-	Request that various objects from the packfile be omitted
-	using one of several filtering techniques. These are intended
-	for use with partial clone and partial fetch operations. See
-	`rev-list` for possible "filter-spec" values. When communicating
-	with other processes, senders SHOULD translate scaled integers
-	(e.g. "1k") into a fully-expanded form (e.g. "1024") to aid
-	interoperability with older receivers that may not understand
-	newly-invented scaling suffixes. However, receivers SHOULD
-	accept the following suffixes: 'k', 'm', and 'g' for 1024,
-	1048576, and 1073741824, respectively.
+	Kéri, hogy a packfile bizonyos objektumai kimaradjanak, több
+	szűrési technika egyikének használatával. Ezek partial clone és
+	partial fetch műveletekkel való használatra szolgálnak. A lehetséges
+	"filter-spec" értékeket lásd a `rev-list`-nél. Más folyamatokkal
+	kommunikálva a küldőknek SHOULD lefordítaniuk a skálázott
+	egészeket (pl. "1k") teljesen kiírt formára (pl. "1024"), hogy
+	segítsék az együttműködést az olyan régebbi fogadókkal, amelyek
+	esetleg nem ismerik az újonnan bevezetett skálázási utótagokat.
+	A fogadóknak azonban SHOULD elfogadniuk a következő utótagokat:
+	'k', 'm' és 'g', rendre 1024, 1048576 és 1073741824 értékhez.
 
-If the 'ref-in-want' feature is advertised, the following argument can
-be included in the client's request as well as the potential addition of
-the 'wanted-refs' section in the server's response as explained below.
+Ha a 'ref-in-want' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe, valamint a szerver válaszában
+esetlegesen megjelenhet a 'wanted-refs' szekció, ahogy azt alább
+ismertetjük.
 
     want-ref <ref>
-	Indicates to the server that the client wants to retrieve a
-	particular ref, where <ref> is the full name of a ref on the
-	server.  It is a protocol error to send want-ref for the
-	same ref more than once.
+	Jelzi a szervernek, hogy a kliens egy adott refet szeretne
+	lekérni, ahol a <ref> egy ref teljes neve a szerveren.  Protokollhiba
+	want-ref-et küldeni ugyanahhoz a refhez egynél többször.
 
-If the 'sideband-all' feature is advertised, the following argument can be
-included in the client's request:
+Ha a 'sideband-all' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe:
 
     sideband-all
-	Instruct the server to send the whole response multiplexed, not just
-	the packfile section. All non-flush and non-delim PKT-LINE in the
-	response (not only in the packfile section) will then start with a byte
-	indicating its sideband (1, 2, or 3), and the server may send "0005\2"
-	(a PKT-LINE of sideband 2 with no payload) as a keepalive packet.
+	Utasítja a szervert, hogy a teljes választ multiplexelve küldje,
+	ne csak a packfile szekciót. A válaszban (nem csak a packfile
+	szekcióban) minden nem flush és nem delim PKT-LINE ekkor egy, a
+	sidebandjét jelző bájttal fog kezdődni (1, 2 vagy 3), és a
+	szerver küldhet egy "0005\2"-t (egy 2-es sideband PKT-LINE-t
+	payload nélkül) keepalive csomagként.
 
-If the 'packfile-uris' feature is advertised, the following argument
-can be included in the client's request as well as the potential
-addition of the 'packfile-uris' section in the server's response as
-explained below. Note that at most one `packfile-uris` line can be sent
-to the server.
+Ha a 'packfile-uris' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe, valamint a szerver válaszában
+esetlegesen megjelenhet a 'packfile-uris' szekció, ahogy azt alább
+ismertetjük. Vegyük észre, hogy legfeljebb egy `packfile-uris` sor
+küldhető el a szervernek.
 
     packfile-uris <comma-separated-list-of-protocols>
-	Indicates to the server that the client is willing to receive
-	URIs of any of the given protocols in place of objects in the
-	sent packfile. Before performing the connectivity check, the
-	client should download from all given URIs. Currently, the
-	protocols supported are "http" and "https".
+	Jelzi a szervernek, hogy a kliens hajlandó fogadni a megadott
+	protokollok bármelyikén URI-kat objektumok helyett az elküldött
+	packfile-ban. A kapcsolódási ellenőrzés végrehajtása előtt a
+	kliensnek le kell töltenie az összes megadott URI-ról. Jelenleg a
+	támogatott protokollok a "http" és a "https".
 
-If the 'wait-for-done' feature is advertised, the following argument
-can be included in the client's request.
+Ha a 'wait-for-done' funkció hirdetve van, a következő argumentum
+belefoglalható a kliens kérésébe.
 
     wait-for-done
-	Indicates to the server that it should never send "ready", but
-	should wait for the client to say "done" before sending the
-	packfile.
+	Jelzi a szervernek, hogy soha ne küldjön "ready"-t, hanem várja
+	meg, amíg a kliens azt mondja, hogy "done", mielőtt elküldi a
+	packfile-t.
 
-The response of `fetch` is broken into a number of sections separated by
-delimiter packets (0001), with each section beginning with its section
-header. Most sections are sent only when the packfile is sent.
+A `fetch` válasza több szekcióra van bontva, amelyeket delimiter
+csomagok (0001) választanak el, minden szekció a saját
+szekciófejlécével kezdődik. A legtöbb szekció csak akkor kerül
+elküldésre, ha a packfile is elküldésre kerül.
 
     output = acknowledgements flush-pkt |
 	     [acknowledgments delim-pkt] [shallow-info delim-pkt]
@@ -415,168 +442,182 @@ header. Most sections are sent only when the packfile is sent.
     packfile = PKT-LINE("packfile" LF)
 	       *PKT-LINE(%x01-03 *%x00-ff)
 
-    acknowledgments section
-	* If the client determines that it is finished with negotiations by
-	  sending a "done" line (thus requiring the server to send a packfile),
-	  the acknowledgments sections MUST be omitted from the server's
-	  response.
+    acknowledgments szekció
+	* Ha a kliens egy "done" sor küldésével jelzi, hogy befejezte az
+	  egyeztetést (így megkövetelve, hogy a szerver elküldjön egy
+	  packfile-t), az acknowledgments szekciókat MUST kihagyni a
+	  szerver válaszából.
 
-	* Always begins with the section header "acknowledgments"
+	* Mindig az "acknowledgments" szekciófejléccel kezdődik
 
-	* The server will respond with "NAK" if none of the object ids sent
-	  as have lines were common.
+	* A szerver "NAK"-kal válaszol, ha a have sorokban küldött
+	  objektumazonosítók közül egyik sem volt közös.
 
-	* The server will respond with "ACK obj-id" for all of the
-	  object ids sent as have lines which are common.
+	* A szerver "ACK obj-id"-vel válaszol minden olyan
+	  objektumazonosítóra, amely have sorként lett elküldve, és
+	  közös.
 
-	* A response cannot have both "ACK" lines as well as a "NAK"
-	  line.
+	* Egy válasz nem tartalmazhat egyszerre "ACK" sorokat és egy
+	  "NAK" sort.
 
-	* The server will respond with a "ready" line indicating that
-	  the server has found an acceptable common base and is ready to
-	  make and send a packfile (which will be found in the packfile
-	  section of the same response)
+	* A szerver egy "ready" sorral válaszol, jelezve, hogy elfogadható
+	  közös bázist talált, és készen áll egy packfile elkészítésére
+	  és elküldésére (amely ugyanazon válasz packfile szekciójában
+	  lesz megtalálható)
 
-	* If the server has found a suitable cut point and has decided
-	  to send a "ready" line, then the server can decide to (as an
-	  optimization) omit any "ACK" lines it would have sent during
-	  its response.  This is because the server will have already
-	  determined the objects it plans to send to the client and no
-	  further negotiation is needed.
+	* Ha a szerver talált egy megfelelő vágási pontot, és úgy döntött,
+	  hogy egy "ready" sort küld, akkor a szerver dönthet úgy (mint
+	  optimalizáció), hogy kihagyja az egyébként a válaszában
+	  elküldött "ACK" sorokat.  Ennek oka, hogy a szerver ekkor már
+	  eldöntötte, mely objektumokat tervezi elküldeni a kliensnek, és
+	  további egyeztetésre nincs szükség.
 
-    shallow-info section
-	* If the client has requested a shallow fetch/clone, a shallow
-	  client requests a fetch or the server is shallow then the
-	  server's response may include a shallow-info section.  The
-	  shallow-info section will be included if (due to one of the
-	  above conditions) the server needs to inform the client of any
-	  shallow boundaries or adjustments to the clients already
-	  existing shallow boundaries.
+    shallow-info szekció
+	* Ha a kliens shallow fetch/clone-t kért, egy shallow kliens
+	  kér egy fetchet, vagy a szerver shallow, akkor a szerver
+	  válasza tartalmazhat egy shallow-info szekciót.  A shallow-info
+	  szekció akkor kerül bele, ha (a fenti feltételek valamelyike
+	  miatt) a szervernek tájékoztatnia kell a klienst bármilyen
+	  shallow-határról, vagy a kliens meglévő shallow-határainak
+	  módosításáról.
 
-	* Always begins with the section header "shallow-info"
+	* Mindig a "shallow-info" szekciófejléccel kezdődik
 
-	* If a positive depth is requested, the server will compute the
-	  set of commits which are no deeper than the desired depth.
+	* Ha pozitív mélységet kérnek, a szerver kiszámítja azon
+	  commitok halmazát, amelyek nem mélyebbek a kívánt mélységnél.
 
-	* The server sends a "shallow obj-id" line for each commit whose
-	  parents will not be sent in the following packfile.
+	* A szerver egy "shallow obj-id" sort küld minden olyan
+	  commithoz, amelynek szülei nem lesznek elküldve a következő
+	  packfile-ban.
 
-	* The server sends an "unshallow obj-id" line for each commit
-	  which the client has indicated is shallow, but is no longer
-	  shallow as a result of the fetch (due to its parents being
-	  sent in the following packfile).
+	* A szerver egy "unshallow obj-id" sort küld minden olyan
+	  commithoz, amelyet a kliens shallow-ként jelölt meg, de a
+	  fetch eredményeként már nem shallow (mivel a szülei el lesznek
+	  küldve a következő packfile-ban).
 
-	* The server MUST NOT send any "unshallow" lines for anything
-	  which the client has not indicated was shallow as a part of
-	  its request.
+	* A szerver MUST NOT küldenie "unshallow" sort olyasmihez,
+	  amit a kliens nem jelölt meg shallow-ként a kérésének
+	  részeként.
 
-    wanted-refs section
-	* This section is only included if the client has requested a
-	  ref using a 'want-ref' line and if a packfile section is also
-	  included in the response.
+    wanted-refs szekció
+	* Ez a szekció csak akkor kerül bele, ha a kliens egy
+	  'want-ref' sorral kért egy refet, és ha a válasz egy packfile
+	  szekciót is tartalmaz.
 
-	* Always begins with the section header "wanted-refs".
+	* Mindig a "wanted-refs" szekciófejléccel kezdődik.
 
-	* The server will send a ref listing ("<oid> <refname>") for
-	  each reference requested using 'want-ref' lines.
+	* A szerver egy reflistát küld ("<oid> <refname>") minden,
+	  'want-ref' sorokkal kért referenciához.
 
-	* The server MUST NOT send any refs which were not requested
-	  using 'want-ref' lines.
+	* A szerver MUST NOT küldenie olyan refeket, amelyeket nem
+	  'want-ref' sorokkal kértek.
 
-    packfile-uris section
-	* This section is only included if the client sent
-	  'packfile-uris' and the server has at least one such URI to
-	  send.
+    packfile-uris szekció
+	* Ez a szekció csak akkor kerül bele, ha a kliens küldött
+	  'packfile-uris'-t, és a szervernek van legalább egy ilyen
+	  elküldendő URI-ja.
 
-	* Always begins with the section header "packfile-uris".
+	* Mindig a "packfile-uris" szekciófejléccel kezdődik.
 
-	* For each URI the server sends, it sends a hash of the pack's
-	  contents (as output by git index-pack) followed by the URI.
+	* Minden URI-hoz, amelyet a szerver küld, elküld egy hash-t a
+	  pack tartalmáról (ahogy azt a git index-pack kiírja), majd az
+	  URI-t.
 
-	* The hashes are 40 hex characters long. When Git upgrades to a new
-	  hash algorithm, this might need to be updated. (It should match
-	  whatever index-pack outputs after "pack\t" or "keep\t".
+	* A hash-ek 40 hexadecimális karakter hosszúak. Amikor a Git egy
+	  új hash-algoritmusra vált, ezt esetleg frissíteni kell. (Ennek
+	  meg kell egyeznie azzal, amit az index-pack a "pack\t" vagy a
+	  "keep\t" után kiír.
 
-    packfile section
-	* This section is only included if the client has sent 'want'
-	  lines in its request and either requested that no more
-	  negotiation be done by sending 'done' or if the server has
-	  decided it has found a sufficient cut point to produce a
-	  packfile.
+    packfile szekció
+	* Ez a szekció csak akkor kerül bele, ha a kliens 'want' sorokat
+	  küldött a kérésében, és vagy kérte, hogy 'done' küldésével ne
+	  legyen több egyeztetés, vagy a szerver úgy döntött, hogy talált
+	  egy elegendő vágási pontot egy packfile előállításához.
 
-	* Always begins with the section header "packfile"
+	* Mindig a "packfile" szekciófejléccel kezdődik
 
-	* The transmission of the packfile begins immediately after the
-	  section header
+	* A packfile átvitele közvetlenül a szekciófejléc után kezdődik
 
-	* The data transfer of the packfile is always multiplexed, using
-	  the same semantics of the 'side-band-64k' capability from
-	  protocol version 1.  This means that each packet, during the
-	  packfile data stream, is made up of a leading 4-byte pkt-line
-	  length (typical of the pkt-line format), followed by a 1-byte
-	  stream code, followed by the actual data.
+	* A packfile adatátvitele mindig multiplexelt, az 1-es
+	  protokollverzió 'side-band-64k' képességével megegyező
+	  szemantikát használva.  Ez azt jelenti, hogy a packfile
+	  adatfolyam során minden csomag egy vezető 4 bájtos pkt-line
+	  hosszból (ami jellemző a pkt-line formátumra) áll, amelyet egy
+	  1 bájtos stream-kód követ, majd a tényleges adat.
 
-	  The stream code can be one of:
-		1 - pack data
-		2 - progress messages
-		3 - fatal error message just before stream aborts
+	  A stream-kód a következők egyike lehet:
+		1 - pack-adat
+		2 - folyamatüzenetek
+		3 - végzetes hibaüzenet közvetlenül azelőtt, hogy az
+		    adatfolyam megszakad
 
+[[_server_option]]
 server-option
 ~~~~~~~~~~~~~
 
-If advertised, indicates that any number of server specific options can be
-included in a request.  This is done by sending each option as a
-"server-option=<option>" capability line in the capability-list section of
-a request.
+Ha hirdetve van, azt jelzi, hogy tetszőleges számú szerverspecifikus
+opció belefoglalható egy kérésbe.  Ez úgy történik, hogy minden opciót
+egy "server-option=<option>" képesség-sorként küldenek el a kérés
+capability-list szekciójában.
 
-The provided options must not contain a NUL or LF character.
+A megadott opciók nem tartalmazhatnak NUL vagy LF karaktert.
 
+[[_object_format]]
 object-format
 ~~~~~~~~~~~~~
 
-The server can advertise the `object-format` capability with a value `X` (in the
-form `object-format=X`) to notify the client that the server is able to deal
-with objects using hash algorithm X.  If not specified, the server is assumed to
-only handle SHA-1.  If the client would like to use a hash algorithm other than
-SHA-1, it should specify its object-format string.
+A szerver hirdetheti az `object-format` képességet egy `X` értékkel (az
+`object-format=X` formában), hogy tájékoztassa a klienst arról, hogy a
+szerver képes az X hash-algoritmust használó objektumokkal foglalkozni.
+Ha nincs megadva, feltételezzük, hogy a szerver csak SHA-1-et kezel.  Ha
+a kliens a SHA-1-től eltérő hash-algoritmust szeretne használni, meg
+kell adnia az object-format sztringjét.
 
+[[_session_id_session_id]]
 session-id=<session-id>
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The server may advertise a session ID that can be used to identify this process
-across multiple requests. The client may advertise its own session ID back to
-the server as well.
+A szerver hirdethet egy session ID-t, amely a folyamat több kérésen
+átívelő azonosítására használható. A kliens is hirdetheti a saját
+session ID-ját a szerver felé.
 
-Session IDs should be unique to a given process. They must fit within a
-packet-line, and must not contain non-printable or whitespace characters. The
-current implementation uses trace2 session IDs (see
-link:technical/api-trace2.html[api-trace2] for details), but this may change
-and users of the session ID should not rely on this fact.
+A session ID-knak egyedinek kell lenniük az adott folyamatra nézve.
+El kell férniük egy packet-line-ban, és nem tartalmazhatnak nem
+nyomtatható vagy whitespace karaktereket. A jelenlegi implementáció
+trace2 session ID-ket használ (a részletekért lásd a
+link:technical/api-trace2.html[api-trace2]-t), de ez a jövőben
+változhat, és a session ID felhasználóinak nem szabad erre a tényre
+támaszkodniuk.
 
+[[_object_info]]
 object-info
 ~~~~~~~~~~~
 
-`object-info` is the command to retrieve information about one or more objects.
-Its main purpose is to allow a client to make decisions based on this
-information without having to fully fetch objects. Currently only object size
-and type are supported.
+Az `object-info` az a parancs, amellyel egy vagy több objektumra
+vonatkozó információt lehet lekérni.  Fő célja, hogy a kliens ezen
+információ alapján hozhasson döntéseket anélkül, hogy teljesen le
+kellene kérnie az objektumokat. Jelenleg csak az objektumméret és a
+típus támogatott.
 
-An `object-info` request takes the following arguments:
+Egy `object-info` kérés a következő argumentumokat veszi fel:
 
 	size
-	Requests size information to be returned for each listed object id.
+	Kéri, hogy méretinformáció kerüljön visszaadásra minden felsorolt
+	objektumazonosítóhoz.
 
 	type
-	Requests type information to be returned for each listed object id.
+	Kéri, hogy típusinformáció kerüljön visszaadásra minden felsorolt
+	objektumazonosítóhoz.
 
 	oid <oid>
-	Indicates to the server an object which the client wants to obtain
-	information for. They must be full OIDs.
+	Jelzi a szervernek azt az objektumot, amelyre vonatkozóan a
+	kliens információt szeretne kapni. Ezeknek teljes OID-oknak kell
+	lenniük.
 
-The response of `object-info` consists of one pkt-line per requested attribute,
-echoing the attributes the server will report, followed by one pkt-line per
-requested object id with its information, each field separated by a single
-space.
+Az `object-info` válasza kérésenkénti attribútumonként egy pkt-line-ból
+áll, amely visszaadja a szerver által jelentendő attribútumokat, majd
+kérésenkénti objektumazonosítónként egy pkt-line-ból, annak
+információjával, ahol az egyes mezőket egyetlen szóköz választja el.
 
 	output = info flush-pkt
 
@@ -593,220 +634,243 @@ space.
 
 	obj-info = obj-id [SP [obj-val *(SP obj-val)]]
 
-The values in `obj-info` appear in the same order as the corresponding `attr`
-lines, with exactly one value per requested attribute.
+Az `obj-info`-ban szereplő értékek a megfelelő `attr` sorokkal
+megegyező sorrendben jelennek meg, kérésenkénti attribútumonként pontosan
+egy értékkel.
 
-If the server does not recognize the OID, the response will be `<oid> SP`
-regardless of the number of attributes requested.
+Ha a szerver nem ismeri fel az OID-ot, a válasz `<oid> SP` lesz, a kért
+attribútumok számától függetlenül.
 
+[[_bundle_uri]]
 bundle-uri
 ~~~~~~~~~~
 
-If the 'bundle-uri' capability is advertised, the server supports the
-`bundle-uri' command.
+Ha a 'bundle-uri' képesség hirdetve van, a szerver támogatja a
+`bundle-uri` parancsot.
 
-The capability is currently advertised with no value (i.e. not
-"bundle-uri=somevalue"), a value may be added in the future for
-supporting command-wide extensions. Clients MUST ignore any unknown
-capability values and proceed with the 'bundle-uri` dialog they
-support.
+A képesség jelenleg érték nélkül van hirdetve (azaz nem
+"bundle-uri=valamiérték" formában), egy érték a jövőben hozzáadható a
+parancs egészére vonatkozó bővítmények támogatásához. A klienseknek
+MUST figyelmen kívül hagyniuk minden ismeretlen képességértéket, és
+folytatniuk kell az általuk támogatott 'bundle-uri' dialógussal.
 
-The 'bundle-uri' command is intended to be issued before `fetch` to
-get URIs to bundle files (see linkgit:git-bundle[1]) to "seed" and
-inform the subsequent `fetch` command.
+A 'bundle-uri' parancsot arra szánták, hogy a `fetch` előtt legyen
+kiadva, hogy bundle-fájlokra (lásd linkgit:git-bundle[1]) mutató URI-kat
+szerezzenek, ezzel "beoltva" és tájékoztatva a következő `fetch`
+parancsot.
 
-The client CAN issue `bundle-uri` before or after any other valid
-command. To be useful to clients it's expected that it'll be issued
-after an `ls-refs` and before `fetch`, but CAN be issued at any time
-in the dialog.
+A kliens CAN kiadhatja a `bundle-uri`-t bármely más érvényes parancs
+előtt vagy után. Ahhoz, hogy hasznos legyen a kliensek számára, az
+várható, hogy egy `ls-refs` után és a `fetch` előtt lesz kiadva, de
+CAN kiadható a dialógus bármely pontján.
 
-DISCUSSION of bundle-uri
+[[_discussion_of_bundle_uri]]
+A bundle-uri megvitatása
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The intent of the feature is optimize for server resource consumption
-in the common case by changing the common case of fetching a very
-large PACK during linkgit:git-clone[1] into a smaller incremental
-fetch.
+A funkció célja, hogy optimalizálja a szerver erőforrás-fogyasztását a
+gyakori esetben, azáltal, hogy a linkgit:git-clone[1] során egy nagyon
+nagy PACK lekérésének gyakori esetét egy kisebb inkrementális fetchre
+változtatja.
 
-It also allows servers to achieve better caching in combination with
-an `uploadpack.packObjectsHook` (see linkgit:git-config[1]).
-
-By having new clones or fetches be a more predictable and common
-negotiation against the tips of recently produces *.bundle file(s).
-Servers might even pre-generate the results of such negotiations for
-the `uploadpack.packObjectsHook` as new pushes come in.
-
-One way that servers could take advantage of these bundles is that the
-server would anticipate that fresh clones will download a known bundle,
-followed by catching up to the current state of the repository using ref
-tips found in that bundle (or bundles).
-
-PROTOCOL for bundle-uri
-^^^^^^^^^^^^^^^^^^^^^^^
-
-A `bundle-uri` request takes no arguments, and as noted above does not
-currently advertise a capability value. Both may be added in the
-future.
-
-When the client issues a `command=bundle-uri` request, the response is a
-list of key-value pairs provided as packet lines with value
-`<key>=<value>`. Each `<key>` should be interpreted as a config key from
-the `bundle.*` namespace to construct a list of bundles. These keys are
-grouped by a `bundle.<id>.` subsection, where each key corresponding to a
-given `<id>` contributes attributes to the bundle defined by that `<id>`.
-See linkgit:git-config[1] for the specific details of these keys and how
-the Git client will interpret their values.
-
-Clients MUST parse the line according to the above format, lines that do
-not conform to the format SHOULD be discarded. The user MAY be warned in
-such a case.
-
-bundle-uri CLIENT AND SERVER EXPECTATIONS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-URI CONTENTS::
-The content at the advertised URIs MUST be one of two types.
-+
-The advertised URI may contain a bundle file that `git bundle verify`
-would accept. I.e. they MUST contain one or more reference tips for
-use by the client, MUST indicate prerequisites (in any) with standard
-"-" prefixes, and MUST indicate their "object-format", if
-applicable.
-+
-The advertised URI may alternatively contain a plaintext file that `git
-config list` would accept (with the `--file` option). The key-value
-pairs in this list are in the `bundle.*` namespace (see
+Emellett lehetővé teszi a szervereknek, hogy jobb gyorsítótárazást
+érjenek el egy `uploadpack.packObjectsHook`-kal kombinálva (lásd
 linkgit:git-config[1]).
 
-bundle-uri CLIENT ERROR RECOVERY::
-A client MUST above all gracefully degrade on errors, whether that
-error is because of bad missing/data in the bundle URI(s), because
-that client is too dumb to e.g. understand and fully parse out bundle
-headers and their prerequisite relationships, or something else.
-+
-Server operators should feel confident in turning on "bundle-uri" and
-not worry if e.g. their CDN goes down that clones or fetches will run
-into hard failures. Even if the server bundle(s) are
-incomplete, or bad in some way the client should still end up with a
-functioning repository, just as if it had chosen not to use this
-protocol extension.
-+
-All subsequent discussion on client and server interaction MUST keep
-this in mind.
+Azáltal, hogy az új clone-ok vagy fetchek egy kiszámíthatóbb és
+gyakoribb egyeztetést jelentenek a nemrég előállított *.bundle
+fájl(ok) csúcsaival szemben. A szerverek akár elő is generálhatják az
+ilyen egyeztetések eredményeit az `uploadpack.packObjectsHook`
+számára, ahogy új pushok érkeznek.
 
-bundle-uri SERVER TO CLIENT::
-The ordering of the returned bundle uris is not significant. Clients
-MUST parse their headers to discover their contained OIDS and
-prerequisites. A client MUST consider the content of the bundle(s)
-themselves and their header as the ultimate source of truth.
-+
-A server MAY even return bundle(s) that don't have any direct
-relationship to the repository being cloned (either through accident,
-or intentional "clever" configuration), and expect a client to sort
-out what data they'd like from the bundle(s), if any.
+Az egyik módja annak, ahogy a szerverek kihasználhatják ezeket a
+bundle-öket, az, hogy a szerver azt feltételezi, hogy az új clone-ok
+egy ismert bundle-t fognak letölteni, majd az abban a bundle-ben (vagy
+bundle-ökben) talált ref-csúcsok segítségével felzárkóznak a
+repository jelenlegi állapotára.
 
-bundle-uri CLIENT TO SERVER::
-The client SHOULD provide reference tips found in the bundle header(s)
-as 'have' lines in any subsequent `fetch` request. A client MAY also
-ignore the bundle(s) entirely if doing so is deemed worse for some
-reason, e.g. if the bundles can't be downloaded, it doesn't like the
-tips it finds etc.
+[[_protocol_for_bundle_uri]]
+A bundle-uri protokollja
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-WHEN ADVERTISED BUNDLE(S) REQUIRE NO FURTHER NEGOTIATION::
-If after issuing `bundle-uri` and `ls-refs`, and getting the header(s)
-of the bundle(s) the client finds that the ref tips it wants can be
-retrieved entirely from advertised bundle(s), the client MAY disconnect
-from the Git server. The results of such a 'clone' or 'fetch' should be
-indistinguishable from the state attained without using bundle-uri.
+Egy `bundle-uri` kérés nem vesz fel argumentumokat, és mint fentebb
+említettük, jelenleg nem hirdet képességértéket. A jövőben mindkettő
+hozzáadható.
 
-EARLY CLIENT DISCONNECTIONS AND ERROR RECOVERY::
-A client MAY perform an early disconnect while still downloading the
-bundle(s) (having streamed and parsed their headers). In such a case
-the client MUST gracefully recover from any errors related to
-finishing the download and validation of the bundle(s).
-+
-I.e. a client might need to re-connect and issue a 'fetch' command,
-and possibly fall back to not making use of 'bundle-uri' at all.
-+
-This "MAY" behavior is specified as such (and not a "SHOULD") on the
-assumption that a server advertising bundle uris is more likely than
-not to be serving up a relatively large repository, and to be pointing
-to URIs that have a good chance of being in working order. A client
-MAY e.g. look at the payload size of the bundles as a heuristic to see
-if an early disconnect is worth it, should falling back on a full
-"fetch" dialog be necessary.
+Amikor a kliens kiad egy `command=bundle-uri` kérést, a válasz egy
+kulcs-érték párokból álló lista, packet line-okként megadva, `<key>=<value>`
+értékkel. Minden `<key>`-t a `bundle.*` névtérből származó
+config-kulcsként kell értelmezni egy bundle-lista felépítéséhez. Ezek a
+kulcsok egy `bundle.<id>.` alszekció szerint vannak csoportosítva, ahol
+egy adott `<id>`-hez tartozó minden kulcs attribútumokkal járul hozzá
+az adott `<id>` által meghatározott bundle-höz. Ezen kulcsok pontos
+részleteiért, és hogy a Git kliens hogyan értelmezi az értéküket, lásd
+a linkgit:git-config[1]-et.
 
-WHEN ADVERTISED BUNDLE(S) REQUIRE FURTHER NEGOTIATION::
-A client SHOULD commence a negotiation of a PACK from the server via
-the "fetch" command using the OID tips found in advertised bundles,
-even if's still in the process of downloading those bundle(s).
-+
-This allows for aggressive early disconnects from any interactive
-server dialog. The client blindly trusts that the advertised OID tips
-are relevant, and issues them as 'have' lines, it then requests any
-tips it would like (usually from the "ls-refs" advertisement) via
-'want' lines. The server will then compute a (hopefully small) PACK
-with the expected difference between the tips from the bundle(s) and
-the data requested.
-+
-The only connection the client then needs to keep active is to the
-concurrently downloading static bundle(s), when those and the
-incremental PACK are retrieved they should be inflated and
-validated. Any errors at this point should be gracefully recovered
-from, see above.
+A klienseknek MUST elemezniük a sort a fenti formátum szerint, azokat a
+sorokat, amelyek nem felelnek meg a formátumnak, SHOULD eldobni. A
+felhasználó MAY figyelmeztetve legyen ilyen esetben.
 
-bundle-uri PROTOCOL FEATURES
+[[_bundle_uri_client_and_server_expectations]]
+bundle-uri KLIENS- ÉS SZERVERELVÁRÁSOK
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+URI-TARTALOM::
+A hirdetett URI-kon lévő tartalomnak MUST a két típus egyikének
+lennie.
++
+A hirdetett URI tartalmazhat egy bundle-fájlt, amelyet a `git bundle
+verify` elfogadna. Azaz MUST tartalmazniuk egy vagy több, a kliens
+által használható referencia-csúcsot, MUST jelezniük az előfeltételeket
+(ha vannak) a szabványos "-" előtaggal, és MUST jelezniük az
+"object-format"-jukat, ha alkalmazható.
++
+A hirdetett URI alternatívaként tartalmazhat egy egyszerű szöveges
+fájlt, amelyet a `git config list` elfogadna (a `--file` opcióval).
+Az ebben a listában szereplő kulcs-érték párok a `bundle.*` névtérben
+vannak (lásd linkgit:git-config[1]).
+
+bundle-uri KLIENSOLDALI HIBAKEZELÉS::
+A kliensnek MUST mindenekelőtt elegánsan degradálódnia hibák esetén,
+akár azért, mert a bundle URI(k)ban hibás vagy hiányzó adat van, akár
+azért, mert a kliens túl "buta" ahhoz, hogy pl. teljesen megértse és
+feldolgozza a bundle-fejléceket és azok előfeltétel-kapcsolatait, akár
+valami más okból.
++
+A szerverüzemeltetőknek magabiztosnak kell érezniük magukat a
+"bundle-uri" bekapcsolásakor, és nem kell aggódniuk amiatt, hogy pl. ha
+a CDN-jük leáll, a clone-ok vagy fetchek súlyos hibákba fognak
+ütközni. Még ha a szerver bundle-jei hiányosak, vagy valamilyen módon
+hibásak is, a kliensnek akkor is egy működő repository-val kell
+végeznie, csakúgy, mintha úgy döntött volna, hogy nem használja ezt a
+protokollbővítményt.
++
+A kliens és a szerver közötti interakcióról szóló minden további
+tárgyalásnak MUST szem előtt tartania ezt.
+
+bundle-uri SZERVERTŐL KLIENS FELÉ::
+A visszaadott bundle URI-k sorrendje nem számít. A klienseknek MUST
+elemezniük a fejléceiket, hogy felfedezzék a bennük foglalt OID-okat és
+előfeltételeket. A kliensnek MUST a bundle(ok) tartalmát magát és azok
+fejlécét tekintenie a végső igazságforrásnak.
++
+A szerver MAY akár olyan bundle(oka)t is visszaadhat, amelyeknek nincs
+közvetlen kapcsolatuk a klónozandó repository-val (akár véletlenül,
+akár szándékos "ravasz" konfiguráció miatt), és elvárhatja a klienstől,
+hogy kiválogassa, milyen adatot szeretne a bundle(ok)ból, ha
+egyáltalán.
+
+bundle-uri KLIENSTŐL SZERVER FELÉ::
+A kliensnek SHOULD a bundle fejléc(ek)ben talált referencia-csúcsokat
+megadnia 'have' sorokként bármely következő `fetch` kérésben. A kliens
+MAY a bundle(oka)t teljesen figyelmen kívül is hagyhatja, ha ez
+valamilyen okból rosszabbnak ítélhető, pl. ha a bundle-ök nem
+tölthetők le, vagy nem tetszenek neki a talált csúcsok stb.
+
+HA A HIRDETETT BUNDLE(OK) NEM IGÉNYELNEK TOVÁBBI EGYEZTETÉST::
+Ha a `bundle-uri` és az `ls-refs` kiadása, valamint a bundle(ok)
+fejléc(ei)nek megszerzése után a kliens azt találja, hogy a kívánt
+ref-csúcsok teljes egészében a hirdetett bundle(ok)ból lekérhetők, a
+kliens MAY lecsatlakozhat a Git szerverről. Egy ilyen 'clone' vagy
+'fetch' eredményének megkülönböztethetetlennek kell lennie attól az
+állapottól, amely a bundle-uri használata nélkül állna elő.
+
+KORAI KLIENS-LECSATLAKOZÁSOK ÉS HIBAKEZELÉS::
+A kliens MAY korai lecsatlakozást hajthat végre, miközben még
+letölti a bundle(oka)t (miután azok fejléceit már streamelte és
+elemezte). Ilyen esetben a kliensnek MUST elegánsan helyreállnia
+minden, a bundle(ok) letöltésének és érvényesítésének befejezésével
+kapcsolatos hibából.
++
+Azaz a kliensnek esetleg újra kell csatlakoznia, és ki kell adnia egy
+'fetch' parancsot, és esetleg vissza kell térnie ahhoz, hogy egyáltalán
+ne használja a 'bundle-uri'-t.
++
+Ez a "MAY" viselkedés (és nem egy "SHOULD") azért van így
+meghatározva, mert feltételezhető, hogy egy bundle URI-kat hirdető
+szerver valószínűbb, hogy egy viszonylag nagy repository-t szolgál ki,
+és olyan URI-kra mutat, amelyeknél jó eséllyel működőképesek. A kliens
+MAY pl. megnézheti a bundle-ök payload-méretét heurisztikaként annak
+eldöntésére, hogy megéri-e a korai lecsatlakozás, ha egy teljes
+"fetch" dialógusra való visszatérésre lenne szükség.
+
+HA A HIRDETETT BUNDLE(OK) TOVÁBBI EGYEZTETÉST IGÉNYELNEK::
+A kliensnek SHOULD megkezdenie egy PACK egyeztetését a szerverrel a
+"fetch" paranccsal, a hirdetett bundle-ökben talált OID-csúcsokat
+használva, még ha éppen azoknak a bundle(ok)nak a letöltése is folyik.
++
+Ez lehetővé teszi az agresszív korai lecsatlakozást bármely
+interaktív szerverdialógusból. A kliens vakon megbízik abban, hogy a
+hirdetett OID-csúcsok relevánsak, és 'have' sorokként adja ki őket,
+majd bármely csúcsot lekér, amelyet szeretne (rendszerint az
+"ls-refs" hirdetéséből) 'want' sorokon keresztül. A szerver ezután
+kiszámít egy (remélhetőleg kicsi) PACK-ot, a bundle(ok)ból származó
+csúcsok és a kért adat közötti várt különbséggel.
++
+Az egyetlen kapcsolat, amelyet a kliensnek ezután aktívan kell
+tartania, a párhuzamosan letöltődő statikus bundle(ok)hoz vezet, és
+amikor azokat és az inkrementális PACK-ot megkapta, ki kell csomagolni
+és érvényesíteni kell őket. Az ezen a ponton fellépő hibákból
+elegánsan helyre kell állni, lásd fentebb.
+
+[[_bundle_uri_protocol_features]]
+bundle-uri PROTOKOLLFUNKCIÓK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The client constructs a bundle list from the `<key>=<value>` pairs
-provided by the server. These pairs are part of the `bundle.*` namespace
-as documented in linkgit:git-config[1]. In this section, we discuss some
-of these keys and describe the actions the client will do in response to
-this information.
+A kliens egy bundle-listát épít fel a szerver által megadott
+`<key>=<value>` párokból. Ezek a párok a `bundle.*` névtér részei, ahogy
+azt a linkgit:git-config[1] dokumentálja. Ebben a szekcióban néhány
+ilyen kulcsot tárgyalunk, és leírjuk azokat a műveleteket, amelyeket a
+kliens ezen információ hatására végrehajt.
 
-In particular, the `bundle.version` key specifies an integer value. The
-only accepted value at the moment is `1`, but if the client sees an
-unexpected value here then the client MUST ignore the bundle list.
+Konkrétan a `bundle.version` kulcs egy egész számot ad meg. Jelenleg
+az egyetlen elfogadott érték `1`, de ha a kliens itt nem várt értéket
+lát, akkor a kliensnek MUST figyelmen kívül hagynia a bundle-listát.
 
-As long as `bundle.version` is understood, all other unknown keys MAY be
-ignored by the client. The server will guarantee compatibility with older
-clients, though newer clients may be better able to use the extra keys to
-minimize downloads.
+Amíg a `bundle.version` értelmezhető, minden más ismeretlen kulcsot a
+kliens MAY figyelmen kívül hagyhat. A szerver garantálja a
+kompatibilitást a régebbi kliensekkel, bár az újabb kliensek jobban
+képesek lehetnek a letöltések minimalizálására az extra kulcsok
+felhasználásával.
 
-Any backwards-incompatible addition of pre-URI key-value will be
-guarded by a new `bundle.version` value or values in 'bundle-uri'
-capability advertisement itself, and/or by new future `bundle-uri`
-request arguments.
+A pre-URI kulcs-értékek bármely visszafelé inkompatibilis hozzáadása
+egy új `bundle.version` értékkel vagy értékekkel lesz védve magában a
+'bundle-uri' képesség-hirdetésben, és/vagy a jövőbeli új `bundle-uri`
+kéréssel kapcsolatos argumentumokkal.
 
-Some example key-value pairs that are not currently implemented but could
-be implemented in the future include:
+Néhány példa kulcs-érték párra, amelyek jelenleg nincsenek
+megvalósítva, de a jövőben megvalósíthatók lennének:
 
- * Add a "hash=<val>" or "size=<bytes>" advertise the expected hash or
-   size of the bundle file.
+ * Egy "hash=<val>" vagy "size=<bytes>" hozzáadása a bundle-fájl várt
+   hash-ének vagy méretének hirdetéséhez.
 
- * Advertise that one or more bundle files are the same (to e.g. have
-   clients round-robin or otherwise choose one of N possible files).
+ * Annak hirdetése, hogy egy vagy több bundle-fájl azonos (pl. hogy a
+   kliensek round-robin módon vagy másképp válasszanak N lehetséges
+   fájl közül).
 
- * A "oid=<OID>" shortcut and "prerequisite=<OID>" shortcut. For
-   expressing the common case of a bundle with one tip and no
-   prerequisites, or one tip and one prerequisite.
+ * Egy "oid=<OID>" rövidítés és egy "prerequisite=<OID>" rövidítés.
+   Annak a gyakori esetnek a kifejezésére, amikor egy bundle egy
+   csúccsal és előfeltétel nélkül, vagy egy csúccsal és egy
+   előfeltétellel rendelkezik.
 +
-This would allow for optimizing the common case of servers who'd like
-to provide one "big bundle" containing only their "main" branch,
-and/or incremental updates thereof.
+Ez lehetővé tenné annak a gyakori esetnek az optimalizálását, amikor a
+szerverek egyetlen "nagy bundle-t" szeretnének biztosítani, amely csak
+a "main" branchüket tartalmazza, és/vagy annak inkrementális
+frissítéseit.
 +
-A client receiving such a response MAY assume that they can skip
-retrieving the header from a bundle at the indicated URI, and thus
-save themselves and the server(s) the request(s) needed to inspect the
-headers of that bundle or bundles.
+Egy ilyen választ kapó kliens MAY feltételezheti, hogy kihagyhatja a
+fejléc lekérését a jelzett URI-n lévő bundle-ből, és ezáltal
+megspórolhatja magának és a szerver(ek)nek az adott bundle vagy
+bundle-ök fejlécének megvizsgálásához szükséges kérés(eke)t.
 
+[[_promisor_remote_pr_info]]
 promisor-remote=<pr-info>
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The server may advertise some promisor remotes it is using or knows
-about to a client which may want to use them as its promisor remotes,
-instead of this repository. In this case <pr-info> should be of the
-form:
+A szerver hirdethet néhány promisor remote-ot, amelyet használ, vagy
+amelyről tud, egy olyan kliens felé, amely ezeket szeretné használni a
+saját promisor remote-jaiként, e repository helyett. Ebben az esetben a
+<pr-info>-nak a következő alakúnak kell lennie:
 
 	pr-info = pr-fields | pr-info ";" pr-fields
 
@@ -814,91 +878,97 @@ form:
 
 	pr-field = field-name "=" field-value
 
-where all the `field-name` and `field-value` in a given `pr-fields`
-are field names and values related to a single promisor remote. A
-given `field-name` MUST NOT appear more than once in given
-`pr-fields`.
+ahol a `field-name` és a `field-value` egy adott `pr-fields`-en belül
+egyetlen promisor remote-hoz kapcsolódó mezőnevek és értékek. Egy adott
+`field-name` MUST NOT jelenhet meg egynél többször egy adott
+`pr-fields`-ben.
 
-The server MUST advertise at least the "name" and "url" field names
-along with the associated field values, which are the name of a valid
-remote and its URL, in each `pr-fields`. The "name" and "url" fields
-MUST appear first in each pr-fields, in that order.
+A szervernek MUST hirdetnie legalább a "name" és "url" mezőneveket a
+hozzájuk tartozó mezőértékekkel együtt, amelyek egy érvényes remote
+neve és URL-je, minden `pr-fields`-ben. A "name" és "url" mezőknek
+MUST elsőként megjelenniük minden pr-fields-ben, ebben a sorrendben.
 
-After these mandatory fields, the server MAY advertise the following
-optional fields in any order:
+Ezen kötelező mezők után a szerver MAY az alábbi opcionális mezőket
+hirdetheti, tetszőleges sorrendben:
 
-`partialCloneFilter`:: The filter specification for the remote. It
-corresponds to the "remote.<name>.partialCloneFilter" config setting.
-Clients can use this to determine if the remote's filtering strategy
-is compatible with their needs (e.g., checking if both use
-"blob:none"). Additionally they can use this through the
-`--filter=auto` option in linkgit:git-clone[1]. With that option, the
-filter specification of the clone will be automatically computed by
-combining the filter specifications of the promisor remotes the client
-accepts.
+`partialCloneFilter`:: A remote szűrési specifikációja. Ez a
+"remote.<name>.partialCloneFilter" config-beállításnak felel meg. A
+kliensek ezt felhasználhatják annak megállapítására, hogy a remote
+szűrési stratégiája kompatibilis-e az igényeikkel (pl. annak
+ellenőrzésével, hogy mindkettő "blob:none"-t használ-e). Emellett
+felhasználhatják ezt a `--filter=auto` opción keresztül a
+linkgit:git-clone[1]-ben. Ezzel az opcióval a klón szűrési
+specifikációja automatikusan kiszámításra kerül a kliens által
+elfogadott promisor remote-ok szűrési specifikációinak kombinálásával.
 
-`token`:: An authentication token that clients can use when
-connecting to the remote. It corresponds to the "remote.<name>.token"
-config setting.
+`token`:: Egy hitelesítési token, amelyet a kliensek használhatnak a
+remote-hoz való csatlakozáskor. Ez a "remote.<name>.token"
+config-beállításnak felel meg.
 
-No other fields are defined by the protocol at this time. Field names
-are case-sensitive and MUST be transmitted exactly as specified
-above. Clients MUST ignore fields they don't recognize to allow for
-future protocol extensions.
+A protokoll jelenleg semmilyen más mezőt nem definiál. A mezőnevek
+kis- és nagybetűérzékenyek, és MUST pontosan a fent megadott módon
+kell átvitelre kerülniük. A klienseknek MUST figyelmen kívül hagyniuk
+az általuk fel nem ismert mezőket, hogy lehetővé tegyék a jövőbeli
+protokollbővítéseket.
 
-The client can use information transmitted through these fields to
-decide if it accepts the advertised promisor remote. Also, the client
-can be configured to store the values of these fields or use them
-to automatically configure the repository (see "promisor.storeFields"
-in linkgit:git-config[1] and `--filter=auto` in linkgit:git-clone[1]).
+A kliens felhasználhatja az ezeken a mezőkön keresztül átvitt
+információt annak eldöntésére, hogy elfogadja-e a hirdetett promisor
+remote-ot. Emellett a kliens beállítható úgy is, hogy tárolja ezen
+mezők értékeit, vagy felhasználja őket a repository automatikus
+konfigurálásához (lásd a "promisor.storeFields"-et a
+linkgit:git-config[1]-ben és a `--filter=auto`-t a
+linkgit:git-clone[1]-ben).
 
-Field values MUST be urlencoded.
+A mezőértékeknek MUST urlencoded formátumúnak lenniük.
 
-If the client decides to use one or more promisor remotes the server
-advertised, it can reply with "promisor-remote=<pr-names>" where
-<pr-names> should be of the form:
+Ha a kliens úgy dönt, hogy a szerver által hirdetett egy vagy több
+promisor remote-ot használja, válaszolhat egy
+"promisor-remote=<pr-names>" sorral, ahol a <pr-names>-nak a következő
+alakúnak kell lennie:
 
 	pr-names = pr-name | pr-names ";" pr-name
 
-where `pr-name` is the urlencoded name of a promisor remote the server
-advertised and the client accepts.
+ahol a `pr-name` egy, a szerver által hirdetett és a kliens által
+elfogadott promisor remote urlencoded neve.
 
-The promisor remotes that the client accepted will be tried before the
-other configured promisor remotes when the client attempts to fetch
-missing objects.
+A kliens által elfogadott promisor remote-okat próbálja meg először a
+kliens a többi konfigurált promisor remote előtt, amikor hiányzó
+objektumokat próbál fetchelni.
 
-Note that, everywhere in this document, the ';' and ',' characters
-MUST be encoded if they appear in `pr-name` or `field-value`.
+Vegyük észre, hogy ebben a dokumentumban mindenütt a ';' és ','
+karaktereket MUST kódolni, ha megjelennek a `pr-name`-ben vagy a
+`field-value`-ban.
 
-If the server doesn't know any promisor remote that could be good for
-a client to use, or prefers a client not to use any promisor remote it
-uses or knows about, it shouldn't advertise the "promisor-remote"
-capability at all.
+Ha a szerver nem ismer olyan promisor remote-ot, amely jó lehetne egy
+kliens számára, vagy azt szeretné, hogy a kliens ne használjon
+semmilyen általa használt vagy ismert promisor remote-ot, akkor
+egyáltalán ne hirdesse a "promisor-remote" képességet.
 
-In this case, or if the client doesn't want to use any promisor remote
-the server advertised, the client shouldn't advertise the
-"promisor-remote" capability at all in its reply.
+Ebben az esetben, vagy ha a kliens nem akarja használni a szerver
+által hirdetett egyetlen promisor remote-ot sem, a kliens egyáltalán
+ne hirdesse a "promisor-remote" képességet a válaszában.
 
-On the server side, the "promisor.advertise" and "promisor.sendFields"
-configuration options can be used to control what it advertises. On
-the client side, the "promisor.acceptFromServer" and
-"promisor.acceptFromServerUrl" configuration options can be used to
-control what it accepts, and the "promisor.storeFields" option, to
-control what it stores. See the documentation of these configuration
-options in linkgit:git-config[1] for more information.
+A szerveroldalon a "promisor.advertise" és a "promisor.sendFields"
+konfigurációs opciók használhatók annak szabályozására, hogy mit
+hirdet. A kliensoldalon a "promisor.acceptFromServer" és a
+"promisor.acceptFromServerUrl" konfigurációs opciók használhatók annak
+szabályozására, hogy mit fogad el, valamint a "promisor.storeFields"
+opció annak szabályozására, hogy mit tárol. További információért
+lásd ezen konfigurációs opciók dokumentációját a
+linkgit:git-config[1]-ben.
 
-Note that in the future it would be nice if the "promisor-remote"
-protocol capability could be used by the server, when responding to
-`git fetch` or `git clone`, to advertise better-connected remotes that
-the client can use as promisor remotes, instead of this repository, so
-that the client can lazily fetch objects from these other
-better-connected remotes. This would require the server to omit in its
-response the objects available on the better-connected remotes that
-the client has accepted. This hasn't been implemented yet though. So
-for now this "promisor-remote" capability is useful only when the
-server advertises some promisor remotes it already uses to borrow
-objects from.
+Vegyük észre, hogy a jövőben jó lenne, ha a "promisor-remote" protokoll
+képességet a szerver arra használhatná, hogy `git fetch` vagy `git
+clone` esetén válaszként olyan jobban kapcsolódó remote-okat hirdessen,
+amelyeket a kliens promisor remote-okként használhat e repository
+helyett, hogy a kliens lustán fetchelhessen objektumokat ezekről a
+jobban kapcsolódó remote-okról. Ehhez a szervernek ki kellene hagynia a
+válaszából azokat az objektumokat, amelyek elérhetők a kliens által
+elfogadott, jobban kapcsolódó remote-okon. Ez azonban még nincs
+megvalósítva. Így egyelőre ez a "promisor-remote" képesség csak akkor
+hasznos, ha a szerver olyan promisor remote-okat hirdet, amelyeket már
+használ objektumok kölcsönzésére.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

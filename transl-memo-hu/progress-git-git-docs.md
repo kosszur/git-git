@@ -223,7 +223,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | diff-context-options.adoc | [x] |  | 2026-09-10 |
 | diff-format.adoc | [x] |  | 2026-09-10 |
 | diff-generate-patch.adoc | [x] |  | 2026-09-10 |
-| diff-options.adoc | [ ] |  |  |
+| diff-options.adoc | [x] |  | 2026-09-11 |
 | fetch-options.adoc | [x] |  | 2026-09-10 |
 | for-each-ref-options.adoc | [x] |  | 2026-09-10 |
 | format-patch-caveats.adoc | [x] |  | 2026-09-10 |
@@ -256,9 +256,9 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitpacking.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-capabilities.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-common.adoc | [x] |  | 2026-09-10 |
-| gitprotocol-http.adoc | [x] |  | 2026-09-11 |
+| gitprotocol-http.adoc | [x] |  | 2026-09-11 (NAME-sor utólag javítva 2026-09-11) |
 | gitprotocol-pack.adoc | [x] |  | 2026-09-11 |
-| gitprotocol-v2.adoc | [ ] |  |  |
+| gitprotocol-v2.adoc | [x] |  | 2026-09-11 |
 | gitremote-helpers.adoc | [x] |  | 2026-09-11 |
 | gitrepository-layout.adoc | [x] |  | 2026-09-10 |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
@@ -963,3 +963,15 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   megszakítás és hiba nélkül, hibátlanul készült el, a `<<URLS,GIT URLS>>` → `<<URLS,GIT
   URL-ek>>` és a `<<REMOTES,...>>`/`<<UPSTREAM-BRANCHES,...>>`/`<<REMOTE-GROUPS,...>>`
   bájtazonos-hagyási precedenst követve. Részletek: `glossary-git-git-docs.md` „42. blokk".
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére): `diff-options.adoc` (34,3KB, 925 sor, include-fragmens, sok `ifdef`/`ifndef`/`endif`
+  guarddal — git-diff.adoc/git-log.adoc/git-format-patch.adoc-ba include-olva), `gitprotocol-v2.adoc`
+  (36,8KB, 904→974 sor, RFC-stílusú protokoll-spec, a `gitprotocol-pack.adoc` mintáját követve).
+  2 párhuzamos subagent végezte. A `diff-options.adoc` guard-számai (13 `ifdef` + 19 `ifndef` +
+  32 `endif`) fordítás előtt és után egyeztek — nincs törött include. Az orchestrátor egy
+  grammatikai pontatlanságot javított a `--diff-filter` leírásában („Nem Merge-eltek (U),
+  Ismeretlenek (X)" hiányzó „amelyek" kötőszóval lógott a mondatban). A `gitprotocol-v2.adoc`
+  strukturálisan hibátlan volt; emellett észrevettük, hogy a korábban (38. blokk) kész
+  `gitprotocol-http.adoc` NAME-sora tévesen angolul maradt („Git HTTP-based protocols") a
+  projekt „NAME egysoros leírása mindig fordul" konvenciója (2. blokk) ellenére — most javítva
+  „Git HTTP-alapú protokollok"-ra. Részletek: `glossary-git-git-docs.md` „43. blokk".

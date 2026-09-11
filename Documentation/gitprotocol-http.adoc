@@ -3,7 +3,7 @@ gitprotocol-http(5)
 
 NAME
 ----
-gitprotocol-http - Git HTTP-based protocols
+gitprotocol-http - Git HTTP-alapú protokollok
 
 
 SYNOPSIS
