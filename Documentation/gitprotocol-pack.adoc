@@ -3,7 +3,7 @@ gitprotocol-pack(5)
 
 NAME
 ----
-gitprotocol-pack - How packs are transferred over-the-wire
+gitprotocol-pack - Hogyan kerülnek átvitelre a packek a vezetéken keresztül
 
 SYNOPSIS
 --------
@@ -13,81 +13,88 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Git supports transferring data in packfiles over the ssh://, git://, http:// and
-file:// transports.  There exist two sets of protocols, one for pushing
-data from a client to a server and another for fetching data from a
-server to a client.  The three transports (ssh, git, file) use the same
-protocol to transfer data. http is documented in linkgit:gitprotocol-http[5].
+A Git támogatja az adatok packfile-okban történő átvitelét az ssh://, git://,
+http:// és file:// transportokon keresztül.  Két protokollcsoport létezik: az
+egyik az adatok kliensről szerverre pusholásához, a másik a szerverről
+kliensre fetcheléshez.  A három transport (ssh, git, file) ugyanazt a
+protokollt használja az adatátvitelhez. A http a linkgit:gitprotocol-http[5]-ben
+van dokumentálva.
 
-The processes invoked in the canonical Git implementation are 'upload-pack'
-on the server side and 'fetch-pack' on the client side for fetching data;
-then 'receive-pack' on the server and 'send-pack' on the client for pushing
-data.  The protocol functions to have a server tell a client what is
-currently on the server, then for the two to negotiate the smallest amount
-of data to send in order to fully update one or the other.
+A kanonikus Git implementációban meghívott folyamatok a fetcheléshez a
+szerveroldali 'upload-pack' és a kliensoldali 'fetch-pack'; a pusholáshoz
+pedig a szerveroldali 'receive-pack' és a kliensoldali 'send-pack'. A
+protokoll feladata, hogy a szerver közölje a klienssel, mi van jelenleg a
+szerveren, majd hogy a kettő megegyezzen a küldendő adat legkisebb
+mennyiségében annak érdekében, hogy az egyik vagy a másik teljesen
+frissüljön.
 
-pkt-line Format
----------------
+[[_pkt_line_format]]
+pkt-line formátum
+-----------------
 
-The descriptions below build on the pkt-line format described in
-linkgit:gitprotocol-common[5]. When the grammar indicates `PKT-LINE(...)`, unless
-otherwise noted the usual pkt-line LF rules apply: the sender SHOULD
-include a LF, but the receiver MUST NOT complain if it is not present.
+Az alábbi leírások a linkgit:gitprotocol-common[5]-ben ismertetett pkt-line
+formátumra épülnek. Amikor a grammatika `PKT-LINE(...)`-t jelez, eltérő
+megjegyzés hiányában a szokásos pkt-line LF-szabályok érvényesek: a
+küldőnek SHOULD tartalmaznia egy LF-et, de a fogadó MUST NOT panaszkodjon,
+ha az nincs jelen.
 
-An error packet is a special pkt-line that contains an error string.
+Egy hibacsomag egy speciális pkt-line, amely egy hibaüzenetet tartalmaz.
 
 ----
   error-line     =  PKT-LINE("ERR" SP explanation-text)
 ----
 
-Throughout the protocol, where `PKT-LINE(...)` is expected, an error packet MAY
-be sent. Once this packet is sent by a client or a server, the data transfer
-process defined in this protocol is terminated.
+A protokoll egészében, ahol `PKT-LINE(...)` várt, egy hibacsomag MAY
+küldhető. Amint egy kliens vagy egy szerver elküldi ezt a csomagot, az
+ebben a protokollban meghatározott adatátviteli folyamat véget ér.
 
-Transports
-----------
-There are three transports over which the packfile protocol is
-initiated.
+[[_transports]]
+Transportok
+-----------
+Három transport létezik, amelyeken keresztül a packfile-protokoll
+elindítható.
 
-The Git transport is a simple, unauthenticated server that
-takes the command (almost always 'upload-pack', though Git
-servers can be configured to be globally writable, in which 'receive-
-pack' initiation is also allowed) with which the client wishes to
-communicate and executes it and connects it to the requesting
-process.
+A Git transport egy egyszerű, hitelesítés nélküli szerver, amely
+fogadja a parancsot (szinte mindig 'upload-pack', bár a Git-szerverek
+globálisan írhatóra is konfigurálhatók, amely esetben a 'receive-pack'
+elindítása is engedélyezett), amellyel a kliens kommunikálni kíván,
+végrehajtja azt, és összeköti a kérő folyamattal.
 
-In the SSH transport, the client just runs the 'upload-pack'
-or 'receive-pack' process on the server over the SSH protocol and then
-communicates with that invoked process over the SSH connection.
+Az SSH transportban a kliens egyszerűen lefuttatja az 'upload-pack'
+vagy 'receive-pack' folyamatot a szerveren az SSH-protokollon keresztül,
+majd az SSH-kapcsolaton keresztül kommunikál az elindított folyamattal.
 
-The file:// transport runs the 'upload-pack' or 'receive-pack'
-process locally and communicates with it over a pipe.
+A file:// transport helyben futtatja az 'upload-pack' vagy 'receive-pack'
+folyamatot, és egy pipe-on keresztül kommunikál vele.
 
-Extra Parameters
-----------------
+[[_extra_parameters]]
+Extra Parameterek
+-----------------
 
-The protocol provides a mechanism in which clients can send additional
-information in their first message to the server. These are called "Extra
-Parameters", and are supported by the Git, SSH, and HTTP protocols.
+A protokoll biztosít egy mechanizmust, amellyel a kliensek további
+információt küldhetnek az első üzenetükben a szervernek. Ezeket „Extra
+Parametereknek" nevezzük, és a Git, az SSH és a HTTP protokoll is
+támogatja őket.
 
-Each Extra Parameter takes the form of `<key>=<value>` or `<key>`.
+Minden Extra Parameter a `<kulcs>=<érték>` vagy a `<kulcs>` formát veszi fel.
 
-Servers that receive any such Extra Parameters MUST ignore all
-unrecognized keys. Currently, the only Extra Parameter recognized is
-"version" with a value of '1' or '2'.  See linkgit:gitprotocol-v2[5] for more
-information on protocol version 2.
+Az ilyen Extra Parametereket fogadó szervereknek MUST figyelmen kívül
+hagyniuk minden fel nem ismert kulcsot. Jelenleg az egyetlen felismert
+Extra Parameter a "version", amelynek értéke '1' vagy '2' lehet.  A 2-es
+protokollverzióról bővebben lásd a linkgit:gitprotocol-v2[5]-öt.
 
+[[_git_transport]]
 Git Transport
 -------------
 
-The Git transport starts off by sending the command and repository
-on the wire using the pkt-line format, followed by a NUL byte and a
-hostname parameter, terminated by a NUL byte.
+A Git transport azzal kezdődik, hogy elküldi a parancsot és a
+repository-t a vezetéken a pkt-line formátumban, amelyet egy NUL bájt
+és egy hostname paraméter követ, amelyet egy NUL bájt zár le.
 
    0033git-upload-pack /project.git\0host=myserver.com\0
 
-The transport may send Extra Parameters by adding an additional NUL
-byte, and then adding one or more NUL-terminated strings:
+A transport küldhet Extra Parametereket egy további NUL bájt
+hozzáadásával, majd egy vagy több NUL-lal lezárt sztring hozzáadásával:
 
    003egit-upload-pack /project.git\0host=myserver.com\0\0version=1\0
 
@@ -102,88 +109,97 @@ byte, and then adding one or more NUL-terminated strings:
    extra-parameter   = 1*( %x01-ff ) NUL
 --
 
-host-parameter is used for the
-git-daemon name based virtual hosting.  See --interpolated-path
-option to git daemon, with the %H/%CH format characters.
+A host-parameter a git-daemon névalapú virtuális hostingjához
+használatos.  Lásd a git daemon --interpolated-path opcióját, a %H/%CH
+formátumkarakterekkel.
 
-Basically what the Git client is doing to connect to an 'upload-pack'
-process on the server side over the Git protocol is this:
+Alapvetően azt teszi a Git kliens, hogy a Git-protokollon keresztül
+kapcsolódik a szerveroldali 'upload-pack' folyamathoz, valahogy így:
 
    $ echo -e -n \
      "003agit-upload-pack /schacon/gitbook.git\0host=example.com\0" |
      nc -v example.com 9418
 
 
+[[_ssh_transport]]
 SSH Transport
 -------------
 
-Initiating the 'upload-pack' or 'receive-pack' processes over SSH is
-executing the binary on the server via SSH remote execution.
-It is basically equivalent to running this:
+Az 'upload-pack' vagy 'receive-pack' folyamatok SSH-n keresztüli
+elindítása a binárisnak a szerveren, SSH-n keresztüli távoli
+végrehajtás útján történő futtatását jelenti.
+Ez alapvetően egyenértékű a következő futtatásával:
 
    $ ssh git.example.com "git-upload-pack '/project.git'"
 
-For a server to support Git pushing and pulling for a given user over
-SSH, that user needs to be able to execute one or both of those
-commands via the SSH shell that they are provided on login.  On some
-systems, that shell access is limited to only being able to run those
-two commands, or even just one of them.
+Ahhoz, hogy egy szerver támogassa a Git pusholást és pull-olást egy
+adott felhasználó számára SSH-n keresztül, annak a felhasználónak
+képesnek kell lennie e parancsok közül egyet vagy mindkettőt
+végrehajtani a bejelentkezéskor kapott SSH-shellen keresztül.  Néhány
+rendszeren ez a shell-hozzáférés csak e két parancs futtatására van
+korlátozva, vagy akár csak egyre közülük.
 
-In an ssh:// format URI, it's absolute in the URI, so the '/' after
-the host name (or port number) is sent as an argument, which is then
-read by the remote 'git-upload-pack' exactly as is, so it's effectively
-an absolute path in the remote filesystem.
+Egy ssh:// formátumú URI-ban ez az URI-n belül abszolút, így a hostnév
+(vagy portszám) utáni '/' argumentumként kerül elküldésre, amelyet a
+távoli 'git-upload-pack' pontosan úgy olvas be, ahogy van, tehát ez
+gyakorlatilag egy abszolút útvonal a távoli fájlrendszerben.
 
        git clone ssh://user@example.com/project.git
 		    |
 		    v
     ssh user@example.com "git-upload-pack '/project.git'"
 
-In a "user@host:path" format URI, it's relative to the user's home
-directory, because the Git client will run:
+Egy "user@host:path" formátumú URI-ban ez a felhasználó saját
+könyvtárához viszonyítva relatív, mert a Git kliens a következőt
+fogja futtatni:
 
      git clone user@example.com:project.git
 		    |
 		    v
   ssh user@example.com "git-upload-pack 'project.git'"
 
-The exception is if a '~' is used, in which case
-we execute it without the leading '/'.
+A kivétel az, ha egy '~' van használva, ebben az esetben a vezető '/'
+nélkül hajtjuk végre.
 
       ssh://user@example.com/~alice/project.git,
 		     |
 		     v
    ssh user@example.com "git-upload-pack '~alice/project.git'"
 
-Depending on the value of the `protocol.version` configuration variable,
-Git may attempt to send Extra Parameters as a colon-separated string in
-the GIT_PROTOCOL environment variable. This is done only if
-the `ssh.variant` configuration variable indicates that the ssh command
-supports passing environment variables as an argument.
+A `protocol.version` konfigurációs változó értékétől függően a Git
+megkísérelheti az Extra Parametereket egy kettősponttal elválasztott
+sztringként elküldeni a GIT_PROTOCOL környezeti változóban. Ez csak
+akkor történik meg, ha az `ssh.variant` konfigurációs változó azt
+jelzi, hogy az ssh parancs támogatja a környezeti változók argumentumként
+való átadását.
 
-A few things to remember here:
+Néhány dolog, amit érdemes itt megjegyezni:
 
-- The "command name" is spelled with dash (e.g. 'git-upload-pack'), but
-  this can be overridden by the client;
+- A "parancsnév" kötőjellel van írva (pl. 'git-upload-pack'), de ezt a
+  kliens felülbírálhatja;
 
-- The repository path is always quoted with single quotes.
+- A repository útvonala mindig egyszeres idézőjelbe van téve.
 
-Fetching Data From a Server
----------------------------
+[[_fetching_data_from_a_server]]
+Adatok fetchelése egy szerverről
+--------------------------------
 
-When one Git repository wants to get data that a second repository
-has, the first can 'fetch' from the second.  This operation determines
-what data the server has that the client does not then streams that
-data down to the client in packfile format.
+Amikor az egyik Git repository meg akarja szerezni azt az adatot,
+amellyel egy másik repository rendelkezik, az első 'fetch'-elhet a
+másodiktól.  Ez a művelet meghatározza, hogy a szervernek milyen olyan
+adata van, amellyel a kliens nem rendelkezik, majd ezt az adatot
+packfile formátumban lestreameli a kliensnek.
 
 
-Reference Discovery
--------------------
+[[_reference_discovery]]
+Referenciák felfedezése
+-----------------------
 
-When the client initially connects the server will immediately respond
-with a version number (if "version=1" is sent as an Extra Parameter),
-and a listing of each reference it has (all branches and tags) along
-with the object name that each reference currently points to.
+Amikor a kliens kezdetben kapcsolódik, a szerver azonnal válaszol egy
+verziószámmal (ha a "version=1" el lett küldve Extra Parameterként),
+és minden birtokában lévő referencia (az összes branch és tag)
+listájával, együtt azzal az objektumnévvel, amelyre az adott
+referencia jelenleg mutat.
 
    $ echo -e -n "0045git-upload-pack /schacon/gitbook.git\0host=example.com\0\0version=1\0" |
       nc -v example.com 9418
@@ -197,18 +213,19 @@ with the object name that each reference currently points to.
    003fe92df48743b7bc7d26bcaabfddde0a1e20cae47c refs/tags/v1.0^{}
    0000
 
-The returned response is a pkt-line stream describing each ref and
-its current value.  The stream MUST be sorted by name according to
-the C locale ordering.
+A visszaadott válasz egy pkt-line stream, amely leírja az egyes
+refeket és azok jelenlegi értékét.  A streamnek MUST névre rendezettnek
+lennie, a C locale-sorrend szerint.
 
-If HEAD is a valid ref, HEAD MUST appear as the first advertised
-ref.  If HEAD is not a valid ref, HEAD MUST NOT appear in the
-advertisement list at all, but other refs may still appear.
+Ha a HEAD egy érvényes ref, a HEAD MUST az első hirdetett refként
+megjelenjen.  Ha a HEAD nem egy érvényes ref, a HEAD MUST NOT
+egyáltalán megjelenjen a hirdetési listában, de más refek
+megjelenhetnek.
 
-The stream MUST include capability declarations behind a NUL on the
-first ref. The peeled value of a ref (that is "ref^{}") MUST be
-immediately after the ref itself, if presented. A conforming server
-MUST peel the ref if it's an annotated tag.
+A streamnek MUST tartalmaznia a képesség-deklarációkat egy NUL mögött
+az első refen. Egy ref lefejtett értékének (azaz a "ref^{}"-nek) MUST
+közvetlenül maga a ref után következnie, ha jelen van. Egy szabályos
+szervernek MUST lefejtenie a refet, ha az egy annotált tag.
 
 ----
   advertised-refs  =  *1("version 1")
@@ -234,26 +251,30 @@ MUST peel the ref if it's an annotated tag.
   LC_ALPHA         =  %x61-7A
 ----
 
-Server and client MUST use lowercase for obj-id, both MUST treat obj-id
-as case-insensitive.
+A szervernek és a kliensnek MUST kisbetűt használnia az obj-id-hoz,
+mindkettőnek MUST kis- és nagybetűt nem megkülönböztetőként kezelnie
+az obj-id-t.
 
-See protocol-capabilities.txt for a list of allowed server capabilities
-and descriptions.
+A megengedett szerverképességek listájáért és leírásáért lásd a
+protocol-capabilities.txt fájlt.
 
-Packfile Negotiation
---------------------
-After reference and capabilities discovery, the client can decide to
-terminate the connection by sending a flush-pkt, telling the server it can
-now gracefully terminate, and disconnect, when it does not need any pack
-data. This can happen with the ls-remote command, and also can happen when
-the client already is up to date.
+[[_packfile_negotiation]]
+Packfile-egyeztetés
+-------------------
+A referencia- és képesség-felfedezés után a kliens dönthet úgy, hogy
+megszakítja a kapcsolatot egy flush-pkt küldésével, közölve a
+szerverrel, hogy az most szabályosan befejezheti és bonthatja a
+kapcsolatot, amikor nincs szüksége semmilyen pack-adatra. Ez
+előfordulhat az ls-remote paranccsal, és akkor is, ha a kliens már
+naprakész.
 
-Otherwise, it enters the negotiation phase, where the client and
-server determine what the minimal packfile necessary for transport is,
-by telling the server what objects it wants, its shallow objects
-(if any), and the maximum commit depth it wants (if any).  The client
-will also send a list of the capabilities it wants to be in effect,
-out of what the server said it could do with the first 'want' line.
+Ellenkező esetben belép az egyeztetési fázisba, ahol a kliens és a
+szerver meghatározza, mi az átvitelhez szükséges minimális packfile,
+azáltal, hogy közli a szerverrel, milyen objektumokat akar, melyek a
+shallow objektumai (ha vannak), és mi a maximális commit-mélység, amit
+akar (ha van).  A kliens el fogja küldeni azon képességek listáját is,
+amelyeket érvényben szeretne látni, azok közül, amelyekről a szerver
+azt mondta, hogy tudja őket az első 'want' sorral.
 
 ----
   upload-request    =  want-list
@@ -279,41 +300,45 @@ out of what the server said it could do with the first 'want' line.
   filter-request    =  PKT-LINE("filter" SP filter-spec)
 ----
 
-Clients MUST send all the obj-ids they want from the reference
-discovery phase as 'want' lines. Clients MUST send at least one
-'want' command in the request body. Clients MUST NOT mention an
-obj-id in a 'want' command which did not appear in the response
-obtained through ref discovery.
+A klienseknek MUST elküldeniük az összes obj-id-t, amelyet a
+referencia-felfedezési fázisból akarnak, 'want' sorokként. A
+klienseknek MUST legalább egy 'want' parancsot küldeniük a kérés
+törzsében. A kliensek MUST NOT olyan obj-id-t említsenek egy 'want'
+parancsban, amely nem jelent meg a ref-felfedezésen keresztül kapott
+válaszban.
 
-The client MUST write all obj-ids which it only has shallow copies
-of (meaning that it does not have the parents of a commit) as
-'shallow' lines so that the server is aware of the limitations of
-the client's history.
+A kliensnek MUST leírnia minden olyan obj-id-t, amelynek csak shallow
+másolata van (azaz nincs meg a commit szüleje) 'shallow' sorokként,
+hogy a szerver tisztában legyen a kliens történetének
+korlátaival.
 
-The client now sends the maximum commit history depth it wants for
-this transaction, which is the number of commits it wants from the
-tip of the history, if any, as a 'deepen' line.  A depth of 0 is the
-same as not making a depth request. The client does not want to receive
-any commits beyond this depth, nor does it want objects needed only to
-complete those commits. Commits whose parents are not received as a
-result are defined as shallow and marked as such in the server. This
-information is sent back to the client in the next step.
+A kliens ezután elküldi az e tranzakcióhoz kívánt maximális
+commit-történeti mélységet, ami a történet csúcsától számítva kívánt
+commitok száma, ha van ilyen, egy 'deepen' sor formájában.  A 0
+mélység ugyanaz, mintha nem lenne mélységkérés. A kliens nem akar
+semmilyen, ennél a mélységnél messzebbi commitot fogadni, és nem akar
+olyan objektumokat sem, amelyek csak azon commitok teljessé
+tételéhez szükségesek. Azok a commitok, amelyeknek a szülei emiatt
+nem érkeznek meg, shallow-ként vannak definiálva, és a szerveren
+ilyenként vannak megjelölve. Ez az információ a következő lépésben
+kerül visszaküldésre a kliensnek.
 
-The client can optionally request that pack-objects omit various
-objects from the packfile using one of several filtering techniques.
-These are intended for use with partial clone and partial fetch
-operations. An object that does not meet a filter-spec value is
-omitted unless explicitly requested in a 'want' line. See `rev-list`
-for possible filter-spec values.
+A kliens opcionálisan kérheti, hogy a pack-objects néhány
+szűrőtechnika valamelyikének használatával kihagyjon bizonyos
+objektumokat a packfile-ból. Ezek a partial clone és partial fetch
+műveletekkel való használatra vannak szánva. Egy olyan objektum,
+amely nem felel meg egy filter-spec értéknek, ki lesz hagyva, hacsak
+kifejezetten nem lett kérve egy 'want' sorban. A lehetséges
+filter-spec értékekért lásd a `rev-list`-et.
 
-Once all the 'want's and 'shallow's (and optional 'deepen') are
-transferred, clients MUST send a flush-pkt, to tell the server side
-that it is done sending the list.
+Amint az összes 'want' és 'shallow' (és az opcionális 'deepen') át
+lett küldve, a klienseknek MUST elküldeniük egy flush-pkt-t, hogy
+közöljék a szerver oldallal, hogy befejezték a lista küldését.
 
-Otherwise, if the client sent a positive depth request, the server
-will determine which commits will and will not be shallow and
-send this information to the client. If the client did not request
-a positive depth, this step is skipped.
+Ellenkező esetben, ha a kliens pozitív mélységkérést küldött, a
+szerver meghatározza, mely commitok lesznek és melyek nem lesznek
+shallow-k, és elküldi ezt az információt a kliensnek. Ha a kliens nem
+kért pozitív mélységet, ez a lépés kimarad.
 
 ----
   shallow-update   =  *shallow-line
@@ -325,23 +350,24 @@ a positive depth, this step is skipped.
   unshallow-line   =  PKT-LINE("unshallow" SP obj-id)
 ----
 
-If the client has requested a positive depth, the server will compute
-the set of commits which are no deeper than the desired depth. The set
-of commits starts at the client's wants.
+Ha a kliens pozitív mélységet kért, a szerver kiszámítja azon
+commitok halmazát, amelyek nem mélyebbek a kívánt mélységnél. A
+commitok halmaza a kliens want-jainál kezdődik.
 
-The server writes 'shallow' lines for each
-commit whose parents will not be sent as a result. The server writes
-an 'unshallow' line for each commit which the client has indicated is
-shallow, but is no longer shallow at the currently requested depth
-(that is, its parents will now be sent). The server MUST NOT mark
-as unshallow anything which the client has not indicated was shallow.
+A szerver 'shallow' sorokat ír minden olyan commithoz, amelynek a
+szülei emiatt nem lesznek elküldve. A szerver egy 'unshallow' sort ír
+minden olyan commithoz, amelyet a kliens shallow-ként jelölt meg, de
+amely a jelenleg kért mélységnél már nem shallow (azaz a szülei már
+el lesznek küldve). A szerver MUST NOT semmit unshallow-ként
+megjelölnie, amit a kliens nem jelölt meg shallow-ként.
 
-Now the client will send a list of the obj-ids it has using 'have'
-lines, so the server can make a packfile that only contains the objects
-that the client needs. In multi_ack mode, the canonical implementation
-will send up to 32 of these at a time, then will send a flush-pkt. The
-canonical implementation will skip ahead and send the next 32 immediately,
-so that there is always a block of 32 "in-flight on the wire" at a time.
+Most a kliens elküldi a birtokában lévő obj-id-k listáját 'have'
+sorokkal, hogy a szerver olyan packfile-t tudjon készíteni, amely
+csak a kliens számára szükséges objektumokat tartalmazza. multi_ack
+módban a kanonikus implementáció ezekből egyszerre akár 32-t is elküld,
+majd elküld egy flush-pkt-t. A kanonikus implementáció előreugrik, és
+azonnal elküldi a következő 32-t, hogy mindig legyen egy 32-es blokk
+"úton lévő" a vezetéken.
 
 ----
   upload-haves      =  have-list
@@ -352,67 +378,72 @@ so that there is always a block of 32 "in-flight on the wire" at a time.
   compute-end       =  flush-pkt / PKT-LINE("done")
 ----
 
-If the server reads 'have' lines, it then will respond by ACKing any
-of the obj-ids the client said it had that the server also has. The
-server will ACK obj-ids differently depending on which ack mode is
-chosen by the client.
+Ha a szerver 'have' sorokat olvas be, akkor azon obj-id-k ACK-elésével
+válaszol, amelyekről a kliens azt mondta, hogy megvannak neki, és
+amelyek a szervernek is megvannak. A szerver eltérően ACK-eli az
+obj-id-ket attól függően, hogy a kliens melyik ack módot választotta.
 
-In multi_ack mode:
+multi_ack módban:
 
-  * the server will respond with 'ACK obj-id continue' for any common
-    commits.
+  * a szerver 'ACK obj-id continue'-val válaszol minden közös
+    commitra.
 
-  * once the server has found an acceptable common base commit and is
-    ready to make a packfile, it will blindly ACK all 'have' obj-ids
-    back to the client.
+  * amint a szerver talált egy elfogadható közös alap-commitot, és
+    kész elkészíteni a packfile-t, vakon ACK-elni fogja az összes
+    'have' obj-id-t a kliens felé.
 
-  * the server will then send a 'NAK' and then wait for another response
-    from the client - either a 'done' or another list of 'have' lines.
+  * a szerver ezután küld egy 'NAK'-ot, majd megvárja a kliens
+    következő válaszát - vagy egy 'done'-t, vagy egy újabb 'have'
+    sorlistát.
 
-In multi_ack_detailed mode:
+multi_ack_detailed módban:
 
-  * the server will differentiate the ACKs where it is signaling
-    that it is ready to send data with 'ACK obj-id ready' lines, and
-    signals the identified common commits with 'ACK obj-id common' lines.
+  * a szerver megkülönbözteti azokat az ACK-eket, amelyekkel jelzi,
+    hogy készen áll adatot küldeni, 'ACK obj-id ready' sorokkal, és
+    az azonosított közös commitokat 'ACK obj-id common' sorokkal
+    jelzi.
 
-Without either multi_ack or multi_ack_detailed:
+multi_ack és multi_ack_detailed nélkül:
 
- * 'upload-pack' sends "ACK obj-id" on the first common object it finds.
-   After that it says nothing until the client gives it a "done".
+ * az 'upload-pack' "ACK obj-id"-t küld az első közös objektumnál,
+   amit talál. Ezután semmit sem mond, amíg a kliens nem ad neki egy
+   "done"-t.
 
- * 'upload-pack' sends "NAK" on a flush-pkt if no common object
-   has been found yet.  If one has been found, and thus an ACK
-   was already sent, it's silent on the flush-pkt.
+ * az 'upload-pack' "NAK"-ot küld egy flush-pkt-re, ha még nem talált
+   közös objektumot.  Ha talált egyet, és így már küldött egy ACK-et,
+   akkor a flush-pkt-nél csendben marad.
 
-After the client has gotten enough ACK responses that it can determine
-that the server has enough information to send an efficient packfile
-(in the canonical implementation, this is determined when it has received
-enough ACKs that it can color everything left in the --date-order queue
-as common with the server, or the --date-order queue is empty), or the
-client determines that it wants to give up (in the canonical implementation,
-this is determined when the client sends 256 'have' lines without getting
-any of them ACKed by the server - meaning there is nothing in common and
-the server should just send all of its objects), then the client will send
-a 'done' command.  The 'done' command signals to the server that the client
-is ready to receive its packfile data.
+Miután a kliens elegendő ACK-választ kapott ahhoz, hogy meg tudja
+állapítani, hogy a szervernek elég információja van egy hatékony
+packfile küldéséhez (a kanonikus implementációban ezt akkor
+állapítja meg, amikor elég ACK-et kapott ahhoz, hogy mindent, ami a
+--date-order sorban maradt, közösként jelölhessen meg a szerverrel,
+vagy amikor a --date-order sor üres), vagy amikor a kliens úgy dönt,
+hogy fel akarja adni (a kanonikus implementációban ezt akkor
+állapítja meg, amikor a kliens 256 'have' sort küldött anélkül, hogy
+azok közül bármelyiket is ACK-elte volna a szerver - ami azt jelenti,
+hogy nincs semmi közös, és a szervernek egyszerűen az összes
+objektumát el kell küldenie), akkor a kliens elküld egy 'done'
+parancsot.  A 'done' parancs jelzi a szervernek, hogy a kliens készen
+áll a packfile-adatai fogadására.
 
-However, the 256 limit *only* turns on in the canonical client
-implementation if we have received at least one "ACK %s continue"
-during a prior round.  This helps to ensure that at least one common
-ancestor is found before we give up entirely.
+A 256-os korlát azonban a kanonikus kliens-implementációban *csak*
+akkor kapcsol be, ha egy korábbi körben kaptunk legalább egy "ACK %s
+continue"-t.  Ez segít biztosítani, hogy legalább egy közös ős
+megtalálásra kerüljön, mielőtt teljesen feladnánk.
 
-Once the 'done' line is read from the client, the server will either
-send a final 'ACK obj-id' or it will send a 'NAK'. 'obj-id' is the object
-name of the last commit determined to be common. The server only sends
-ACK after 'done' if there is at least one common base and multi_ack or
-multi_ack_detailed is enabled. The server always sends NAK after 'done'
-if there is no common base found.
+Amint a 'done' sor beolvasásra kerül a klienstől, a szerver vagy
+elküld egy végső 'ACK obj-id'-t, vagy elküld egy 'NAK'-ot. Az
+'obj-id' az utolsó, közösnek meghatározott commit objektumneve. A
+szerver csak akkor küld ACK-et a 'done' után, ha van legalább egy
+közös alap, és a multi_ack vagy a multi_ack_detailed engedélyezve
+van. A szerver mindig NAK-ot küld a 'done' után, ha nem található
+közös alap.
 
-Instead of 'ACK' or 'NAK', the server may send an error message (for
-example, if it does not recognize an object in a 'want' line received
-from the client).
+'ACK' vagy 'NAK' helyett a szerver hibaüzenetet is küldhet (például
+ha nem ismer fel egy objektumot a klienstől kapott 'want' sorban).
 
-Then the server will start sending its packfile data.
+Ezután a szerver elkezdi küldeni a packfile-adatait.
 
 ----
   server-response = *ack_multi ack / nak
@@ -422,7 +453,7 @@ Then the server will start sending its packfile data.
   nak             = PKT-LINE("NAK")
 ----
 
-A simple clone may look like this (with no 'have' lines):
+Egy egyszerű klónozás így nézhet ki (nincsenek 'have' sorok):
 
 ----
    C: 0054want 74730d410fcb6603ace96f1dc55ea6196122532d multi_ack \
@@ -438,7 +469,7 @@ A simple clone may look like this (with no 'have' lines):
    S: [PACKFILE]
 ----
 
-An incremental update (fetch) response might look like this:
+Egy inkrementális frissítés (fetch) válasza így nézhet ki:
 
 ----
    C: 0054want 74730d410fcb6603ace96f1dc55ea6196122532d multi_ack \
@@ -462,74 +493,86 @@ An incremental update (fetch) response might look like this:
 ----
 
 
-Packfile Data
--------------
+[[_packfile_data]]
+Packfile-adatok
+---------------
 
-Now that the client and server have finished negotiation about what
-the minimal amount of data that needs to be sent to the client is, the server
-will construct and send the required data in packfile format.
+Most, hogy a kliens és a szerver befejezte az egyeztetést arról,
+hogy mi a kliensnek küldendő adat minimális mennyisége, a szerver
+elő fogja állítani és el fogja küldeni a szükséges adatot packfile
+formátumban.
 
-See linkgit:gitformat-pack[5] for what the packfile itself actually looks like.
+Hogy magának a packfile-nak ténylegesen mi is a formátuma, lásd a
+linkgit:gitformat-pack[5]-öt.
 
-If 'side-band' or 'side-band-64k' capabilities have been specified by
-the client, the server will send the packfile data multiplexed.
+Ha a kliens a 'side-band' vagy 'side-band-64k' képességeket
+határozta meg, a szerver multiplexelve fogja küldeni a
+packfile-adatokat.
 
-Each packet starting with the packet-line length of the amount of data
-that follows, followed by a single byte specifying the sideband the
-following data is coming in on.
+Minden csomag a következő adat mennyiségét megadó packet-line
+hosszal kezdődik, amelyet egy egyetlen bájt követ, amely megadja,
+melyik sidebanden érkezik a következő adat.
 
-In 'side-band' mode, it will send up to 999 data bytes plus 1 control
-code, for a total of up to 1000 bytes in a pkt-line.  In 'side-band-64k'
-mode it will send up to 65519 data bytes plus 1 control code, for a
-total of up to 65520 bytes in a pkt-line.
+'side-band' módban akár 999 adatbájtot plusz 1 vezérlőkódot küld, azaz
+összesen legfeljebb 1000 bájtot egy pkt-line-ban.  'side-band-64k'
+módban akár 65519 adatbájtot plusz 1 vezérlőkódot küld, azaz
+összesen legfeljebb 65520 bájtot egy pkt-line-ban.
 
-The sideband byte will be a '1', '2' or a '3'. Sideband '1' will contain
-packfile data, sideband '2' will be used for progress information that the
-client will generally print to stderr and sideband '3' is used for error
-information.
+A sideband-bájt '1', '2' vagy '3' lesz. Az '1'-es sideband
+packfile-adatot fog tartalmazni, a '2'-es sideband a haladási
+információhoz lesz használva, amelyet a kliens általában a stderr-re
+ír ki, a '3'-as sideband pedig hibainformációhoz használatos.
 
-If no 'side-band' capability was specified, the server will stream the
-entire packfile without multiplexing.
+Ha nem lett 'side-band' képesség meghatározva, a szerver
+multiplexelés nélkül fogja streamelni a teljes packfile-t.
 
 
-Pushing Data To a Server
-------------------------
+[[_pushing_data_to_a_server]]
+Adatok pusholása egy szerverre
+------------------------------
 
-Pushing data to a server will invoke the 'receive-pack' process on the
-server, which will allow the client to tell it which references it should
-update and then send all the data the server will need for those new
-references to be complete.  Once all the data is received and validated,
-the server will then update its references to what the client specified.
+Az adatok szerverre pusholása meghívja a 'receive-pack' folyamatot a
+szerveren, amely lehetővé teszi a kliensnek, hogy közölje, mely
+referenciákat kell frissítenie, majd elküldje azt az összes adatot,
+amelyre a szervernek szüksége lesz ahhoz, hogy azok az új
+referenciák teljesek legyenek.  Miután az összes adat megérkezett és
+érvényesítésre került, a szerver frissíti a referenciáit a kliens
+által meghatározottakra.
 
+[[_authentication]]
 Authentication
 --------------
 
-The protocol itself contains no authentication mechanisms.  That is to be
-handled by the transport, such as SSH, before the 'receive-pack' process is
-invoked.  If 'receive-pack' is configured over the Git transport, those
-repositories will be writable by anyone who can access that port (9418) as
-that transport is unauthenticated.
+Maga a protokoll nem tartalmaz hitelesítési mechanizmusokat.  Ezt a
+transportnak, például az SSH-nak kell kezelnie, mielőtt a
+'receive-pack' folyamat meghívásra kerül.  Ha a 'receive-pack' a Git
+transporton keresztül van konfigurálva, azok a repository-k bárki
+számára írhatók lesznek, aki hozzáfér ahhoz a porthoz (9418), mivel
+az a transport hitelesítés nélküli.
 
-Reference Discovery
--------------------
+[[_reference_discovery_2]]
+Referenciák felfedezése
+-----------------------
 
-The reference discovery phase is done nearly the same way as it is in the
-fetching protocol. Each reference obj-id and name on the server is sent
-in packet-line format to the client, followed by a flush-pkt.  The only
-real difference is that the capability listing is different - the only
-possible values are 'report-status', 'report-status-v2', 'delete-refs',
-'ofs-delta', 'atomic' and 'push-options'.
+A referencia-felfedezési fázis szinte ugyanúgy zajlik, mint a
+fetchelési protokollban. A szerveren lévő minden egyes referencia
+obj-id-je és neve packet-line formátumban kerül elküldésre a
+kliensnek, amelyet egy flush-pkt követ.  Az egyetlen valódi
+különbség az, hogy a képességlistázás eltérő - az egyetlen lehetséges
+értékek a 'report-status', 'report-status-v2', 'delete-refs',
+'ofs-delta', 'atomic' és 'push-options'.
 
-Reference Update Request and Packfile Transfer
+[[_reference_update_request_and_packfile_transfer]]
+Referenciafrissítési kérés és packfile-átvitel
 ----------------------------------------------
 
-Once the client knows what references the server is at, it can send a
-list of reference update requests.  For each reference on the server
-that it wants to update, it sends a line listing the obj-id currently on
-the server, the obj-id the client would like to update it to and the name
-of the reference.
+Amint a kliens tudja, hol áll a szerver a referenciákkal, elküldhet
+egy listát a referenciafrissítési kérésekről.  A szerveren lévő,
+frissíteni kívánt minden egyes referenciához elküld egy sort,
+amely felsorolja a szerveren jelenleg lévő obj-id-t, azt az obj-id-t,
+amelyre a kliens frissíteni szeretné, és a referencia nevét.
 
-This list is followed by a flush-pkt.
+Ezt a listát egy flush-pkt követi.
 
 ----
   update-requests   =  *shallow ( command-list | push-cert )
@@ -562,89 +605,98 @@ This list is followed by a flush-pkt.
   push-option       =  1*( VCHAR | SP )
 ----
 
-If the server has advertised the 'push-options' capability and the client has
-specified 'push-options' as part of the capability list above, the client then
-sends its push options followed by a flush-pkt.
+Ha a szerver hirdette a 'push-options' képességet, és a kliens a
+fenti képességlista részeként meghatározta a 'push-options'-t, a
+kliens ezután elküldi a push-opcióit, amelyeket egy flush-pkt követ.
 
 ----
   push-options      =  *PKT-LINE(push-option) flush-pkt
 ----
 
-For backwards compatibility with older Git servers, if the client sends a push
-cert and push options, it MUST send its push options both embedded within the
-push cert and after the push cert. (Note that the push options within the cert
-are prefixed, but the push options after the cert are not.) Both these lists
-MUST be the same, modulo the prefix.
+A régebbi Git-szerverekkel való visszamenőleges kompatibilitás
+érdekében, ha a kliens push cert-et és push-opciókat küld, MUST
+elküldenie a push-opcióit mind a push cert-be ágyazva, mind a push
+cert után is. (Vegyük észre, hogy a cert-en belüli push-opciók
+prefixeltek, de a cert utáni push-opciók nem.) Ennek a két listának
+MUST azonosnak lennie, a prefixtől eltekintve.
 
-After that the packfile that
-should contain all the objects that the server will need to complete the new
-references will be sent.
+Ezután elküldésre kerül az a packfile, amelynek tartalmaznia kell
+minden olyan objektumot, amelyre a szervernek szüksége lesz az új
+referenciák teljessé tételéhez.
 
 ----
   packfile          =  "PACK" 28*(OCTET)
 ----
 
-If the receiving end does not support delete-refs, the sending end MUST
-NOT ask for delete command.
+Ha a fogadó oldal nem támogatja a delete-refs-et, a küldő oldal MUST
+NOT delete parancsot kérjen.
 
-If the receiving end does not support push-cert, the sending end
-MUST NOT send a push-cert command.  When a push-cert command is
-sent, command-list MUST NOT be sent; the commands recorded in the
-push certificate is used instead.
+Ha a fogadó oldal nem támogatja a push-cert-et, a küldő oldal MUST
+NOT push-cert parancsot küldjön.  Amikor egy push-cert parancs kerül
+elküldésre, a command-list MUST NOT legyen elküldve; helyette a push
+tanúsítványban rögzített parancsok kerülnek felhasználásra.
 
-The packfile MUST NOT be sent if the only command used is 'delete'.
+A packfile MUST NOT legyen elküldve, ha az egyetlen használt parancs
+a 'delete'.
 
-A packfile MUST be sent if either create or update command is used,
-even if the server already has all the necessary objects.  In this
-case the client MUST send an empty packfile.   The only time this
-is likely to happen is if the client is creating
-a new branch or a tag that points to an existing obj-id.
+Egy packfile-t MUST elküldeni, ha a create vagy az update parancs
+bármelyike használatban van, még akkor is, ha a szervernek már
+megvan minden szükséges objektuma.  Ebben az esetben a kliensnek MUST
+egy üres packfile-t küldenie.   Ez valószínűleg csak akkor fordul
+elő, ha a kliens egy olyan új branchet vagy taget hoz létre, amely
+egy már létező obj-id-re mutat.
 
-The server will receive the packfile, unpack it, then validate each
-reference that is being updated that it hasn't changed while the request
-was being processed (the obj-id is still the same as the old-id), and
-it will run any update hooks to make sure that the update is acceptable.
-If all of that is fine, the server will then update the references.
+A szerver megkapja a packfile-t, kicsomagolja, majd érvényesíti
+minden frissítendő referenciánál, hogy az nem változott, amíg a
+kérés feldolgozása folyamatban volt (az obj-id még mindig
+megegyezik az old-id-vel), és lefuttatja az esetleges
+frissítési hookokat, hogy megbizonyosodjon róla, a frissítés
+elfogadható.  Ha ez mind rendben van, a szerver frissíti a
+referenciákat.
 
-Push Certificate
+[[_push_certificate]]
+Push tanúsítvány
 ----------------
 
-A push certificate begins with a set of header lines.  After the
-header and an empty line, the protocol commands follow, one per
-line. Note that the trailing LF in push-cert PKT-LINEs is _not_
-optional; it must be present.
+Egy push tanúsítvány egy fejlécsor-halmazzal kezdődik.  A fejléc és
+egy üres sor után a protokollparancsok következnek, soronként egy.
+Vegyük észre, hogy a push-cert PKT-LINE-okban a záró LF _nem_
+opcionális; jelen kell lennie.
 
-Currently, the following header fields are defined:
+Jelenleg a következő fejlécmezők vannak meghatározva:
 
 `pusher` ident::
-	Identify the GPG key in "Human Readable Name <email@address>"
-	format.
+	Azonosítja a GPG-kulcsot "Emberi Nyelvű Név <email@cím>"
+	formátumban.
 
 `pushee` url::
-	The repository URL (anonymized, if the URL contains
-	authentication material) the user who ran `git push`
-	intended to push into.
+	A repository URL-je (anonimizálva, ha az URL hitelesítő
+	anyagot tartalmaz), ahová az a felhasználó, aki futtatta a
+	`git push`-t, pusholni szándékozott.
 
 `nonce` nonce::
-	The 'nonce' string the receiving repository asked the
-	pushing user to include in the certificate, to prevent
-	replay attacks.
+	Az a 'nonce' sztring, amelyet a fogadó repository kért a
+	pusholó felhasználótól, hogy foglalja bele a tanúsítványba,
+	a visszajátszásos támadások megelőzése érdekében.
 
-The GPG signature lines are a detached signature for the contents
-recorded in the push certificate before the signature block begins.
-The detached signature is used to certify that the commands were
-given by the pusher, who must be the signer.
+A GPG-aláírás sorok egy leválasztott aláírást alkotnak a push
+tanúsítványban rögzített tartalomhoz, mielőtt az aláírásblokk
+elkezdődik.  A leválasztott aláírás azt hivatott igazolni, hogy a
+parancsokat a pusholó adta ki, akinek egyben az aláírónak is kell
+lennie.
 
-Report Status
--------------
+[[_report_status]]
+Állapotjelentés
+---------------
 
-After receiving the pack data from the sender, the receiver sends a
-report if 'report-status' or 'report-status-v2' capability is in effect.
-It is a short listing of what happened in that update.  It will first
-list the status of the packfile unpacking as either 'unpack ok' or
-'unpack [error]'.  Then it will list the status for each of the references
-that it tried to update.  Each line is either 'ok [refname]' if the
-update was successful, or 'ng [refname] [error]' if the update was not.
+Miután megkapta a pack-adatot a küldőtől, a fogadó jelentést küld,
+ha a 'report-status' vagy a 'report-status-v2' képesség érvényben
+van.  Ez egy rövid felsorolás arról, mi történt az adott
+frissítésben.  Először felsorolja a packfile kicsomagolásának
+állapotát, vagy 'unpack ok', vagy 'unpack [error]' formában.  Ezután
+felsorolja az állapotot minden egyes referenciára, amelyet
+megpróbált frissíteni.  Minden sor vagy 'ok [refname]', ha a
+frissítés sikeres volt, vagy 'ng [refname] [error]', ha nem.
 
 ----
   report-status     = unpack-status
@@ -661,11 +713,12 @@ update was successful, or 'ng [refname] [error]' if the update was not.
   error-msg         = 1*(OCTET) ; where not "ok"
 ----
 
-The 'report-status-v2' capability extends the protocol by adding new option
-lines in order to support reporting of reference rewritten by the
-'proc-receive' hook.  The 'proc-receive' hook may handle a command for a
-pseudo-reference which may create or update one or more references, and each
-reference may have different name, different new-oid, and different old-oid.
+A 'report-status-v2' képesség új opciósorok hozzáadásával bővíti a
+protokollt, hogy támogassa a 'proc-receive' hook által átírt
+referenciák jelentését.  A 'proc-receive' hook kezelhet egy parancsot
+egy olyan pszeudo-referenciára, amely egy vagy több referenciát
+hozhat létre vagy frissíthet, és minden egyes referenciának eltérő
+neve, eltérő new-oid-ja és eltérő old-oid-ja lehet.
 
 ----
   report-status-v2  = unpack-status
@@ -696,14 +749,15 @@ reference may have different name, different new-oid, and different old-oid.
 
 ----
 
-Updates can be unsuccessful for a number of reasons.  The reference can have
-changed since the reference discovery phase was originally sent, meaning
-someone pushed in the meantime.  The reference being pushed could be a
-non-fast-forward reference and the update hooks or configuration could be
-set to not allow that, etc.  Also, some references can be updated while others
-can be rejected.
+A frissítések számos okból lehetnek sikertelenek.  A referencia
+megváltozhatott azóta, hogy a referencia-felfedezési fázis eredetileg
+elküldésre került, ami azt jelenti, hogy időközben valaki pusholt.  A
+pusholt referencia lehet egy non-fast-forward referencia, és a
+frissítési hookok vagy a konfiguráció beállítható úgy, hogy ezt ne
+engedje, stb.  Emellett néhány referencia frissíthető, míg mások
+elutasíthatók.
 
-An example client/server communication might look like this:
+Egy példa kliens/szerver kommunikáció így nézhet ki:
 
 ----
    S: 006274730d410fcb6603ace96f1dc55ea6196122532d refs/heads/local\0report-status delete-refs ofs-delta\n
@@ -724,4 +778,4 @@ An example client/server communication might look like this:
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

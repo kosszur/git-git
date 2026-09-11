@@ -3469,3 +3469,98 @@ megszakadt.
   bájtazonosak, csak a blokkok körüli/feletti próza fordult.
 
 Orchestrátor végezte közvetlenül. Részletek fent, „38. blokk".
+
+## 39. blokk — az 5 legkisebb, még lefordítatlan „Gyökér" fájl — 2026-09-11
+
+**Fájlok:** `gittutorial.adoc` (23KB, NEM man page), `git-update-index.adoc` (24KB, man page),
+`gitweb.adoc` (27KB, man page-vázas referencia), `gitformat-pack.adoc` (27,5KB, technical
+formátum-spec), `gitprotocol-pack.adoc` (27,7KB, RFC-stílusú protokoll-spec). **5 párhuzamos
+subagent** végezte, diszjunkt fájlonként egy-egy (nem az orchestrátor közvetlenül, a fájlok
+600–730 soros mérete miatt, eltérően a korábbi 15–38. blokkok kisebb fájljaitól). Az orchestrátor
+konszolidálta az eredményeket és futtatott egy gyors strukturális ellenőrzést (`----`/`====`
+párszám, `[[...]]` duplikátum-ellenőrzés, `ifdef`/`endif` párosság) mind az 5 fájlon — hibátlan.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| base object (delta-kódolás forrása) | **„bázisobjektum"** | `gitformat-pack.adoc` |
+| cruft pack / thin pack (funkciónév) | **marad angolul** (`cruft pack funkció`, `cruft packet ír`) | `gitformat-pack.adoc` — a `bare repository` mintájára angol funkciónévként kezelve |
+| trailer (pack/idx/rev/mtimes fájl trailere, NEM commit trailer) | **marad „trailer"** angolul | `gitformat-pack.adoc` — megkülönböztetve a `git-interpret-trailers.adoc` commit-trailerétől |
+| transport (ssh/git/http/file) | **marad „transport"** angol kölcsönszóként, magyar toldalékkal: `transportok`, `transportban`, `transportot` | `gitprotocol-pack.adoc` — a `packfile`/`pathspec` (0. blokk) mintájára; a „Git Transport"/„SSH Transport" címekben is nagybetűsen/angolul marad |
+| push certificate | **„push tanúsítvány"** | `gitprotocol-pack.adoc` — `push` angol jelzőként marad (a `force push` mintájára), `certificate` → `tanúsítvány`; a literál `push-cert`/`push-cert-end` token érintetlen |
+| Authentication (man-page-stílusú, kanonikus listán kívüli, csupa nagybetűs kezdőbetűs kétsoros cím) | **VÉGLEGES DÖNTÉS (felhasználó, 2026-09-11): marad angolul mindkét helyen** | `gitprotocol-pack.adoc`-ban eredetileg „Hitelesítés"-re fordítottuk, majd a felhasználó döntése alapján visszaállítottuk „Authentication"-re (a `[[_authentication]]` anchor változatlan), így konzisztens a `gitprotocol-http.adoc` (38. blokk) meglévő angol címével |
+| action (gitweb URL/CGI-fogalom, generikus főnévként) | **„akció"** | `gitweb.adoc` — a `git-credential.adoc`-ban már bevezetett `"action"` → `akció` minta folytatása |
+| revision (gitweb kontextusban) | **„revízió"** | `gitweb.adoc` — megerősítve a `git-bisect.adoc`/`git-blame.adoc` már meglévő használatából |
+| "The Git User's Manual" (link-szöveg) | **„A Git felhasználói kézikönyve"** | `gittutorial.adoc` — a `gitcvs-migration.adoc`/`gitdiffcore.adoc`/`gitrepository-layout.adoc`/`gittutorial-2.adoc` már meglévő fordításának pontos folytatása |
+| fail gracefully (`--assume-unchanged` leírásban) | **„(szabályosan) meg fog hiúsulni"** | `git-update-index.adoc` — ad hoc, egyedi előfordulás |
+
+### Címsor-anchorok
+
+- **`gittutorial.adoc`** (NEM man page; NAME/SYNOPSIS/DESCRIPTION/SEE ALSO/GIT a `gittutorial-2.adoc`
+  precedens szerint angolul maradt, minden más cím fordult): 8 defenzív `[[...]]` anchor
+  (`_importing_a_new_project`, `_making_changes`, `_git_tracks_content_not_files`,
+  `_viewing_project_history`, `_managing_branches`, `_using_git_for_collaboration`,
+  `_exploring_history`, `_next_steps`). Nincs `<<...>>` hivatkozás a fába (ellenőrizve).
+- **`git-update-index.adoc`** (man page): nincs `<<...>>` a fájlban, nincs új anchor. 8 nem
+  kanonikus, csupa nagybetűs, kétsoros man-page-stílusú alcím (`USING --REFRESH`,
+  `USING --CACHEINFO OR --INFO-ONLY`, `USING --INDEX-INFO`, ``USING ``ASSUME UNCHANGED'' BIT``,
+  `SKIP-WORKTREE BIT`, `SPLIT INDEX`, `UNTRACKED CACHE`, `FILE SYSTEM MONITOR`) angolul hagyva,
+  „kétes" jelöléssel — ez már **10. ismétlődő előfordulása** ugyanennek a nyitott kérdésnek
+  (l. korábbi blokkok „visszatérő, még nyitott kérdés" jegyzetei).
+- **`gitweb.adoc`**: 12 defenzív anchor (`_repositories`, `_projects_list_file_format`,
+  `_generating_projects_list_using_gitweb`, `_controlling_access_to_git_repositories`,
+  `_per_repository_gitweb_configuration`, `_actions`, `_apache_as_cgi`,
+  `_apache_with_mod_perl_via_modperl_registry`, `_apache_with_fastcgi`,
+  `_single_url_for_gitweb_and_for_fetching`, `_webserver_configuration_with_multiple_projects_root`,
+  `_path_info_usage`). Nincs `<<...>>` a fájlban. 3 csupa nagybetűs, kétsoros, kanonikus listán
+  kívüli alcím angolul hagyva, „kétes" jelöléssel: `ACTIONS, AND URLS`, `WEBSERVER CONFIGURATION`,
+  `ADVANCED WEB SERVER SETUP`.
+- **`gitformat-pack.adoc`**: 20 defenzív anchor (l. a subagent jelentését — köztük egy Asciidoctor-
+  stílusú duplikátum-feloldás: a fájlban kétszer szereplő „cruft packs" cím `_cruft_packs` és
+  `_cruft_packs_2` anchort kapott). Nincs `<<...>>` a fájlban. A multi-pack-index szakasz
+  `HEADER:`/`CHUNK LOOKUP:`/`CHUNK DATA:`/`TRAILER:` pszeudo-címkéi (nincs kétsoros aláhúzásuk,
+  nem valódi AsciiDoc-cím) angolul maradtak a hozzájuk tartozó bájt-mező-grammatikával együtt,
+  a `reftable.adoc`/`hash-function-transition.adoc` precedens szerint — **eldöntendő**, hogy a 4
+  címke önmagában fordulhatna-e.
+- **`gitprotocol-pack.adoc`**: 15 defenzív anchor (l. subagent jelentése; a „Reference Discovery"
+  cím két előfordulása `_reference_discovery`/`_reference_discovery_2`). Nincs `<<...>>` a fájlban
+  (sem a fájlban, sem máshonnan rá mutató — a hivatkozó fájlok `linkgit:gitprotocol-pack[5]`-t
+  használnak). RFC 2119 kulcsszavak (`MUST`/`MUST NOT`/`SHOULD`/`MAY`) angolul, a
+  `gitprotocol-http.adoc`/`gitcli.adoc` szórend-mintája szerint.
+
+### Man-page címként angolul hagyott, kétes címsorok
+
+- `gitformat-pack.adoc`: `HEADER:`, `CHUNK LOOKUP:`, `CHUNK DATA:`, `TRAILER:` (l. fent).
+- `git-update-index.adoc`, `gitweb.adoc`: l. fent, „Címsor-anchorok" — a visszatérő „kanonikus
+  listán kívüli csupa nagybetűs alcím" kérdés újabb (immár ~13.) előfordulása. **Egyszeri
+  felhasználói döntés továbbra is ajánlott**, hogy ezeket a jövőben fordítsuk-e.
+
+### Lezárt döntési pontok (felhasználói jóváhagyással, 2026-09-11)
+
+- **„Authentication" cím**: **marad angolul mindkét helyen** (`gitprotocol-pack.adoc` visszaállítva
+  „Hitelesítés"-ről; `gitprotocol-http.adoc` változatlan). Innentől minden man-page-stílusú
+  „Authentication" alcím a protokoll-spec fájlokban angolul marad.
+- **Kanonikus man-page-listán kívüli, csupa nagybetűs, kétsoros alcímek** (pl.
+  `USING --REFRESH`, `ACTIONS, AND URLS`, `AGGRESSIVE`, `TASKS`, `SUBCOMMANDS` stb. — a
+  visszatérően, immár ~13× jelzett nyitott kérdés): **VÉGLEGES DÖNTÉS: mindig angolul maradnak.**
+  Ez megerősíti a projekt eddigi gyakorlatát (minden korábbi blokk így kezelte őket „kétes"
+  jelöléssel) — mostantól ezt nem kell többé újra jelezni vagy megkérdezni, egyszerűen alkalmazni
+  kell minden további fájlnál.
+
+### Megőrzött markup / megjegyzések
+
+- `gitformat-pack.adoc`: a packed-object-header mező-grammatika, a `Pack Idx file:`/
+  `Pack file entry: <+` ASCII-diagramok, az instrukció-doboz-diagramok (`+----+`), a
+  `[cols="1,2,2"]`/`|===` BTMP-táblázat és a `git-repack`-idézet `----`-blokkja bájtazonosak
+  (a `reftable.adoc`/`hash-function-transition.adoc` precedens folytatása).
+- `gitprotocol-pack.adoc`: ABNF/grammatika-blokkok, pkt-line hexdumpok, C kliens/szerver-
+  átiratok a `----`-blokkokban, valamint a protokoll-token-literálok (`side-band`,
+  `side-band-64k`, `ofs-delta`, `multi_ack`, `multi_ack_detailed`, `thin-pack`, `report-status`,
+  `report-status-v2`, `delete-refs`, `atomic`, `push-options`, `push-cert`) bájtazonosak.
+- `gitweb.adoc`: az `action::`/`repo::`/`revision::`/`path::` stb. definíciós-lista-címkék (gitweb
+  URL/config-paraméterek) és a beágyazott Apache/Perl/shell-példák bájtazonosak.
+- `git-update-index.adoc`: nincs `<<...>>`/kódblokk-anomália; a `\--::` sor és a `{litdd}`
+  attribútum-hivatkozás érintetlen.
+- `gittutorial.adoc`: a `$ man git-log` / `$ git help log` stb. `------------------------------`
+  (32 kötőjel) parancspélda-blokkok és azok konzol-kimenete bájtazonosak.

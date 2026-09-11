@@ -3,7 +3,7 @@ gitformat-pack(5)
 
 NAME
 ----
-gitformat-pack - Git pack format
+gitformat-pack - A Git pack formátum
 
 
 SYNOPSIS
@@ -17,28 +17,32 @@ $GIT_DIR/objects/pack/multi-pack-index
 DESCRIPTION
 -----------
 
-The Git pack format is how Git stores most of its primary repository
-data. Over the lifetime of a repository, loose objects (if any) and
-smaller packs are consolidated into larger pack(s). See
-linkgit:git-gc[1] and linkgit:git-pack-objects[1].
+A Git pack formátum az, ahogyan a Git a legtöbb elsődleges repository
+adatát tárolja. Egy repository élettartama alatt a laza objektumok (ha
+vannak) és a kisebb packek nagyobb pack(ek)ké lesznek konszolidálva.
+Lásd linkgit:git-gc[1] és linkgit:git-pack-objects[1].
 
-The pack format is also used over-the-wire, see
-e.g. linkgit:gitprotocol-v2[5], as well as being a part of
-other container formats in the case of linkgit:gitformat-bundle[5].
+A pack formátumot a vezetéken keresztül (over-the-wire) is használják,
+lásd pl. linkgit:gitprotocol-v2[5], valamint más konténerformátumok
+részeként is, a linkgit:gitformat-bundle[5] esetében.
 
-== Checksums and object IDs
+[[_checksums_and_object_ids]]
+== Ellenőrzőösszegek és objektum-ID-k
 
-In a repository using the traditional SHA-1, pack checksums, index checksums,
-and object IDs (object names) mentioned below are all computed using SHA-1.
-Similarly, in SHA-256 repositories, these values are computed using SHA-256.
+Egy hagyományos SHA-1-et használó repositoryban az alább említett pack
+ellenőrzőösszegek, index ellenőrzőösszegek és objektum-ID-k (objektumnevek)
+mind SHA-1-gyel vannak kiszámítva. Hasonlóképp, SHA-256 repositorykban
+ezek az értékek SHA-256-tal vannak kiszámítva.
 
-CRC32 checksums are always computed over the entire packed object, including
-the header (n-byte type and length); the base object name or offset, if any;
-and the entire compressed object.  The CRC32 algorithm used is that of zlib.
+A CRC32 ellenőrzőösszegek mindig a teljes csomagolt objektum felett vannak
+kiszámítva, beleértve a fejlécet (n-bájtos típus és hossz); a bázisobjektum
+nevét vagy offszetjét, ha van ilyen; és a teljes tömörített objektumot.
+A használt CRC32 algoritmus a zlib-é.
 
-== pack-*.pack files have the following format:
+[[_pack_pack_files_have_the_following_format]]
+== A pack-*.pack fájlok formátuma a következő:
 
-   - A header appears at the beginning and consists of the following:
+   - Az elején egy fejléc található, amely a következőkből áll:
 
      4-byte signature:
          The signature is: {'P', 'A', 'C', 'K'}
@@ -52,8 +56,8 @@ and the entire compressed object.  The CRC32 algorithm used is that of zlib.
      Observation: we cannot have more than 4G versions ;-) and
      more than 4G objects in a pack.
 
-   - The header is followed by a number of object entries, each of
-     which looks like this:
+   - A fejlécet objektumbejegyzések sora követi, amelyek mindegyike
+     így néz ki:
 
      (undeltified representation)
      n-byte type and length (3-bit type, (n-1)*7+4-bit length)
@@ -69,11 +73,12 @@ and the entire compressed object.  The CRC32 algorithm used is that of zlib.
      Observation: the length of each object is encoded in a variable
      length format and is not constrained to 32-bit or anything.
 
-  - The trailer records a pack checksum of all of the above.
+  - A trailer a fentiek pack ellenőrzőösszegét rögzíti.
 
-=== Object types
+[[_object_types]]
+=== Objektumtípusok
 
-Valid object types are:
+Az érvényes objektumtípusok:
 
 - OBJ_COMMIT (1)
 - OBJ_TREE (2)
@@ -82,127 +87,132 @@ Valid object types are:
 - OBJ_OFS_DELTA (6)
 - OBJ_REF_DELTA (7)
 
-Type 5 is reserved for future expansion. Type 0 is invalid.
+Az 5-ös típus jövőbeli bővítésre van fenntartva. A 0-s típus érvénytelen.
 
-=== Object encoding
+[[_object_encoding]]
+=== Objektumkódolás
 
-Unlike loose objects, packed objects do not have a prefix containing the type,
-size, and a NUL byte. These are not necessary because they can be determined by
-the n-byte type and length that prefixes the data and so they are omitted from
-the compressed and deltified data.
+A laza objektumokkal ellentétben a csomagolt objektumoknak nincs a típust,
+a méretet és egy NUL bájtot tartalmazó előtagjuk. Ezekre nincs szükség, mert
+meghatározhatók az adatot megelőző n-bájtos típusból és hosszból, ezért
+kimaradnak a tömörített és deltásított adatból.
 
-The computation of the object ID still uses this prefix by reconstructing it
-from the type and length as needed.
+Az objektum-ID kiszámítása továbbra is ezt az előtagot használja, azt a
+típusból és hosszból szükség szerint rekonstruálva.
 
-=== Size encoding
+[[_size_encoding]]
+=== Méretkódolás
 
-This document uses the following "size encoding" of non-negative
-integers: From each byte, the seven least significant bits are
-used to form the resulting integer. As long as the most significant
-bit is 1, this process continues; the byte with MSB 0 provides the
-last seven bits.  The seven-bit chunks are concatenated. Later
-values are more significant.
+Ez a dokumentum a nemnegatív egészek alábbi „méretkódolását" használja:
+minden bájtból a hét legkevésbé szignifikáns bitet használjuk fel az
+eredő egész szám képzéséhez. Amíg a legszignifikánsabb bit 1, a folyamat
+folytatódik; a 0 MSB-jű bájt adja az utolsó hét bitet. A hétbites darabok
+egymáshoz vannak fűzve. A későbbi értékek szignifikánsabbak.
 
-This size encoding should not be confused with the "offset encoding",
-which is also used in this document.
+Ezt a méretkódolást nem szabad összekeverni az „offszetkódolással", amelyet
+szintén használ ez a dokumentum.
 
-When encoding the size of an undeltified object in a pack, the size is that of
-the uncompressed raw object. For deltified objects, it is the size of the
-uncompressed delta.  The base object name or offset is not included in the size
-computation.
+Amikor egy nem deltásított objektum méretét kódoljuk egy packben, a méret a
+tömörítetlen nyers objektumé. Deltásított objektumoknál ez a tömörítetlen
+delta mérete. A bázisobjektum neve vagy offszetje nem része a
+méretszámításnak.
 
-=== Deltified representation
+[[_deltified_representation]]
+=== Deltásított reprezentáció
 
-Conceptually there are only four object types: commit, tree, tag and
-blob. However to save space, an object could be stored as a "delta" of
-another "base" object. These representations are assigned new types
-ofs-delta and ref-delta, which is only valid in a pack file.
+Koncepcionálisan csak négy objektumtípus létezik: commit, tree, tag és
+blob. A hely megtakarítása érdekében azonban egy objektum tárolható egy
+másik „bázis" objektum „deltájaként" is. Ezek a reprezentációk új
+típusokat kapnak, az ofs-delta-t és a ref-delta-t, amelyek csak pack
+fájlon belül érvényesek.
 
-Both ofs-delta and ref-delta store the "delta" to be applied to
-another object (called 'base object') to reconstruct the object. The
-difference between them is, ref-delta directly encodes base object
-name. If the base object is in the same pack, ofs-delta encodes
-the offset of the base object in the pack instead.
+Mind az ofs-delta, mind a ref-delta azt a „deltát" tárolja, amelyet egy
+másik objektumra (az úgynevezett 'bázisobjektumra') kell alkalmazni az
+objektum rekonstruálásához. A köztük lévő különbség az, hogy a ref-delta
+közvetlenül kódolja a bázisobjektum nevét. Ha a bázisobjektum ugyanabban a
+packben van, az ofs-delta helyette a bázisobjektum packen belüli offszetjét
+kódolja.
 
-The base object could also be deltified if it's in the same pack.
-Ref-delta can also refer to an object outside the pack (i.e. the
-so-called "thin pack"). When stored on disk however, the pack should
-be self contained to avoid cyclic dependency.
+A bázisobjektum szintén lehet deltásított, ha ugyanabban a packben van.
+A ref-delta a packen kívüli objektumra is hivatkozhat (azaz az úgynevezett
+„thin pack" esetén). Lemezen tárolva azonban a packnek önmagában
+zártnak kell lennie, hogy elkerülje a ciklikus függőséget.
 
-The delta data starts with the size of the base object and the
-size of the object to be reconstructed. These sizes are
-encoded using the size encoding from above.  The remainder of
-the delta data is a sequence of instructions to reconstruct the object
-from the base object. If the base object is deltified, it must be
-converted to canonical form first. Each instruction appends more and
-more data to the target object until it's complete. There are two
-supported instructions so far: one for copying a byte range from the
-source object and one for inserting new data embedded in the
-instruction itself.
+A delta adat a bázisobjektum méretével és a rekonstruálandó objektum
+méretével kezdődik. Ezek a méretek a fenti méretkódolással vannak
+kódolva. A delta adat fennmaradó része az objektumot a bázisobjektumból
+rekonstruáló utasítások sorozata. Ha a bázisobjektum deltásított, azt
+először kanonikus formára kell alakítani. Minden utasítás egyre több
+adatot fűz a célobjektumhoz, amíg az teljes nem lesz. Eddig két támogatott
+utasítás van: az egyik egy bájttartomány másolására a forrásobjektumból,
+a másik pedig az utasításba ágyazott új adat beszúrására.
 
-Each instruction has variable length. Instruction type is determined
-by the seventh bit of the first octet. The following diagrams follow
-the convention in RFC 1951 (Deflate compressed data format).
+Minden utasítás változó hosszúságú. Az utasítás típusát az első oktett
+hetedik bitje határozza meg. Az alábbi diagramok az RFC 1951 (Deflate
+tömörített adatformátum) konvencióját követik.
 
-==== Instruction to copy from base object
+[[_instruction_to_copy_from_base_object]]
+==== Utasítás másolásra a bázisobjektumból
 
   +----------+---------+---------+---------+---------+-------+-------+-------+
   | 1xxxxxxx | offset1 | offset2 | offset3 | offset4 | size1 | size2 | size3 |
   +----------+---------+---------+---------+---------+-------+-------+-------+
 
-This is the instruction format to copy a byte range from the source
-object. It encodes the offset to copy from and the number of bytes to
-copy. Offset and size are in little-endian order.
+Ez az utasításformátum egy bájttartomány másolására szolgál a
+forrásobjektumból. Kódolja azt az offszetet, ahonnan másolni kell, és a
+másolandó bájtok számát. Az offszet és a méret little-endian sorrendben van.
 
-All offset and size bytes are optional. This is to reduce the
-instruction size when encoding small offsets or sizes. The first seven
-bits in the first octet determine which of the next seven octets is
-present. If bit zero is set, offset1 is present. If bit one is set
-offset2 is present and so on.
+Az összes offszet- és méretbájt opcionális. Ez az utasításméret
+csökkentését szolgálja kis offszetek vagy méretek kódolásakor. Az első
+oktett első hét bitje határozza meg, hogy a következő hét oktett közül
+melyik van jelen. Ha a nulladik bit be van állítva, offset1 jelen van. Ha
+az első bit be van állítva, offset2 jelen van, és így tovább.
 
-Note that a more compact instruction does not change offset and size
-encoding. For example, if only offset2 is omitted like below, offset3
-still contains bits 16-23. It does not become offset2 and contains
-bits 8-15 even if it's right next to offset1.
+Vegyük észre, hogy egy kompaktabb utasítás nem változtatja meg az offszet-
+és mérethelyeket. Ha például csak az offset2 marad ki, mint alább, az
+offset3 továbbra is a 16-23. biteket tartalmazza. Nem lesz offset2, és nem
+a 8-15. biteket tartalmazza, még akkor sem, ha közvetlenül az offset1
+mellett van.
 
   +----------+---------+---------+
   | 10000101 | offset1 | offset3 |
   +----------+---------+---------+
 
-In its most compact form, this instruction only takes up one byte
-(0x80) with both offset and size omitted, which will have default
-values zero. There is another exception: size zero is automatically
-converted to 0x10000.
+A legkompaktabb formájában ez az utasítás csak egy bájtot foglal el
+(0x80), az offszet és a méret is elhagyva, amelyek ekkor alapértelmezett
+nulla értéket kapnak. Van még egy kivétel: a nulla méret automatikusan
+0x10000-re alakul át.
 
-==== Instruction to add new data
+[[_instruction_to_add_new_data]]
+==== Utasítás új adat hozzáadására
 
   +----------+============+
   | 0xxxxxxx |    data    |
   +----------+============+
 
-This is the instruction to construct the target object without the base
-object. The following data is appended to the target object. The first
-seven bits of the first octet determine the size of data in
-bytes. The size must be non-zero.
+Ez az utasítás a célobjektum bázisobjektum nélküli felépítésére szolgál.
+A következő adat a célobjektumhoz kerül hozzáfűzésre. Az első oktett első
+hét bitje határozza meg az adat méretét bájtokban. A méret nem lehet nulla.
 
-==== Reserved instruction
+[[_reserved_instruction]]
+==== Fenntartott utasítás
 
   +----------+============
   | 00000000 |
   +----------+============
 
-This is the instruction reserved for future expansion.
+Ez az utasítás jövőbeli bővítésre van fenntartva.
 
-== Original (version 1) pack-*.idx files have the following format:
+[[_original_version_1_pack_idx_files_have_the_following_format]]
+== Az eredeti (1-es verziójú) pack-*.idx fájlok formátuma a következő:
 
-  - The header consists of 256 4-byte network byte order
-    integers.  N-th entry of this table records the number of
-    objects in the corresponding pack, the first byte of whose
-    object name is less than or equal to N.  This is called the
-    'first-level fan-out' table.
+  - A fejléc 256 darab 4-bájtos, hálózati bájtsorrendű egészből áll.
+    A tábla N-edik bejegyzése rögzíti azon objektumok számát a
+    megfelelő packben, amelyek objektumnevének első bájtja kisebb vagy
+    egyenlő, mint N. Ezt nevezzük „first-level fan-out" táblának.
 
-  - The header is followed by sorted 24-byte entries, one entry
-    per object in the pack.  Each entry is:
+  - A fejlécet rendezett, 24-bájtos bejegyzések követik, egy bejegyzés
+    minden objektumhoz a packben. Minden bejegyzés a következő:
 
     4-byte network byte order integer, recording where the
     object is stored in the packfile as the offset from the
@@ -210,7 +220,7 @@ This is the instruction reserved for future expansion.
 
     one object name of the appropriate size.
 
-  - The file is concluded with a trailer:
+  - A fájl egy trailerrel zárul:
 
     A copy of the pack checksum at the end of the corresponding
     packfile.
@@ -282,91 +292,97 @@ Pack file entry: <+
 
 
 
-== Version 2 pack-*.idx files support packs larger than 4 GiB, and
-   have some other reorganizations.  They have the format:
+[[_version_2_pack_idx_files_support_packs_larger_than_4_gib_and]]
+== A 2-es verziójú pack-*.idx fájlok 4 GiB-nál nagyobb packeket
+   is támogatnak, és néhány más átszervezésen is átestek. A formátumuk:
 
-  - A 4-byte magic number '\377tOc' which is an unreasonable
-    fanout[0] value.
+  - Egy 4-bájtos mágikus szám ('\377tOc'), amely egy valószínűtlen
+    fanout[0] értéknek felel meg.
 
-  - A 4-byte version number (= 2)
+  - Egy 4-bájtos verziószám (= 2)
 
-  - A 256-entry fan-out table just like v1.
+  - Egy 256 bejegyzésből álló fan-out tábla, akárcsak v1-ben.
 
-  - A table of sorted object names.  These are packed together
-    without offset values to reduce the cache footprint of the
-    binary search for a specific object name.
+  - Egy tábla a rendezett objektumnevekkel. Ezek offszetértékek nélkül
+    vannak összecsomagolva, hogy csökkentsék egy adott objektumnévre
+    végzett bináris keresés cache-lábnyomát.
 
-  - A table of 4-byte CRC32 values of the packed object data.
-    This is new in v2 so compressed data can be copied directly
-    from pack to pack during repacking without undetected
-    data corruption.
+  - Egy tábla a csomagolt objektumadatok 4-bájtos CRC32 értékeivel.
+    Ez új a v2-ben, így a tömörített adat közvetlenül másolható
+    packből packbe újracsomagolás közben, észrevétlen adatsérülés
+    nélkül.
 
-  - A table of 4-byte offset values (in network byte order).
-    These are usually 31-bit pack file offsets, but large
-    offsets are encoded as an index into the next table with
-    the msbit set.
+  - Egy tábla a 4-bájtos offszetértékekkel (hálózati bájtsorrendben).
+    Ezek általában 31-bites pack fájl offszetek, de a nagy offszetek
+    a következő táblába mutató, beállított MSB-vel rendelkező
+    indexként vannak kódolva.
 
-  - A table of 8-byte offset entries (empty for pack files less
-    than 2 GiB).  Pack files are organized with heavily used
-    objects toward the front, so most object references should
-    not need to refer to this table.
+  - Egy tábla a 8-bájtos offszetbejegyzésekkel (üres a 2 GiB-nál
+    kisebb pack fájloknál). A pack fájlok úgy vannak szervezve, hogy
+    a gyakran használt objektumok elöl legyenek, így a legtöbb
+    objektumhivatkozásnak nem kell erre a táblára hivatkoznia.
 
-  - The same trailer as a v1 pack file:
+  - Ugyanaz a trailer, mint egy v1 pack fájlnál:
 
-    A copy of the pack checksum at the end of the
-    corresponding packfile.
+    A pack ellenőrzőösszeg egy másolata a megfelelő packfile végén.
 
-    Index checksum of all of the above.
+    A fentiek indexellenőrzőösszege.
 
-== pack-*.rev files have the format:
+[[_pack_rev_files_have_the_format]]
+== A pack-*.rev fájlok formátuma a következő:
 
-  - A 4-byte magic number '0x52494458' ('RIDX').
+  - Egy 4-bájtos mágikus szám ('0x52494458') ('RIDX').
 
-  - A 4-byte version identifier (= 1).
+  - Egy 4-bájtos verzióazonosító (= 1).
 
-  - A 4-byte hash function identifier (= 1 for SHA-1, 2 for SHA-256).
+  - Egy 4-bájtos hash-függvény-azonosító (= 1 SHA-1-hez, 2 SHA-256-hoz).
 
-  - A table of index positions (one per packed object, num_objects in
-    total, each a 4-byte unsigned integer in network order), sorted by
-    their corresponding offsets in the packfile.
+  - Egy tábla az indexpozíciókkal (objektumonként egy, összesen
+    num_objects darab, mindegyik egy 4-bájtos, hálózati sorrendű,
+    előjel nélküli egész), a packfile-beli megfelelő offszetjeik
+    szerint rendezve.
 
-  - A trailer, containing a:
+  - Egy trailer, amely tartalmazza:
 
-    checksum of the corresponding packfile, and
+    a megfelelő packfile ellenőrzőösszegét, és
 
-    a checksum of all of the above.
+    a fentiek ellenőrzőösszegét.
 
-All 4-byte numbers are in network order.
+Minden 4-bájtos szám hálózati sorrendben van.
 
-== pack-*.mtimes files have the format:
+[[_pack_mtimes_files_have_the_format]]
+== A pack-*.mtimes fájlok formátuma a következő:
 
-All 4-byte numbers are in network byte order.
+Minden 4-bájtos szám hálózati bájtsorrendben van.
 
-  - A 4-byte magic number '0x4d544d45' ('MTME').
+  - Egy 4-bájtos mágikus szám ('0x4d544d45') ('MTME').
 
-  - A 4-byte version identifier (= 1).
+  - Egy 4-bájtos verzióazonosító (= 1).
 
-  - A 4-byte hash function identifier (= 1 for SHA-1, 2 for SHA-256).
+  - Egy 4-bájtos hash-függvény-azonosító (= 1 SHA-1-hez, 2 SHA-256-hoz).
 
-  - A table of 4-byte unsigned integers. The ith value is the
-    modification time (mtime) of the ith object in the corresponding
-    pack by lexicographic (index) order. The mtimes count standard
-    epoch seconds.
+  - Egy tábla 4-bájtos előjel nélküli egészekkel. Az i-edik érték a
+    megfelelő pack i-edik objektumának módosítási ideje (mtime),
+    lexikografikus (index) sorrendben. Az mtime-ok szabványos
+    epoch-másodperceket számolnak.
 
-  - A trailer, containing a checksum of the corresponding packfile,
-    and a checksum of all of the above (each having length according
-    to the specified hash function).
+  - Egy trailer, amely tartalmazza a megfelelő packfile
+    ellenőrzőösszegét, valamint a fentiek ellenőrzőösszegét (mindegyik
+    a megadott hash-függvénynek megfelelő
+    hosszúsággal).
 
-== multi-pack-index (MIDX) files have the following format:
+[[_multi_pack_index_midx_files_have_the_following_format]]
+== A multi-pack-index (MIDX) fájlok formátuma a következő:
 
-The multi-pack-index files refer to multiple pack-files and loose objects.
+A multi-pack-index fájlok több pack-fájlra és laza objektumra hivatkoznak.
 
-In order to allow extensions that add extra data to the MIDX, we organize
-the body into "chunks" and provide a lookup table at the beginning of the
-body. The header includes certain length values, such as the number of packs,
-the number of base MIDX files, hash lengths and types.
+Annak érdekében, hogy olyan bővítményeket engedjünk meg, amelyek extra
+adatot adnak a MIDX-hez, a törzset „chunkokra" szervezzük, és egy
+keresőtáblát biztosítunk a törzs elején. A fejléc bizonyos hosszértékeket
+tartalmaz, például a packek számát, a bázis MIDX-fájlok számát, a
+hash-hosszakat és -típusokat.
 
-All 4-byte numbers are in network order.
+Minden 4-bájtos szám hálózati sorrendben van.
 
 HEADER:
 
@@ -462,129 +478,137 @@ TRAILER:
 
 	Index checksum of the above contents.
 
-== multi-pack-index reverse indexes
+[[_multi_pack_index_reverse_indexes]]
+== A multi-pack-index reverse indexei
 
-Similar to the pack-based reverse index, the multi-pack index can also
-be used to generate a reverse index.
+A pack-alapú reverse indexhez hasonlóan a multi-pack index is
+használható reverse index generálására.
 
-Instead of mapping between offset, pack-, and index position, this
-reverse index maps between an object's position within the MIDX, and
-that object's position within a pseudo-pack that the MIDX describes
-(i.e., the ith entry of the multi-pack reverse index holds the MIDX
-position of ith object in pseudo-pack order).
+Ahelyett, hogy offszet, pack és indexpozíció között képezne le, ez a
+reverse index egy objektum MIDX-en belüli pozíciója és annak az
+objektumnak a MIDX által leírt pszeudo-packen belüli pozíciója között
+képez le (azaz a multi-pack reverse index i-edik bejegyzése az i-edik
+objektum MIDX-pozícióját tárolja pszeudo-pack sorrendben).
 
-To clarify the difference between these orderings, consider a multi-pack
-reachability bitmap (which does not yet exist, but is what we are
-building towards here). Each bit needs to correspond to an object in the
-MIDX, and so we need an efficient mapping from bit position to MIDX
-position.
+E rendezések közti különbség tisztázásához vegyünk egy multi-pack
+elérhetőségi bitmapet (amely még nem létezik, de ez felé haladunk itt).
+Minden bitnek egy objektumnak kell megfelelnie a MIDX-ben, ezért egy
+hatékony leképezésre van szükségünk a bitpozícióból a MIDX-pozícióba.
 
-One solution is to let bits occupy the same position in the oid-sorted
-index stored by the MIDX. But because oids are effectively random, their
-resulting reachability bitmaps would have no locality, and thus compress
-poorly. (This is the reason that single-pack bitmaps use the pack
-ordering, and not the .idx ordering, for the same purpose.)
+Az egyik megoldás az, hogy a bitek ugyanazt a pozíciót foglalják el, mint
+a MIDX által tárolt oid-rendezett index. Mivel azonban az oid-ok
+gyakorlatilag véletlenszerűek, az ebből eredő elérhetőségi bitmapek nem
+rendelkeznének lokalitással, és így rosszul tömörödnének. (Ez az oka
+annak, hogy az egypackes bitmapek a pack sorrendjét használják, nem
+pedig az .idx sorrendjét, ugyanerre a célra.)
 
-So we'd like to define an ordering for the whole MIDX based around
-pack ordering, which has far better locality (and thus compresses more
-efficiently). We can think of a pseudo-pack created by the concatenation
-of all of the packs in the MIDX. E.g., if we had a MIDX with three packs
-(a, b, c), with 10, 15, and 20 objects respectively, we can imagine an
-ordering of the objects like:
+Ezért szeretnénk egy rendezést definiálni a teljes MIDX-re a pack
+sorrendje köré építve, amely sokkal jobb lokalitással rendelkezik (és
+így hatékonyabban tömörödik). Elképzelhetünk egy pszeudo-packet, amelyet
+a MIDX-ben lévő összes pack összefűzésével hozunk létre. Ha például
+lenne egy MIDX-ünk három packkel (a, b, c), rendre 10, 15 és 20
+objektummal, akkor az objektumok rendezését így képzelhetjük el:
 
     |a,0|a,1|...|a,9|b,0|b,1|...|b,14|c,0|c,1|...|c,19|
 
-where the ordering of the packs is defined by the MIDX's pack list,
-and then the ordering of objects within each pack is the same as the
-order in the actual packfile.
+ahol a packek sorrendjét a MIDX pack-listája határozza meg, az egyes
+packeken belüli objektumok sorrendje pedig megegyezik a tényleges
+packfile-beli sorrenddel.
 
-Given the list of packs and their counts of objects, you can
-naïvely reconstruct that pseudo-pack ordering (e.g., the object at
-position 27 must be (c,1) because packs "a" and "b" consumed 25 of the
-slots). But there's a catch. Objects may be duplicated between packs, in
-which case the MIDX only stores one pointer to the object (and thus we'd
-want only one slot in the bitmap).
+A packek listája és objektumaik száma alapján naiv módon
+rekonstruálható ez a pszeudo-pack sorrend (pl. a 27. pozícióban lévő
+objektumnak (c,1)-nek kell lennie, mert az „a" és „b" packek 25 helyet
+foglaltak el). De van egy csapda. Az objektumok duplikálódhatnak a
+packek között, amely esetben a MIDX csak egy mutatót tárol az
+objektumra (és így csak egy helyet szeretnénk a bitmapben).
 
-Callers could handle duplicates themselves by reading objects in order
-of their bit-position, but that's linear in the number of objects, and
-much too expensive for ordinary bitmap lookups. Building a reverse index
-solves this, since it is the logical inverse of the index, and that
-index has already removed duplicates. But, building a reverse index on
-the fly can be expensive. Since we already have an on-disk format for
-pack-based reverse indexes, let's reuse it for the MIDX's pseudo-pack,
-too.
+A hívók maguk is kezelhetnék a duplikátumokat az objektumok
+bitpozíció szerinti sorrendben történő olvasásával, de ez az objektumok
+számával lineáris, és túl költséges a szokásos bitmap-keresésekhez.
+Egy reverse index felépítése megoldja ezt, mivel az az index logikai
+inverze, és az index már eltávolította a duplikátumokat. A reverse
+index menet közbeni felépítése azonban költséges lehet. Mivel már van
+lemezes formátumunk a pack-alapú reverse indexekhez, használjuk fel
+azt újra a MIDX pszeudo-packjéhez is.
 
-Objects from the MIDX are ordered as follows to string together the
-pseudo-pack. Let `pack(o)` return the pack from which `o` was selected
-by the MIDX, and define an ordering of packs based on their numeric ID
-(as stored by the MIDX). Let `offset(o)` return the object offset of `o`
-within `pack(o)`. Then, compare `o1` and `o2` as follows:
+A MIDX-ből származó objektumok az alábbiak szerint vannak rendezve a
+pszeudo-pack összefűzéséhez. Legyen `pack(o)` az a pack, amelyből `o`-t
+a MIDX kiválasztotta, és definiáljunk egy rendezést a packek között a
+numerikus ID-juk alapján (ahogyan a MIDX tárolja). Legyen `offset(o)`
+`o` objektumoffszetje `pack(o)`-n belül. Ekkor hasonlítsuk össze
+`o1`-et és `o2`-t a következőképp:
 
-  - If one of `pack(o1)` and `pack(o2)` is preferred and the other
-    is not, then the preferred one sorts first.
+  - Ha `pack(o1)` és `pack(o2)` közül az egyik preferált, a másik
+    pedig nem, akkor a preferált kerül előre.
 +
-(This is a detail that allows the MIDX bitmap to determine which
-pack should be used by the pack-reuse mechanism, since it can ask
-the MIDX for the pack containing the object at bit position 0).
+(Ez egy olyan részlet, amely lehetővé teszi a MIDX bitmap számára,
+hogy meghatározza, melyik packet kell használnia a pack-reuse
+mechanizmusnak, mivel megkérdezheti a MIDX-et a 0. bitpozícióban lévő
+objektumot tartalmazó packről).
 
-  - If `pack(o1) ≠ pack(o2)`, then sort the two objects in descending
-    order based on the pack ID.
+  - Ha `pack(o1) ≠ pack(o2)`, akkor a két objektumot a pack ID szerint
+    csökkenő sorrendbe kell rendezni.
 
-  - Otherwise, `pack(o1) = pack(o2)`, and the objects are sorted in
-    pack-order (i.e., `o1` sorts ahead of `o2` exactly when `offset(o1)
-    < offset(o2)`).
+  - Egyébként `pack(o1) = pack(o2)`, és az objektumok pack-sorrendben
+    vannak rendezve (azaz `o1` pontosan akkor előzi meg `o2`-t, ha
+    `offset(o1) < offset(o2)`).
 
-In short, a MIDX's pseudo-pack is the de-duplicated concatenation of
-objects in packs stored by the MIDX, laid out in pack order, and the
-packs arranged in MIDX order (with the preferred pack coming first).
+Röviden, egy MIDX pszeudo-packje a MIDX-ben tárolt packekben lévő
+objektumok deduplikált összefűzése, pack-sorrendbe rendezve, a packek
+pedig MIDX-sorrendben elrendezve (a preferált packkel az élen).
 
-The MIDX's reverse index is stored in the optional 'RIDX' chunk within
-the MIDX itself.
+A MIDX reverse indexe az opcionális 'RIDX' chunkban van tárolva, magán
+a MIDX-en belül.
 
+[[_btmp_chunk]]
 === `BTMP` chunk
 
-The Bitmapped Packfiles (`BTMP`) chunk encodes additional information
-about the objects in the multi-pack index's reachability bitmap. Recall
-that objects from the MIDX are arranged in "pseudo-pack" order (see
-above) for reachability bitmaps.
+A Bitmapped Packfiles (`BTMP`) chunk további információt kódol a
+multi-pack index elérhetőségi bitmapjében szereplő objektumokról.
+Emlékeztetőül, a MIDX-ből származó objektumok „pszeudo-pack" sorrendben
+vannak elrendezve (lásd fent) az elérhetőségi bitmapek esetében.
 
-From the example above, suppose we have packs "a", "b", and "c", with
-10, 15, and 20 objects, respectively. In pseudo-pack order, those would
-be arranged as follows:
+A fenti példából kiindulva, tegyük fel, hogy vannak "a", "b" és "c"
+packjeink, rendre 10, 15 és 20 objektummal. Pszeudo-pack sorrendben ezek
+a következőképp lennének elrendezve:
 
     |a,0|a,1|...|a,9|b,0|b,1|...|b,14|c,0|c,1|...|c,19|
 
-When working with single-pack bitmaps (or, equivalently, multi-pack
-reachability bitmaps with a preferred pack), linkgit:git-pack-objects[1]
-performs ``verbatim'' reuse, attempting to reuse chunks of the bitmapped
-or preferred packfile instead of adding objects to the packing list.
+Egypackes bitmapekkel dolgozva (vagy ezzel egyenértékűen, preferált
+packkel rendelkező multi-pack elérhetőségi bitmapekkel), a
+linkgit:git-pack-objects[1] ``szó szerinti'' (verbatim) újrafelhasználást
+végez, megkísérelve a bitmapelt vagy preferált packfile chunkjainak
+újrafelhasználását ahelyett, hogy objektumokat adna a csomagolási
+listához.
 
-When a chunk of bytes is reused from an existing pack, any objects
-contained therein do not need to be added to the packing list, saving
-memory and CPU time. But a chunk from an existing packfile can only be
-reused when the following conditions are met:
+Amikor egy bájtchunk egy meglévő packből kerül újrafelhasználásra, az
+abban található objektumokat nem kell hozzáadni a csomagolási listához,
+ami memóriát és CPU-időt takarít meg. Egy meglévő packfile chunkja
+azonban csak akkor használható fel újra, ha a következő feltételek
+teljesülnek:
 
-  - The chunk contains only objects which were requested by the caller
-    (i.e. does not contain any objects which the caller didn't ask for
-    explicitly or implicitly).
+  - A chunk csak olyan objektumokat tartalmaz, amelyeket a hívó kért
+    (azaz nem tartalmaz olyan objektumot, amelyet a hívó sem explicit,
+    sem implicit módon nem kért).
 
-  - All objects stored in non-thin packs as offset- or reference-deltas
-    also include their base object in the resulting pack.
+  - A non-thin packekben offszet- vagy referenciadeltaként tárolt
+    minden objektum a bázisobjektumát is tartalmazza az eredő packben.
 
-The `BTMP` chunk encodes the necessary information in order to implement
-multi-pack reuse over a set of packfiles as described above.
-Specifically, the `BTMP` chunk encodes three pieces of information (all
-32-bit unsigned integers in network byte-order) for each packfile `p`
-that is stored in the MIDX, as follows:
+A `BTMP` chunk kódolja a fent leírt, packfile-ok egy halmaza feletti
+multi-pack újrafelhasználás megvalósításához szükséges információt.
+Pontosabban a `BTMP` chunk három információdarabot kódol (mindegyik
+32-bites, hálózati bájtsorrendű, előjel nélküli egész) a MIDX-ben
+tárolt minden egyes `p` packfile-hoz, az alábbiak szerint:
 
-`bitmap_pos`:: The first bit position (in pseudo-pack order) in the
-  multi-pack index's reachability bitmap occupied by an object from `p`.
+`bitmap_pos`:: Az első bitpozíció (pszeudo-pack sorrendben) a multi-pack
+  index elérhetőségi bitmapjében, amelyet egy `p`-ből származó objektum
+  foglal el.
 
-`bitmap_nr`:: The number of bit positions (including the one at
-  `bitmap_pos`) that encode objects from that pack `p`.
+`bitmap_nr`:: Azon bitpozíciók száma (beleértve a `bitmap_pos`-nál
+  lévőt is), amelyek a `p` packből származó objektumokat kódolják.
 
-For example, the `BTMP` chunk corresponding to the above example (with
-packs ``a'', ``b'', and ``c'') would look like:
+Például a fenti példának megfelelő `BTMP` chunk (az ``a'', ``b'' és
+``c'' packekkel) így nézne ki:
 
 [cols="1,2,2"]
 |===
@@ -603,22 +627,25 @@ packs ``a'', ``b'', and ``c'') would look like:
 |`20`
 |===
 
-With this information in place, we can treat each packfile as
-individually reusable in the same fashion as verbatim pack reuse is
-performed on individual packs prior to the implementation of the `BTMP`
-chunk.
+Ezzel az információval a birtokunkban minden packfile-t egyedileg
+újrafelhasználhatóként kezelhetünk, ugyanúgy, ahogyan a `BTMP` chunk
+megvalósítása előtt a szó szerinti pack-újrafelhasználást végezték az
+egyes packeken.
 
-== cruft packs
+[[_cruft_packs]]
+== cruft packek
 
-The cruft packs feature offer an alternative to Git's traditional mechanism of
-removing unreachable objects. This document provides an overview of Git's
-pruning mechanism, and how a cruft pack can be used instead to accomplish the
-same.
+A cruft pack funkció alternatívát kínál a Git nem elérhető objektumok
+eltávolítására szolgáló hagyományos mechanizmusához képest. Ez a
+dokumentum áttekintést nyújt a Git pruning mechanizmusáról, és arról,
+hogyan használható helyette egy cruft pack ugyanennek elérésére.
 
-=== Background
+[[_background]]
+=== Háttér
 
-To remove unreachable objects from your repository, Git offers `git repack -Ad`
-(see linkgit:git-repack[1]). Quoting from the documentation:
+A repositoryból nem elérhető objektumok eltávolításához a Git a
+`git repack -Ad` parancsot kínálja (lásd linkgit:git-repack[1]). Idézve
+a dokumentációból:
 
 ----
 [...] unreachable objects in a previous pack become loose, unpacked objects,
@@ -626,79 +653,85 @@ instead of being left in the old pack. [...] loose unreachable objects will be
 pruned according to normal expiry rules with the next 'git gc' invocation.
 ----
 
-Unreachable objects aren't removed immediately, since doing so could race with
-an incoming push which may reference an object which is about to be deleted.
-Instead, those unreachable objects are stored as loose objects and stay that way
-until they are older than the expiration window, at which point they are removed
-by linkgit:git-prune[1].
+A nem elérhető objektumok nem kerülnek azonnal eltávolításra, mivel ez
+versenyhelyzetbe kerülhetne egy beérkező push-sal, amely hivatkozhat egy
+törlésre váró objektumra. Ehelyett ezek a nem elérhető objektumok laza
+objektumként vannak tárolva, és addig maradnak azok, amíg idősebbek nem
+lesznek a lejárati ablaknál, amely ponton a linkgit:git-prune[1] eltávolítja
+őket.
 
-Git must store these unreachable objects loose in order to keep track of their
-per-object mtimes. If these unreachable objects were written into one big pack,
-then either freshening that pack (because an object contained within it was
-re-written) or creating a new pack of unreachable objects would cause the pack's
-mtime to get updated, and the objects within it would never leave the expiration
-window. Instead, objects are stored loose in order to keep track of the
-individual object mtimes and avoid a situation where all cruft objects are
-freshened at once.
+A Gitnek lazán kell tárolnia ezeket a nem elérhető objektumokat, hogy nyomon
+tudja követni az egyes objektumok mtime-jait. Ha ezeket a nem elérhető
+objektumokat egy nagy packbe írnánk, akkor annak a packnek a frissítése
+(mert egy benne lévő objektumot újraírtak) vagy egy új, nem elérhető
+objektumokból álló pack létrehozása is frissítené a pack mtime-ját, és a
+benne lévő objektumok soha nem hagynák el a lejárati ablakot. Ehelyett az
+objektumok lazán vannak tárolva, hogy nyomon lehessen követni az egyes
+objektumok mtime-jait, és elkerülhető legyen az a helyzet, hogy az összes
+cruft objektum egyszerre frissül.
 
-This can lead to undesirable situations when a repository contains many
-unreachable objects which have not yet left the grace period. Having large
-directories in the shards of `.git/objects` can lead to decreased performance in
-the repository. But given enough unreachable objects, this can lead to inode
-starvation and degrade the performance of the whole system. Since we
-can never pack those objects, these repositories often take up a large amount of
-disk space, since we can only zlib compress them, but not store them in delta
-chains.
+Ez nemkívánatos helyzetekhez vezethet, ha egy repository sok olyan nem
+elérhető objektumot tartalmaz, amelyek még nem hagyták el a türelmi
+időszakot. A `.git/objects` shardjaiban lévő nagy könyvtárak csökkenthetik
+a repository teljesítményét. De elég nagy számú nem elérhető objektum
+esetén ez inode-kimerüléshez vezethet, és leronthatja az egész rendszer
+teljesítményét. Mivel ezeket az objektumokat soha nem tudjuk becsomagolni,
+ezek a repositoryk gyakran nagy mennyiségű lemezterületet foglalnak el,
+mivel csak zlib-bel tudjuk tömöríteni őket, de nem tudjuk delta láncokban
+tárolni őket.
 
-=== Cruft packs
+[[_cruft_packs_2]]
+=== Cruft packek
 
-A cruft pack eliminates the need for storing unreachable objects in a loose
-state by including the per-object mtimes in a separate file alongside a single
-pack containing all loose objects.
+Egy cruft pack megszünteti a nem elérhető objektumok laza állapotban való
+tárolásának szükségességét azáltal, hogy az egyes objektumok mtime-jait egy
+külön fájlban tárolja, egy összes laza objektumot tartalmazó pack mellett.
 
-A cruft pack is written by `git repack --cruft` when generating a new pack.
-linkgit:git-pack-objects[1]'s `--cruft` option. Note that `git repack --cruft`
-is a classic all-into-one repack, meaning that everything in the resulting pack is
-reachable, and everything else is unreachable. Once written, the `--cruft`
-option instructs `git repack` to generate another pack containing only objects
-not packed in the previous step (which equates to packing all unreachable
-objects together). This progresses as follows:
+Egy cruft packet a `git repack --cruft` ír, egy új pack generálásakor.
+Lásd a linkgit:git-pack-objects[1] `--cruft` opcióját. Vegyük észre, hogy
+a `git repack --cruft` egy klasszikus, mindent-egybe repack, ami azt
+jelenti, hogy az eredő packben minden elérhető, minden más pedig nem
+elérhető. Az írás után a `--cruft` opció utasítja a `git repack`-et, hogy
+generáljon egy másik packet, amely csak az előző lépésben be nem
+csomagolt objektumokat tartalmazza (ami azzal egyenértékű, hogy az összes
+nem elérhető objektumot egybecsomagolja). Ez a következőképp zajlik:
 
-  1. Enumerate every object, marking any object which is (a) not contained in a
-     kept-pack, and (b) whose mtime is within the grace period as a traversal
-     tip.
+  1. Soroljunk fel minden objektumot, megjelölve traverzálási csúcsként
+     minden olyan objektumot, amely (a) nincs benne egy megtartott
+     packben, és (b) amelynek mtime-ja a türelmi időszakon belül van.
 
-  2. Perform a reachability traversal based on the tips gathered in the previous
-     step, adding every object along the way to the pack.
+  2. Végezzünk egy elérhetőségi bejárást az előző lépésben összegyűjtött
+     csúcsok alapján, útközben minden objektumot hozzáadva a packhez.
 
-  3. Write the pack out, along with a `.mtimes` file that records the per-object
-     timestamps.
+  3. Írjuk ki a packet, egy `.mtimes` fájllal együtt, amely rögzíti az
+     egyes objektumok időbélyegeit.
 
-This mode is invoked internally by linkgit:git-repack[1] when instructed to
-write a cruft pack. Crucially, the set of in-core kept packs is exactly the set
-of packs which will not be deleted by the repack; in other words, they contain
-all of the repository's reachable objects.
+Ezt a módot a linkgit:git-repack[1] hívja meg belsőleg, amikor cruft pack
+írására kap utasítást. Lényeges, hogy a memóriában tárolt, megtartott
+packek halmaza pontosan az a packhalmaz, amelyet a repack nem fog törölni;
+más szóval ezek tartalmazzák a repository összes elérhető objektumát.
 
-When a repository already has a cruft pack, `git repack --cruft` typically only
-adds objects to it. An exception to this is when `git repack` is given the
-`--cruft-expiration` option, which allows the generated cruft pack to omit
-expired objects instead of waiting for linkgit:git-gc[1] to expire those objects
-later on.
+Ha egy repositorynak már van cruft packje, a `git repack --cruft`
+jellemzően csak objektumokat ad hozzá. Ez alól kivétel, ha a
+`git repack` megkapja a `--cruft-expiration` opciót, amely lehetővé
+teszi, hogy a generált cruft pack kihagyja a lejárt objektumokat ahelyett,
+hogy megvárná, amíg a linkgit:git-gc[1] később lejáratja azokat.
 
-It is linkgit:git-gc[1] that is typically responsible for removing expired
-unreachable objects.
+Jellemzően a linkgit:git-gc[1] felelős a lejárt, nem elérhető objektumok
+eltávolításáért.
 
-=== Alternatives
+[[_alternatives]]
+=== Alternatívák
 
-Notable alternatives to this design include:
+Ennek a tervnek a figyelemre méltó alternatívái közé tartozik:
 
-  - The location of the per-object mtime data.
+  - Az egyes objektumokra vonatkozó mtime-adatok helye.
 
-On the location of mtime data, a new auxiliary file tied to the pack was chosen
-to avoid complicating the `.idx` format. If the `.idx` format were ever to gain
-support for optional chunks of data, it may make sense to consolidate the
-`.mtimes` format into the `.idx` itself.
+Az mtime-adatok helyét illetően egy új, a packhez kötött segédfájl mellett
+döntöttünk, hogy elkerüljük az `.idx` formátum bonyolítását. Ha az `.idx`
+formátum valaha is támogatná az opcionális adatchunkokat, érdemes lehet
+a `.mtimes` formátumot magába az `.idx`-be konszolidálni.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

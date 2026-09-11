@@ -3,7 +3,7 @@ gittutorial(7)
 
 NAME
 ----
-gittutorial - A tutorial introduction to Git
+gittutorial - Bevezető ismertető a Githez
 
 SYNOPSIS
 --------
@@ -13,32 +13,34 @@ git *
 DESCRIPTION
 -----------
 
-This tutorial explains how to import a new project into Git, make
-changes to it, and share changes with other developers.
+Ez az ismertető elmagyarázza, hogyan importálj egy új projektet a Gitbe,
+hogyan végezz rajta módosításokat, és hogyan oszd meg a változtatásokat
+más fejlesztőkkel.
 
-If you are instead primarily interested in using Git to fetch a project,
-for example, to test the latest version, you may prefer to start with
-the first two chapters of link:user-manual.html[The Git User's Manual].
+Ha ehelyett elsősorban abban vagy érdekelt, hogy a Git segítségével
+lehívj egy projektet, például hogy kipróbáld a legújabb verzióját,
+érdemesebb lehet a link:user-manual.html[A Git felhasználói kézikönyve]
+első két fejezetével kezdened.
 
-First, note that you can get documentation for a command such as
-`git log --graph` with:
+Először is jegyezd meg, hogy egy olyan parancshoz, mint a
+`git log --graph`, a dokumentációt a következővel kaphatod meg:
 
 ------------------------------------------------
 $ man git-log
 ------------------------------------------------
 
-or:
+vagy:
 
 ------------------------------------------------
 $ git help log
 ------------------------------------------------
 
-With the latter, you can use the manual viewer of your choice; see
-linkgit:git-help[1] for more information.
+Az utóbbival a választásod szerinti kézikönyv-megjelenítőt használhatod;
+további információért lásd: linkgit:git-help[1].
 
-It is a good idea to introduce yourself to Git with your name and
-public email address before doing any operation.  The easiest
-way to do so is:
+Jó ötlet bemutatkozni a Gitnek a neveddel és a nyilvános e-mail
+címeddel, mielőtt bármilyen műveletet végrehajtanál. Erre a
+legegyszerűbb módszer:
 
 ------------------------------------------------
 $ git config --global user.name "Your Name Comes Here"
@@ -46,11 +48,12 @@ $ git config --global user.email you@yourdomain.example.com
 ------------------------------------------------
 
 
-Importing a new project
------------------------
+[[_importing_a_new_project]]
+Egy új projekt importálása
+--------------------------
 
-Assume you have a tarball `project.tar.gz` with your initial work.  You
-can place it under Git revision control as follows.
+Tegyük fel, hogy van egy `project.tar.gz` tarballod a kezdeti munkáddal.
+Az alábbiak szerint helyezheted Git verziókövetés alá.
 
 ------------------------------------------------
 $ tar xzf project.tar.gz
@@ -58,52 +61,55 @@ $ cd project
 $ git init
 ------------------------------------------------
 
-Git will reply
+A Git a következőt válaszolja:
 
 ------------------------------------------------
 Initialized empty Git repository in .git/
 ------------------------------------------------
 
-You've now initialized the working directory--you may notice a new
-directory created, named `.git`.
+Ezzel inicializáltad a munkakönyvtárat – észreveheted, hogy létrejött
+egy új, `.git` nevű könyvtár.
 
-Next, tell Git to take a snapshot of the contents of all files under the
-current directory (note the `.`), with `git add`:
+Ezután a `git add` paranccsal mondd meg a Gitnek, hogy készítsen
+pillanatképet az aktuális könyvtár összes fájljának tartalmáról
+(figyeld meg a `.`-ot):
 
 ------------------------------------------------
 $ git add .
 ------------------------------------------------
 
-This snapshot is now stored in a temporary staging area which Git calls
-the "index".  You can permanently store the contents of the index in the
-repository with `git commit`:
+Ez a pillanatkép most egy ideiglenes staging area-ban van tárolva, amit
+a Git „index"-nek nevez. Az index tartalmát a `git commit` paranccsal
+tárolhatod tartósan a repository-ban:
 
 ------------------------------------------------
 $ git commit
 ------------------------------------------------
 
-This will prompt you for a commit message.  You've now stored the first
-version of your project in Git.
+Ez be fog kérni tőled egy commit-üzenetet. Ezzel eltárolódott a
+projekted első verziója a Gitben.
 
-Making changes
---------------
+[[_making_changes]]
+Módosítások végzése
+-------------------
 
-Modify some files, then add their updated contents to the index:
+Módosíts néhány fájlt, majd add hozzá a frissített tartalmukat az
+indexhez:
 
 ------------------------------------------------
 $ git add file1 file2 file3
 ------------------------------------------------
 
-You are now ready to commit.  You can see what is about to be committed
-using `git diff` with the `--cached` option:
+Most már készen állsz a commitolásra. A `git diff` paranccsal, a
+`--cached` kapcsolóval megnézheted, mi fog bekerülni a commitba:
 
 ------------------------------------------------
 $ git diff --cached
 ------------------------------------------------
 
-(Without `--cached`, `git diff` will show you any changes that
-you've made but not yet added to the index.)  You can also get a brief
-summary of the situation with `git status`:
+(A `--cached` nélkül a `git diff` megmutatja azokat a változtatásokat,
+amelyeket megtettél, de még nem adtál hozzá az indexhez.) A helyzet
+rövid összefoglalóját a `git status` paranccsal is megkaphatod:
 
 ------------------------------------------------
 $ git status
@@ -117,100 +123,106 @@ Changes to be committed:
 
 ------------------------------------------------
 
-If you need to make any further adjustments, do so now, and then add any
-newly modified content to the index.  Finally, commit your changes with:
+Ha további módosításokra van szükség, tedd meg most, majd add hozzá az
+újonnan módosított tartalmat az indexhez. Végül commitold a
+változtatásaidat a következővel:
 
 ------------------------------------------------
 $ git commit
 ------------------------------------------------
 
-This will again prompt you for a message describing the change, and then
-record a new version of the project.
+Ez ismét be fog kérni tőled egy, a változtatást leíró üzenetet, majd
+rögzíti a projekt egy új verzióját.
 
-Alternatively, instead of running `git add` beforehand, you can use
+Alternatív megoldásként, ahelyett hogy előtte lefuttatnád a `git
+add`-et, használhatod a következőt:
 
 ------------------------------------------------
 $ git commit -a
 ------------------------------------------------
 
-which will automatically notice any modified (but not new) files, add
-them to the index, and commit, all in one step.
+ez automatikusan észreveszi a módosított (de nem új) fájlokat, hozzáadja
+őket az indexhez, és commitol, mindezt egyetlen lépésben.
 
-A note on commit messages: Though not required, it's a good idea to
-begin the commit message with a single short (no more than 50
-characters) line summarizing the change, followed by a blank line and
-then a more thorough description. The text up to the first blank line in
-a commit message is treated as the commit title, and that title is used
-throughout Git.  For example, linkgit:git-format-patch[1] turns a
-commit into email, and it uses the title on the Subject line and the
-rest of the commit in the body.
+Egy megjegyzés a commit-üzenetekről: bár nem kötelező, jó ötlet a
+commit-üzenetet egyetlen rövid (legfeljebb 50 karakteres) sorral
+kezdeni, amely összefoglalja a változtatást, majd egy üres sorral, végül
+egy alaposabb leírással folytatni. A commit-üzenetben az első üres
+sorig terjedő szöveget a Git a commit címeként kezeli, és ezt a címet
+használja mindenütt. Például a linkgit:git-format-patch[1] a commitot
+e-mailbe alakítja, és a címet használja a Subject sorban, a commit
+többi részét pedig a törzsben.
 
-Git tracks content not files
-----------------------------
+[[_git_tracks_content_not_files]]
+A Git a tartalmat követi, nem a fájlokat
+----------------------------------------
 
-Many revision control systems provide an `add` command that tells the
-system to start tracking changes to a new file.  Git's `add` command
-does something simpler and more powerful: `git add` is used both for new
-and newly modified files, and in both cases it takes a snapshot of the
-given files and stages that content in the index, ready for inclusion in
-the next commit.
+Sok verziókövető rendszer biztosít egy `add` parancsot, amely megmondja
+a rendszernek, hogy kezdje el követni egy új fájl változtatásait. A Git
+`add` parancsa ennél egyszerűbb és erősebb dolgot csinál: a `git add`
+mind az új, mind az újonnan módosított fájlokhoz használatos, és
+mindkét esetben pillanatképet készít a megadott fájlokról, és stage-eli
+azok tartalmát az indexben, készen a következő commitba történő
+felvételre.
 
-Viewing project history
------------------------
+[[_viewing_project_history]]
+A projekt előzményeinek megtekintése
+------------------------------------
 
-At any point you can view the history of your changes using
+Bármikor megtekintheted a változtatásaid előzményeit a következővel:
 
 ------------------------------------------------
 $ git log
 ------------------------------------------------
 
-If you also want to see complete diffs at each step, use
+Ha minden lépésnél teljes diffeket is szeretnél látni, használd:
 
 ------------------------------------------------
 $ git log -p
 ------------------------------------------------
 
-Often the overview of the change is useful to get a feel of
-each step
+Gyakran hasznos a változtatás áttekintése, hogy érzékeld az egyes
+lépéseket
 
 ------------------------------------------------
 $ git log --stat --summary
 ------------------------------------------------
 
-Managing branches
+[[_managing_branches]]
+Branchek kezelése
 -----------------
 
-A single Git repository can maintain multiple branches of
-development.  To create a new branch named `experimental`, use
+Egy Git repository egyszerre több fejlesztési branchet is fenntarthat.
+Egy `experimental` nevű új branch létrehozásához használd:
 
 ------------------------------------------------
 $ git branch experimental
 ------------------------------------------------
 
-If you now run
+Ha most lefuttatod a következőt
 
 ------------------------------------------------
 $ git branch
 ------------------------------------------------
 
-you'll get a list of all existing branches:
+megkapod az összes létező branch listáját:
 
 ------------------------------------------------
   experimental
 * master
 ------------------------------------------------
 
-The `experimental` branch is the one you just created, and the
-`master` branch is a default branch that was created for you
-automatically.  The asterisk marks the branch you are currently on;
-type
+Az `experimental` branch az, amit épp most hoztál létre, a `master`
+branch pedig egy alapértelmezett branch, amelyet automatikusan
+létrehozott a rendszer neked. A csillag jelöli azt a branchet,
+amelyiken éppen állsz; írd be:
 
 ------------------------------------------------
 $ git switch experimental
 ------------------------------------------------
 
-to switch to the `experimental` branch.  Now edit a file, commit the
-change, and switch back to the `master` branch:
+hogy átválts az `experimental` branchre. Most szerkessz egy fájlt,
+commitold a változtatást, és válts vissza a `master` branchre:
 
 ------------------------------------------------
 (edit file)
@@ -218,82 +230,86 @@ $ git commit -a
 $ git switch master
 ------------------------------------------------
 
-Check that the change you made is no longer visible, since it was
-made on the `experimental` branch and you're back on the `master` branch.
+Ellenőrizd, hogy az általad tett változtatás már nem látható, mivel az
+az `experimental` branchen történt, te pedig most a `master` branchen
+vagy.
 
-You can make a different change on the `master` branch:
+Végezhetsz egy másik változtatást a `master` branchen:
 
 ------------------------------------------------
 (edit file)
 $ git commit -a
 ------------------------------------------------
 
-at this point the two branches have diverged, with different changes
-made in each.  To merge the changes made in `experimental` into `master`, run
+ezen a ponton a két branch szétvált, mindegyikben más-más
+változtatásokkal. Ahhoz, hogy az `experimental`-ban tett
+változtatásokat merge-eld a `master`-be, futtasd:
 
 ------------------------------------------------
 $ git merge experimental
 ------------------------------------------------
 
-If the changes don't conflict, you're done.  If there are conflicts,
-markers will be left in the problematic files showing the conflict;
+Ha a változtatások nem ütköznek, készen vagy. Ha vannak konfliktusok,
+a problémás fájlokban jelölők maradnak, amelyek mutatják a konfliktust;
 
 ------------------------------------------------
 $ git diff
 ------------------------------------------------
 
-will show this.  Once you've edited the files to resolve the
-conflicts,
+ez megmutatja ezt. Miután szerkesztetted a fájlokat a konfliktusok
+feloldásához,
 
 ------------------------------------------------
 $ git commit -a
 ------------------------------------------------
 
-will commit the result of the merge. Finally,
+commitolja a merge eredményét. Végül,
 
 ------------------------------------------------
 $ gitk
 ------------------------------------------------
 
-will show a nice graphical representation of the resulting history.
+megmutatja az eredményül kapott előzmények szép grafikus ábrázolását.
 
-At this point you could delete the `experimental` branch with
+Ezen a ponton törölhetnéd az `experimental` branchet a következővel
 
 ------------------------------------------------
 $ git branch -d experimental
 ------------------------------------------------
 
-This command ensures that the changes in the `experimental` branch are
-already in the current branch.
+Ez a parancs biztosítja, hogy az `experimental` branchen lévő
+változtatások már benne legyenek az aktuális branchben.
 
-If you develop on a branch `crazy-idea`, then regret it, you can always
-delete the branch with
+Ha egy `crazy-idea` nevű branchen fejlesztesz, majd meggondolod magad,
+mindig törölheted a branchet a következővel
 
 -------------------------------------
 $ git branch -D crazy-idea
 -------------------------------------
 
-Branches are cheap and easy, so this is a good way to try something
-out.
+A branchek olcsók és egyszerűek, szóval ez egy jó módja annak, hogy
+kipróbálj valamit.
 
-Using Git for collaboration
----------------------------
+[[_using_git_for_collaboration]]
+A Git használata együttműködéshez
+---------------------------------
 
-Suppose that Alice has started a new project with a Git repository in
-`/home/alice/project`, and that Bob, who has a home directory on the
-same machine, wants to contribute.
+Tegyük fel, hogy Alice elindított egy új projektet egy Git repository-val
+a `/home/alice/project` alatt, és Bob, akinek ugyanazon a gépen van
+saját home könyvtára, szeretne hozzájárulni.
 
-Bob begins with:
+Bob a következővel kezd:
 
 ------------------------------------------------
 bob$ git clone /home/alice/project myrepo
 ------------------------------------------------
 
-This creates a new directory `myrepo` containing a clone of Alice's
-repository.  The clone is on an equal footing with the original
-project, possessing its own copy of the original project's history.
+Ez létrehoz egy új, `myrepo` nevű könyvtárat, amely Alice
+repository-jának egy klónját tartalmazza. A klón egyenrangú az eredeti
+projekttel, és rendelkezik az eredeti projekt előzményeinek saját
+másolatával.
 
-Bob then makes some changes and commits them:
+Bob ezután végez néhány változtatást, és commitolja őket:
 
 ------------------------------------------------
 (edit files)
@@ -301,169 +317,179 @@ bob$ git commit -a
 (repeat as necessary)
 ------------------------------------------------
 
-When he's ready, he tells Alice to pull changes from the repository
-at `/home/bob/myrepo`.  She does this with:
+Amikor készen áll, szól Alice-nek, hogy pull-ozza le a változtatásokat
+a `/home/bob/myrepo` alatti repository-ból. Ezt a következővel teszi
+meg:
 
 ------------------------------------------------
 alice$ cd /home/alice/project
 alice$ git pull /home/bob/myrepo master
 ------------------------------------------------
 
-This merges the changes from Bob's `master` branch into Alice's
-current branch.  If Alice has made her own changes in the meantime,
-then she may need to manually fix any conflicts.
+Ez merge-eli a Bob `master` branchéből származó változtatásokat Alice
+aktuális branchébe. Ha Alice időközben saját változtatásokat is
+végzett, akkor esetleg kézzel kell megoldania az esetleges
+konfliktusokat.
 
-The `pull` command thus performs two operations: it fetches changes
-from a remote branch, then merges them into the current branch.
+A `pull` parancs tehát két műveletet hajt végre: lehívja (fetcheli) a
+változtatásokat egy remote branchből, majd merge-eli őket az aktuális
+branchbe.
 
-Note that in general, Alice would want her local changes committed before
-initiating this `pull`.  If Bob's work conflicts with what Alice did since
-their histories forked, Alice will use her working tree and the index to
-resolve conflicts, and existing local changes will interfere with the
-conflict resolution process (Git will still perform the fetch but will
-refuse to merge -- Alice will have to get rid of her local changes in
-some way and pull again when this happens).
+Vedd figyelembe, hogy általában Alice szeretné, ha a helyi
+változtatásai commitolva lennének, mielőtt elindítja ezt a `pull`-t.
+Ha Bob munkája ütközik azzal, amit Alice csinált, mióta az
+előzményeik szétváltak, Alice a munkakönyvtárát és az indexet fogja
+használni a konfliktusok feloldásához, és a meglévő helyi
+változtatások zavarni fogják a konfliktusfeloldási folyamatot (a Git
+ekkor is elvégzi a fetchet, de megtagadja a merge-et – Alice-nek
+valamilyen módon meg kell szabadulnia a helyi változtatásaitól, és
+újra kell pull-oznia, amikor ez történik).
 
-Alice can peek at what Bob did without merging first, using the `fetch`
-command; this allows Alice to inspect what Bob did, using a special
-symbol `FETCH_HEAD`, in order to determine if he has anything worth
-pulling, like this:
+Alice bepillanthat abba, hogy Bob mit csinált, anélkül hogy előtte
+merge-elne, a `fetch` paranccsal; ez lehetővé teszi Alice számára,
+hogy megvizsgálja, mit csinált Bob, egy speciális, `FETCH_HEAD` nevű
+szimbólum segítségével, hogy eldöntse, van-e bármi, amit érdemes
+lehívnia, így:
 
 ------------------------------------------------
 alice$ git fetch /home/bob/myrepo master
 alice$ git log -p HEAD..FETCH_HEAD
 ------------------------------------------------
 
-This operation is safe even if Alice has uncommitted local changes.
-The range notation `HEAD..FETCH_HEAD` means "show everything that is reachable
-from the `FETCH_HEAD` but exclude anything that is reachable from `HEAD`".
-Alice already knows everything that leads to her current state (`HEAD`),
-and reviews what Bob has in his state (`FETCH_HEAD`) that she has not
-seen with this command.
+Ez a művelet biztonságos akkor is, ha Alice-nek vannak commitolatlan
+helyi változtatásai. A `HEAD..FETCH_HEAD` tartomány-jelölés azt
+jelenti: „mutass meg mindent, ami elérhető a `FETCH_HEAD`-ből, de zárj
+ki mindent, ami elérhető a `HEAD`-ből". Alice már mindent tud, ami az
+aktuális állapotához (`HEAD`) vezet, és ezzel a paranccsal áttekinti,
+hogy Bob állapotában (`FETCH_HEAD`) mi van, amit még nem látott.
 
-If Alice wants to visualize what Bob did since their histories forked
-she can issue the following command:
+Ha Alice vizualizálni szeretné, hogy Bob mit csinált, mióta az
+előzményeik szétváltak, kiadhatja a következő parancsot:
 
 ------------------------------------------------
 $ gitk HEAD..FETCH_HEAD
 ------------------------------------------------
 
-This uses the same two-dot range notation we saw earlier with `git log`.
+Ez ugyanazt a kétpontos tartomány-jelölést használja, amit korábban a
+`git log`-nál láttunk.
 
-Alice may want to view what both of them did since they forked.
-She can use three-dot form instead of the two-dot form:
+Alice esetleg szeretné megnézni, hogy mindketten mit csináltak, mióta
+szétváltak. A kétpontos forma helyett használhatja a hárompontos
+formát:
 
 ------------------------------------------------
 $ gitk HEAD...FETCH_HEAD
 ------------------------------------------------
 
-This means "show everything that is reachable from either one, but
-exclude anything that is reachable from both of them".
+Ez azt jelenti: „mutass meg mindent, ami elérhető bármelyikükből, de
+zárj ki mindent, ami mindkettőjükből elérhető".
 
-Please note that these range notations can be used with both `gitk`
-and `git log`.
+Vedd figyelembe, hogy ezek a tartomány-jelölések használhatók mind a
+`gitk`-val, mind a `git log`-gal.
 
-After inspecting what Bob did, if there is nothing urgent, Alice may
-decide to continue working without pulling from Bob.  If Bob's history
-does have something Alice would immediately need, Alice may choose to
-stash her work-in-progress first, do a `pull`, and then finally unstash
-her work-in-progress on top of the resulting history.
+Miután megvizsgálta, mit csinált Bob, ha nincs semmi sürgős, Alice
+dönthet úgy, hogy tovább dolgozik anélkül, hogy pull-ozna Bobtól. Ha
+Bob előzményeiben van valami, amire Alice-nek azonnal szüksége lenne,
+Alice választhatja azt is, hogy előbb stash-eli a folyamatban lévő
+munkáját, elvégzi a `pull`-t, majd végül unstash-eli a folyamatban
+lévő munkáját az eredményül kapott előzmények tetejére.
 
-When you are working in a small closely knit group, it is not
-unusual to interact with the same repository over and over
-again.  By defining 'remote' repository shorthand, you can make
-it easier:
+Ha egy kicsi, szorosan összetartó csoportban dolgozol, nem szokatlan,
+hogy újra és újra ugyanazzal a repository-val lépsz interakcióba. Egy
+'remote' repository-rövidítés definiálásával megkönnyítheted ezt:
 
 ------------------------------------------------
 alice$ git remote add bob /home/bob/myrepo
 ------------------------------------------------
 
-With this, Alice can perform the first part of the `pull` operation
-alone using the `git fetch` command without merging them with her own
-branch, using:
+Ezzel Alice el tudja végezni a `pull` művelet első részét
+önmagában, a `git fetch` paranccsal, anélkül hogy merge-elné őket a
+saját branchével, a következővel:
 
 -------------------------------------
 alice$ git fetch bob
 -------------------------------------
 
-Unlike the longhand form, when Alice fetches from Bob using a
-remote repository shorthand set up with `git remote`, what was
-fetched is stored in a remote-tracking branch, in this case
-`bob/master`.  So after this:
+A hosszú formától eltérően, amikor Alice a `git remote`-tal beállított
+remote repository-rövidítés segítségével fetchel Bobtól, a lehívott
+tartalom egy remote-tracking branchben tárolódik, ebben az esetben
+`bob/master` néven. Tehát ez után:
 
 -------------------------------------
 alice$ git log -p master..bob/master
 -------------------------------------
 
-shows a list of all the changes that Bob made since he branched from
-Alice's `master` branch.
+megmutatja az összes olyan változtatás listáját, amit Bob végzett,
+mióta elágazott Alice `master` branchéből.
 
-After examining those changes, Alice
-could merge the changes into her `master` branch:
+Miután megvizsgálta ezeket a változtatásokat, Alice merge-elhetné a
+változtatásokat a saját `master` branchébe:
 
 -------------------------------------
 alice$ git merge bob/master
 -------------------------------------
 
-This `merge` can also be done by 'pulling from her own remote-tracking
-branch', like this:
+Ez a `merge` úgy is elvégezhető, hogy 'pull-oz a saját
+remote-tracking branchéből', így:
 
 -------------------------------------
 alice$ git pull . remotes/bob/master
 -------------------------------------
 
-Note that git pull always merges into the current branch,
-regardless of what else is given on the command line.
+Vedd figyelembe, hogy a git pull mindig az aktuális branchbe
+merge-el, függetlenül attól, hogy mi mást adsz meg a parancssorban.
 
-Later, Bob can update his repo with Alice's latest changes using
+Később Bob frissítheti a saját repository-ját Alice legutóbbi
+változtatásaival a következővel
 
 -------------------------------------
 bob$ git pull
 -------------------------------------
 
-Note that he doesn't need to give the path to Alice's repository;
-when Bob cloned Alice's repository, Git stored the location of her
-repository in the repository configuration, and that location is
-used for pulls:
+Vedd figyelembe, hogy nem kell megadnia Alice repository-jának
+útvonalát; amikor Bob klónozta Alice repository-ját, a Git eltárolta a
+repository helyét a repository konfigurációjában, és ez a hely kerül
+felhasználásra a pull-oknál:
 
 -------------------------------------
 bob$ git config --get remote.origin.url
 /home/alice/project
 -------------------------------------
 
-(The complete configuration created by `git clone` is visible using
-`git config list`, and the linkgit:git-config[1] man page
-explains the meaning of each option.)
+(A `git clone` által létrehozott teljes konfiguráció a `git config
+list` paranccsal tekinthető meg, és a linkgit:git-config[1] man page
+elmagyarázza az egyes opciók jelentését.)
 
-Git also keeps a pristine copy of Alice's `master` branch under the
-name `origin/master`:
+A Git emellett megőriz egy érintetlen másolatot Alice `master`
+branchéből `origin/master` néven:
 
 -------------------------------------
 bob$ git branch -r
   origin/master
 -------------------------------------
 
-If Bob later decides to work from a different host, he can still
-perform clones and pulls using the ssh protocol:
+Ha Bob később úgy dönt, hogy egy másik hosztról dolgozik, akkor is
+végezhet klónozásokat és pull-okat az ssh protokoll használatával:
 
 -------------------------------------
 bob$ git clone alice.org:/home/alice/project myrepo
 -------------------------------------
 
-Alternatively, Git has a native protocol, or can use http;
-see linkgit:git-pull[1] for details.
+Alternatívaként a Gitnek van egy natív protokollja is, vagy
+használhat http-t; a részletekért lásd: linkgit:git-pull[1].
 
-Git can also be used in a CVS-like mode, with a central repository
-that various users push changes to; see linkgit:git-push[1] and
-linkgit:gitcvs-migration[7].
+A Git CVS-szerű módban is használható, egy központi repository-val,
+amelybe a különböző felhasználók push-olják a változtatásaikat; lásd:
+linkgit:git-push[1] és linkgit:gitcvs-migration[7].
 
-Exploring history
------------------
+[[_exploring_history]]
+Az előzmények böngészése
+------------------------
 
-Git history is represented as a series of interrelated commits.  We
-have already seen that the `git log` command can list those commits.
-Note that first line of each `git log` entry also gives a name for the
-commit:
+A Git előzményei egymással összefüggő commitok sorozataként jelennek
+meg. Már láttuk, hogy a `git log` parancs ki tudja listázni ezeket a
+commitokat. Vedd figyelembe, hogy az egyes `git log` bejegyzések első
+sora egy nevet is ad a commitnak:
 
 -------------------------------------
 $ git log
@@ -474,15 +500,16 @@ Date:   Tue May 16 17:18:22 2006 -0700
     merge-base: Clarify the comments on post processing.
 -------------------------------------
 
-We can give this name to `git show` to see the details about this
-commit.
+Ezt a nevet megadhatjuk a `git show`-nak, hogy megnézzük a commit
+részleteit.
 
 -------------------------------------
 $ git show c82a22c39cbc32576f64f5c6b3f24b99ea8149c7
 -------------------------------------
 
-But there are other ways to refer to commits.  You can use any initial
-part of the name that is long enough to uniquely identify the commit:
+De vannak más módok is a commitokra hivatkozni. Használhatod a név
+bármely kezdő részét, amely elég hosszú ahhoz, hogy egyértelműen
+azonosítsa a commitot:
 
 -------------------------------------
 $ git show c82a22c39c	# the first few characters of the name are
@@ -491,8 +518,8 @@ $ git show HEAD		# the tip of the current branch
 $ git show experimental	# the tip of the "experimental" branch
 -------------------------------------
 
-Every commit usually has one "parent" commit
-which points to the previous state of the project:
+Minden commitnak általában van egy „parent" (szülő) commitja, amely a
+projekt előző állapotára mutat:
 
 -------------------------------------
 $ git show HEAD^  # to see the parent of HEAD
@@ -500,26 +527,26 @@ $ git show HEAD^^ # to see the grandparent of HEAD
 $ git show HEAD~4 # to see the great-great grandparent of HEAD
 -------------------------------------
 
-Note that merge commits may have more than one parent:
+Vedd figyelembe, hogy a merge commitoknak több szülőjük is lehet:
 
 -------------------------------------
 $ git show HEAD^1 # show the first parent of HEAD (same as HEAD^)
 $ git show HEAD^2 # show the second parent of HEAD
 -------------------------------------
 
-You can also give commits names of your own; after running
+Saját neveket is adhatsz a commitoknak; a következő futtatása után
 
 -------------------------------------
 $ git tag v2.5 1b2e1d63ff
 -------------------------------------
 
-you can refer to `1b2e1d63ff` by the name `v2.5`.  If you intend to
-share this name with other people (for example, to identify a release
-version), you should create a "tag" object, and perhaps sign it; see
-linkgit:git-tag[1] for details.
+hivatkozhatsz `1b2e1d63ff`-re a `v2.5` néven. Ha ezt a nevet meg
+akarod osztani másokkal (például egy kiadási verzió azonosítására),
+érdemes létrehoznod egy „tag" objektumot, és esetleg aláírnod; a
+részletekért lásd: linkgit:git-tag[1].
 
-Any Git command that needs to know a commit can take any of these
-names.  For example:
+Bármelyik Git parancs, amelynek tudnia kell egy commitot, elfogadja
+ezen nevek bármelyikét. Például:
 
 -------------------------------------
 $ git diff v2.5 HEAD	 # compare the current HEAD to v2.5
@@ -529,35 +556,37 @@ $ git reset --hard HEAD^ # reset your current branch and working
 			 # directory to its state at HEAD^
 -------------------------------------
 
-Be careful with that last command: in addition to losing any changes
-in the working directory, it will also remove all later commits from
-this branch.  If this branch is the only branch containing those
-commits, they will be lost.  Also, don't use `git reset` on a
-publicly-visible branch that other developers pull from, as it will
-force needless merges on other developers to clean up the history.
-If you need to undo changes that you have pushed, use `git revert`
-instead.
+Legyél óvatos ezzel az utolsó paranccsal: amellett, hogy elveszíted a
+munkakönyvtárban lévő változtatásokat, ez a branch összes későbbi
+commitját is eltávolítja. Ha ez a branch az egyetlen, amely
+tartalmazza ezeket a commitokat, akkor azok elvesznek. Emellett ne
+használd a `git reset`-et egy nyilvánosan látható branchen, amelyről
+más fejlesztők pull-oznak, mivel ez szükségtelen merge-eket fog
+kikényszeríteni más fejlesztőknél az előzmények megtisztításához. Ha
+vissza kell vonnod olyan változtatásokat, amelyeket már push-oltál,
+használd inkább a `git revert`-et.
 
-The `git grep` command can search for strings in any version of your
-project, so
+A `git grep` parancs a projekted bármely verziójában tud keresni
+karakterláncokra, tehát
 
 -------------------------------------
 $ git grep "hello" v2.5
 -------------------------------------
 
-searches for all occurrences of "hello" in `v2.5`.
+megkeresi a „hello" összes előfordulását a `v2.5`-ben.
 
-If you leave out the commit name, `git grep` will search any of the
-files it manages in your current directory.  So
+Ha kihagyod a commit nevét, a `git grep` az aktuális könyvtárban
+általa kezelt bármelyik fájlban keres. Tehát
 
 -------------------------------------
 $ git grep "hello"
 -------------------------------------
 
-is a quick way to search just the files that are tracked by Git.
+ez egy gyors módja annak, hogy csak a Git által követett fájlokban
+keress.
 
-Many Git commands also take sets of commits, which can be specified
-in a number of ways.  Here are some examples with `git log`:
+Sok Git parancs commit-halmazokat is elfogad, amelyeket többféleképpen
+lehet megadni. Íme néhány példa a `git log`-gal:
 
 -------------------------------------
 $ git log v2.5..v2.6            # commits between v2.5 and v2.6
@@ -567,98 +596,101 @@ $ git log v2.5.. Makefile       # commits since v2.5 which modify
 				# Makefile
 -------------------------------------
 
-You can also give `git log` a "range" of commits where the first is not
-necessarily an ancestor of the second; for example, if the tips of
-the branches `stable` and `master` diverged from a common
-commit some time ago, then
+A `git log`-nak commitok egy „tartományát" (range) is megadhatod, ahol
+az első nem feltétlenül őse a másodiknak; például, ha a `stable` és a
+`master` branchek csúcsai egy közös commitból ágaztak el valamikor
+korábban, akkor
 
 -------------------------------------
 $ git log stable..master
 -------------------------------------
 
-will list commits made in the `master` branch but not in the
-stable branch, while
+kilistázza a `master` branchen végzett, de a stable branchen nem
+szereplő commitokat, míg
 
 -------------------------------------
 $ git log master..stable
 -------------------------------------
 
-will show the list of commits made on the stable branch but not
-the `master` branch.
+megmutatja a stable branchen végzett, de a `master` branchen nem
+szereplő commitok listáját.
 
-The `git log` command has a weakness: it must present commits in a
-list.  When the history has lines of development that diverged and
-then merged back together, the order in which `git log` presents
-those commits is meaningless.
+A `git log` parancsnak van egy gyengesége: a commitokat listaként
+kell megjelenítenie. Amikor az előzményekben olyan fejlesztési
+vonalak vannak, amelyek szétváltak, majd újra összeolvadtak, az a
+sorrend, amelyben a `git log` bemutatja ezeket a commitokat,
+értelmetlen.
 
-Most projects with multiple contributors (such as the Linux kernel,
-or Git itself) have frequent merges, and `gitk` does a better job of
-visualizing their history.  For example,
+A legtöbb, több közreműködővel rendelkező projektben (mint például a
+Linux kernel vagy maga a Git) gyakoriak a merge-ek, és a `gitk` jobb
+munkát végez az előzményeik vizualizálásában. Például,
 
 -------------------------------------
 $ gitk --since="2 weeks ago" drivers/
 -------------------------------------
 
-allows you to browse any commits from the last 2 weeks of commits
-that modified files under the `drivers` directory.  (Note: you can
-adjust gitk's fonts by holding down the control key while pressing
-"-" or "+".)
+lehetővé teszi, hogy böngéssz az elmúlt 2 hét azon commitjai között,
+amelyek a `drivers` könyvtár alatti fájlokat módosították.
+(Megjegyzés: a gitk betűtípusait a control billentyű lenyomva tartása
+mellett a „-" vagy „+" megnyomásával állíthatod be.)
 
-Finally, most commands that take filenames will optionally allow you
-to precede any filename by a commit, to specify a particular version
-of the file:
+Végül, a legtöbb, fájlneveket elfogadó parancs opcionálisan lehetővé
+teszi, hogy egy fájlnév elé egy commitot írj, hogy a fájl egy adott
+verzióját add meg:
 
 -------------------------------------
 $ git diff v2.5:Makefile HEAD:Makefile.in
 -------------------------------------
 
-You can also use `git show` to see any such file:
+A `git show`-t is használhatod bármely ilyen fájl megtekintésére:
 
 -------------------------------------
 $ git show v2.5:Makefile
 -------------------------------------
 
-Next Steps
-----------
+[[_next_steps]]
+További lépések
+---------------
 
-This tutorial should be enough to perform basic distributed revision
-control for your projects.  However, to fully understand the depth
-and power of Git you need to understand two simple ideas on which it
-is based:
+Ez az ismertető elegendő kell legyen ahhoz, hogy alapszintű elosztott
+verziókövetést végezz a projektjeidnél. Ahhoz azonban, hogy teljesen
+megértsd a Git mélységét és erejét, meg kell értened két egyszerű
+elképzelést, amelyekre épül:
 
-  * The object database is the rather elegant system used to
-    store the history of your project--files, directories, and
-    commits.
+  * Az objektumadatbázis az a meglehetősen elegáns rendszer, amelyet a
+    projekted előzményeinek – fájloknak, könyvtáraknak és
+    commitoknak – a tárolására használnak.
 
-  * The index file is a cache of the state of a directory tree,
-    used to create commits, check out working directories, and
-    hold the various trees involved in a merge.
+  * Az index fájl egy könyvtárfa állapotának cache-e, amelyet
+    commitok létrehozására, munkakönyvtárak checkoutolására, és a
+    merge-ben érintett különböző fák tárolására használnak.
 
-Part two of this tutorial explains the object
-database, the index file, and a few other odds and ends that you'll
-need to make the most of Git. You can find it at linkgit:gittutorial-2[7].
+Ennek az ismertetőnek a második része elmagyarázza az
+objektumadatbázist, az index fájlt, és néhány egyéb apróságot, amelyre
+szükséged lesz ahhoz, hogy a legtöbbet hozd ki a Gitből. Megtalálod
+itt: linkgit:gittutorial-2[7].
 
-If you don't want to continue with that right away, a few other
-digressions that may be interesting at this point are:
+Ha nem akarod rögtön azzal folytatni, néhány más kitérő, ami ezen a
+ponton érdekes lehet:
 
-  * linkgit:git-format-patch[1], linkgit:git-am[1]: These convert
-    series of git commits into emailed patches, and vice versa,
-    useful for projects such as the Linux kernel which rely heavily
-    on emailed patches.
+  * linkgit:git-format-patch[1], linkgit:git-am[1]: Ezek git
+    commit-sorozatokat alakítanak e-mailben küldött patchekké, és
+    fordítva, ami olyan projekteknél hasznos, mint a Linux kernel,
+    amelyek erősen támaszkodnak az e-mailben küldött patchekre.
 
-  * linkgit:git-bisect[1]: When there is a regression in your
-    project, one way to track down the bug is by searching through
-    the history to find the exact commit that's to blame.  `git bisect`
-    can help you perform a binary search for that commit.  It is
-    smart enough to perform a close-to-optimal search even in the
-    case of complex non-linear history with lots of merged branches.
+  * linkgit:git-bisect[1]: Ha regresszió történik a projektedben, a
+    hiba felderítésének egyik módja az előzmények átvizsgálása, hogy
+    megtaláld a pontos, hibás commitot. A `git bisect` segíthet abban,
+    hogy bináris keresést végezz erre a commitra. Elég okos ahhoz,
+    hogy közel optimális keresést végezzen még összetett, nemlineáris,
+    sok merge-elt branchet tartalmazó előzmények esetén is.
 
-  * linkgit:gitworkflows[7]: Gives an overview of recommended
-    workflows.
+  * linkgit:gitworkflows[7]: Áttekintést ad az ajánlott
+    munkafolyamatokról.
 
-  * linkgit:giteveryday[7]: Everyday Git with 20 Commands Or So.
+  * linkgit:giteveryday[7]: Mindennapi Git úgy 20 paranccsal.
 
-  * linkgit:gitcvs-migration[7]: Git for CVS users.
+  * linkgit:gitcvs-migration[7]: Git CVS-felhasználóknak.
 
 SEE ALSO
 --------
@@ -669,8 +701,8 @@ linkgit:gitglossary[7],
 linkgit:git-help[1],
 linkgit:gitworkflows[7],
 linkgit:giteveryday[7],
-link:user-manual.html[The Git User's Manual]
+link:user-manual.html[A Git felhasználói kézikönyve]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

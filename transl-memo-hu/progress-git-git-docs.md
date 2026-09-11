@@ -190,7 +190,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-tools.adoc | [x] |  | 2026-09-10 |
 | git-unpack-file.adoc | [x] |  | 2026-09-10 |
 | git-unpack-objects.adoc | [x] |  | 2026-09-10 |
-| git-update-index.adoc | [ ] |  |  |
+| git-update-index.adoc | [x] |  | 2026-09-11 |
 | git-update-ref.adoc | [x] |  | 2026-09-10 |
 | git-update-server-info.adoc | [x] |  | 2026-09-10 |
 | git-upload-archive.adoc | [x] |  | 2026-09-10 |
@@ -244,7 +244,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitformat-commit-graph.adoc | [x] |  | 2026-09-10 |
 | gitformat-index.adoc | [x] |  | 2026-09-11 |
 | gitformat-loose.adoc | [x] |  | 2026-09-10 |
-| gitformat-pack.adoc | [ ] |  |  |
+| gitformat-pack.adoc | [x] |  | 2026-09-11 |
 | gitformat-signature.adoc | [x] |  | 2026-09-10 |
 | gitglossary.adoc | [ ] |  |  |
 | githooks.adoc | [ ] |  |  |
@@ -257,15 +257,15 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitprotocol-capabilities.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-common.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-http.adoc | [x] |  | 2026-09-11 |
-| gitprotocol-pack.adoc | [ ] |  |  |
+| gitprotocol-pack.adoc | [x] |  | 2026-09-11 |
 | gitprotocol-v2.adoc | [ ] |  |  |
 | gitremote-helpers.adoc | [x] |  | 2026-09-11 |
 | gitrepository-layout.adoc | [x] |  | 2026-09-10 |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
 | gitsubmodules.adoc | [x] |  | 2026-09-10 |
 | gittutorial-2.adoc | [x] |  | 2026-09-11 |
-| gittutorial.adoc | [ ] |  |  |
-| gitweb.adoc | [ ] |  |  |
+| gittutorial.adoc | [x] |  | 2026-09-11 |
+| gitweb.adoc | [x] |  | 2026-09-11 |
 | gitweb.conf.adoc | [ ] |  |  |
 | gitworkflows.adoc | [x] |  | 2026-09-11 |
 | glossary-content.adoc | [ ] |  |  |
@@ -911,3 +911,16 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   PERFORMANCE` (`git-status.adoc`), a kétsoros „THIS COMMAND IS EXPERIMENTAL…" mondat
   nagybetűsen lefordítva (`git-sparse-checkout.adoc`, 3./29. blokk precedens). Részletek:
   `glossary-git-git-docs.md` „38. blokk".
+- **2026-09-11 — az 5 legkisebb méretű, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére; a két gyökér-tábla együttes, bájtméret szerint növekvő listája, `gitglossary.adoc`/
+  `git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva — ezek a
+  skill/progress szerint a végére, ill. a `config/` mappa utánra vannak halasztva): `gittutorial.adoc`
+  (23KB, NEM man page), `git-update-index.adoc` (24KB, man page), `gitweb.adoc` (27KB, man page-
+  vázas referencia), `gitformat-pack.adoc` (27,5KB, technical formátum-spec), `gitprotocol-pack.adoc`
+  (27,7KB, RFC-stílusú protokoll-spec). 5 párhuzamos subagent végezte, diszjunkt fájlonként egy-egy
+  (nem az orchestrátor közvetlenül, a fájlok 600–730 soros mérete miatt); az orchestrátor
+  konszolidálta az eredményeket és futtatott egy gyors strukturális ellenőrzést (`----`/`====`
+  párszám, `[[...]]` duplikátum-ellenőrzés, `ifdef`/`endif` párosság) mind az 5 fájlon —
+  hibátlan. Nyitva maradt döntési kérdés: az „Authentication" cím ellentmondása
+  (`gitprotocol-pack.adoc`-ban lefordítva „Hitelesítés"-re, a korábban kész `gitprotocol-http.adoc`-
+  ban angolul hagyva) — l. `glossary-git-git-docs.md` „39. blokk". Részletek: „39. blokk".

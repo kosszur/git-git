@@ -3,7 +3,7 @@ git-update-index(1)
 
 NAME
 ----
-git-update-index - Register file contents in the working tree to the index
+git-update-index - A munkakönyvtárban lévő fájlok tartalmának regisztrálása az indexben
 
 
 SYNOPSIS
@@ -31,285 +31,303 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Modifies the index. Each file mentioned is updated into the index and
-any 'unmerged' or 'needs updating' state is cleared.
+Módosítja az indexet. Minden megadott fájl frissül az indexben, és
+az 'unmerged' vagy 'needs updating' állapot törlődik.
 
-See also linkgit:git-add[1] for a more user-friendly way to do some of
-the most common operations on the index.
+Lásd még a linkgit:git-add[1] parancsot, amely felhasználóbarátabb módon
+végzi el az index néhány leggyakoribb műveletét.
 
-The way 'git update-index' handles files it is told about can be modified
-using the various options:
+Az, hogy a 'git update-index' hogyan kezeli a neki megadott fájlokat,
+a különféle opciókkal módosítható:
 
 OPTIONS
 -------
 --add::
-	If a specified file isn't in the index already then it's
-	added.
-	Default behaviour is to ignore new files.
+	Ha egy megadott fájl még nincs az indexben, akkor
+	hozzáadódik.
+	Az alapértelmezett viselkedés az új fájlok figyelmen kívül hagyása.
 
 --remove::
-	If a specified file is in the index but is missing then it's
-	removed.
-	Default behavior is to ignore removed files.
+	Ha egy megadott fájl benne van az indexben, de hiányzik, akkor
+	eltávolításra kerül.
+	Az alapértelmezett viselkedés az eltávolított fájlok figyelmen kívül hagyása.
 
 --refresh::
-	Looks at the current index and checks to see if merges or
-	updates are needed by checking stat() information.
+	Megnézi az aktuális indexet, és a stat() információk
+	ellenőrzésével megállapítja, szükséges-e merge vagy frissítés.
 
 -q::
-        Quiet.  If --refresh finds that the index needs an update, the
-        default behavior is to error out.  This option makes
-	'git update-index' continue anyway.
+        Csendes mód. Ha a --refresh azt találja, hogy az indexet frissíteni
+        kell, az alapértelmezett viselkedés a hibával való leállás. Ez az
+	opció miatt a 'git update-index' ennek ellenére folytatja.
 
 --ignore-submodules::
-	Do not try to update submodules.  This option is only respected
-	when passed before --refresh.
+	Ne próbálja frissíteni a submodule-okat. Ez az opció csak akkor
+	érvényesül, ha a --refresh előtt van megadva.
 
 --unmerged::
-        If --refresh finds unmerged changes in the index, the default
-	behavior is to error out.  This option makes 'git update-index'
-        continue anyway.
+        Ha a --refresh nem merge-elt módosításokat talál az indexben, az
+	alapértelmezett viselkedés a hibával való leállás. Ez az opció miatt
+        a 'git update-index' ennek ellenére folytatja.
 
 --ignore-missing::
-	Ignores missing files during a --refresh
+	Figyelmen kívül hagyja a hiányzó fájlokat egy --refresh során
 
 --cacheinfo <mode>,<object>,<path>::
 --cacheinfo <mode> <object> <path>::
-	Directly insert the specified info into the index.  For
-	backward compatibility, you can also give these three
-	arguments as three separate parameters, but new users are
-	encouraged to use a single-parameter form.
+	Közvetlenül beszúrja a megadott információt az indexbe. A
+	visszafelé kompatibilitás kedvéért ezt a három argumentumot
+	három külön paraméterként is meg lehet adni, de az új
+	felhasználóknak az egyparaméteres forma használata ajánlott.
 
 --index-info::
-        Read index information from stdin.
+        Index-információk beolvasása a standard bemenetről.
 
 --chmod=(+|-)x::
-        Set the execute permissions on the updated files.
+        Beállítja a végrehajtási jogosultságokat a frissített fájlokon.
 
 --assume-unchanged::
 --no-assume-unchanged::
-	When this flag is specified, the object names recorded
-	for the paths are not updated.  Instead, this option
-	sets/unsets the "assume unchanged" bit for the
-	paths.  When the "assume unchanged" bit is on, the user
-	promises not to change the file and allows Git to assume
-	that the working tree file matches what is recorded in
-	the index.  If you want to change the working tree file,
-	you need to unset the bit to tell Git.  This is
-	sometimes helpful when working with a big project on a
-	filesystem that has a very slow lstat(2) system call
-	(e.g. cifs).
+	Ha ez a kapcsoló meg van adva, az adott útvonalakhoz
+	rögzített objektumnevek nem frissülnek. Ehelyett ez az
+	opció be- vagy kikapcsolja az útvonalak "assume unchanged"
+	bitjét. Amikor az "assume unchanged" bit be van kapcsolva,
+	a felhasználó megígéri, hogy nem módosítja a fájlt, és
+	engedélyezi a Gitnek, hogy feltételezze: a munkakönyvtárbeli
+	fájl megegyezik az indexben rögzítettel. Ha módosítani
+	akarod a munkakönyvtárbeli fájlt, ki kell kapcsolnod a
+	bitet, hogy jelezd ezt a Gitnek. Ez néha hasznos, ha nagy
+	projekttel dolgozol olyan fájlrendszeren, amelynek nagyon
+	lassú az lstat(2) rendszerhívása (pl. cifs).
 +
-Git will fail (gracefully) in case it needs to modify this file
-in the index e.g. when merging in a commit;
-thus, in case the assumed-untracked file is changed upstream,
-you will need to handle the situation manually.
+A Git (szabályosan) meg fog hiúsulni, ha módosítania kell ezt a
+fájlt az indexben, pl. egy commit merge-elésekor;
+ezért ha a feltételezetten-nem-követett fájl az upstreamben
+megváltozik, a helyzetet kézzel kell kezelned.
 
 --really-refresh::
-	Like `--refresh`, but checks stat information unconditionally,
-	without regard to the "assume unchanged" setting.
+	Olyan, mint a `--refresh`, de feltétel nélkül ellenőrzi a
+	stat-információkat, az "assume unchanged" beállítástól függetlenül.
 
 --skip-worktree::
 --no-skip-worktree::
-	When one of these flags is specified, the object names recorded
-	for the paths are not updated. Instead, these options
-	set and unset the "skip-worktree" bit for the paths. See
-	section "Skip-worktree bit" below for more information.
+	Ha az egyik ilyen kapcsoló meg van adva, az adott útvonalakhoz
+	rögzített objektumnevek nem frissülnek. Ehelyett ezek az
+	opciók be- és kikapcsolják az útvonalak "skip-worktree" bitjét.
+	Bővebben lásd a lenti "Skip-worktree bit" szakaszt.
 
 
 --ignore-skip-worktree-entries::
 --no-ignore-skip-worktree-entries::
-	Do not remove skip-worktree (AKA "index-only") entries even when
-	the `--remove` option was specified.
+	Ne távolítsa el a skip-worktree (más néven "index-only")
+	bejegyzéseket még akkor sem, ha a `--remove` opció meg lett adva.
 
 --fsmonitor-valid::
 --no-fsmonitor-valid::
-	When one of these flags is specified, the object names recorded
-	for the paths are not updated. Instead, these options
-	set and unset the "fsmonitor valid" bit for the paths. See
-	section "File System Monitor" below for more information.
+	Ha az egyik ilyen kapcsoló meg van adva, az adott útvonalakhoz
+	rögzített objektumnevek nem frissülnek. Ehelyett ezek az
+	opciók be- és kikapcsolják az útvonalak "fsmonitor valid" bitjét.
+	Bővebben lásd a lenti "File System Monitor" szakaszt.
 
 -g::
 --again::
-	Runs 'git update-index' itself on the paths whose index
-	entries are different from those of the `HEAD` commit.
+	Újrafuttatja a 'git update-index'-et azokon az útvonalakon,
+	amelyeknek az index-bejegyzései eltérnek a `HEAD` commit
+	bejegyzéseitől.
 
 --unresolve::
-	Restores the 'unmerged' or 'needs updating' state of a
-	file during a merge if it was cleared by accident.
+	Visszaállítja egy fájl 'unmerged' vagy 'needs updating'
+	állapotát egy merge során, ha az véletlenül törlődött.
 
 --info-only::
-	Do not create objects in the object database for all
-	<file> arguments that follow this flag; just insert
-	their object IDs into the index.
+	Nem hoz létre objektumokat az objektumadatbázisban az ezt a
+	kapcsolót követő összes <file> argumentumhoz; csak beszúrja
+	azok objektum-ID-jét az indexbe.
 
 --force-remove::
-	Remove the file from the index even when the working directory
-	still has such a file. (Implies --remove.)
+	Eltávolítja a fájlt az indexből még akkor is, ha a
+	munkakönyvtárban még megvan az adott fájl. (Magában
+	foglalja a --remove-ot.)
 
 --replace::
-	By default, when a file `path` exists in the index,
-	'git update-index' refuses an attempt to add `path/file`.
-	Similarly if a file `path/file` exists, a file `path`
-	cannot be added.  With --replace flag, existing entries
-	that conflict with the entry being added are
-	automatically removed with warning messages.
+	Alapértelmezés szerint, ha egy `path` nevű fájl létezik az
+	indexben, a 'git update-index' visszautasítja a `path/file`
+	hozzáadására tett kísérletet. Hasonlóképp, ha létezik egy
+	`path/file` fájl, egy `path` nevű fájl nem adható hozzá. A
+	--replace kapcsolóval a hozzáadandó bejegyzéssel ütköző
+	meglévő bejegyzések automatikusan eltávolításra kerülnek,
+	figyelmeztető üzenetekkel.
 
 --stdin::
-	Instead of taking a list of paths from the command line,
-	read a list of paths from the standard input.  Paths are
-	separated by LF (i.e. one path per line) by default.
+	Ahelyett, hogy a parancssorból venné az útvonalak listáját,
+	beolvassa az útvonalak listáját a standard bemenetről. Az
+	útvonalakat alapértelmezés szerint LF választja el (azaz
+	soronként egy útvonal).
 
 --verbose::
-	Report what is being added and removed from the index.
+	Jelenti, hogy mi kerül hozzáadásra és eltávolításra az indexből.
 
 --index-version <n>::
-	Write the resulting index out in the named on-disk format version.
-	Supported versions are 2, 3, and 4. The current default version is 2
-	or 3, depending on whether extra features are used, such as
-	`git add -N`.  With `--verbose`, also report the version the index
-	file uses before and after this command.
+	A keletkező indexet a megadott lemezes formátumverzióban írja ki.
+	A támogatott verziók: 2, 3 és 4. A jelenlegi alapértelmezett
+	verzió 2 vagy 3, attól függően, hogy használnak-e extra
+	funkciókat, mint például a `git add -N`. A `--verbose`
+	kapcsolóval azt is jelenti, hogy az indexfájl milyen verziót
+	használt a parancs előtt és után.
 +
-Version 4 performs a simple pathname compression that reduces index
-size by 30%-50% on large repositories, which results in faster load
-time.  Git supports it since version 1.8.0, released in October 2012,
-and support for it was added to libgit2 in 2016 and to JGit in 2020.
-Older versions of this manual page called it "relatively young", but
-it should be considered mature technology these days.
+A 4-es verzió egyszerű útvonalnév-tömörítést végez, ami nagy
+repository-kban 30-50%-kal csökkenti az index méretét, ami
+gyorsabb betöltési időt eredményez. A Git az 1.8.0-s verziója óta
+támogatja, amely 2012 októberében jelent meg, a libgit2-be 2016-ban,
+a JGit-be pedig 2020-ban került bele a támogatása. E kézikönyvoldal
+korábbi verziói "viszonylag fiatalnak" nevezték, de manapság már
+érett technológiának tekinthető.
 
 --show-index-version::
-	Report the index format version used by the on-disk index file.
-	See `--index-version` above.
+	Jelenti a lemezes indexfájl által használt index-formátumverziót.
+	Lásd fent a `--index-version` opciót.
 
 -z::
-	Only meaningful with `--stdin` or `--index-info`; paths are
-	separated with NUL character instead of LF.
+	Csak `--stdin`-nel vagy `--index-info`-val együtt van értelme;
+	az útvonalakat LF helyett NUL karakter választja el.
 
 --split-index::
 --no-split-index::
-	Enable or disable split index mode. If split-index mode is
-	already enabled and `--split-index` is given again, all
-	changes in $GIT_DIR/index are pushed back to the shared index
-	file.
+	Bekapcsolja vagy kikapcsolja a split index módot. Ha a
+	split-index mód már be van kapcsolva, és a `--split-index` újra
+	meg van adva, a $GIT_DIR/index minden változása visszakerül a
+	megosztott indexfájlba.
 +
-These options take effect whatever the value of the `core.splitIndex`
-configuration variable (see linkgit:git-config[1]). But a warning is
-emitted when the change goes against the configured value, as the
-configured value will take effect next time the index is read and this
-will remove the intended effect of the option.
+Ezek az opciók a `core.splitIndex` konfigurációs változó értékétől
+függetlenül érvénybe lépnek (lásd linkgit:git-config[1]). De egy
+figyelmeztetés jelenik meg, ha a változtatás ellentmond a beállított
+értéknek, mivel a beállított érték lép érvénybe legközelebb, amikor
+az index beolvasásra kerül, ez pedig megszünteti az opció szándékolt
+hatását.
 
 --untracked-cache::
 --no-untracked-cache::
-	Enable or disable untracked cache feature. Please use
-	`--test-untracked-cache` before enabling it.
+	Bekapcsolja vagy kikapcsolja az untracked cache funkciót. Kérjük,
+	a bekapcsolása előtt használd a `--test-untracked-cache` opciót.
 +
-These options take effect whatever the value of the `core.untrackedCache`
-configuration variable (see linkgit:git-config[1]). But a warning is
-emitted when the change goes against the configured value, as the
-configured value will take effect next time the index is read and this
-will remove the intended effect of the option.
+Ezek az opciók a `core.untrackedCache` konfigurációs változó
+értékétől függetlenül érvénybe lépnek (lásd linkgit:git-config[1]).
+De egy figyelmeztetés jelenik meg, ha a változtatás ellentmond a
+beállított értéknek, mivel a beállított érték lép érvénybe
+legközelebb, amikor az index beolvasásra kerül, ez pedig
+megszünteti az opció szándékolt hatását.
 
 --test-untracked-cache::
-	Only perform tests on the working directory to make sure
-	untracked cache can be used. You have to manually enable
-	untracked cache using `--untracked-cache` or
-	`--force-untracked-cache` or the `core.untrackedCache`
-	configuration variable afterwards if you really want to use
-	it. If a test fails the exit code is 1 and a message
-	explains what is not working as needed, otherwise the exit
-	code is 0 and OK is printed.
+	Csak teszteket végez a munkakönyvtáron, hogy megbizonyosodjon
+	róla, használható-e az untracked cache. Ha ezután valóban
+	használni akarod, kézzel kell bekapcsolnod az untracked
+	cache-t a `--untracked-cache`, a `--force-untracked-cache`
+	opcióval vagy a `core.untrackedCache` konfigurációs változóval.
+	Ha egy teszt sikertelen, a kilépési kód 1, és egy üzenet
+	elmagyarázza, mi nem működik a szükséges módon; egyébként a
+	kilépési kód 0, és az OK szöveg jelenik meg.
 
 --force-untracked-cache::
-	Same as `--untracked-cache`. Provided for backwards
-	compatibility with older versions of Git where
-	`--untracked-cache` used to imply `--test-untracked-cache` but
-	this option would enable the extension unconditionally.
+	Ugyanaz, mint a `--untracked-cache`. A Git korábbi verzióival
+	való visszafelé kompatibilitás miatt biztosított, ahol a
+	`--untracked-cache` régen a `--test-untracked-cache`-t is
+	jelentette, de ez az opció feltétel nélkül bekapcsolta a
+	kiterjesztést.
 
 --fsmonitor::
 --no-fsmonitor::
-	Enable or disable files system monitor feature. These options
-	take effect whatever the value of the `core.fsmonitor`
-	configuration variable (see linkgit:git-config[1]). But a warning
-	is emitted when the change goes against the configured value, as
-	the configured value will take effect next time the index is
-	read and this will remove the intended effect of the option.
+	Bekapcsolja vagy kikapcsolja a fájlrendszer-figyelő funkciót.
+	Ezek az opciók a `core.fsmonitor` konfigurációs változó
+	értékétől függetlenül érvénybe lépnek (lásd
+	linkgit:git-config[1]). De egy figyelmeztetés jelenik meg, ha a
+	változtatás ellentmond a beállított értéknek, mivel a beállított
+	érték lép érvénybe legközelebb, amikor az index beolvasásra
+	kerül, ez pedig megszünteti az opció szándékolt hatását.
 
 \--::
-	Do not interpret any more arguments as options.
+	Az ezt követő argumentumokat ne értelmezze többé opcióként.
 
 <file>::
-	Files to act on.
-	Note that files beginning with '.' are discarded. This includes
-	`./file` and `dir/./file`. If you don't want this, then use
-	cleaner names.
-	The same applies to directories ending '/' and paths with '//'
+	A fájlok, amelyeken a művelet végrehajtódik.
+	Vedd figyelembe, hogy a '.'-tal kezdődő fájlok figyelmen kívül
+	maradnak. Ez vonatkozik a `./file` és a `dir/./file` alakra is.
+	Ha ezt nem szeretnéd, használj tisztább neveket.
+	Ugyanez vonatkozik a '/'-re végződő könyvtárakra és a '//'-t
+	tartalmazó útvonalakra is
 
 USING --REFRESH
 ---------------
-`--refresh` does not calculate a new sha1 file or bring the index
-up to date for mode/content changes. But what it *does* do is to
-"re-match" the stat information of a file with the index, so that you
-can refresh the index for a file that hasn't been changed but where
-the stat entry is out of date.
+A `--refresh` nem számol ki új sha1 fájlt, és nem hozza naprakész
+állapotba az indexet mode-/tartalomváltozások esetén. De amit *igenis*
+megtesz, az az, hogy "újra összepárosítja" egy fájl stat-információját
+az indexszel, így frissítheted az indexet egy olyan fájlhoz, amely
+nem változott, de amelynek a stat-bejegyzése elavult.
 
-For example, you'd want to do this after doing a 'git read-tree', to link
-up the stat index details with the proper files.
+Például akkor akarnál ezt megtenni, ha egy 'git read-tree' után
+össze akarod kapcsolni a stat index-részleteket a megfelelő
+fájlokkal.
 
 USING --CACHEINFO OR --INFO-ONLY
 --------------------------------
-`--cacheinfo` is used to register a file that is not in the
-current working directory.  This is useful for minimum-checkout
-merging.
+A `--cacheinfo` egy olyan fájl regisztrálására szolgál, amely nincs
+az aktuális munkakönyvtárban. Ez minimum-checkout merge-eléshez
+hasznos.
 
-To pretend you have a file at path with mode and sha1, say:
+Ahhoz, hogy úgy tegyél, mintha lenne egy fájlod a megadott
+útvonalon, mode-dal és sha1-gyel, add ki a következőt:
 
 ----------------
 $ git update-index --add --cacheinfo <mode>,<sha1>,<path>
 ----------------
 
-`--info-only` is used to register files without placing them in the object
-database.  This is useful for status-only repositories.
+A `--info-only` fájlok regisztrálására szolgál anélkül, hogy azokat
+elhelyezné az objektumadatbázisban. Ez status-only repository-khoz
+hasznos.
 
-Both `--cacheinfo` and `--info-only` behave similarly: the index is updated
-but the object database isn't.  `--cacheinfo` is useful when the object is
-in the database but the file isn't available locally.  `--info-only` is
-useful when the file is available, but you do not wish to update the
-object database.
+A `--cacheinfo` és a `--info-only` hasonlóan viselkedik: az index
+frissül, de az objektumadatbázis nem. A `--cacheinfo` akkor hasznos,
+ha az objektum megvan az adatbázisban, de a fájl helyben nem
+érhető el. A `--info-only` akkor hasznos, ha a fájl elérhető, de
+nem akarod frissíteni az objektumadatbázist.
 
 
 USING --INDEX-INFO
 ------------------
 
-`--index-info` is a more powerful mechanism that lets you feed
-multiple entry definitions from the standard input, and designed
-specifically for scripts.  It can take inputs of three formats:
+A `--index-info` egy erősebb mechanizmus, amellyel több
+bejegyzés-definíciót adhatsz be a standard bemenetről, és
+kifejezetten szkriptekhez lett tervezve. Háromféle formátumú
+bemenetet tud fogadni:
 
     . mode SP type SP sha1          TAB path
 +
-This format is to stuff `git ls-tree` output into the index.
+Ez a formátum arra való, hogy a `git ls-tree` kimenetét betömd
+az indexbe.
 
     . mode         SP sha1 SP stage TAB path
 +
-This format is to put higher order stages into the
-index file and matches 'git ls-files --stage' output.
+Ez a formátum arra való, hogy magasabb rendű stage-eket helyezz
+az indexfájlba, és megegyezik a 'git ls-files --stage' kimenetével.
 
     . mode         SP sha1          TAB path
 +
-This format is no longer produced by any Git command, but is
-and will continue to be supported by `update-index --index-info`.
+Ezt a formátumot már egyetlen Git parancs sem állítja elő, de a
+`update-index --index-info` továbbra is támogatja és támogatni
+fogja.
 
-To place a higher stage entry to the index, the path should
-first be removed by feeding a mode=0 entry for the path, and
-then feeding necessary input lines in the third format.
+Ahhoz, hogy egy magasabb stage-ű bejegyzést helyezz az indexbe,
+az útvonalat először el kell távolítani egy mode=0 bejegyzés
+beadásával az útvonalhoz, majd be kell adni a szükséges
+bemeneti sorokat a harmadik formátumban.
 
-For example, starting with this index:
+Például, ha ebből az indexből indulunk ki:
 
 ------------
 $ git ls-files -s
 100644 8a1218a1024a212bb3db30becd860315f9f3ac52 0       frotz
 ------------
 
-you can feed the following input to `--index-info`:
+a következő bemenetet adhatod be a `--index-info`-nak:
 
 ------------
 $ git update-index --index-info
@@ -318,10 +336,11 @@ $ git update-index --index-info
 100755 8a1218a1024a212bb3db30becd860315f9f3ac52 2	frotz
 ------------
 
-The first line of the input feeds 0 as the mode to remove the
-path; the SHA-1 does not matter as long as it is well formatted.
-Then the second and third line feeds stage 1 and stage 2 entries
-for that path.  After the above, we would end up with this:
+A bemenet első sora 0-t ad meg mode-ként az útvonal
+eltávolításához; a SHA-1 nem számít, amíg jól formázott. Ezután a
+második és a harmadik sor beadja az 1-es és a 2-es stage
+bejegyzéseit ehhez az útvonalhoz. A fentiek után ezzel
+végeznénk:
 
 ------------
 $ git ls-files -s
@@ -333,49 +352,54 @@ $ git ls-files -s
 USING ``ASSUME UNCHANGED'' BIT
 ------------------------------
 
-Many operations in Git depend on your filesystem to have an
-efficient `lstat(2)` implementation, so that `st_mtime`
-information for working tree files can be cheaply checked to see
-if the file contents have changed from the version recorded in
-the index file.  Unfortunately, some filesystems have
-inefficient `lstat(2)`.  If your filesystem is one of them, you
-can set "assume unchanged" bit to paths you have not changed to
-cause Git not to do this check.  Note that setting this bit on a
-path does not mean Git will check the contents of the file to
-see if it has changed -- it makes Git to omit any checking and
-assume it has *not* changed.  When you make changes to working
-tree files, you have to explicitly tell Git about it by dropping
-"assume unchanged" bit, either before or after you modify them.
+A Git sok művelete arra épít, hogy a fájlrendszered hatékony
+`lstat(2)` implementációval rendelkezik, hogy a munkakönyvtárbeli
+fájlok `st_mtime` információja olcsón ellenőrizhető legyen annak
+megállapítására, hogy a fájl tartalma megváltozott-e az indexfájlban
+rögzített verzióhoz képest. Sajnos néhány fájlrendszeren az
+`lstat(2)` nem hatékony. Ha a te fájlrendszered is ilyen, akkor
+beállíthatod az "assume unchanged" bitet azokra az útvonalakra,
+amelyeket nem módosítottál, hogy a Git ne végezze el ezt az
+ellenőrzést. Ne feledd, hogy ha ezt a bitet beállítod egy útvonalon,
+az nem azt jelenti, hogy a Git ellenőrizni fogja a fájl tartalmát
+annak megállapítására, hogy megváltozott-e -- ez azt eredményezi,
+hogy a Git kihagy minden ellenőrzést, és feltételezi, hogy *nem*
+változott. Amikor módosítasz munkakönyvtárbeli fájlokat, kifejezetten
+jelezned kell ezt a Gitnek az "assume unchanged" bit levételével,
+akár a módosítás előtt, akár utána.
 
-In order to set "assume unchanged" bit, use `--assume-unchanged`
-option.  To unset, use `--no-assume-unchanged`. To see which files
-have the "assume unchanged" bit set, use `git ls-files -v`
-(see linkgit:git-ls-files[1]).
+Az "assume unchanged" bit beállításához használd a
+`--assume-unchanged` opciót. A visszaállításához használd a
+`--no-assume-unchanged`-et. Hogy megnézd, mely fájloknál van
+beállítva az "assume unchanged" bit, használd a `git ls-files -v`
+parancsot (lásd linkgit:git-ls-files[1]).
 
-The command looks at `core.ignorestat` configuration variable.  When
-this is true, paths updated with `git update-index paths...` and
-paths updated with other Git commands that update both index and
-working tree (e.g. 'git apply --index', 'git checkout-index -u',
-and 'git read-tree -u') are automatically marked as "assume
-unchanged".  Note that "assume unchanged" bit is *not* set if
-`git update-index --refresh` finds the working tree file matches
-the index (use `git update-index --really-refresh` if you want
-to mark them as "assume unchanged").
+A parancs megnézi a `core.ignorestat` konfigurációs változót. Ha ez
+igaz, a `git update-index útvonalak...` paranccsal frissített
+útvonalak, valamint más, az indexet és a munkakönyvtárat egyaránt
+frissítő Git-parancsokkal (pl. 'git apply --index', 'git
+checkout-index -u' és 'git read-tree -u') frissített útvonalak
+automatikusan "assume unchanged"-nek jelölődnek. Ne feledd, hogy az
+"assume unchanged" bit *nem* kerül beállításra, ha a `git
+update-index --refresh` azt találja, hogy a munkakönyvtárbeli fájl
+megegyezik az indexszel (használd a `git update-index
+--really-refresh` parancsot, ha "assume unchanged"-nek akarod
+jelölni őket).
 
-Sometimes users confuse the assume-unchanged bit with the
-skip-worktree bit.  See the final paragraph in the "Skip-worktree bit"
-section below for an explanation of the differences.
+A felhasználók néha összekeverik az assume-unchanged bitet a
+skip-worktree bittel. A különbségek magyarázatáért lásd a lenti
+"Skip-worktree bit" szakasz utolsó bekezdését.
 
 
 EXAMPLES
 --------
-To update and refresh only the files already checked out:
+A már checkoutolt fájlok frissítéséhez és refresheléséhez:
 
 ----------------
 $ git checkout-index -n -f -a && git update-index --ignore-missing --refresh
 ----------------
 
-On an inefficient filesystem with `core.ignorestat` set::
+Nem hatékony fájlrendszeren, ha a `core.ignorestat` be van állítva::
 +
 ------------
 $ git update-index --really-refresh              <1>
@@ -393,218 +417,240 @@ $ git diff --name-only                           <9>
 M foo.c
 ------------
 +
-<1> forces lstat(2) to set "assume unchanged" bits for paths that match index.
-<2> mark the path to be edited.
-<3> this does lstat(2) and finds index matches the path.
-<4> this does lstat(2) and finds index does *not* match the path.
-<5> registering the new version to index sets "assume unchanged" bit.
-<6> and it is assumed unchanged.
-<7> even after you edit it.
-<8> you can tell about the change after the fact.
-<9> now it checks with lstat(2) and finds it has been changed.
+<1> az lstat(2)-t az indexnek megfelelő útvonalak "assume unchanged"
+bitjeinek beállítására kényszeríti.
+<2> megjelöli a szerkesztendő útvonalat.
+<3> ez elvégzi az lstat(2)-t, és azt találja, hogy az index megfelel
+az útvonalnak.
+<4> ez elvégzi az lstat(2)-t, és azt találja, hogy az index *nem*
+felel meg az útvonalnak.
+<5> az új verzió indexbe való regisztrálása beállítja az "assume
+unchanged" bitet.
+<6> és feltételezetten változatlannak számít.
+<7> még azután is, hogy szerkeszted.
+<8> utólag is jelezheted a változást.
+<9> most lstat(2)-vel ellenőriz, és azt találja, hogy megváltozott.
 
 
 SKIP-WORKTREE BIT
 -----------------
 
-Skip-worktree bit can be defined in one (long) sentence: Tell git to
-avoid writing the file to the working directory when reasonably
-possible, and treat the file as unchanged when it is not
-present in the working directory.
+A skip-worktree bit egyetlen (hosszú) mondatban meghatározható:
+mondd meg a gitnek, hogy kerülje a fájl munkakönyvtárba írását,
+amikor ez ésszerűen lehetséges, és kezelje a fájlt változatlanként,
+amikor az nincs jelen a munkakönyvtárban.
 
-Note that not all git commands will pay attention to this bit, and
-some only partially support it.
+Ne feledd, hogy nem minden git-parancs veszi figyelembe ezt a
+bitet, és némelyik csak részlegesen támogatja.
 
-The update-index flags and the read-tree capabilities relating to the
-skip-worktree bit predated the introduction of the
-linkgit:git-sparse-checkout[1] command, which provides a much easier
-way to configure and handle the skip-worktree bits.  If you want to
-reduce your working tree to only deal with a subset of the files in
-the repository, we strongly encourage the use of
-linkgit:git-sparse-checkout[1] in preference to the low-level
-update-index and read-tree primitives.
+Az update-index kapcsolói és a read-tree képességei a
+skip-worktree bittel kapcsolatban megelőzték a
+linkgit:git-sparse-checkout[1] parancs bevezetését, amely sokkal
+egyszerűbb módot biztosít a skip-worktree bitek beállítására és
+kezelésére. Ha a munkakönyvtáradat a repository fájljainak csak
+egy részhalmazára akarod korlátozni, erősen ajánljuk a
+linkgit:git-sparse-checkout[1] használatát az alacsonyszintű
+update-index és read-tree primitívek helyett.
 
-The primary purpose of the skip-worktree bit is to enable sparse
-checkouts, i.e. to have working directories with only a subset of
-paths present.  When the skip-worktree bit is set, Git commands (such
-as `switch`, `pull`, `merge`) will avoid writing these files.
-However, these commands will sometimes write these files anyway in
-important cases such as conflicts during a merge or rebase.  Git
-commands will also avoid treating the lack of such files as an
-intentional deletion; for example `git add -u` will not stage a
-deletion for these files and `git commit -a` will not make a commit
-deleting them either.
+A skip-worktree bit elsődleges célja a sparse checkoutok
+lehetővé tétele, azaz olyan munkakönyvtárak megléte, amelyekben az
+útvonalaknak csak egy része van jelen. Amikor a skip-worktree bit
+be van állítva, a Git-parancsok (mint a `switch`, `pull`, `merge`)
+kerülik ezeknek a fájloknak az írását. Ezek a parancsok azonban
+néha mégis megírják ezeket a fájlokat olyan fontos esetekben, mint
+egy merge vagy rebase közbeni konfliktus. A Git-parancsok azt is
+kerülik, hogy az ilyen fájlok hiányát szándékos törlésként
+kezeljék; például a `git add -u` nem fog törlést stage-elni ezekhez
+a fájlokhoz, és a `git commit -a` sem fog olyan commitot létrehozni,
+amely törli őket.
 
-Although this bit looks similar to assume-unchanged bit, its goal is
-different.  The assume-unchanged bit is for leaving the file in the
-working tree but having Git omit checking it for changes and presuming
-that the file has not been changed (though if it can determine without
-stat'ing the file that it has changed, it is free to record the
-changes).  skip-worktree tells Git to ignore the absence of the file,
-avoid updating it when possible with commands that normally update
-much of the working directory (e.g. `checkout`, `switch`, `pull`,
-etc.), and not have its absence be recorded in commits.  Note that in
-sparse checkouts (setup by `git sparse-checkout` or by configuring
-core.sparseCheckout to true), if a file is marked as skip-worktree in
-the index but is found in the working tree, Git will clear the
-skip-worktree bit for that file.
+Bár ez a bit hasonlónak tűnik az assume-unchanged bithez, a célja
+más. Az assume-unchanged bit arra való, hogy a fájlt a
+munkakönyvtárban hagyva a Git kihagyja a változásainak
+ellenőrzését, és feltételezze, hogy a fájl nem változott (bár ha
+meg tudja állapítani a fájl stat-olása nélkül, hogy megváltozott,
+szabadon rögzítheti a változásokat). A skip-worktree arra utasítja
+a Gitet, hogy hagyja figyelmen kívül a fájl hiányát, kerülje annak
+frissítését, amikor lehetséges, olyan parancsokkal, amelyek
+rendszerint a munkakönyvtár nagy részét frissítik (pl. `checkout`,
+`switch`, `pull` stb.), és a hiányát ne rögzítse a commitokban. Ne
+feledd, hogy sparse checkoutokban (amelyeket a `git
+sparse-checkout` állít be, vagy a core.sparseCheckout true-ra
+állításával) ha egy fájl skip-worktree-ként van megjelölve az
+indexben, de megtalálható a munkakönyvtárban, a Git törölni fogja
+az adott fájl skip-worktree bitjét.
 
 SPLIT INDEX
 -----------
 
-This mode is designed for repositories with very large indexes, and
-aims at reducing the time it takes to repeatedly write these indexes.
+Ez a mód nagyon nagy indexekkel rendelkező repository-khoz készült,
+és célja az ezen indexek ismételt kiírásához szükséges idő
+csökkentése.
 
-In this mode, the index is split into two files, $GIT_DIR/index and
-$GIT_DIR/sharedindex.<SHA-1>. Changes are accumulated in
-$GIT_DIR/index, the split index, while the shared index file contains
-all index entries and stays unchanged.
+Ebben a módban az index két fájlra van felosztva: $GIT_DIR/index és
+$GIT_DIR/sharedindex.<SHA-1>. A változások a $GIT_DIR/index-ben,
+azaz a split indexben halmozódnak, míg a megosztott indexfájl az
+összes index-bejegyzést tartalmazza, és változatlan marad.
 
-All changes in the split index are pushed back to the shared index
-file when the number of entries in the split index reaches a level
-specified by the splitIndex.maxPercentChange config variable (see
-linkgit:git-config[1]).
+A split index minden változása visszakerül a megosztott
+indexfájlba, amikor a split indexben lévő bejegyzések száma eléri
+a splitIndex.maxPercentChange konfigurációs változó által megadott
+szintet (lásd linkgit:git-config[1]).
 
-Each time a new shared index file is created, the old shared index
-files are deleted if their modification time is older than what is
-specified by the splitIndex.sharedIndexExpire config variable (see
-linkgit:git-config[1]).
+Minden alkalommal, amikor új megosztott indexfájl jön létre, a régi
+megosztott indexfájlok törlődnek, ha a módosítási idejük régebbi,
+mint amit a splitIndex.sharedIndexExpire konfigurációs változó
+megad (lásd linkgit:git-config[1]).
 
-To avoid deleting a shared index file that is still used, its
-modification time is updated to the current time every time a new split
-index based on the shared index file is either created or read from.
+Annak elkerülésére, hogy egy még használatban lévő megosztott
+indexfájl törlődjön, a módosítási ideje az aktuális időre frissül
+minden alkalommal, amikor a megosztott indexfájlon alapuló új
+split index létrejön vagy beolvasásra kerül.
 
 UNTRACKED CACHE
 ---------------
 
-This cache is meant to speed up commands that involve determining
-untracked files such as `git status`.
+Ez a cache azon parancsok gyorsítására szolgál, amelyek a nem
+követett fájlok meghatározásával járnak, mint például a `git status`.
 
-This feature works by recording the mtime of the working tree
-directories and then omitting reading directories and stat calls
-against files in those directories whose mtime hasn't changed. For
-this to work the underlying operating system and file system must
-change the `st_mtime` field of directories if files in the directory
-are added, modified or deleted.
+Ez a funkció úgy működik, hogy rögzíti a munkakönyvtár-könyvtárak
+mtime-ját, majd kihagyja a könyvtárolvasásokat és a stat-hívásokat
+azokra a fájlokra vonatkozóan azokban a könyvtárakban, amelyeknek
+az mtime-ja nem változott. Ehhez az alapul szolgáló operációs
+rendszernek és fájlrendszernek meg kell változtatnia a könyvtárak
+`st_mtime` mezőjét, ha a könyvtárban lévő fájlokat hozzáadják,
+módosítják vagy törlik.
 
-You can test whether the filesystem supports that with the
-`--test-untracked-cache` option. The `--untracked-cache` option used
-to implicitly perform that test in older versions of Git, but that's
-no longer the case.
+Azt, hogy a fájlrendszer támogatja-e ezt, a
+`--test-untracked-cache` opcióval tesztelheted. A
+`--untracked-cache` opció a Git régebbi verzióiban implicit módon
+elvégezte ezt a tesztet, de ez már nincs így.
 
-If you want to enable (or disable) this feature, it is easier to use
-the `core.untrackedCache` configuration variable (see
-linkgit:git-config[1]) than using the `--untracked-cache` option to
-`git update-index` in each repository, especially if you want to do so
-across all repositories you use, because you can set the configuration
-variable to `true` (or `false`) in your `$HOME/.gitconfig` just once
-and have it affect all repositories you touch.
+Ha be (vagy ki) akarod kapcsolni ezt a funkciót, egyszerűbb a
+`core.untrackedCache` konfigurációs változót használni (lásd
+linkgit:git-config[1]), mint a `--untracked-cache` opciót a `git
+update-index`-hez minden egyes repository-ban, különösen ha ezt az
+összes általad használt repository-ban meg akarod tenni, mert a
+konfigurációs változót beállíthatod `true`-ra (vagy `false`-ra) a
+`$HOME/.gitconfig`-odban egyszer, és ez minden repository-ra
+hatással lesz, amelyhez hozzányúlsz.
 
-When the `core.untrackedCache` configuration variable is changed, the
-untracked cache is added to or removed from the index the next time a
-command reads the index; while when `--[no-|force-]untracked-cache`
-are used, the untracked cache is immediately added to or removed from
-the index.
+Amikor a `core.untrackedCache` konfigurációs változó megváltozik,
+az untracked cache a következő alkalommal kerül hozzáadásra vagy
+eltávolításra az indexből, amikor egy parancs beolvassa az
+indexet; míg amikor a `--[no-|force-]untracked-cache` van
+használva, az untracked cache azonnal hozzáadásra vagy
+eltávolításra kerül az indexből.
 
-Before 2.17, the untracked cache had a bug where replacing a directory
-with a symlink to another directory could cause it to incorrectly show
-files tracked by git as untracked. See the "status: add a failing test
-showing a core.untrackedCache bug" commit to git.git. A workaround for
-that is (and this might work for other undiscovered bugs in the
-future):
+A 2.17 előtt az untracked cache-nek volt egy hibája, ahol egy
+könyvtár egy másik könyvtárra mutató szimbolikus linkkel való
+helyettesítése azt okozhatta, hogy tévesen nem követettként
+mutatott git által követett fájlokat. Lásd a "status: add a
+failing test showing a core.untrackedCache bug" commitot a
+git.git-ben. Erre az egyik megoldás (és ez a jövőben más, még fel
+nem fedezett hibáknál is működhet):
 
 ----------------
 $ git -c core.untrackedCache=false status
 ----------------
 
-This bug has also been shown to affect non-symlink cases of replacing
-a directory with a file when it comes to the internal structures of
-the untracked cache, but no case has been reported where this resulted in
-wrong "git status" output.
+Ez a hiba bizonyítottan érinti azokat a nem-symlinkes eseteket is,
+amikor egy könyvtárat egy fájllal helyettesítenek, ami az untracked
+cache belső struktúráit illeti, de nem jelentettek olyan esetet,
+amikor ez hibás "git status" kimenetet eredményezett volna.
 
-There are also cases where existing indexes written by git versions
-before 2.17 will reference directories that don't exist anymore,
-potentially causing many "could not open directory" warnings to be
-printed on "git status". These are new warnings for existing issues
-that were previously silently discarded.
+Vannak olyan esetek is, amikor a 2.17 előtti git-verziók által
+írt, meglévő indexek olyan könyvtárakra hivatkoznak, amelyek már
+nem léteznek, ami potenciálisan sok "could not open directory"
+figyelmeztetés kiírását okozhatja a "git status" futtatásakor.
+Ezek új figyelmeztetések meglévő, korábban csendben eldobott
+problémákra.
 
-As with the bug described above the solution is to one-off do a "git
-status" run with `core.untrackedCache=false` to flush out the leftover
-bad data.
+A fent leírt hibához hasonlóan a megoldás az, hogy egyszeri
+alkalommal futtatsz egy "git status"-t `core.untrackedCache=false`
+mellett, hogy kiürítsd a visszamaradt hibás adatokat.
 
 FILE SYSTEM MONITOR
 -------------------
 
-This feature is intended to speed up git operations for repos that have
-large working directories.
+Ez a funkció azoknak a repository-knak a git-műveleteit hivatott
+felgyorsítani, amelyeknek nagy a munkakönyvtáruk.
 
-It enables git to work together with a file system monitor (see
-linkgit:git-fsmonitor{litdd}daemon[1]
-and the
-"fsmonitor-watchman" section of linkgit:githooks[5]) that can
-inform it as to what files have been modified. This enables git to avoid
-having to lstat() every file to find modified files.
+Lehetővé teszi a gitnek, hogy együttműködjön egy fájlrendszer-figyelővel
+(lásd linkgit:git-fsmonitor{litdd}daemon[1]
+és a linkgit:githooks[5] "fsmonitor-watchman" szakaszát), amely
+tájékoztatni tudja arról, mely fájlok módosultak. Ez lehetővé teszi
+a gitnek, hogy elkerülje a lstat() minden egyes fájlon való
+végrehajtását a módosított fájlok megtalálásához.
 
-When used in conjunction with the untracked cache, it can further improve
-performance by avoiding the cost of scanning the entire working directory
-looking for new files.
+Az untracked cache-sel együtt használva tovább javíthatja a
+teljesítményt azáltal, hogy elkerüli a teljes munkakönyvtár új
+fájlok keresésére irányuló átvizsgálásának költségét.
 
-If you want to enable (or disable) this feature, it is easier to use
-the `core.fsmonitor` configuration variable (see
-linkgit:git-config[1]) than using the `--fsmonitor` option to `git
-update-index` in each repository, especially if you want to do so
-across all repositories you use, because you can set the configuration
-variable in your `$HOME/.gitconfig` just once and have it affect all
-repositories you touch.
+Ha be (vagy ki) akarod kapcsolni ezt a funkciót, egyszerűbb a
+`core.fsmonitor` konfigurációs változót használni (lásd
+linkgit:git-config[1]), mint a `--fsmonitor` opciót a `git
+update-index`-hez minden egyes repository-ban, különösen ha ezt az
+összes általad használt repository-ban meg akarod tenni, mert a
+konfigurációs változót beállíthatod a `$HOME/.gitconfig`-odban
+egyszer, és ez minden repository-ra hatással lesz, amelyhez
+hozzányúlsz.
 
-When the `core.fsmonitor` configuration variable is changed, the
-file system monitor is added to or removed from the index the next time
-a command reads the index. When `--[no-]fsmonitor` are used, the file
-system monitor is immediately added to or removed from the index.
+Amikor a `core.fsmonitor` konfigurációs változó megváltozik, a
+fájlrendszer-figyelő a következő alkalommal kerül hozzáadásra vagy
+eltávolításra az indexből, amikor egy parancs beolvassa az
+indexet. Amikor a `--[no-]fsmonitor` van használva, a
+fájlrendszer-figyelő azonnal hozzáadásra vagy eltávolításra kerül
+az indexből.
 
 CONFIGURATION
 -------------
 
-The command honors `core.filemode` configuration variable.  If
-your repository is on a filesystem whose executable bits are
-unreliable, this should be set to 'false' (see linkgit:git-config[1]).
-This causes the command to ignore differences in file modes recorded
-in the index and the file mode on the filesystem if they differ only on
-executable bit.   On such an unfortunate filesystem, you may
-need to use 'git update-index --chmod='.
+A parancs figyelembe veszi a `core.filemode` konfigurációs
+változót. Ha a repository-d olyan fájlrendszeren van, amelynek a
+végrehajtási bitjei megbízhatatlanok, ezt 'false'-ra kell állítani
+(lásd linkgit:git-config[1]). Ez azt eredményezi, hogy a parancs
+figyelmen kívül hagyja az indexben rögzített és a fájlrendszerbeli
+fájlmódok közti eltéréseket, ha azok csak a végrehajtási bitben
+térnek el. Egy ilyen szerencsétlen fájlrendszeren szükséged lehet a
+'git update-index --chmod=' használatára.
 
-Quite similarly, if `core.symlinks` configuration variable is set
-to 'false' (see linkgit:git-config[1]), symbolic links are checked out
-as plain files, and this command does not modify a recorded file mode
-from symbolic link to regular file.
+Hasonlóképp, ha a `core.symlinks` konfigurációs változó 'false'-ra
+van állítva (lásd linkgit:git-config[1]), a szimbolikus linkek
+sima fájlokként kerülnek checkoutolásra, és ez a parancs nem
+módosítja a rögzített fájlmódot szimbolikus linkről szabályos
+fájlra.
 
-The command looks at `core.ignorestat` configuration variable.  See
-'Using "assume unchanged" bit' section above.
+A parancs megnézi a `core.ignorestat` konfigurációs változót. Lásd
+a fenti 'Using "assume unchanged" bit' szakaszt.
 
-The command also looks at `core.trustctime` configuration variable.
-It can be useful when the inode change time is regularly modified by
-something outside Git (file system crawlers and backup systems use
-ctime for marking files processed) (see linkgit:git-config[1]).
+A parancs a `core.trustctime` konfigurációs változót is megnézi.
+Ez akkor lehet hasznos, ha az inode változási idejét rendszeresen
+módosítja valami a Giten kívül (a fájlrendszer-crawlerek és a
+biztonságimentés-rendszerek a ctime-ot használják a feldolgozott
+fájlok megjelölésére) (lásd linkgit:git-config[1]).
 
-The untracked cache extension can be enabled by the
-`core.untrackedCache` configuration variable (see
+Az untracked cache kiterjesztés a `core.untrackedCache`
+konfigurációs változóval kapcsolható be (lásd
 linkgit:git-config[1]).
 
 NOTES
 -----
 
-Users often try to use the assume-unchanged and skip-worktree bits
-to tell Git to ignore changes to files that are tracked.  This does not
-work as expected, since Git may still check working tree files against
-the index when performing certain operations.  In general, Git does not
-provide a way to ignore changes to tracked files, so alternate solutions
-are recommended.
+A felhasználók gyakran próbálják az assume-unchanged és a
+skip-worktree biteket felhasználni arra, hogy megmondják a
+Gitnek, hagyja figyelmen kívül a követett fájlok változásait. Ez
+nem úgy működik, ahogy elvárnánk, mivel a Git bizonyos műveletek
+végrehajtásakor még mindig ellenőrizheti a munkakönyvtárbeli
+fájlokat az indexhez képest. Általánosságban a Git nem biztosít
+módot a követett fájlok változásainak figyelmen kívül hagyására,
+ezért alternatív megoldások ajánlottak.
 
-For example, if the file you want to change is some sort of config file,
-the repository can include a sample config file that can then be copied
-into the ignored name and modified.  The repository can even include a
-script to treat the sample file as a template, modifying and copying it
-automatically.
+Ha például a módosítani kívánt fájl valamiféle konfigurációs
+fájl, a repository tartalmazhat egy minta konfigurációs fájlt,
+amelyet aztán az ignorált névre lehet másolni és módosítani. A
+repository akár tartalmazhat egy szkriptet is, amely a minta
+fájlt sablonként kezeli, automatikusan módosítva és másolva azt.
 
 SEE ALSO
 --------
@@ -614,4 +660,4 @@ linkgit:git-ls-files[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
