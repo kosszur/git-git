@@ -14,519 +14,524 @@ git status [<options>] [--] [<pathspec>...]
 
 DESCRIPTION
 -----------
-Displays paths that have differences between the index file and the
-current HEAD commit, paths that have differences between the working
-tree and the index file, and paths in the working tree that are not
-tracked by Git (and are not ignored by linkgit:gitignore[5]). The first
-are what you _would_ commit by running `git commit`; the second and
-third are what you _could_ commit by running `git add` before running
-`git commit`.
+Megjeleníti azokat az útvonalakat, amelyeknél eltérés van az indexfájl és a
+aktuális HEAD commit között, azokat az útvonalakat, amelyeknél eltérés van a working
+tree és az indexfájl között, valamint azokat az útvonalakat a working tree-ben,
+amelyeket a Git nem követ (és amelyeket a linkgit:gitignore[5] nem hagy figyelmen kívül). Az első
+csoport az, amit a `git commit` futtatásával _commitolnál_; a második és
+harmadik az, amit a `git add`, majd a `git commit` futtatásával
+_commitolhatnál_.
 
 OPTIONS
 -------
 
 `-s`::
 `--short`::
-	Give the output in the short-format.
+	A kimenet megadása rövid formátumban.
 
 `-b`::
 `--branch`::
-	Show the branch and tracking info even in short-format.
+	A branch és a tracking-információ megjelenítése rövid formátumban is.
 
 `--show-stash`::
-	Show the number of entries currently stashed away.
+	A jelenleg elstashelt bejegyzések számának megjelenítése.
 
 `--porcelain[=<version>]`::
-	Give the output in an easy-to-parse format for scripts.
-	This is similar to the short output, but will remain stable
-	across Git versions and regardless of user configuration. See
-	below for details.
+	A kimenet megadása szkriptek számára könnyen elemezhető formátumban.
+	Ez hasonló a rövid kimenethez, de stabil marad a Git-verziók
+	között és a felhasználói konfigurációtól függetlenül. A részletekért lásd
+	lentebb.
 +
-The _<version>_ parameter is used to specify the format version.
-This is optional and defaults to the original version `v1` format.
+A _<version>_ paraméter a formátumverzió megadására szolgál.
+Ez opcionális, és alapból az eredeti `v1` verziójú formátumra áll.
 
 `--long`::
-	Give the output in the long-format. This is the default.
+	A kimenet megadása hosszú formátumban. Ez az alapértelmezés.
 
 `-v`::
 `--verbose`::
-	In addition to the names of files that have been changed, also
-	show the textual changes that are staged to be committed
-	(i.e., like the output of `git diff --cached`). If `-v` is specified
-	twice, then also show the changes in the working tree that
-	have not yet been staged (i.e., like the output of `git diff`).
+	A megváltozott fájlok nevein kívül a
+	commitolásra stage-elt szöveges változtatásokat is megjeleníti
+	(azaz mint a `git diff --cached` kimenete). Ha a `-v` kétszer van megadva,
+	akkor a working tree-ben lévő, még nem stage-elt
+	változtatásokat is megjeleníti (azaz mint a `git diff` kimenete).
 
 `-u[<mode>]`::
 `--untracked-files[=<mode>]`::
-	Show untracked files.
+	A nem követett fájlok megjelenítése.
 +
 --
-The mode parameter is used to specify the handling of untracked files.
-It is optional: it defaults to `all`, and if specified, it must be
-stuck to the option (e.g. `-uno`, but not `-u no`).
+A mode paraméter a nem követett fájlok kezelésének megadására szolgál.
+Opcionális: alapból `all`, és ha meg van adva, az
+opcióhoz kell ragadnia (pl. `-uno`, de nem `-u no`).
 
-The possible options are:
+A lehetséges opciók a következők:
 
-`no`:: Show no untracked files.
-`normal`:: Show untracked files and directories.
-`all`:: Also show individual files in untracked directories.
+`no`:: Egyetlen nem követett fájlt sem jelenít meg.
+`normal`:: Nem követett fájlokat és könyvtárakat jelenít meg.
+`all`:: A nem követett könyvtárakban lévő egyedi fájlokat is megjeleníti.
 
-When `-u` option is not used, untracked files and directories are
-shown (i.e. the same as specifying `normal`), to help you avoid
-forgetting to add newly created files.  Because it takes extra work
-to find untracked files in the filesystem, this mode may take some
-time in a large working tree.
-Consider enabling untracked cache and split index if supported (see
-`git update-index --untracked-cache` and `git update-index
---split-index`), Otherwise you can use `no` to have `git status`
-return more quickly without showing untracked files.
-All usual spellings for Boolean value `true` are taken as `normal`
-and `false` as `no`.
+Ha a `-u` opció nincs használva, a nem követett fájlok és könyvtárak
+megjelennek (azaz ugyanaz, mintha a `normal`-t adnád meg), hogy segítsen elkerülni,
+hogy elfelejtsd hozzáadni az újonnan létrehozott fájlokat.  Mivel extra munkát igényel
+a nem követett fájlok megtalálása a fájlrendszerben, ez a mód eltarthat egy
+ideig egy nagy working tree-ben.
+Fontold meg az untracked cache és a split index engedélyezését, ha támogatott (lásd
+`git update-index --untracked-cache` és `git update-index
+--split-index`), egyébként használhatod a `no`-t, hogy a `git status`
+gyorsabban térjen vissza a nem követett fájlok megjelenítése nélkül.
+A logikai `true` érték minden szokásos írásmódja `normal`-ként,
+a `false` pedig `no`-ként van értelmezve.
 
-The default can be changed using the `status.showUntrackedFiles`
-configuration variable documented in linkgit:git-config[1].
+Az alapértelmezés megváltoztatható a `status.showUntrackedFiles`
+konfigurációs változóval, amely a linkgit:git-config[1] oldalon van dokumentálva.
 --
 
 `--ignore-submodules[=<when>]`::
-	Ignore changes to submodules when looking for changes. _<when>_ can be
-	either `none`, `untracked`, `dirty` or `all`, which is the default.
-`none`;; will consider the submodule modified when it either contains
-	untracked or modified files or its HEAD differs from the commit recorded
-	in the superproject and can be used to override any settings of the
-	`ignore` option in linkgit:git-config[1] or linkgit:gitmodules[5].
-`untracked`;; submodules are not considered dirty when they only
-	contain untracked content (but they are still scanned for modified
-	content).
-`dirty`;; ignore all changes to the work tree of submodules,
-	only changes to the commits stored in the superproject are shown (this was
-	the behavior before 1.7.0).
-`all`;; hide all changes to submodules
-	(and suppresses the output of submodule summaries when the config option
-	`status.submoduleSummary` is set).
+	A submodule-ok változtatásainak figyelmen kívül hagyása a változtatások keresésekor. A _<when>_ lehet
+	`none`, `untracked`, `dirty` vagy `all`, amely az alapértelmezés.
+`none`;; a submodule-t módosítottnak tekinti, ha vagy nem
+	követett vagy módosított fájlokat tartalmaz, vagy a HEAD-je eltér a szuperprojektben rögzített
+	commit-tól, és felülírhatja az `ignore` opció beállításait a
+	linkgit:git-config[1] vagy linkgit:gitmodules[5] oldalon.
+`untracked`;; a submodule-ok nem tekintendők dirtynek, ha csak
+	nem követett tartalmat tartalmaznak (de továbbra is átvizsgálják módosított
+	tartalomért).
+`dirty`;; figyelmen kívül hagyja a submodule-ok work tree-jének összes változtatását,
+	csak a szuperprojektben tárolt commitok változtatásai jelennek meg (ez volt
+	a viselkedés az 1.7.0 előtt).
+`all`;; elrejti a submodule-ok összes változtatását
+	(és elnyomja a submodule-összegzések kimenetét, amikor a
+	`status.submoduleSummary` config-opció be van állítva).
 
 `--ignored[=<mode>]`::
-	Show ignored files as well.
+	A figyelmen kívül hagyott fájlok megjelenítése is.
 +
 --
-The mode parameter is used to specify the handling of ignored files.
-It is optional: it defaults to `traditional`.
+A mode paraméter a figyelmen kívül hagyott fájlok kezelésének megadására szolgál.
+Opcionális: alapból `traditional`.
 
-The possible options are:
+A lehetséges opciók a következők:
 
-`traditional`:: Show ignored files and directories, unless
-`--untracked-files=all` is specified, in which case
- individual files in ignored directories are
- displayed.
-`no`:: Show no ignored files.
-`matching`:: Show ignored files and directories matching an
-ignore pattern.
+`traditional`:: Figyelmen kívül hagyott fájlokat és könyvtárakat jelenít meg, hacsak
+a `--untracked-files=all` nincs megadva, ebben az esetben
+ a figyelmen kívül hagyott könyvtárakban lévő egyedi fájlok
+ jelennek meg.
+`no`:: Egyetlen figyelmen kívül hagyott fájlt sem jelenít meg.
+`matching`:: Egy ignore-mintára illeszkedő figyelmen kívül hagyott fájlokat és
+könyvtárakat jelenít meg.
 +
-Paths that explicitly match an
-ignored pattern are shown. If a directory matches an ignore pattern,
-then it is shown, but not paths contained in the ignored directory. If
-a directory does not match an ignore pattern, but all contents are
-ignored, then the directory is not shown, but all contents are shown.
+Azok az útvonalak jelennek meg, amelyek kifejezetten illeszkednek egy
+ignore-mintára. Ha egy könyvtár illeszkedik egy ignore-mintára,
+akkor megjelenik, de a figyelmen kívül hagyott könyvtárban lévő útvonalak nem. Ha
+egy könyvtár nem illeszkedik egy ignore-mintára, de a teljes tartalma
+figyelmen kívül van hagyva, akkor a könyvtár nem jelenik meg, de a teljes tartalma megjelenik.
 --
 
 `-z`::
-	Terminate entries with _NUL_, instead of _LF_.  This implies
-	the `--porcelain=v1` output format if no other format is given.
+	A bejegyzések lezárása _NUL_-lal, _LF_ helyett.  Ez magában foglalja
+	a `--porcelain=v1` kimeneti formátumot, ha nincs más formátum megadva.
 
 `--column[=<options>]`::
 `--no-column`::
-	Display untracked files in columns. See configuration variable
-	`column.status` for option syntax. `--column` and `--no-column`
-	without options are equivalent to `always` and `never`
-	respectively.
+	A nem követett fájlok oszlopokban való megjelenítése. Az opció-szintaxisért lásd a
+	`column.status` konfigurációs változót. A `--column` és `--no-column`
+	opciók nélkül az `always` és a `never` értékkel
+	egyenértékű, sorrendben.
 
 `--ahead-behind`::
 `--no-ahead-behind`::
-	Display or do not display detailed ahead/behind counts for the
-	branch relative to its upstream branch.  Defaults to `true`.
+	A branch upstream branchéhez viszonyított részletes ahead/behind számok
+	megjelenítése vagy nem megjelenítése.  Alapból `true`.
 
 `--renames`::
 `--no-renames`::
-	Turn on/off rename detection regardless of user configuration.
-	See also linkgit:git-diff[1] `--no-renames`.
+	Az átnevezés-felismerés be- vagy kikapcsolása a felhasználói konfigurációtól függetlenül.
+	Lásd még a linkgit:git-diff[1] `--no-renames` opcióját.
 
 `--find-renames[=<n>]`::
-	Turn on rename detection, optionally setting the similarity
-	threshold.
-	See also linkgit:git-diff[1] `--find-renames`.
+	Az átnevezés-felismerés bekapcsolása, opcionálisan beállítva a
+	hasonlósági küszöböt.
+	Lásd még a linkgit:git-diff[1] `--find-renames` opcióját.
 
 `<pathspec>...`::
-	See the 'pathspec' entry in linkgit:gitglossary[7].
+	Lásd a 'pathspec' bejegyzést a linkgit:gitglossary[7] oldalon.
 
 OUTPUT
 ------
-The output from this command is designed to be used as a commit
-template comment.
-The default, long format, is designed to be human readable,
-verbose and descriptive.  Its contents and format are subject to change
-at any time.
+Ennek a parancsnak a kimenete arra van tervezve, hogy commit-sablon
+kommentként használják.
+Az alapértelmezett, hosszú formátum úgy van megtervezve, hogy ember által olvasható,
+részletes és leíró jellegű legyen.  A tartalma és a formátuma bármikor
+megváltozhat.
 
-The paths mentioned in the output, unlike many other Git commands, are
-made relative to the current directory if you are working in a
-subdirectory (this is on purpose, to help cutting and pasting). See
-the status.relativePaths config option below.
+A kimenetben említett útvonalak, sok más Git-paranccsal ellentétben, az
+aktuális könyvtárhoz képest relatívvá válnak, ha egy alkönyvtárban dolgozol (ez
+szándékos, hogy segítse a kivágást és beillesztést). Lásd
+a status.relativePaths config-opciót lentebb.
 
-Short Format
-~~~~~~~~~~~~
+[[_short_format]]
+Rövid formátum
+~~~~~~~~~~~~~~
 
-In the short-format, the status of each path is shown as one of these
-forms
+Rövid formátumban minden útvonal állapota a következő formák egyikeként
+jelenik meg
 
 	<xy> <path>
 	<xy> <orig-path> -> <path>
 
-where _<orig-path>_ is where the renamed/copied contents came
-from. _<orig-path>_ is only shown when the entry is renamed or
-copied. The _<xy>_ is a two-letter status code `XY`.
+ahol az _<orig-path>_ az, ahonnan az átnevezett/másolt tartalom
+származik. Az _<orig-path>_ csak akkor jelenik meg, ha a bejegyzés át van nevezve vagy
+másolva. Az _<xy>_ egy kétbetűs `XY` állapotkód.
 
-The fields (including the `->`) are separated from each other by a
-single space. If a filename contains whitespace or other nonprintable
-characters, that field will be quoted in the manner of a C string
-literal: surrounded by ASCII double quote (34) characters, and with
-interior special characters backslash-escaped.
+A mezők (beleértve a `->`-t is) egyetlen szóközzel vannak elválasztva
+egymástól. Ha egy fájlnév whitespace-t vagy más nem nyomtatható
+karaktereket tartalmaz, az adott mező C sztring literál módjára lesz
+idézőjelezve: ASCII kettős idézőjel (34) karakterekkel körülvéve, és a
+belső speciális karakterek backslash-sel escape-elve.
 
-There are three different types of states that are shown using this format, and
-each one uses the _<xy>_ syntax differently:
+Ezzel a formátummal háromféle állapot jelenik meg, és
+mindegyik másképp használja az _<xy>_ szintaxist:
 
-* When a merge is occurring and the merge was successful, or outside of a merge
-	situation, `X` shows the status of the index and `Y` shows the status of the
-	working tree.
-* When a merge conflict has occurred and has not yet been resolved, `X` and `Y`
-	show the state introduced by each head of the merge, relative to the common
-	ancestor. These paths are said to be _unmerged_.
-* When a path is untracked, `X` and `Y` are always the same, since they are
-	unknown to the index. `??` is used for untracked paths. Ignored files are
-	not listed unless `--ignored` is used; if it is, ignored files are indicated
-	by `!!`.
+* Amikor egy merge folyamatban van, és a merge sikeres volt, vagy egy merge-helyzeten
+	kívül, az `X` az index állapotát, az `Y` pedig a
+	working tree állapotát mutatja.
+* Amikor egy merge-konfliktus történt, és még nincs feloldva, az `X` és `Y`
+	a merge egyes headjei által bevezetett állapotot mutatja, a közös
+	őshöz viszonyítva. Ezekről az útvonalakról azt mondjuk, hogy _unmerged_ (nem merge-elt).
+* Amikor egy útvonal nem követett, az `X` és `Y` mindig ugyanaz, mivel
+	ismeretlenek az index számára. A `??` a nem követett útvonalakhoz van használva. A figyelmen kívül hagyott fájlok
+	nincsenek felsorolva, hacsak nincs használva a `--ignored`; ha igen, a figyelmen kívül hagyott fájlokat
+	`!!` jelzi.
 
-Note that the term _merge_ here also includes rebases using the default
-`--merge` strategy, cherry-picks, and anything else using the merge machinery.
+Vedd figyelembe, hogy a _merge_ kifejezés itt magában foglalja az alapértelmezett
+`--merge` stratégiát használó rebase-eket, cherry-pickeket, és bármi mást, ami a merge-gépezetet használja.
 
-In the following table, these three classes are shown in separate sections, and
-these characters are used for `X` and `Y` fields for the first two sections that
-show tracked paths:
+A következő táblázatban ez a három osztály külön szakaszokban jelenik meg, és
+ezek a karakterek vannak használva az `X` és `Y` mezőkhöz az első két, követett útvonalakat
+mutató szakaszban:
 
-' ':: unmodified
-`M`:: modified
-`T`:: file type changed (regular file, symbolic link or submodule)
-`A`:: added
-`D`:: deleted
-`R`:: renamed
-`C`:: copied (if config option status.renames is set to "copies")
-`U`:: updated but unmerged
+' ':: változatlan
+`M`:: módosítva
+`T`:: fájltípus megváltozott (normál fájl, szimbolikus link vagy submodule)
+`A`:: hozzáadva
+`D`:: törölve
+`R`:: átnevezve
+`C`:: másolva (ha a status.renames config-opció "copies"-ra van állítva)
+`U`:: frissítve, de nem merge-elve
 
 [cols="^1m,^1m,<2",options="header"]
 |===
-|X        |  Y     |Meaning
-|         |[AMD]   |not updated
-|M        |[ MTD]  |updated in index
-|T        |[ MTD]  |type changed in index
-|A        |[ MTD]  |added to index
-|D        |        |deleted from index
-|R        |[ MTD]  |renamed in index
-|C        |[ MTD]  |copied in index
-|[MTARC]  |        |index and work tree matches
-|[ MTARC] |M       |work tree changed since index
-|[ MTARC] |T       |type changed in work tree since index
-|[ MTARC] |D       |deleted in work tree
-|         |R       |renamed in work tree
-|         |C       |copied in work tree
-|D        |D       |unmerged, both deleted
-|A        |U       |unmerged, added by us
-|U        |D       |unmerged, deleted by them
-|U        |A       |unmerged, added by them
-|D        |U       |unmerged, deleted by us
-|A        |A       |unmerged, both added
-|U        |U       |unmerged, both modified
-|?        |?       |untracked
-|!        |!       |ignored
+|X        |  Y     |Jelentés
+|         |[AMD]   |nincs frissítve
+|M        |[ MTD]  |frissítve az indexben
+|T        |[ MTD]  |típus megváltozott az indexben
+|A        |[ MTD]  |hozzáadva az indexhez
+|D        |        |törölve az indexből
+|R        |[ MTD]  |átnevezve az indexben
+|C        |[ MTD]  |másolva az indexben
+|[MTARC]  |        |index és work tree megegyezik
+|[ MTARC] |M       |work tree megváltozott az index óta
+|[ MTARC] |T       |típus megváltozott a work tree-ben az index óta
+|[ MTARC] |D       |törölve a work tree-ben
+|         |R       |átnevezve a work tree-ben
+|         |C       |másolva a work tree-ben
+|D        |D       |nem merge-elt, mindkettő törölve
+|A        |U       |nem merge-elt, mi adtuk hozzá
+|U        |D       |nem merge-elt, ők törölték
+|U        |A       |nem merge-elt, ők adták hozzá
+|D        |U       |nem merge-elt, mi töröltük
+|A        |A       |nem merge-elt, mindkettő hozzáadva
+|U        |U       |nem merge-elt, mindkettő módosítva
+|?        |?       |nem követett
+|!        |!       |figyelmen kívül hagyva
 |===
 
-Submodules have more state and instead report
+A submodule-oknak több állapotuk van, és ehelyett a következőket jelentik
 
-`M`:: the submodule has a different HEAD than recorded in the index
-`m`:: the submodule has modified content
-`?`:: the submodule has untracked files
+`M`:: a submodule-nak más HEAD-je van, mint ami az indexben rögzítve van
+`m`:: a submodule-nak módosított tartalma van
+`?`:: a submodule-nak nem követett fájljai vannak
 
-This is since modified content or untracked files in a submodule cannot be added
-via `git add` in the superproject to prepare a commit.
+Ez azért van, mert egy submodule módosított tartalma vagy nem követett fájljai nem
+adhatók hozzá a `git add` paranccsal a szuperprojektben egy commit előkészítéséhez.
 
-`m` and `?` are applied recursively. For example if a nested submodule
-in a submodule contains an untracked file, this is reported as `?` as well.
+Az `m` és `?` rekurzívan van alkalmazva. Például ha egy submodule-ban lévő
+beágyazott submodule tartalmaz egy nem követett fájlt, ez is `?`-ként jelenik meg.
 
-If `-b` is used the short-format status is preceded by a line
+Ha a `-b` van használva, a rövid formátumú állapotot egy sor előzi meg
 
 [synopsis]
 {empty}## <branchname> <tracking-info>
 
 
-Porcelain Format Version 1
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_porcelain_format_version_1]]
+Porcelain formátum, 1. verzió
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1 porcelain format is similar to the short format, but is guaranteed
-not to change in a backwards-incompatible way between Git versions or
-based on user configuration. This makes it ideal for parsing by scripts.
-The description of the short format above also describes the porcelain
-format, with a few exceptions:
+Az 1. verziójú porcelain formátum hasonló a rövid formátumhoz, de garantáltan
+nem változik visszafelé nem kompatibilis módon a Git-verziók között vagy
+a felhasználói konfiguráció alapján. Ez ideálissá teszi szkriptek általi elemzésre.
+A fenti rövid formátum leírása a porcelain
+formátumot is leírja, néhány kivétellel:
 
-1. The user's `color.status` configuration is not respected; color will
-   always be off.
+1. A felhasználó `color.status` konfigurációja nincs figyelembe véve; a szín
+   mindig ki lesz kapcsolva.
 
-2. The user's `status.relativePaths` configuration is not respected; paths
-   shown will always be relative to the repository root.
+2. A felhasználó `status.relativePaths` konfigurációja nincs figyelembe véve; a
+   megjelenített útvonalak mindig a repository gyökeréhez képest relatívak lesznek.
 
-There is also an alternate `-z` format recommended for machine parsing. In
-that format, the status field is the same, but some other things
-change.  First, the `->` is omitted from rename entries and the field
-order is reversed (e.g `from -> to` becomes `to from`). Second, a _NUL_
-(ASCII 0) follows each filename, replacing space as a field separator
-and the terminating newline (but a space still separates the status
-field from the first filename).  Third, filenames containing special
-characters are not specially formatted; no quoting or
-backslash-escaping is performed.
+Van egy alternatív `-z` formátum is, amelyet gépi elemzéshez ajánlanak. Ebben
+a formátumban az állapotmező ugyanaz, de néhány más dolog
+megváltozik.  Először, a `->` kimarad az átnevezési bejegyzésekből, és a mező
+sorrendje megfordul (pl. a `from -> to` `to from`-má válik). Másodszor, minden fájlnevet egy _NUL_
+(ASCII 0) követ, amely szóköz helyett mezőelválasztóként
+és a lezáró sortörés helyett szolgál (de egy szóköz továbbra is elválasztja az állapot-
+mezőt az első fájlnévtől).  Harmadszor, a speciális
+karaktereket tartalmazó fájlnevek nincsenek speciálisan formázva; nincs idézőjelezés vagy
+backslash-escapelés.
 
-Any submodule changes are reported as modified `M` instead of `m` or single `?`.
+Bármely submodule-változtatás módosítottként (`M`) van jelentve, nem `m`-ként vagy önálló `?`-ként.
 
-Porcelain Format Version 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_porcelain_format_version_2]]
+Porcelain formátum, 2. verzió
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 2 format adds more detailed information about the state of
-the worktree and changed items.  Version 2 also defines an extensible
-set of easy to parse optional headers.
+A 2. verziójú formátum részletesebb információt ad a worktree
+állapotáról és a megváltozott elemekről.  A 2. verzió emellett egy bővíthető,
+könnyen elemezhető opcionális fejléc-készletet is definiál.
 
-Header lines start with `#` and are added in response to specific
-command line arguments.  Parsers should ignore headers they
-don't recognize.
+A fejlécsorok `#`-tal kezdődnek, és bizonyos parancssori argumentumokra
+válaszul kerülnek hozzáadásra.  Az elemzőknek figyelmen kívül kell hagyniuk
+azokat a fejléceket, amelyeket nem ismernek fel.
 
-Branch Headers
-^^^^^^^^^^^^^^
+[[_branch_headers]]
+Branch-fejlécek
+^^^^^^^^^^^^^^^
 
-If `--branch` is given, a series of header lines are printed with
-information about the current branch.
+Ha a `--branch` meg van adva, egy sor fejlécsor kerül kiírásra az
+aktuális branchről szóló információval.
 
 [cols="<1,<1",options="header"]
 |===
-|Line                                     |Notes
-|`# branch.oid <commit> \| (initial)`     |Current commit.
-|`# branch.head <branch> \| (detached)`   |Current branch.
-|`# branch.upstream <upstream-branch>`    |If upstream is set.
-|`# branch.ab +<ahead> -<behind>`         |If upstream is set and
-					  the commit is present.
+|Sor                                      |Megjegyzések
+|`# branch.oid <commit> \| (initial)`     |Aktuális commit.
+|`# branch.head <branch> \| (detached)`   |Aktuális branch.
+|`# branch.upstream <upstream-branch>`    |Ha az upstream be van állítva.
+|`# branch.ab +<ahead> -<behind>`         |Ha az upstream be van állítva, és
+					  a commit jelen van.
 |===
 
-Stash Information
-^^^^^^^^^^^^^^^^^
+[[_stash_information]]
+Stash-információ
+^^^^^^^^^^^^^^^^
 
-If `--show-stash` is given, one line is printed showing the number of stash
-entries if non-zero:
+Ha a `--show-stash` meg van adva, egy sor kerül kiírásra, amely megmutatja a
+stash-bejegyzések számát, ha az nem nulla:
 
     # stash <N>
 
-Changed Tracked Entries
-^^^^^^^^^^^^^^^^^^^^^^^
+[[_changed_tracked_entries]]
+Megváltozott követett bejegyzések
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Following the headers, a series of lines are printed for tracked
-entries.  One of three different line formats may be used to describe
-an entry depending on the type of change.  Tracked entries are printed
-in an undefined order; parsers should allow for a mixture of the 3
-line types in any order.
+A fejlécek után egy sor sor kerül kiírásra a követett
+bejegyzésekhez.  Háromféle sorformátum egyike használható egy bejegyzés
+leírására, a változtatás típusától függően.  A követett bejegyzések
+meghatározatlan sorrendben kerülnek kiírásra; az elemzőknek fel kell készülniük a 3
+sortípus tetszőleges sorrendű keveredésére.
 
-Ordinary changed entries have the following format:
+A hétköznapi megváltozott bejegyzések formátuma a következő:
 
 [synopsis]
 1 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <path>
 
-Renamed or copied entries have the following format:
+Az átnevezett vagy másolt bejegyzések formátuma a következő:
 
 [synopsis]
 2 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <X><score> <path><sep><origPath>
 
 [cols="<1,<1a",options="header"]
 |===
-|Field       | Meaning
+|Mező        | Jelentés
 
 |_<XY>_
-|A 2 character field containing the staged and
-unstaged XY values described in the short format,
-with unchanged indicated by a "." rather than
-a space.
+|Egy 2 karakteres mező, amely a rövid formátumban leírt
+stage-elt és nem stage-elt XY értékeket tartalmazza,
+a változatlant "." jelöli szóköz
+helyett.
 |_<sub>_
-|A 4 character field describing the submodule state.
-"N..." when the entry is not a submodule.
-`S<c><m><u>` when the entry is a submodule.
+|Egy 4 karakteres mező, amely a submodule állapotát írja le.
+"N..." amikor a bejegyzés nem submodule.
+`S<c><m><u>` amikor a bejegyzés submodule.
 
-* _<c>_ is "C" if the commit changed; otherwise ".".
-* _<m>_ is "M" if it has tracked changes; otherwise ".".
-* _<u>_ is "U" if there are untracked changes; otherwise ".".
-|_<mH>_       |The octal file mode in HEAD.
-|_<mI>_       |The octal file mode in the index.
-|_<mW>_       |The octal file mode in the worktree.
-|_<hH>_       |The object name in HEAD.
-|_<hI>_       |The object name in the index.
-|_<X><score>_ |The rename or copy score (denoting the percentage
-of similarity between the source and target of the
-move or copy). For example "R100" or "C75".
+* Az _<c>_ "C", ha a commit megváltozott; egyébként ".".
+* Az _<m>_ "M", ha vannak követett változtatásai; egyébként ".".
+* Az _<u>_ "U", ha vannak nem követett változtatások; egyébként ".".
+|_<mH>_       |A HEAD-ben lévő oktális fájlmód.
+|_<mI>_       |Az indexben lévő oktális fájlmód.
+|_<mW>_       |A worktree-ben lévő oktális fájlmód.
+|_<hH>_       |A HEAD-ben lévő objektumnév.
+|_<hI>_       |Az indexben lévő objektumnév.
+|_<X><score>_ |Az átnevezési vagy másolási pontszám (a mozgatás vagy másolás
+forrása és célja közötti hasonlóság százalékát
+jelöli). Például "R100" vagy "C75".
 |_<path>_
-|The pathname.  In a renamed/copied entry, this is the target path.
+|Az útvonalnév.  Egy átnevezett/másolt bejegyzésben ez a célútvonal.
 |_<sep>_
-|When the `-z` option is used, the 2 pathnames are separated
-with a _NUL_ (ASCII 0x00) byte; otherwise, a _TAB_ (ASCII 0x09)
-byte separates them.
+|Amikor a `-z` opció van használva, a 2 útvonalnevet egy _NUL_
+(ASCII 0x00) bájt választja el; egyébként egy _TAB_ (ASCII 0x09)
+bájt választja el őket.
 |_<origPath>_
-|The pathname in the commit at HEAD or in the index.
-This is only present in a renamed/copied entry, and
-tells where the renamed/copied contents came from.
+|Az útvonalnév a HEAD-nél lévő commitban vagy az indexben.
+Ez csak egy átnevezett/másolt bejegyzésben van jelen, és
+megmondja, honnan származik az átnevezett/másolt tartalom.
 |===
 
-Unmerged entries have the following format; the first character is
-a "u" to distinguish from ordinary changed entries.
+A nem merge-elt bejegyzések formátuma a következő; az első karakter egy
+"u", hogy megkülönböztesse a hétköznapi megváltozott bejegyzésektől.
 
 [synopsis]
 u <XY> <sub> <m1> <m2> <m3> <mW> <h1> <h2> <h3> <path>
 
 [cols="<1,<1a",options="header"]
 |===
-|Field       |Meaning
-|_<XY>_      |A 2 character field describing the conflict type
-	    as described in the short format.
-|_<sub>_     |A 4 character field describing the submodule state
-	    as described above.
-|_<m1>_      |The octal file mode in stage 1.
-|_<m2>_      |The octal file mode in stage 2.
-|_<m3>_      |The octal file mode in stage 3.
-|_<mW>_      |The octal file mode in the worktree.
-|_<h1>_      |The object name in stage 1.
-|_<h2>_      |The object name in stage 2.
-|_<h3>_      |The object name in stage 3.
-|_<path>_    |The pathname.
+|Mező        |Jelentés
+|_<XY>_      |Egy 2 karakteres mező, amely a konfliktus típusát írja le,
+	    ahogy a rövid formátumban le van írva.
+|_<sub>_     |Egy 4 karakteres mező, amely a submodule állapotát írja le,
+	    ahogy fentebb le van írva.
+|_<m1>_      |Az 1. stage-ben lévő oktális fájlmód.
+|_<m2>_      |A 2. stage-ben lévő oktális fájlmód.
+|_<m3>_      |A 3. stage-ben lévő oktális fájlmód.
+|_<mW>_      |A worktree-ben lévő oktális fájlmód.
+|_<h1>_      |Az 1. stage-ben lévő objektumnév.
+|_<h2>_      |A 2. stage-ben lévő objektumnév.
+|_<h3>_      |A 3. stage-ben lévő objektumnév.
+|_<path>_    |Az útvonalnév.
 |===
 
-Other Items
-^^^^^^^^^^^
+[[_other_items]]
+Egyéb elemek
+^^^^^^^^^^^^
 
-Following the tracked entries (and if requested), a series of
-lines will be printed for untracked and then ignored items
-found in the worktree.
+A követett bejegyzések után (és ha kérték), egy sor sor kerül kiírásra a
+worktree-ben talált nem követett, majd figyelmen kívül hagyott elemekhez.
 
-Untracked items have the following format:
+A nem követett elemek formátuma a következő:
 
     ? <path>
 
-Ignored items have the following format:
+A figyelmen kívül hagyott elemek formátuma a következő:
 
     ! <path>
 
-Pathname Format Notes and -z
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_pathname_format_notes_and_z]]
+Útvonalnév-formátum megjegyzések és a -z
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the `-z` option is given, pathnames are printed as is and
-without any quoting and lines are terminated with a _NUL_ (ASCII 0x00)
-byte.
+Amikor a `-z` opció meg van adva, az útvonalnevek úgy vannak kiírva, ahogy vannak,
+mindenféle idézőjelezés nélkül, és a sorok egy _NUL_ (ASCII 0x00)
+bájttal vannak lezárva.
 
-Without the `-z` option, pathnames with "unusual" characters are
-quoted as explained for the configuration variable `core.quotePath`
-(see linkgit:git-config[1]).
+A `-z` opció nélkül a "szokatlan" karaktereket tartalmazó útvonalnevek
+idézőjelezve vannak, ahogy az a `core.quotePath` konfigurációs változónál
+el van magyarázva (lásd linkgit:git-config[1]).
 
 
 CONFIGURATION
 -------------
 
-The command honors `color.status` (or `status.color` -- they
-mean the same thing and the latter is kept for backward
-compatibility) and `color.status.<slot>` configuration variables
-to colorize its output.
+A parancs figyelembe veszi a `color.status` (vagy `status.color` -- ugyanazt
+jelentik, és az utóbbi a visszafelé kompatibilitás miatt maradt
+meg) és a `color.status.<slot>` konfigurációs változókat
+a kimenete színezéséhez.
 
-If the config variable `status.relativePaths` is set to false, then all
-paths shown are relative to the repository root, not to the current
-directory.
+Ha a `status.relativePaths` config-változó false-ra van állítva, akkor az összes
+megjelenített útvonal a repository gyökeréhez képest relatív, nem az aktuális
+könyvtárhoz képest.
 
-If `status.submoduleSummary` is set to a non zero number or true (identical
-to -1 or an unlimited number), the submodule summary will be enabled for
-the long format and a summary of commits for modified submodules will be
-shown (see `--summary-limit` option of linkgit:git-submodule[1]). Please note
-that the summary output from the status command will be suppressed for all
-submodules when `diff.ignoreSubmodules` is set to `all` or only for those
-submodules where `submodule.<name>.ignore=all`. To also view the summary for
-ignored submodules you can either use the `--ignore-submodules=dirty` command
-line option or the 'git submodule summary' command, which shows a similar
-output but does not honor these settings.
+Ha a `status.submoduleSummary` nem nulla számra vagy true-ra van állítva (ami megegyezik
+a -1-gyel vagy egy korlátlan számmal), a submodule-összegzés engedélyezve lesz
+a hosszú formátumhoz, és a módosított submodule-ok commitjainak összegzése
+megjelenik (lásd a linkgit:git-submodule[1] `--summary-limit` opcióját). Vedd figyelembe,
+hogy a status parancs összegzés-kimenete el lesz nyomva minden
+submodule-ra, amikor a `diff.ignoreSubmodules` `all`-ra van állítva, vagy csak azokra a
+submodule-okra, ahol `submodule.<name>.ignore=all`. Ahhoz, hogy a figyelmen kívül hagyott
+submodule-ok összegzését is megnézd, használhatod a `--ignore-submodules=dirty` parancssori
+opciót, vagy a 'git submodule summary' parancsot, amely hasonló
+kimenetet mutat, de nem veszi figyelembe ezeket a beállításokat.
 
 BACKGROUND REFRESH
 ------------------
 
-By default, `git status` will automatically refresh the index, updating
-the cached stat information from the working tree and writing out the
-result. Writing out the updated index is an optimization that isn't
-strictly necessary (`status` computes the values for itself, but writing
-them out is just to save subsequent programs from repeating our
-computation). When `status` is run in the background, the lock held
-during the write may conflict with other simultaneous processes, causing
-them to fail. Scripts running `status` in the background should consider
-using `git --no-optional-locks status` (see linkgit:git[1] for details).
+Alapból a `git status` automatikusan frissíti az indexet, frissítve
+a working tree-ből származó gyorsítótárazott stat-információt, és kiírva az
+eredményt. A frissített index kiírása egy olyan optimalizálás, amely nem
+feltétlenül szükséges (a `status` maga számítja ki az értékeket, de a
+kiírásuk csak azért van, hogy a későbbi programoknak ne kelljen megismételniük a mi
+számításunkat). Amikor a `status` a háttérben fut, az írás közben tartott zár
+ütközhet más egyidejű folyamatokkal, ami azok meghiúsulását okozhatja.
+A `status`-t a háttérben futtató szkripteknek érdemes megfontolniuk a
+`git --no-optional-locks status` használatát (a részletekért lásd linkgit:git[1]).
 
 UNTRACKED FILES AND PERFORMANCE
 -------------------------------
 
-`git status` can be very slow in large worktrees if/when it
-needs to search for untracked files and directories. There are
-many configuration options available to speed this up by either
-avoiding the work or making use of cached results from previous
-Git commands. There is no single optimum set of settings right
-for everyone. We'll list a summary of the relevant options to help
-you, but before going into the list, you may want to run `git status`
-again, because your configuration may already be caching `git status`
-results, so it could be faster on subsequent runs.
+A `git status` nagyon lassú lehet nagy worktree-kben, ha/amikor
+nem követett fájlokat és könyvtárakat kell keresnie. Sok
+konfigurációs opció áll rendelkezésre ennek felgyorsítására, akár a munka
+elkerülésével, akár a korábbi Git-parancsok gyorsítótárazott eredményeinek felhasználásával. Nincs
+egyetlen optimális beállításkészlet, amely mindenkinek megfelelne. Felsoroljuk
+a releváns opciók összefoglalóját, hogy segítsünk, de mielőtt a listára térnénk,
+érdemes lehet újra futtatni a `git status`-t, mert a konfigurációd
+gyorsítótárazhatja már a `git status` eredményeit, így gyorsabb lehet a további futtatásoknál.
 
-* The `--untracked-files=no` flag or the
-	`status.showUntrackedFiles=no` config (see above for both):
-	indicate that `git status` should not report untracked
-	files. This is the fastest option. `git status` will not list
-	the untracked files, so you need to be careful to remember if
-	you create any new files and manually `git add` them.
+* A `--untracked-files=no` flag vagy a
+	`status.showUntrackedFiles=no` config (mindkettőt lásd fentebb):
+	azt jelzi, hogy a `git status` ne jelentsen nem követett
+	fájlokat. Ez a leggyorsabb opció. A `git status` nem fogja felsorolni
+	a nem követett fájlokat, így oda kell figyelned, hogy emlékezz, ha
+	új fájlokat hozol létre, és kézzel `git add`-old őket.
 
-* `advice.statusUoption=false` (see linkgit:git-config[1]):
-	setting this variable to `false` disables the warning message
-	given when enumerating untracked files takes more than 2
-	seconds.  In a large project, it may take longer and the user
-	may have already accepted the trade off (e.g. using `-uno` may
-	not be an acceptable option for the user), in which case, there
-	is no point issuing the warning message, and in such a case,
-	disabling the warning may be the best.
+* `advice.statusUoption=false` (lásd linkgit:git-config[1]):
+	ennek a változónak `false`-ra állítása letiltja azt a figyelmeztető üzenetet,
+	amely akkor jelenik meg, amikor a nem követett fájlok felsorolása 2
+	másodpercnél tovább tart.  Egy nagy projektben ez tovább tarthat, és a felhasználó
+	esetleg már elfogadta ezt a kompromisszumot (pl. a `-uno` használata nem biztos, hogy
+	elfogadható opció a felhasználó számára), ebben az esetben nincs
+	értelme kiadni a figyelmeztető üzenetet, és ilyen esetben
+	a figyelmeztetés letiltása lehet a legjobb.
 
-* `core.untrackedCache=true` (see linkgit:git-update-index[1]):
-	enable the untracked cache feature and only search directories
-	that have been modified since the previous `git status` command.
-	Git remembers the set of untracked files within each directory
-	and assumes that if a directory has not been modified, then
-	the set of untracked files within has not changed.  This is much
-	faster than enumerating the contents of every directory, but still
-	not without cost, because Git still has to search for the set of
-	modified directories. The untracked cache is stored in the
-	`.git/index` file. The reduced cost of searching for untracked
-	files is offset slightly by the increased size of the index and
-	the cost of keeping it up-to-date. That reduced search time is
-	usually worth the additional size.
+* `core.untrackedCache=true` (lásd linkgit:git-update-index[1]):
+	engedélyezi az untracked cache funkciót, és csak azokat a könyvtárakat
+	keresi, amelyek megváltoztak az előző `git status` parancs óta.
+	A Git megjegyzi az egyes könyvtárakon belüli nem követett fájlok halmazát,
+	és feltételezi, hogy ha egy könyvtár nem változott, akkor
+	a benne lévő nem követett fájlok halmaza sem változott.  Ez sokkal
+	gyorsabb, mint minden könyvtár tartalmának felsorolása, de nem
+	költségmentes, mert a Gitnek még mindig meg kell keresnie a
+	megváltozott könyvtárak halmazát. Az untracked cache a
+	`.git/index` fájlban van tárolva. A nem követett
+	fájlok keresésének csökkentett költségét kissé ellensúlyozza az index megnövekedett mérete és
+	a naprakészen tartás költsége. Az a csökkentett keresési idő
+	általában megéri a további méretet.
 
-* `core.untrackedCache=true` and `core.fsmonitor=true` or
-	`core.fsmonitor=<hook-command-pathname>` (see
-	linkgit:git-update-index[1]): enable both the untracked cache
-	and FSMonitor features and only search directories that have
-	been modified since the previous `git status` command.  This
-	is faster than using just the untracked cache alone because
-	Git can also avoid searching for modified directories.  Git
-	only has to enumerate the exact set of directories that have
-	changed recently. While the FSMonitor feature can be enabled
-	without the untracked cache, the benefits are greatly reduced
-	in that case.
+* `core.untrackedCache=true` és `core.fsmonitor=true` vagy
+	`core.fsmonitor=<hook-command-pathname>` (lásd
+	linkgit:git-update-index[1]): engedélyezi mind az untracked cache,
+	mind az FSMonitor funkciókat, és csak azokat a könyvtárakat keresi, amelyek
+	megváltoztak az előző `git status` parancs óta.  Ez
+	gyorsabb, mint csak az untracked cache önmagában, mert
+	a Git a megváltozott könyvtárak keresését is elkerülheti.  A Gitnek
+	csak azt a pontos könyvtárhalmazt kell felsorolnia, amely nemrég
+	megváltozott. Bár az FSMonitor funkció engedélyezhető az untracked cache
+	nélkül is, az előnyök ebben az esetben nagymértékben csökkennek.
 
-Note that after you turn on the untracked cache and/or FSMonitor
-features it may take a few `git status` commands for the various
-caches to warm up before you see improved command times.  This is
-normal.
+Vedd figyelembe, hogy miután bekapcsolod az untracked cache-t és/vagy az FSMonitor
+funkciókat, eltarthat néhány `git status` parancsig, amíg a különböző
+gyorsítótárak felmelegednek, mielőtt javuló parancsidőket látnál.  Ez
+normális.
 
 SEE ALSO
 --------
@@ -534,4 +539,4 @@ linkgit:gitignore[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

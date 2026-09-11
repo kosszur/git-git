@@ -15,155 +15,161 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Git supports two HTTP based transfer protocols.  A "dumb" protocol
-which requires only a standard HTTP server on the server end of the
-connection, and a "smart" protocol which requires a Git aware CGI
-(or server module).  This document describes both protocols.
+A Git két HTTP-alapú átviteli protokollt támogat.  Egy "dumb" protokollt,
+amely csak egy szabványos HTTP-szervert igényel a kapcsolat
+szerveroldalán, és egy "smart" protokollt, amely egy Git-tudatos CGI-t
+(vagy szervermodult) igényel.  Ez a dokumentum mindkét protokollt leírja.
 
-As a design feature smart clients can automatically upgrade "dumb"
-protocol URLs to smart URLs.  This permits all users to have the
-same published URL, and the peers automatically select the most
-efficient transport available to them.
+Tervezési jellemzőként a smart kliensek automatikusan frissíteni tudják a "dumb"
+protokoll URL-eket smart URL-ekké.  Ez lehetővé teszi, hogy minden felhasználónak
+ugyanaz a közzétett URL-je legyen, és a peerek automatikusan a számukra
+elérhető leghatékonyabb átvitelt választják.
 
 
-URL Format
-----------
+[[_url_format]]
+URL-formátum
+------------
 
-URLs for Git repositories accessed by HTTP use the standard HTTP
-URL syntax documented by RFC 1738, so they are of the form:
+A HTTP-n keresztül elért Git repository-k URL-jei a szabványos HTTP
+URL-szintaxist használják, amelyet az RFC 1738 dokumentál, tehát a következő
+alakúak:
 
   http://<host>:<port>/<path>?<searchpart>
 
-Within this documentation the placeholder `$GIT_URL` will stand for
-the http:// repository URL entered by the end-user.
+Ebben a dokumentációban a `$GIT_URL` helyőrző a végfelhasználó által
+megadott http:// repository URL-t jelöli.
 
-Servers SHOULD handle all requests to locations matching `$GIT_URL`, as
-both the "smart" and "dumb" HTTP protocols used by Git operate
-by appending additional path components onto the end of the user
-supplied `$GIT_URL` string.
+A szervereknek SHOULD kezelniük minden, a `$GIT_URL`-lel egyező helyekre
+irányuló kérést, mivel a Git által használt "smart" és "dumb" HTTP-protokollok
+egyaránt úgy működnek, hogy további útvonal-komponenseket fűznek a
+felhasználó által megadott `$GIT_URL` sztring végéhez.
 
-An example of a dumb client requesting a loose object:
+Egy dumb kliens példája, amely egy laza objektumot kér:
 
   $GIT_URL:     http://example.com:8080/git/repo.git
   URL request:  http://example.com:8080/git/repo.git/objects/d0/49f6c27a2244e12041955e262a404c7faba355
 
-An example of a smart request to a catch-all gateway:
+Egy smart kérés példája egy catch-all átjáróhoz:
 
   $GIT_URL:     http://example.com/daemon.cgi?svc=git&q=
   URL request:  http://example.com/daemon.cgi?svc=git&q=/info/refs&service=git-receive-pack
 
-An example of a request to a submodule:
+Egy submodule-hoz intézett kérés példája:
 
   $GIT_URL:     http://example.com/git/repo.git/path/submodule.git
   URL request:  http://example.com/git/repo.git/path/submodule.git/info/refs
 
-Clients MUST strip a trailing `/`, if present, from the user supplied
-`$GIT_URL` string to prevent empty path tokens (`//`) from appearing
-in any URL sent to a server.  Compatible clients MUST expand
-`$GIT_URL/info/refs` as `foo/info/refs` and not `foo//info/refs`.
+A klienseknek MUST eltávolítaniuk a záró `/`-t, ha van, a felhasználó
+által megadott `$GIT_URL` sztringből, hogy megelőzzék üres útvonal-tokenek (`//`)
+megjelenését bármely, a szerverhez küldött URL-ben.  A kompatibilis klienseknek
+MUST kibontaniuk a `$GIT_URL/info/refs`-t `foo/info/refs`-ként, nem `foo//info/refs`-ként.
 
 
 Authentication
 --------------
 
-Standard HTTP authentication is used if authentication is required
-to access a repository, and MAY be configured and enforced by the
-HTTP server software.
+Szabványos HTTP-hitelesítés van használva, ha hitelesítés szükséges
+egy repository eléréséhez, és ezt a HTTP-szerverszoftver MAY konfigurálhatja és
+kényszerítheti ki.
 
-Because Git repositories are accessed by standard path components
-server administrators MAY use directory based permissions within
-their HTTP server to control repository access.
+Mivel a Git repository-kat szabványos útvonal-komponensekkel érik el,
+a szerver adminisztrátorok MAY könyvtár-alapú jogosultságokat használhatnak a
+HTTP-szerverükön belül a repository-hozzáférés szabályozására.
 
-Clients SHOULD support Basic authentication as described by RFC 2617.
-Servers SHOULD support Basic authentication by relying upon the
-HTTP server placed in front of the Git server software.
+A klienseknek SHOULD támogatniuk az RFC 2617-ben leírt Basic hitelesítést.
+A szervereknek SHOULD támogatniuk a Basic hitelesítést a Git-szerverszoftver
+elé helyezett HTTP-szerverre támaszkodva.
 
-Servers SHOULD NOT require HTTP cookies for the purposes of
-authentication or access control.
+A szervereknek SHOULD NOT megkövetelniük HTTP-sütiket hitelesítési
+vagy hozzáférés-szabályozási célokra.
 
-Clients and servers MAY support other common forms of HTTP based
-authentication, such as Digest authentication.
+A kliensek és szerverek MAY támogathatnak más gyakori HTTP-alapú
+hitelesítési formákat is, mint például a Digest hitelesítést.
 
 
 SSL
 ---
 
-Clients and servers SHOULD support SSL, particularly to protect
-passwords when relying on Basic HTTP authentication.
+A klienseknek és szervereknek SHOULD támogatniuk az SSL-t, különösen a
+jelszavak védelmére, amikor Basic HTTP-hitelesítésre támaszkodnak.
 
 
-Session State
--------------
+[[_session_state]]
+Munkamenet-állapot
+------------------
 
-The Git over HTTP protocol (much like HTTP itself) is stateless
-from the perspective of the HTTP server side.  All state MUST be
-retained and managed by the client process.  This permits simple
-round-robin load-balancing on the server side, without needing to
-worry about state management.
+A Git-over-HTTP protokoll (nagyon hasonlóan magához a HTTP-hez) állapotmentes
+a HTTP-szerveroldal szempontjából.  Minden állapotot MUST a kliensfolyamatnak
+megőriznie és kezelnie.  Ez lehetővé teszi az egyszerű round-robin
+terheléselosztást a szerveroldalon, anélkül hogy az állapotkezeléssel kellene
+foglalkozni.
 
-Clients MUST NOT require state management on the server side in
-order to function correctly.
+A klienseknek MUST NOT megkövetelniük állapotkezelést a szerveroldalon a
+helyes működéshez.
 
-Servers MUST NOT require HTTP cookies in order to function correctly.
-Clients MAY store and forward HTTP cookies during request processing
-as described by RFC 2616 (HTTP/1.1).  Servers SHOULD ignore any
-cookies sent by a client.
+A szervereknek MUST NOT megkövetelniük HTTP-sütiket a helyes működéshez.
+A kliensek MAY tárolhatnak és továbbíthatnak HTTP-sütiket a kérésfeldolgozás során,
+ahogy azt az RFC 2616 (HTTP/1.1) leírja.  A szervereknek SHOULD figyelmen kívül
+hagyniuk minden, a kliens által küldött sütit.
 
 
-General Request Processing
+[[_general_request_processing]]
+Általános kérésfeldolgozás
 --------------------------
 
-Except where noted, all standard HTTP behavior SHOULD be assumed
-by both client and server.  This includes (but is not necessarily
-limited to):
+Ahol nincs másképp jelezve, minden szabványos HTTP-viselkedést SHOULD
+feltételezni mind a kliens, mind a szerver részéről.  Ez magában foglalja
+(de nem feltétlenül korlátozódik rá):
 
-If there is no repository at `$GIT_URL`, or the resource pointed to by a
-location matching `$GIT_URL` does not exist, the server MUST NOT respond
-with `200 OK` response.  A server SHOULD respond with
-`404 Not Found`, `410 Gone`, or any other suitable HTTP status code
-which does not imply the resource exists as requested.
+Ha nincs repository a `$GIT_URL`-nél, vagy a `$GIT_URL`-lel egyező
+helyre mutatott erőforrás nem létezik, a szervernek MUST NOT `200 OK`
+válasszal válaszolnia.  A szervernek SHOULD
+`404 Not Found`, `410 Gone`, vagy bármely más megfelelő HTTP-státuszkóddal válaszolnia,
+amely nem sugallja, hogy az erőforrás a kért formában létezik.
 
-If there is a repository at `$GIT_URL`, but access is not currently
-permitted, the server MUST respond with the `403 Forbidden` HTTP
-status code.
+Ha van repository a `$GIT_URL`-nél, de a hozzáférés jelenleg nincs
+engedélyezve, a szervernek MUST a `403 Forbidden` HTTP-
+státuszkóddal válaszolnia.
 
-Servers SHOULD support both HTTP 1.0 and HTTP 1.1.
-Servers SHOULD support chunked encoding for both request and response
-bodies.
+A szervereknek SHOULD támogatniuk mind a HTTP 1.0-t, mind a HTTP 1.1-et.
+A szervereknek SHOULD támogatniuk a chunked kódolást mind a kérés-, mind a válasz-
+törzsekhez.
 
-Clients SHOULD support both HTTP 1.0 and HTTP 1.1.
-Clients SHOULD support chunked encoding for both request and response
-bodies.
+A klienseknek SHOULD támogatniuk mind a HTTP 1.0-t, mind a HTTP 1.1-et.
+A klienseknek SHOULD támogatniuk a chunked kódolást mind a kérés-, mind a válasz-
+törzsekhez.
 
-Servers MAY return ETag and/or Last-Modified headers.
+A szerverek MAY visszaadhatnak ETag és/vagy Last-Modified fejléceket.
 
-Clients MAY revalidate cached entities by including If-Modified-Since
-and/or If-None-Match request headers.
+A kliensek MAY újraérvényesíthetik a gyorsítótárazott entitásokat
+If-Modified-Since és/vagy If-None-Match kérésfejlécek belefoglalásával.
 
-Servers MAY return `304 Not Modified` if the relevant headers appear
-in the request and the entity has not changed.  Clients MUST treat
-`304 Not Modified` identical to `200 OK` by reusing the cached entity.
+A szerverek MAY visszaadhatják a `304 Not Modified`-t, ha a releváns fejlécek
+megjelennek a kérésben, és az entitás nem változott.  A klienseknek MUST a
+`304 Not Modified`-t a `200 OK`-val azonosan kezelniük, a gyorsítótárazott entitás újrafelhasználásával.
 
-Clients MAY reuse a cached entity without revalidation if the
-Cache-Control and/or Expires header permits caching.  Clients and
-servers MUST follow RFC 2616 for cache controls.
+A kliensek MAY újrahasználhatnak egy gyorsítótárazott entitást újraérvényesítés
+nélkül, ha a Cache-Control és/vagy Expires fejléc engedélyezi a gyorsítótárazást.  A
+klienseknek és szervereknek MUST követniük az RFC 2616-ot a cache-vezérléshez.
 
 
-Discovering References
-----------------------
+[[_discovering_references]]
+Referenciák felfedezése
+-----------------------
 
-All HTTP clients MUST begin either a fetch or a push exchange by
-discovering the references available on the remote repository.
+Minden HTTP-kliensnek MUST egy fetch vagy push csere elkezdésekor
+felfedeznie a remote repository-n elérhető referenciákat.
 
-Dumb Clients
-~~~~~~~~~~~~
+[[_dumb_clients]]
+Dumb kliensek
+~~~~~~~~~~~~~
 
-HTTP clients that only support the "dumb" protocol MUST discover
-references by making a request for the special info/refs file of
-the repository.
+Azoknak a HTTP-klienseknek, amelyek csak a "dumb" protokollt támogatják,
+MUST felfedezniük a referenciákat a repository speciális info/refs fájljára
+tett kéréssel.
 
-Dumb HTTP clients MUST make a `GET` request to `$GIT_URL/info/refs`,
-without any search/query parameters.
+A dumb HTTP-klienseknek MUST `GET` kérést tenniük a `$GIT_URL/info/refs`-re,
+bármilyen search/query paraméter nélkül.
 
    C: GET $GIT_URL/info/refs HTTP/1.0
 
@@ -174,22 +180,22 @@ without any search/query parameters.
    S: 2cb58b79488a98d2721cea644875a8dd0026b115	refs/tags/v1.0
    S: a3c2e2402b99163d1d59756e5f207ae21cccba4c	refs/tags/v1.0^{}
 
-The Content-Type of the returned info/refs entity SHOULD be
-`text/plain; charset=utf-8`, but MAY be any content type.
-Clients MUST NOT attempt to validate the returned Content-Type.
-Dumb servers MUST NOT return a return type starting with
-`application/x-git-`.
+A visszaadott info/refs entitás Content-Type-jának SHOULD
+`text/plain; charset=utf-8`-nak lennie, de MAY bármilyen content type is lehet.
+A klienseknek MUST NOT megkísérelniük a visszaadott Content-Type ellenőrzését.
+A dumb szervereknek MUST NOT olyan return type-ot visszaadniuk, amely
+`application/x-git-`-vel kezdődik.
 
-Cache-Control headers MAY be returned to disable caching of the
-returned entity.
+Cache-Control fejlécek MAY visszaadhatók a visszaadott entitás gyorsítótárazásának
+letiltásához.
 
-When examining the response clients SHOULD only examine the HTTP
-status code.  Valid responses are `200 OK`, or `304 Not Modified`.
+A válasz vizsgálatakor a klienseknek SHOULD csak a HTTP-
+státuszkódot vizsgálniuk.  Az érvényes válaszok a `200 OK`, vagy a `304 Not Modified`.
 
-The returned content is a UNIX formatted text file describing
-each ref and its known value.  The file SHOULD be sorted by name
-according to the C locale ordering.  The file SHOULD NOT include
-the default ref named `HEAD`.
+A visszaadott tartalom egy UNIX-formátumú szöveges fájl, amely leír
+minden refet és annak ismert értékét.  A fájlnak SHOULD a
+C locale-rendezés szerint névre rendezettnek lennie.  A fájlnak SHOULD NOT tartalmaznia
+a `HEAD` nevű alapértelmezett refet.
 
   info_refs   =  *( ref_record )
   ref_record  =  any_ref / peeled_ref
@@ -198,21 +204,22 @@ the default ref named `HEAD`.
   peeled_ref  =  obj-id HTAB refname LF
 		 obj-id HTAB refname "^{}" LF
 
-Smart Clients
-~~~~~~~~~~~~~
+[[_smart_clients]]
+Smart kliensek
+~~~~~~~~~~~~~~
 
-HTTP clients that support the "smart" protocol (or both the
-"smart" and "dumb" protocols) MUST discover references by making
-a parameterized request for the info/refs file of the repository.
+Azoknak a HTTP-klienseknek, amelyek támogatják a "smart" protokollt (vagy
+mind a "smart", mind a "dumb" protokollt), MUST felfedezniük a referenciákat
+a repository info/refs fájljára tett paraméterezett kéréssel.
 
-The request MUST contain exactly one query parameter,
-`service=$servicename`, where `$servicename` MUST be the service
-name the client wishes to contact to complete the operation.
-The request MUST NOT contain additional query parameters.
+A kérésnek MUST pontosan egy query paramétert tartalmaznia, a
+`service=$servicename`-et, ahol a `$servicename`-nek MUST annak a
+szolgáltatásnak a neve lennie, amelyet a kliens fel kíván venni a művelet befejezéséhez.
+A kérés MUST NOT további query paramétereket tartalmaznia.
 
    C: GET $GIT_URL/info/refs?service=git-upload-pack HTTP/1.0
 
-dumb server reply:
+dumb szerver válasza:
 
    S: 200 OK
    S:
@@ -221,7 +228,7 @@ dumb server reply:
    S: 2cb58b79488a98d2721cea644875a8dd0026b115	refs/tags/v1.0
    S: a3c2e2402b99163d1d59756e5f207ae21cccba4c	refs/tags/v1.0^{}
 
-smart server reply:
+smart szerver válasza:
 
    S: 200 OK
    S: Content-Type: application/x-git-upload-pack-advertisement
@@ -235,65 +242,67 @@ smart server reply:
    S: 003fa3c2e2402b99163d1d59756e5f207ae21cccba4c refs/tags/v1.0^{}\n
    S: 0000
 
-The client may send Extra Parameters (see
-linkgit:gitprotocol-pack[5]) as a colon-separated string
-in the Git-Protocol HTTP header.
+A kliens elküldhet Extra Parameters-t (lásd
+linkgit:gitprotocol-pack[5]) kettősponttal elválasztott sztringként
+a Git-Protocol HTTP-fejlécben.
 
-Uses the `--http-backend-info-refs` option to
-linkgit:git-upload-pack[1].
+A linkgit:git-upload-pack[1] `--http-backend-info-refs` opcióját
+használja.
 
-Dumb Server Response
+[[_dumb_server_response]]
+Dumb szerver válasza
 ^^^^^^^^^^^^^^^^^^^^
-Dumb servers MUST respond with the dumb server reply format.
+A dumb szervereknek MUST a dumb szerver válaszformátumával válaszolniuk.
 
-See the prior section under dumb clients for a more detailed
-description of the dumb server response.
+A dumb szerver válaszának részletesebb leírásáért lásd az előző, dumb
+klienseket tárgyaló szakaszt.
 
-Smart Server Response
+[[_smart_server_response]]
+Smart szerver válasza
 ^^^^^^^^^^^^^^^^^^^^^
-If the server does not recognize the requested service name, or the
-requested service name has been disabled by the server administrator,
-the server MUST respond with the `403 Forbidden` HTTP status code.
+Ha a szerver nem ismeri fel a kért szolgáltatásnevet, vagy a kért
+szolgáltatásnév le van tiltva a szerver adminisztrátora által, a
+szervernek MUST a `403 Forbidden` HTTP-státuszkóddal válaszolnia.
 
-Otherwise, smart servers MUST respond with the smart server reply
-format for the requested service name.
+Egyébként a smart szervereknek MUST a smart szerver válaszformátumával
+válaszolniuk a kért szolgáltatásnévhez.
 
-Cache-Control headers SHOULD be used to disable caching of the
-returned entity.
+Cache-Control fejlécek SHOULD legyenek használva a visszaadott entitás
+gyorsítótárazásának letiltásához.
 
-The Content-Type MUST be `application/x-$servicename-advertisement`.
-Clients SHOULD fall back to the dumb protocol if another content
-type is returned.  When falling back to the dumb protocol clients
-SHOULD NOT make an additional request to `$GIT_URL/info/refs`, but
-instead SHOULD use the response already in hand.  Clients MUST NOT
-continue if they do not support the dumb protocol.
+A Content-Type-nak MUST `application/x-$servicename-advertisement`-nek lennie.
+A klienseknek SHOULD visszaesniük a dumb protokollra, ha másik content
+type kerül visszaadásra.  A dumb protokollra való visszaeséskor a klienseknek
+SHOULD NOT további kérést tenniük a `$GIT_URL/info/refs`-re, hanem
+SHOULD a már kéznél lévő választ használniuk.  A klienseknek MUST NOT
+folytatniuk, ha nem támogatják a dumb protokollt.
 
-Clients MUST validate the status code is either `200 OK` or
+A klienseknek MUST ellenőrizniük, hogy a státuszkód `200 OK` vagy
 `304 Not Modified`.
 
-Clients MUST validate the first five bytes of the response entity
-matches the regex `^[0-9a-f]{4}#`.  If this test fails, clients
-MUST NOT continue.
+A klienseknek MUST ellenőrizniük, hogy a válasz entitás első öt bájtja
+illeszkedik a `^[0-9a-f]{4}#` regexre.  Ha ez a teszt sikertelen, a kliensek
+MUST NOT folytatniuk.
 
-Clients MUST parse the entire response as a sequence of pkt-line
-records.
+A klienseknek MUST a teljes választ pkt-line rekordok sorozataként
+elemezniük.
 
-Clients MUST verify the first pkt-line is `# service=$servicename`.
-Servers MUST set $servicename to be the request parameter value.
-Servers SHOULD include an LF at the end of this line.
-Clients MUST ignore an LF at the end of the line.
+A klienseknek MUST ellenőrizniük, hogy az első pkt-line `# service=$servicename`.
+A szervereknek MUST a $servicename-et a kérésparaméter értékére állítaniuk.
+A szervereknek SHOULD LF-et tartalmazniuk e sor végén.
+A klienseknek MUST figyelmen kívül hagyniuk a sor végi LF-et.
 
-Servers MUST terminate the response with the magic `0000` end
-pkt-line marker.
+A szervereknek MUST a `0000` mágikus záró pkt-line jelölővel lezárniuk
+a választ.
 
-The returned response is a pkt-line stream describing each ref and
-its known value.  The stream SHOULD be sorted by name according to
-the C locale ordering.  The stream SHOULD include the default ref
-named `HEAD` as the first ref.  The stream MUST include capability
-declarations behind a NUL on the first ref.
+A visszaadott válasz egy pkt-line stream, amely leír minden refet és
+annak ismert értékét.  A streamnek SHOULD a C locale-rendezés szerint névre
+rendezettnek lennie.  A streamnek SHOULD tartalmaznia a `HEAD` nevű
+alapértelmezett refet első refként.  A streamnek MUST tartalmaznia a
+képesség-deklarációkat egy NUL mögött az első refnél.
 
-The returned response contains "version 1" if "version=1" was sent as an
-Extra Parameter.
+A visszaadott válasz "version 1"-et tartalmaz, ha "version=1" lett elküldve
+Extra Parameter-ként.
 
   smart_reply     =  PKT-LINE("# service=$servicename" LF)
 		     "0000"
@@ -317,12 +326,13 @@ Extra Parameter.
 		     PKT-LINE(obj-id SP name "^{}" LF
 
 
-Smart Service git-upload-pack
------------------------------
-This service reads from the repository pointed to by `$GIT_URL`.
+[[_smart_service_git_upload_pack]]
+Smart szolgáltatás: git-upload-pack
+-----------------------------------
+Ez a szolgáltatás a `$GIT_URL` által mutatott repository-ból olvas.
 
-Clients MUST first perform ref discovery with
-`$GIT_URL/info/refs?service=git-upload-pack`.
+A klienseknek MUST először ref-felfedezést végezniük a
+`$GIT_URL/info/refs?service=git-upload-pack`-kal.
 
    C: POST $GIT_URL/git-upload-pack HTTP/1.0
    C: Content-Type: application/x-git-upload-pack-request
@@ -338,17 +348,17 @@ Clients MUST first perform ref discovery with
    S: ....ACK %s, continue
    S: ....NAK
 
-Clients MUST NOT reuse or revalidate a cached response.
-Servers MUST include sufficient Cache-Control headers
-to prevent caching of the response.
+A klienseknek MUST NOT újrahasználniuk vagy újraérvényesíteniük egy
+gyorsítótárazott választ. A szervereknek MUST elegendő Cache-Control
+fejlécet tartalmazniuk a válasz gyorsítótárazásának megakadályozásához.
 
-Servers SHOULD support all capabilities defined here.
+A szervereknek SHOULD támogatniuk minden itt definiált képességet.
 
-Clients MUST send at least one "want" command in the request body.
-Clients MUST NOT reference an id in a "want" command which did not
-appear in the response obtained through ref discovery unless the
-server advertises capability `allow-tip-sha1-in-want` or
-`allow-reachable-sha1-in-want`.
+A klienseknek MUST legalább egy "want" parancsot küldeniük a kérés törzsében.
+A klienseknek MUST NOT olyan id-re hivatkozniuk egy "want" parancsban, amely nem
+jelent meg a ref-felfedezés révén kapott válaszban, hacsak a
+szerver nem hirdeti az `allow-tip-sha1-in-want` vagy
+`allow-reachable-sha1-in-want` képességet.
 
   compute_request   =  want_list
 		       have_list
@@ -363,33 +373,34 @@ server advertises capability `allow-tip-sha1-in-want` or
 
   have_list         =  *PKT-LINE("have" SP id LF)
 
-TODO: Document this further.
+TODO: Ezt részletesebben dokumentálni kell.
 
-The Negotiation Algorithm
-~~~~~~~~~~~~~~~~~~~~~~~~~
-The computation to select the minimal pack proceeds as follows
-(C = client, S = server):
+[[_the_negotiation_algorithm]]
+A tárgyalási algoritmus
+~~~~~~~~~~~~~~~~~~~~~~~
+A minimális pack kiválasztásának számítása a következőképpen zajlik
+(C = kliens, S = szerver):
 
-'init step:'
+'init lépés:'
 
-C: Use ref discovery to obtain the advertised refs.
+C: Használj ref-felfedezést a hirdetett refek megszerzéséhez.
 
-C: Place any object seen into set `advertised`.
+C: Helyezz minden látott objektumot az `advertised` halmazba.
 
-C: Build an empty set, `common`, to hold the objects that are later
-   determined to be on both ends.
+C: Építs egy üres `common` halmazt, hogy tárold azokat az objektumokat, amelyekről
+   később megállapítást nyer, hogy mindkét végén megvannak.
 
-C: Build a set, `want`, of the objects from `advertised` that the client
-   wants to fetch, based on what it saw during ref discovery.
+C: Építs egy `want` halmazt az `advertised`-ből származó objektumokból, amelyeket a
+   kliens fetchelni akar, azok alapján, amiket a ref-felfedezés során látott.
 
-C: Start a queue, `c_pending`, ordered by commit time (popping newest
-   first).  Add all client refs.  When a commit is popped from
-   the queue its parents SHOULD be automatically inserted back.
-   Commits MUST only enter the queue once.
+C: Indíts egy `c_pending` sort, amely commit-idő szerint van rendezve (a
+   legújabbat pop-olva elsőként).  Add hozzá az összes kliens-refet.  Amikor egy commit ki lesz véve
+   a sorból, a szüleit SHOULD automatikusan visszahelyezni.
+   A commitok MUST csak egyszer kerülhetnek be a sorba.
 
-'one compute step:'
+'egy számítási lépés:'
 
-C: Send one `$GIT_URL/git-upload-pack` request:
+C: Küldj egy `$GIT_URL/git-upload-pack` kérést:
 
    C: 0032want <want-#1>...............................
    C: 0032want <want-#2>...............................
@@ -402,92 +413,92 @@ C: Send one `$GIT_URL/git-upload-pack` request:
    ....
    C: 0000
 
-The stream is organized into "commands", with each command
-appearing by itself in a pkt-line.  Within a command line,
-the text leading up to the first space is the command name,
-and the remainder of the line to the first LF is the value.
-Command lines are terminated with an LF as the last byte of
-the pkt-line value.
+A stream "commandokra" van szervezve, minden command önmagában
+jelenik meg egy pkt-line-ban.  Egy command soron belül
+az első szóközig terjedő szöveg a command neve,
+a sor további része az első LF-ig pedig az érték.
+A command sorok LF-fel vannak lezárva a
+pkt-line érték utolsó bájtjaként.
 
-Commands MUST appear in the following order, if they appear
-at all in the request stream:
+A commandoknak MUST a következő sorrendben megjelenniük, ha egyáltalán
+megjelennek a kérés streamben:
 
 * "want"
 * "have"
 
-The stream is terminated by a pkt-line flush (`0000`).
+A stream egy pkt-line flush-sal (`0000`) van lezárva.
 
-A single "want" or "have" command MUST have one hex formatted
-object name as its value.  Multiple object names MUST be sent by sending
-multiple commands. Object names MUST be given using the object format
-negotiated through the `object-format` capability (default SHA-1).
+Egyetlen "want" vagy "have" commandnak MUST egy hex-formátumú
+objektumnevet tartalmaznia értékként.  Több objektumnevet MUST több command
+küldésével kell elküldeni. Az objektumneveket MUST az `object-format`
+képességen keresztül egyeztetett objektumformátumban kell megadni (alapból SHA-1).
 
-The `have` list is created by popping the first 32 commits
-from `c_pending`.  Fewer can be supplied if `c_pending` empties.
+A `have` lista a `c_pending`-ből kivett első 32 commit
+alapján jön létre.  Kevesebb is megadható, ha a `c_pending` kiürül.
 
-If the client has sent 256 "have" commits and has not yet
-received one of those back from `s_common`, or the client has
-emptied `c_pending` it SHOULD include a "done" command to let
-the server know it won't proceed:
+Ha a kliens elküldött 256 "have" commitot, és még nem
+kapott vissza egyet sem ezek közül az `s_common`-ból, vagy a kliens
+kiürítette a `c_pending`-et, akkor SHOULD tartalmaznia egy "done" commandot, hogy tudassa
+a szerverrel, hogy nem folytatja:
 
    C: 0009done
 
-S: Parse the git-upload-pack request:
+S: Elemezd a git-upload-pack kérést:
 
-Verify all objects in `want` are directly reachable from refs.
+Ellenőrizd, hogy a `want`-ban lévő összes objektum közvetlenül elérhető-e refekből.
 
-The server MAY walk backwards through history or through
-the reflog to permit slightly stale requests.
+A szerver MAY visszafelé bejárhatja a történetet vagy
+a reflogot, hogy engedélyezzen kissé elavult kéréseket.
 
-If no "want" objects are received, send an error:
-TODO: Define error if no "want" lines are requested.
+Ha nem érkezik "want" objektum, küldj hibát:
+TODO: Definiálni kell a hibát, ha nincs kért "want" sor.
 
-If any "want" object is not reachable, send an error:
-When a Git server receives an invalid or malformed `want` line, it
-responds with an error message that includes the offending object name.
+Ha bármely "want" objektum nem elérhető, küldj hibát:
+Amikor egy Git-szerver érvénytelen vagy hibásan formázott `want` sort kap, egy
+hibaüzenettel válaszol, amely tartalmazza a problémás objektumnevet.
 
-Create an empty list, `s_common`.
+Hozz létre egy üres `s_common` listát.
 
-If "have" was sent:
+Ha "have" lett küldve:
 
-Loop through the objects in the order supplied by the client.
+Iterálj végig az objektumokon a kliens által megadott sorrendben.
 
-For each object, if the server has the object reachable from
-a ref, add it to `s_common`.  If a commit is added to `s_common`,
-do not add any ancestors, even if they also appear in `have`.
+Minden objektumhoz, ha a szervernek megvan az objektum egy
+refből elérhetően, add hozzá az `s_common`-hoz.  Ha egy commit hozzáadásra kerül az `s_common`-hoz,
+ne adj hozzá semmilyen ősét, még akkor sem, ha azok is megjelennek a `have`-ben.
 
-S: Send the git-upload-pack response:
+S: Küldd el a git-upload-pack választ:
 
-If the server has found a closed set of objects to pack or the
-request ends with "done", it replies with the pack.
-TODO: Document the pack based response
+Ha a szerver talált egy zárt objektumhalmazt a csomagoláshoz, vagy a
+kérés "done"-nal ér véget, a pack-kel válaszol.
+TODO: A pack-alapú választ dokumentálni kell
 
    S: PACK...
 
-The returned stream is the side-band-64k protocol supported
-by the git-upload-pack service, and the pack is embedded into
-stream 1.  Progress messages from the server side MAY appear
-in stream 2.
+A visszaadott stream a git-upload-pack szolgáltatás által támogatott
+side-band-64k protokoll, és a pack az 1. streambe van beágyazva.  A
+szerveroldali folyamatüzenetek MAY megjelenhetnek a 2. streamben.
 
-Here a "closed set of objects" is defined to have at least
-one path from every "want" to at least one "common" object.
+Itt egy "zárt objektumhalmaz" úgy van definiálva, hogy legalább
+egy útvonal vezet minden "want"-ból legalább egy "common" objektumhoz.
 
-If the server needs more information, it replies with a
-status continue response:
-TODO: Document the non-pack response
+Ha a szervernek több információra van szüksége, egy
+status continue válasszal válaszol:
+TODO: A nem-pack választ dokumentálni kell
 
-C: Parse the upload-pack response:
-   TODO: Document parsing response
+C: Elemezd az upload-pack választ:
+   TODO: Az elemzési választ dokumentálni kell
 
-'Do another compute step.'
+'Végezz egy újabb számítási lépést.'
 
 
-Smart Service git-receive-pack
-------------------------------
-This service reads from the repository pointed to by `$GIT_URL`.
+[[_smart_service_git_receive_pack]]
+Smart szolgáltatás: git-receive-pack
+------------------------------------
+Ez a szolgáltatás a `$GIT_URL` által mutatott repository-ból olvas.
 
-Clients MUST first perform ref discovery with
-`$GIT_URL/info/refs?service=git-receive-pack`.
+A klienseknek MUST először ref-felfedezést végezniük a
+`$GIT_URL/info/refs?service=git-receive-pack`-kal.
 
    C: POST $GIT_URL/git-receive-pack HTTP/1.0
    C: Content-Type: application/x-git-receive-pack-request
@@ -502,15 +513,15 @@ Clients MUST first perform ref discovery with
    S:
    S: ....
 
-Clients MUST NOT reuse or revalidate a cached response.
-Servers MUST include sufficient Cache-Control headers
-to prevent caching of the response.
+A klienseknek MUST NOT újrahasználniuk vagy újraérvényesíteniük egy
+gyorsítótárazott választ. A szervereknek MUST elegendő Cache-Control
+fejlécet tartalmazniuk a válasz gyorsítótárazásának megakadályozásához.
 
-Servers SHOULD support all capabilities defined here.
+A szervereknek SHOULD támogatniuk minden itt definiált képességet.
 
-Clients MUST send at least one command in the request body.
-Within the command portion of the request body clients SHOULD send
-the id obtained through ref discovery as old_id.
+A klienseknek MUST legalább egy commandot küldeniük a kérés törzsében.
+A kérés törzsének command részén belül a klienseknek SHOULD a
+ref-felfedezés révén kapott id-t old_id-ként küldeniük.
 
   update_request  =  command_list
 		     "PACK" <binary-data>
@@ -525,7 +536,7 @@ the id obtained through ref discovery as old_id.
   delete          =  old_id SP zero-id SP name
   update          =  old_id SP new_id SP name
 
-TODO: Document this further.
+TODO: Ezt részletesebben dokumentálni kell.
 
 REFERENCES
 ----------
@@ -541,4 +552,4 @@ linkgit:gitprotocol-capabilities[5]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

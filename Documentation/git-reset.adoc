@@ -15,94 +15,94 @@ git reset (--patch | -p) [<tree-ish>] [--] [<pathspec>...]
 
 DESCRIPTION
 -----------
-`git reset` does either of the following:
+A `git reset` a következők egyikét teszi:
 
-1. `git reset [<mode>] <commit>` changes which commit `HEAD` points to. This
-   makes it possible to undo various Git operations, for example commit, merge,
-   rebase, and pull.
-2. When you specify files or directories or pass `--patch`, `git reset` updates
-   the staged version of the specified files.
+1. A `git reset [<mode>] <commit>` megváltoztatja, hogy a `HEAD` melyik
+   commitra mutat. Ez lehetővé teszi különböző Git-műveletek visszavonását,
+   például commit, merge, rebase és pull.
+2. Amikor fájlokat vagy könyvtárakat adsz meg, vagy a `--patch` opciót adod
+   át, a `git reset` frissíti a megadott fájlok stage-elt verzióját.
 
 `git reset [<mode>] [<commit>]`::
-	Set the current branch head (`HEAD`) to point at _<commit>_.
-	Depending on _<mode>_, also update the working directory and/or index
-	to match the contents of _<commit>_.
-	_<commit>_ defaults to `HEAD`.
-	Before the operation, `ORIG_HEAD` is set to the tip of the current branch.
+	Az aktuális branch fejét (`HEAD`) a _<commit>_-ra állítja.
+	A _<mode>_-tól függően frissíti a munkakönyvtárat és/vagy az indexet is,
+	hogy megegyezzen a _<commit>_ tartalmával.
+	A _<commit>_ alapértéke `HEAD`.
+	A művelet előtt az `ORIG_HEAD` az aktuális branch csúcsára áll be.
 +
-The _<mode>_ must be one of the following (default `--mixed`):
+A _<mode>_ a következők egyike kell legyen (alapértelmezés `--mixed`):
 +
 
 --
 `--mixed`::
-	Leave your working directory unchanged.
-	Update the index to match the new `HEAD`, so nothing will be staged.
+	A munkakönyvtárat változatlanul hagyja.
+	Az indexet az új `HEAD`-hez igazítja, így semmi nem lesz stage-elve.
 +
-If `-N` is specified, mark removed paths as intent-to-add (see
-linkgit:git-add[1]).
+Ha a `-N` meg van adva, az eltávolított útvonalakat intent-to-add jelöléssel
+látja el (lásd linkgit:git-add[1]).
 
 `--soft`::
-	Leave your working tree files and the index unchanged.
-	For example, if you have no staged changes, you can use
-	`git reset --soft HEAD~5; git commit`
-	to combine the last 5 commits into 1 commit. This works even with
-	changes in the working tree, which are left untouched, but such usage
-	can lead to confusion.
+	A working tree fájljait és az indexet változatlanul hagyja.
+	Például ha nincsenek stage-elt változtatásaid, használhatod a
+	`git reset --soft HEAD~5; git commit` parancsot,
+	hogy az utolsó 5 commitot 1 commitba vond össze. Ez akkor is működik, ha vannak
+	változtatások a working tree-ben, amelyeket érintetlenül hagy, de az ilyen
+	használat zavart okozhat.
 
 `--hard`::
-	Overwrite all files and directories with the version from _<commit>_,
-	and may overwrite untracked files. Tracked files not in _<commit>_ are
-	removed so that the working tree matches _<commit>_.
-	Update the index to match the new `HEAD`, so nothing will be staged.
+	Minden fájlt és könyvtárat felülír a _<commit>_-ból származó verzióval,
+	és felülírhat nem követett fájlokat is. A _<commit>_-ban nem szereplő követett fájlok
+	eltávolításra kerülnek, hogy a working tree megegyezzen a _<commit>_-tal.
+	Az indexet az új `HEAD`-hez igazítja, így semmi nem lesz stage-elve.
 
 `--merge`::
-	Reset the index and update the files in the working tree that are
-	different between _<commit>_ and `HEAD`, but keep those which are
-	different between the index and working tree (i.e. which have changes
-	which have not been added).
-	Mainly exists to reset unmerged index entries, like those left behind by
-	`git am -3` or `git switch -m` in certain situations.
-	If a file that is different between _<commit>_ and the index has
-	unstaged changes, reset is aborted.
+	Visszaállítja az indexet, és frissíti a working tree azon fájljait, amelyek
+	eltérnek a _<commit>_ és a `HEAD` között, de megtartja azokat, amelyek
+	eltérnek az index és a working tree között (azaz amelyekben olyan változtatások
+	vannak, amelyeket nem adtak hozzá).
+	Főként a nem merge-elt indexbejegyzések visszaállítására létezik, mint amilyeneket a
+	`git am -3` vagy a `git switch -m` hagy hátra bizonyos helyzetekben.
+	Ha egy fájlnak, amely eltér a _<commit>_ és az index között,
+	nem stage-elt változtatásai vannak, a reset megszakad.
 
 `--keep`::
-	Resets index entries and updates files in the working tree that are
-	different between _<commit>_ and `HEAD`.
-	If a file that is different between _<commit>_ and `HEAD` has local
-	changes, reset is aborted.
+	Visszaállítja az indexbejegyzéseket, és frissíti a working tree azon fájljait, amelyek
+	eltérnek a _<commit>_ és a `HEAD` között.
+	Ha egy fájlnak, amely eltér a _<commit>_ és a `HEAD` között, helyi
+	változtatásai vannak, a reset megszakad.
 
 `--recurse-submodules`::
 `--no-recurse-submodules`::
-	When the working tree is updated, using `--recurse-submodules` will
-	also recursively reset the working tree of all active submodules
-	according to the commit recorded in the superproject, also setting
-	the submodules' `HEAD` to be detached at that commit.
+	Amikor a working tree frissül, a `--recurse-submodules` használatával az
+	összes aktív submodule working tree-je is rekurzívan visszaállításra kerül
+	a szuperprojektben rögzített commit szerint, a submodule-ok `HEAD`-jét is
+	leválasztva az adott commitnál.
 --
 
 `git reset [-q] [<tree-ish>] [--] <pathspec>...`::
 `git reset [-q] [--pathspec-from-file=<file> [--pathspec-file-nul]] [<tree-ish>]`::
-	For all specified files or directories, set the staged version to
-	the version from the given commit or tree (which defaults to `HEAD`).
+	Az összes megadott fájlra vagy könyvtárra a stage-elt verziót az adott
+	commitból vagy fából származó verzióra állítja (amely alapból `HEAD`).
 +
-This means that `git reset <pathspec>` is the opposite of `git add
-<pathspec>`: it unstages all changes to the specified file(s) or
-directories. This is equivalent to `git restore --staged <pathspec>...`.
+Ez azt jelenti, hogy a `git reset <pathspec>` a `git add <pathspec>`
+ellentéte: unstage-eli a megadott fájl(ok)ra vagy könyvtárakra vonatkozó
+összes változtatást. Ez egyenértékű a `git restore --staged <pathspec>...` paranccsal.
 +
-In this mode, `git reset` updates only the index (without updating the `HEAD` or
-working tree files). If you want to update the files as well as the index
-entries, use linkgit:git-restore[1].
+Ebben a módban a `git reset` csak az indexet frissíti (a `HEAD` vagy a working
+tree fájljainak frissítése nélkül). Ha a fájlokat és az indexbejegyzéseket is
+frissíteni szeretnéd, használd a linkgit:git-restore[1] parancsot.
 
 `git reset (--patch | -p) [<tree-ish>] [--] [<pathspec>...]`::
-	Interactively select changes from the difference between the index
-	and the specified commit or tree (which defaults to `HEAD`).
-	The index is modified using the chosen changes.
+	Interaktívan válaszd ki a változtatásokat az index és a megadott commit
+	vagy fa (amely alapból `HEAD`) közötti különbségből.
+	Az index a kiválasztott változtatásokkal módosul.
 +
-This means that `git reset -p` is the opposite of `git add -p`, i.e.
-you can use it to selectively unstage changes. See the "Interactive Mode"
-section of linkgit:git-add[1] to learn how to use the `--patch` option.
+Ez azt jelenti, hogy a `git reset -p` a `git add -p` ellentéte, azaz
+használhatod a változtatások szelektív unstage-elésére. Lásd a linkgit:git-add[1]
+"Interaktív mód" szakaszát, hogy megtudd, hogyan kell a `--patch` opciót használni.
 
-See "Reset, restore and revert" in linkgit:git[1] for the differences
-between the three commands.
+A három parancs közötti különbségekért lásd a "Reset, restore and revert"
+szakaszt a linkgit:git[1] oldalon.
 
 
 OPTIONS
@@ -110,39 +110,39 @@ OPTIONS
 
 `-q`::
 `--quiet`::
-	Be quiet, only report errors.
+	Csendben, csak a hibákat jelentse.
 
 `--refresh`::
 `--no-refresh`::
-	Refresh the index after a mixed reset. Enabled by default.
+	Frissítse az indexet egy mixed reset után. Alapból engedélyezve.
 
 `--pathspec-from-file=<file>`::
-	Pathspec is passed in _<file>_ instead of commandline args. If
-	_<file>_ is exactly `-` then standard input is used. Pathspec
-	elements are separated by _LF_ or _CR_/_LF_. Pathspec elements can be
-	quoted as explained for the configuration variable `core.quotePath`
-	(see linkgit:git-config[1]). See also `--pathspec-file-nul` and
-	global `--literal-pathspecs`.
+	A pathspec a _<file>_-ban van átadva a parancssori argumentumok helyett. Ha
+	a _<file>_ pontosan `-`, akkor a standard bemenet van használva. A pathspec-elemeket
+	_LF_ vagy _CR_/_LF_ választja el. A pathspec-elemek idézőjelezhetők,
+	ahogy az a `core.quotePath` konfigurációs változónál le van írva
+	(lásd linkgit:git-config[1]). Lásd még a `--pathspec-file-nul` opciót és a
+	globális `--literal-pathspecs` opciót.
 
 `--pathspec-file-nul`::
-	Only meaningful with `--pathspec-from-file`. Pathspec elements are
-	separated with _NUL_ character and all other characters are taken
-	literally (including newlines and quotes).
+	Csak a `--pathspec-from-file` opcióval van értelme. A pathspec-elemeket
+	_NUL_ karakter választja el, és minden más karakter literálisan van
+	értelmezve (beleértve a sortöréseket és az idézőjeleket).
 
 include::diff-context-options.adoc[]
 
 `--`::
-	Do not interpret any more arguments as options.
+	Ne értelmezzen több argumentumot opcióként.
 
 `<pathspec>...`::
-	Limits the paths affected by the operation.
+	Korlátozza a művelet által érintett útvonalakat.
 +
-For more details, see the 'pathspec' entry in linkgit:gitglossary[7].
+További részletekért lásd a 'pathspec' bejegyzést a linkgit:gitglossary[7] oldalon.
 
 EXAMPLES
 --------
 
-Undo add::
+Add visszavonása::
 +
 ------------
 $ edit                                     <1>
@@ -152,20 +152,20 @@ $ git reset                                <3>
 $ git pull git://info.example.com/ nitfol  <4>
 ------------
 +
-<1> You are happily working on something, and find the changes
-    in these files are in good order.  You do not want to see them
-    when you run `git diff`, because you plan to work on other files
-    and changes with these files are distracting.
-<2> Somebody asks you to pull, and the changes sound worthy of merging.
-<3> However, you already dirtied the index (i.e. your index does
-    not match the `HEAD` commit).  But you know the pull you are going
-    to make does not affect `frotz.c` or `filfre.c`, so you revert the
-    index changes for these two files.  Your changes in working tree
-    remain there.
-<4> Then you can pull and merge, leaving `frotz.c` and `filfre.c`
-    changes still in the working tree.
+<1> Boldogan dolgozol valamin, és úgy találod, hogy a változtatások
+    ezekben a fájlokban rendben vannak.  Nem akarod látni őket,
+    amikor `git diff`-et futtatsz, mert más fájlokon tervezel dolgozni,
+    és ezeknek a fájloknak a változtatásai elvonják a figyelmet.
+<2> Valaki megkér, hogy pull-olj, és a változtatások merge-elésre érdemesnek hangzanak.
+<3> Azonban már beszennyezted az indexet (azaz az indexed nem
+    egyezik a `HEAD` committal).  De tudod, hogy a pull, amit végre
+    fogsz hajtani, nem érinti a `frotz.c` vagy `filfre.c` fájlt, ezért erre a
+    két fájlra visszavonod az indexbeli változtatásokat.  A working tree-beli
+    változtatásaid ott maradnak.
+<4> Ezután pull-olhatsz és merge-elhetsz, a `frotz.c` és `filfre.c`
+    változtatásait továbbra is a working tree-ben hagyva.
 
-Undo a commit and redo::
+Egy commit visszavonása és újbóli elvégzése::
 +
 ------------
 $ git commit ...
@@ -174,17 +174,17 @@ $ edit                        <2>
 $ git commit -a -c ORIG_HEAD  <3>
 ------------
 +
-<1> This is most often done when you remembered what you
-    just committed is incomplete, or you misspelled your commit
-    message, or both.  Leaves working tree as it was before "reset".
-<2> Make corrections to working tree files.
-<3> "reset" copies the old head to `.git/ORIG_HEAD`; redo the
-    commit by starting with its log message.  If you do not need to
-    edit the message further, you can give `-C` option instead.
+<1> Ezt leggyakrabban akkor teszik, amikor eszedbe jut, hogy amit
+    épp commitoltál, hiányos, vagy elgépelted a commit-üzenetet, vagy
+    mindkettő.  A working tree-t úgy hagyja, ahogy a "reset" előtt volt.
+<2> Végezz javításokat a working tree fájljain.
+<3> A "reset" a régi headet a `.git/ORIG_HEAD`-be másolja; végezd el újra a
+    commitot a napló-üzenetéből kiindulva.  Ha nem kell tovább
+    szerkesztened az üzenetet, helyette megadhatod a `-C` opciót.
 +
-See also the `--amend` option to linkgit:git-commit[1].
+Lásd még a linkgit:git-commit[1] `--amend` opcióját.
 
-Undo a commit, making it a topic branch::
+Egy commit visszavonása, topic branchré alakítva::
 +
 ------------
 $ git branch topic/wip          <1>
@@ -192,27 +192,27 @@ $ git reset --hard HEAD~3       <2>
 $ git switch topic/wip          <3>
 ------------
 +
-<1> You have made some commits, but realize they were premature
-    to be in the `master` branch.  You want to continue polishing
-    them in a topic branch, so create `topic/wip` branch off of the
-    current `HEAD`.
-<2> Rewind the master branch to get rid of those three commits.
-<3> Switch to `topic/wip` branch and keep working.
+<1> Készítettél néhány commitot, de rájössz, hogy korai volt őket
+    a `master` branchbe tenni.  Egy topic branchben szeretnéd tovább
+    csiszolni őket, ezért hozz létre egy `topic/wip` branchet az
+    aktuális `HEAD`-ből.
+<2> Tekerd vissza a master branchet, hogy megszabadulj attól a három committól.
+<3> Válts a `topic/wip` branchre, és dolgozz tovább.
 
-Undo commits permanently::
+Commitok végleges visszavonása::
 +
 ------------
 $ git commit ...
 $ git reset --hard HEAD~3   <1>
 ------------
 +
-<1> The last three commits (`HEAD`, `HEAD^`, and `HEAD~2`) were bad
-    and you do not want to ever see them again.  Do *not* do this if
-    you have already given these commits to somebody else.  (See the
-    "RECOVERING FROM UPSTREAM REBASE" section in linkgit:git-rebase[1]
-    for the implications of doing so.)
+<1> Az utolsó három commit (`HEAD`, `HEAD^` és `HEAD~2`) rossz volt,
+    és soha többé nem akarod látni őket.  *Ne* tedd ezt, ha
+    ezeket a commitokat már odaadtad valaki másnak.  (Ennek
+    következményeiről lásd a "RECOVERING FROM UPSTREAM REBASE" szakaszt a
+    linkgit:git-rebase[1] oldalon.)
 
-Undo a merge or pull::
+Egy merge vagy pull visszavonása::
 +
 ------------
 $ git pull                         <1>
@@ -226,21 +226,21 @@ Fast-forward
 $ git reset --hard ORIG_HEAD       <4>
 ------------
 +
-<1> Try to update from the upstream resulted in a lot of
-    conflicts; you were not ready to spend a lot of time merging
-    right now, so you decide to do that later.
-<2> "pull" has not made merge commit, so `git reset --hard`
-    which is a synonym for `git reset --hard HEAD` clears the mess
-    from the index file and the working tree.
-<3> Merge a topic branch into the current branch, which resulted
-    in a fast-forward.
-<4> But you decided that the topic branch is not ready for public
-    consumption yet.  "pull" or "merge" always leaves the original
-    tip of the current branch in `ORIG_HEAD`, so resetting hard to it
-    brings your index file and the working tree back to that state,
-    and resets the tip of the branch to that commit.
+<1> Az upstreamből való frissítési kísérlet sok konfliktust
+    eredményezett; nem álltál készen arra, hogy most sok időt tölts
+    merge-eléssel, ezért úgy döntesz, hogy ezt később teszed meg.
+<2> A "pull" nem készített merge commitot, ezért a `git reset --hard`,
+    amely a `git reset --hard HEAD` szinonimája, kitakarítja a rendetlenséget
+    az indexfájlból és a working tree-ből.
+<3> Merge-elj egy topic branchet az aktuális branchbe, ami
+    fast-forwardot eredményezett.
+<4> De úgy döntöttél, hogy a topic branch még nem áll készen a
+    nyilvános felhasználásra.  A "pull" vagy "merge" mindig az aktuális branch
+    eredeti csúcsát hagyja az `ORIG_HEAD`-ben, így a hard reset rá
+    visszaállítja az indexfájlt és a working tree-t abba az állapotba,
+    és a branch csúcsát is arra a commitra állítja.
 
-Undo a merge or pull inside a dirty working tree::
+Egy merge vagy pull visszavonása egy piszkos working tree-n belül::
 +
 ------------
 $ git pull                         <1>
@@ -251,23 +251,23 @@ Merge made by recursive.
 $ git reset --merge ORIG_HEAD      <2>
 ------------
 +
-<1> Even if you may have local modifications in your
-    working tree, you can safely say `git pull` when you know
-    that the change in the other branch does not overlap with
-    them.
-<2> After inspecting the result of the merge, you may find
-    that the change in the other branch is unsatisfactory.  Running
-    `git reset --hard ORIG_HEAD` will let you go back to where you
-    were, but it will discard your local changes, which you do not
-    want.  `git reset --merge` keeps your local changes.
+<1> Még akkor is, ha lehetnek helyi módosításaid a
+    working tree-ben, nyugodtan mondhatod, hogy `git pull`, ha tudod,
+    hogy a másik branch változtatása nem fedi át
+    azokat.
+<2> A merge eredményének megvizsgálása után úgy találhatod,
+    hogy a másik branch változtatása nem kielégítő.  A
+    `git reset --hard ORIG_HEAD` futtatása lehetővé teszi, hogy visszatérj oda, ahol
+    voltál, de eldobja a helyi változtatásaidat, amit nem
+    akarsz.  A `git reset --merge` megtartja a helyi változtatásaidat.
 
 
-Interrupted workflow::
+Megszakított munkafolyamat::
 +
-Suppose you are interrupted by an urgent fix request while you
-are in the middle of a large change.  The files in your
-working tree are not in any shape to be committed yet, but you
-need to get to the other branch for a quick bugfix.
+Tegyük fel, hogy egy sürgős javítási kérés szakít félbe, miközben
+egy nagy változtatás közepén vagy.  A working tree
+fájljaid még nincsenek olyan állapotban, hogy commitolni lehessen őket, de
+át kell jutnod a másik branchre egy gyors bugfix miatt.
 +
 ------------
 $ git switch feature  ;# you were working in "feature" branch and
@@ -281,20 +281,20 @@ $ git reset --soft HEAD^ ;# go back to WIP state  <2>
 $ git reset                                       <3>
 ------------
 +
-<1> This commit will get blown away so a throw-away log message is OK.
-<2> This removes the 'WIP' commit from the commit history, and sets
-    your working tree to the state just before you made that snapshot.
-<3> At this point the index file still has all the WIP changes you
-    committed as 'snapshot WIP'.  This updates the index to show your
-    WIP files as uncommitted.
+<1> Ez a commit el fog tűnni, így egy eldobható napló-üzenet is megfelel.
+<2> Ez eltávolítja a 'WIP' commitot a commit-történetből, és
+    a working tree-t abba az állapotba állítja, amelyben közvetlenül a pillanatkép elkészítése előtt volt.
+<3> Ezen a ponton az indexfájl még tartalmazza az összes WIP-változtatást, amelyet
+    'snapshot WIP'-ként commitoltál.  Ez frissíti az indexet, hogy a
+    WIP-fájljaidat nem commitoltként mutassa.
 +
-See also linkgit:git-stash[1].
+Lásd még: linkgit:git-stash[1].
 
-Reset a single file in the index::
+Egyetlen fájl visszaállítása az indexben::
 +
-Suppose you have added a file to your index, but later decide you do not
-want to add it to your commit. You can remove the file from the index
-while keeping your changes with git reset.
+Tegyük fel, hogy hozzáadtál egy fájlt az indexedhez, de később úgy döntesz, hogy
+nem akarod a commitodba tenni. A git reset segítségével eltávolíthatod a fájlt
+az indexből, miközben megtartod a változtatásaidat.
 +
 ------------
 $ git reset -- frotz.c                      <1>
@@ -302,18 +302,18 @@ $ git commit -m "Commit files in index"     <2>
 $ git add frotz.c                           <3>
 ------------
 +
-<1> This removes the file from the index while keeping it in the working
-    directory.
-<2> This commits all other changes in the index.
-<3> Adds the file to the index again.
+<1> Ez eltávolítja a fájlt az indexből, miközben a
+    munkakönyvtárban megtartja.
+<2> Ez commitolja az index összes többi változtatását.
+<3> Ismét hozzáadja a fájlt az indexhez.
 
-Keep changes in working tree while discarding some previous commits::
+Változtatások megtartása a working tree-ben, miközben néhány korábbi commitot eldobsz::
 +
-Suppose you are working on something and you commit it, and then you
-continue working a bit more, but now you think that what you have in
-your working tree should be in another branch that has nothing to do
-with what you committed previously. You can start a new branch and
-reset it while keeping the changes in your working tree.
+Tegyük fel, hogy dolgozol valamin, commitolod, majd dolgozol
+még egy kicsit, de most úgy gondolod, hogy amit a
+working tree-dben van, annak egy másik branchben kellene lennie, aminek semmi köze ahhoz,
+amit korábban commitoltál. Elindíthatsz egy új branchet, és
+visszaállíthatod, miközben megtartod a working tree-beli változtatásokat.
 +
 ------------
 $ git tag start
@@ -325,22 +325,22 @@ $ git switch -c branch2                     <2>
 $ git reset --keep start                    <3>
 ------------
 +
-<1> This commits your first edits in `branch1`.
-<2> In the ideal world, you could have realized that the earlier
-    commit did not belong to the new topic when you created and switched
-    to `branch2` (i.e. `git switch -c branch2 start`), but nobody is
-    perfect.
-<3> But you can use `reset --keep` to remove the unwanted commit after
-    you switched to `branch2`.
+<1> Ez commitolja az első szerkesztéseidet a `branch1`-ben.
+<2> Ideális esetben rájöhettél volna, hogy a korábbi
+    commit nem tartozik az új topichoz, amikor létrehoztad a `branch2`-t, és arra
+    váltottál (azaz `git switch -c branch2 start`), de senki sem
+    tökéletes.
+<3> De használhatod a `reset --keep` parancsot a nem kívánt commit eltávolítására,
+    miután a `branch2`-re váltottál.
 
-Split a commit apart into a sequence of commits::
+Egy commit szétbontása commitok sorozatává::
 +
-Suppose that you have created lots of logically separate changes and committed
-them together. Then, later you decide that it might be better to have each
-logical chunk associated with its own commit. You can use git reset to rewind
-history without changing the contents of your local files, and then successively
-use `git add -p` to interactively select which hunks to include into each commit,
-using `git commit -c` to pre-populate the commit message.
+Tegyük fel, hogy sok logikailag különálló változtatást hoztál létre, és együtt
+commitoltad őket. Aztán később úgy döntesz, hogy jobb lenne, ha minden
+logikai darabhoz saját commit tartozna. A git reset segítségével visszatekerheted
+a történetet a helyi fájljaid tartalmának megváltoztatása nélkül, majd egymás után
+használhatod a `git add -p` parancsot, hogy interaktívan kiválaszd, mely hunkok kerüljenek az egyes commitokba,
+a `git commit -c` parancsot használva a commit-üzenet előre kitöltésére.
 +
 ------------
 $ git reset -N HEAD^                        <1>
@@ -353,56 +353,56 @@ $ git diff --cached                         <7>
 $ git commit ...                            <8>
 ------------
 +
-<1> First, reset the history back one commit so that we remove the original
-    commit, but leave the working tree with all the changes. The `-N` ensures
-    that any new files added with `HEAD` are still marked so that `git add -p`
-    will find them.
-<2> Next, we interactively select diff hunks to add using the `git add -p`
-    facility. This will ask you about each diff hunk in sequence and you can
-    use simple commands such as "yes, include this", "No don't include this"
-    or even the very powerful "edit" facility.
-<3> Once satisfied with the hunks you want to include, you should verify what
-    has been prepared for the first commit by using `git diff --cached`. This
-    shows all the changes that have been moved into the index and are about
-    to be committed.
-<4> Next, commit the changes stored in the index. The `-c` option specifies to
-    pre-populate the commit message from the original message that you started
-    with in the first commit. This is helpful to avoid retyping it. The
-    `HEAD@{1}` is a special notation for the commit that `HEAD` used to be at
-    prior to the original reset commit (1 change ago).
-    See linkgit:git-reflog[1] for more details. You may also use any other
-    valid commit reference.
-<5> You can repeat steps 2-4 multiple times to break the original code into
-    any number of commits.
-<6> Now you've split out many of the changes into their own commits, and might
-    no longer use the patch mode of `git add`, in order to select all remaining
-    uncommitted changes.
-<7> Once again, check to verify that you've included what you want to. You may
-    also wish to verify that git diff doesn't show any remaining changes to be
-    committed later.
-<8> And finally create the final commit.
+<1> Először állítsd vissza a történetet egy committal, hogy eltávolítsuk az eredeti
+    commitot, de a working tree-ben hagyjuk az összes változtatást. A `-N` biztosítja,
+    hogy a `HEAD`-del hozzáadott új fájlok továbbra is meg legyenek jelölve, hogy a `git add -p`
+    megtalálja őket.
+<2> Ezután interaktívan kiválasztjuk a hozzáadandó diff-hunkokat a `git add -p`
+    eszközzel. Ez sorban rákérdez minden diff-hunkra, és
+    használhatsz egyszerű parancsokat, például "yes, include this", "No don't include this",
+    vagy akár a nagyon erős "edit" eszközt.
+<3> Miután elégedett vagy a beemelni kívánt hunkokkal, ellenőrizned kell, mi lett
+    előkészítve az első commithoz a `git diff --cached` használatával. Ez
+    megmutatja az összes változtatást, amely az indexbe került, és
+    commitolásra készül.
+<4> Ezután commitold az indexben tárolt változtatásokat. A `-c` opció megadja, hogy
+    a commit-üzenet az eredeti üzenetből legyen előre kitöltve, amellyel az
+    első commitban indultál. Ez hasznos, hogy ne kelljen újra begépelni. A
+    `HEAD@{1}` egy speciális jelölés arra a commitra, amelyen a `HEAD`
+    az eredeti reset commit előtt volt (1 változtatással ezelőtt).
+    További részletekért lásd a linkgit:git-reflog[1] oldalt. Bármely más
+    érvényes commit-referenciát is használhatsz.
+<5> A 2-4. lépéseket többször megismételheted, hogy az eredeti kódot
+    tetszőleges számú commitra bontsd.
+<6> Most már sok változtatást kiszedtél a saját commitjaikba, és lehet, hogy
+    már nem használod a `git add` patch módját, hogy kiválaszd az összes megmaradt,
+    nem commitolt változtatást.
+<7> Ismét ellenőrizd, hogy beemelted-e, amit szerettél volna. Érdemes lehet
+    azt is ellenőrizni, hogy a git diff nem mutat-e további, később
+    commitolandó változtatásokat.
+<8> És végül hozd létre a végső commitot.
 
 
 DISCUSSION
 ----------
 
-The tables below show what happens when running:
+Az alábbi táblák megmutatják, mi történik a következő futtatásakor:
 
 ----------
 git reset --option target
 ----------
 
-to reset the `HEAD` to another commit (`target`) with the different
-reset options depending on the state of the files.
+hogy a `HEAD`-et egy másik commitra (`target`) állítsuk vissza a különböző
+reset-opciókkal a fájlok állapotától függően.
 
-In these tables, `A`, `B`, `C` and `D` are some different states of a
-file. For example, the first line of the first table means that if a
-file is in state `A` in the working tree, in state `B` in the index, in
-state `C` in `HEAD` and in state `D` in the target, then `git reset --soft
-target` will leave the file in the working tree in state `A` and in the
-index in state `B`.  It resets (i.e. moves) the `HEAD` (i.e. the tip of
-the current branch, if you are on one) to `target` (which has the file
-in state `D`).
+Ezekben a táblákban az `A`, `B`, `C` és `D` egy fájl néhány különböző
+állapota. Például az első tábla első sora azt jelenti, hogy ha egy
+fájl `A` állapotban van a working tree-ben, `B` állapotban az indexben,
+`C` állapotban a `HEAD`-ben és `D` állapotban a targetben, akkor a `git reset --soft
+target` a fájlt a working tree-ben `A` állapotban, az indexben pedig
+`B` állapotban hagyja.  Visszaállítja (azaz elmozdítja) a `HEAD`-et (azaz az
+aktuális branch csúcsát, ha éppen egy branchen vagy) a `target`-re (amelyben a fájl
+`D` állapotban van).
 
 ....
 working index HEAD target         working index HEAD
@@ -464,26 +464,26 @@ working index HEAD target         working index HEAD
 			  --keep   B       C     C
 ....
 
-`git reset --merge` is meant to be used when resetting out of a conflicted
-merge. Any mergy operation guarantees that the working tree file that is
-involved in the merge does not have a local change with respect to the index
-before it starts, and that it writes the result out to the working tree. So if
-we see some difference between the index and the target and also
-between the index and the working tree, then it means that we are not
-resetting out from a state that a mergy operation left after failing
-with a conflict. That is why we disallow `--merge` option in this case.
+A `git reset --merge` arra való, hogy egy konfliktusos merge-ből visszaállj.
+Bármely merge-jellegű művelet garantálja, hogy a merge-ben érintett working tree
+fájlnak nincs helyi változtatása az indexhez képest, mielőtt elindul, és hogy
+az eredményt kiírja a working tree-be. Így ha valamilyen eltérést látunk
+az index és a target között, valamint az index és a working tree között is,
+akkor ez azt jelenti, hogy nem egy olyan állapotból állunk vissza, amelyet egy
+merge-jellegű művelet hagyott hátra, miután konfliktussal elbukott. Ezért nem
+engedélyezzük a `--merge` opciót ebben az esetben.
 
-`git reset --keep` is meant to be used when removing some of the last
-commits in the current branch while keeping changes in the working
-tree. If there could be conflicts between the changes in the commit we
-want to remove and the changes in the working tree we want to keep,
-the reset is disallowed. That's why it is disallowed if there are both
-changes between the working tree and `HEAD`, and between `HEAD` and the
-target. To be safe, it is also disallowed when there are unmerged
-entries.
+A `git reset --keep` arra való, hogy az aktuális branch utolsó
+commitjai közül eltávolíts néhányat, miközben megtartod a working
+tree-beli változtatásokat. Ha konfliktusok lehetnének az eltávolítani kívánt
+commit változtatásai és a megtartani kívánt working tree-beli változtatások között,
+a reset nem engedélyezett. Ezért nem engedélyezett, ha egyszerre vannak
+változtatások a working tree és a `HEAD` között, valamint a `HEAD` és a
+target között. A biztonság kedvéért akkor is nem engedélyezett, ha vannak nem merge-elt
+bejegyzések.
 
-The following tables show what happens when there are unmerged
-entries:
+Az alábbi táblák megmutatják, mi történik, ha vannak nem merge-elt
+bejegyzések:
 
 ....
 working index HEAD target         working index HEAD
@@ -505,8 +505,8 @@ working index HEAD target         working index HEAD
 			  --keep  (disallowed)
 ....
 
-`X` means any state and `U` means an unmerged index.
+Az `X` bármilyen állapotot jelent, az `U` pedig egy nem merge-elt indexet.
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

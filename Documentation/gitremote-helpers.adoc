@@ -13,322 +13,325 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Remote helper programs are normally not used directly by end users,
-but they are invoked by Git when it needs to interact with remote
-repositories Git does not support natively.  A given helper will
-implement a subset of the capabilities documented here. When Git
-needs to interact with a repository using a remote helper, it spawns
-the helper as an independent process, sends commands to the helper's
-standard input, and expects results from the helper's standard
-output. Because a remote helper runs as an independent process from
-Git, there is no need to re-link Git to add a new helper, nor any
-need to link the helper with the implementation of Git.
+A remote helper programokat általában nem közvetlenül a végfelhasználók
+használják, hanem a Git hívja meg őket, amikor olyan remote
+repository-kkal kell interakcióba lépnie, amelyeket a Git nem támogat natívan.  Egy adott
+helper az itt dokumentált képességek egy részhalmazát valósítja meg. Amikor a Gitnek
+egy remote helper használatával kell interakcióba lépnie egy repository-val, elindítja
+a helpert egy önálló folyamatként, parancsokat küld a helper
+standard bemenetére, és eredményeket vár a helper standard
+kimenetéről. Mivel egy remote helper a Gittől független folyamatként fut,
+nincs szükség a Git újra-linkelésére egy új helper hozzáadásához, sem
+arra, hogy a helpert összelinkeljék a Git implementációjával.
 
-Every helper must support the "capabilities" command, which Git
-uses to determine what other commands the helper will accept.  Those
-other commands can be used to discover and update remote refs,
-transport objects between the object database and the remote repository,
-and update the local object store.
+Minden helpernek támogatnia kell a "capabilities" parancsot, amelyet a Git
+arra használ, hogy meghatározza, milyen más parancsokat fogad el a helper.  Ezek
+a többi parancs arra használhatók, hogy felfedezzék és frissítsék a remote refeket,
+objektumokat szállítsanak az objektumadatbázis és a remote repository között,
+és frissítsék a helyi objektumtárolót.
 
-Git comes with a "curl" family of remote helpers, that handle various
-transport protocols, such as 'git-remote-http', 'git-remote-https',
-'git-remote-ftp' and 'git-remote-ftps'. They implement the capabilities
-'fetch', 'option', and 'push'.
+A Git rendelkezik egy "curl" remote helper-családdal, amely különböző
+átviteli protokollokat kezel, mint például a 'git-remote-http', 'git-remote-https',
+'git-remote-ftp' és 'git-remote-ftps'. Ezek megvalósítják a
+'fetch', 'option' és 'push' képességeket.
 
 INVOCATION
 ----------
 
-Remote helper programs are invoked with one or (optionally) two
-arguments. The first argument specifies a remote repository as in Git;
-it is either the name of a configured remote or a URL. The second
-argument specifies a URL; it is usually of the form
-'<transport>://<address>', but any arbitrary string is possible.
-The `GIT_DIR` environment variable is set up for the remote helper
-and can be used to determine where to store additional data or from
-which directory to invoke auxiliary Git commands.
+A remote helper programok egy vagy (opcionálisan) két
+argumentummal vannak meghívva. Az első argumentum egy remote repository-t ad meg, ahogy a Gitben szokás;
+ez vagy egy konfigurált remote neve, vagy egy URL. A második
+argumentum egy URL-t ad meg; ez általában
+'<transport>://<address>' alakú, de bármilyen tetszőleges sztring lehetséges.
+A `GIT_DIR` környezeti változó be van állítva a remote helper számára,
+és felhasználható annak meghatározására, hogy hová tárolja a további adatokat, vagy
+melyik könyvtárból hívjon meg kiegészítő Git-parancsokat.
 
-When Git encounters a URL of the form '<transport>://<address>', where
-'<transport>' is a protocol that it cannot handle natively, it
-automatically invokes 'git remote-<transport>' with the full URL as
-the second argument. If such a URL is encountered directly on the
-command line, the first argument is the same as the second, and if it
-is encountered in a configured remote, the first argument is the name
-of that remote.
+Amikor a Git egy '<transport>://<address>' alakú URL-lel találkozik, ahol
+a '<transport>' egy olyan protokoll, amelyet nem tud natívan kezelni,
+automatikusan meghívja a 'git remote-<transport>'-ot a teljes URL-lel mint
+második argumentummal. Ha egy ilyen URL-lel közvetlenül a
+parancssoron találkozik, az első argumentum ugyanaz, mint a második, és ha
+egy konfigurált remote-ban találkozik vele, az első argumentum annak a remote-nak a neve.
 
-A URL of the form '<transport>::<address>' explicitly instructs Git to
-invoke 'git remote-<transport>' with '<address>' as the second
-argument. If such a URL is encountered directly on the command line,
-the first argument is '<address>', and if it is encountered in a
-configured remote, the first argument is the name of that remote.
+Egy '<transport>::<address>' alakú URL kifejezetten arra utasítja a Gitet, hogy
+hívja meg a 'git remote-<transport>'-ot '<address>'-szel mint második
+argumentummal. Ha egy ilyen URL-lel közvetlenül a parancssoron találkozik,
+az első argumentum '<address>', és ha egy
+konfigurált remote-ban találkozik vele, az első argumentum annak a remote-nak a neve.
 
-Additionally, when a configured remote has `remote.<name>.vcs` set to
-'<transport>', Git explicitly invokes 'git remote-<transport>' with
-'<name>' as the first argument. If set, the second argument is
-`remote.<name>.url`; otherwise, the second argument is omitted.
+Emellett, amikor egy konfigurált remote-nak a `remote.<name>.vcs`-e
+'<transport>'-ra van állítva, a Git kifejezetten meghívja a 'git remote-<transport>'-ot
+'<name>'-mel mint első argumentummal. Ha be van állítva, a második argumentum
+a `remote.<name>.url`; egyébként a második argumentum el van hagyva.
 
 INPUT FORMAT
 ------------
 
-Git sends the remote helper a list of commands on standard input, one
-per line.  The first command is always the 'capabilities' command, in
-response to which the remote helper must print a list of the
-capabilities it supports (see below) followed by a blank line.  The
-response to the capabilities command determines what commands Git uses
-in the remainder of the command stream.
+A Git a remote helpernek egy parancslistát küld a standard bemeneten, soronként
+egyet.  Az első parancs mindig a 'capabilities' parancs, amelyre
+válaszul a remote helpernek ki kell írnia az általa támogatott
+képességek listáját (lásd lentebb), amelyet egy üres sor követ.  A
+capabilities parancsra adott válasz határozza meg, mely parancsokat használja a Git
+a parancsfolyam további részében.
 
-The command stream is terminated by a blank line.  In some cases
-(indicated in the documentation of the relevant commands), this blank
-line is followed by a payload in some other protocol (e.g., the pack
-protocol), while in others it indicates the end of input.
+A parancsfolyamot egy üres sor zárja le.  Egyes esetekben
+(a releváns parancsok dokumentációjában jelezve) ezt az üres
+sort egy másik protokollban lévő payload követi (pl. a pack
+protokoll), míg másokban ez a bemenet végét jelzi.
 
-Capabilities
-~~~~~~~~~~~~
+[[_capabilities]]
+Képességek
+~~~~~~~~~~
 
-Each remote helper is expected to support only a subset of commands.
-The operations a helper supports are declared to Git in the response
-to the `capabilities` command (see COMMANDS, below).
+Minden remote helpertől elvárt, hogy csak a parancsok egy részhalmazát támogassa.
+Azokat a műveleteket, amelyeket egy helper támogat, a `capabilities` parancsra adott
+válaszban jelenti be a Gitnek (lásd a COMMANDS szakaszt lentebb).
 
-In the following, we list all defined capabilities and for
-each we list which commands a helper with that capability
-must provide.
+Az alábbiakban felsoroljuk az összes definiált képességet, és
+mindegyikhez felsoroljuk, mely parancsokat kell biztosítania egy ilyen
+képességgel rendelkező helpernek.
 
-Capabilities for Pushing
-^^^^^^^^^^^^^^^^^^^^^^^^
+[[_capabilities_for_pushing]]
+Képességek pusholáshoz
+^^^^^^^^^^^^^^^^^^^^^^
 'connect'::
-	Can attempt to connect to 'git receive-pack' (for pushing),
-	'git upload-pack', etc for communication using
-	git's native packfile protocol. This
-	requires a bidirectional, full-duplex connection.
+	Megkísérelhet kapcsolódni a 'git receive-pack'-hez (pusholáshoz),
+	'git upload-pack'-hez stb. a git natív packfile
+	protokollját használó kommunikációhoz. Ez
+	egy kétirányú, full-duplex kapcsolatot igényel.
 +
-Supported commands: 'connect'.
+Támogatott parancsok: 'connect'.
 
 'stateless-connect'::
-	Experimental; for internal use only.
-	Can attempt to connect to a remote server for communication
-	using git's wire-protocol version 2.  See the documentation
-	for the stateless-connect command for more information.
+	Kísérleti; csak belső használatra.
+	Megkísérelhet kapcsolódni egy remote szerverhez a git wire-protocol
+	version 2-jét használó kommunikációhoz.  További információért lásd
+	a stateless-connect parancs dokumentációját.
 +
-Supported commands: 'stateless-connect'.
+Támogatott parancsok: 'stateless-connect'.
 
 'push'::
-	Can discover remote refs and push local commits and the
-	history leading up to them to new or existing remote refs.
+	Felfedezheti a remote refeket, és pusholhatja a helyi commitokat és az
+	azokhoz vezető történetet új vagy meglévő remote refekbe.
 +
-Supported commands: 'list for-push', 'push'.
+Támogatott parancsok: 'list for-push', 'push'.
 
 'export'::
-	Can discover remote refs and push specified objects from a
-	fast-import stream to remote refs.
+	Felfedezheti a remote refeket, és pusholhatja a megadott objektumokat egy
+	fast-import streamből a remote refekbe.
 +
-Supported commands: 'list for-push', 'export'.
+Támogatott parancsok: 'list for-push', 'export'.
 
-If a helper advertises 'connect', Git will use it if possible and
-fall back to another capability if the helper requests so when
-connecting (see the 'connect' command under COMMANDS).
-When choosing between 'push' and 'export', Git prefers 'push'.
-Other frontends may have some other order of preference.
+Ha egy helper hirdeti a 'connect'-et, a Git ha lehetséges, azt fogja
+használni, és visszaesik egy másik képességre, ha a helper ezt kéri
+kapcsolódáskor (lásd a 'connect' parancsot a COMMANDS alatt).
+A 'push' és az 'export' közötti választáskor a Git a 'push'-t preferálja.
+Más frontendeknek más preferencia-sorrendjük lehet.
 
 'no-private-update'::
-	When using the 'refspec' capability, git normally updates the
-	private ref on successful push. This update is disabled when
-	the remote-helper declares the capability 'no-private-update'.
+	Amikor a 'refspec' képesség használatban van, a git normál esetben frissíti a
+	privát refet egy sikeres push után. Ez a frissítés le van tiltva, amikor
+	a remote-helper hirdeti a 'no-private-update' képességet.
 
 
-Capabilities for Fetching
-^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_capabilities_for_fetching]]
+Képességek fetcheléshez
+^^^^^^^^^^^^^^^^^^^^^^^
 'connect'::
-	Can try to connect to 'git upload-pack' (for fetching),
-	'git receive-pack', etc for communication using the
-	Git's native packfile protocol. This
-	requires a bidirectional, full-duplex connection.
+	Megkísérelhet kapcsolódni a 'git upload-pack'-hez (fetcheléshez),
+	'git receive-pack'-hez stb. a Git natív
+	packfile protokollját használó kommunikációhoz. Ez
+	egy kétirányú, full-duplex kapcsolatot igényel.
 +
-Supported commands: 'connect'.
+Támogatott parancsok: 'connect'.
 
 'stateless-connect'::
-	Experimental; for internal use only.
-	Can attempt to connect to a remote server for communication
-	using git's wire-protocol version 2.  See the documentation
-	for the stateless-connect command for more information.
+	Kísérleti; csak belső használatra.
+	Megkísérelhet kapcsolódni egy remote szerverhez a git wire-protocol
+	version 2-jét használó kommunikációhoz.  További információért lásd
+	a stateless-connect parancs dokumentációját.
 +
-Supported commands: 'stateless-connect'.
+Támogatott parancsok: 'stateless-connect'.
 
 'fetch'::
-	Can discover remote refs and transfer objects reachable from
-	them to the local object store.
+	Felfedezheti a remote refeket, és az azokból elérhető objektumokat
+	átviheti a helyi objektumtárolóba.
 +
-Supported commands: 'list', 'fetch'.
+Támogatott parancsok: 'list', 'fetch'.
 
 'import'::
-	Can discover remote refs and output objects reachable from
-	them as a stream in fast-import format.
+	Felfedezheti a remote refeket, és az azokból elérhető objektumokat
+	streamként adhatja ki fast-import formátumban.
 +
-Supported commands: 'list', 'import'.
+Támogatott parancsok: 'list', 'import'.
 
 'check-connectivity'::
-	Can guarantee that when a clone is requested, the received
-	pack is self contained and is connected.
+	Garantálhatja, hogy amikor egy klónozást kérnek, a fogadott
+	pack önmagában teljes, és összekapcsolt.
 
 'get'::
-	Can use the 'get' command to download a file from a given URI.
+	Használhatja a 'get' parancsot egy fájl letöltéséhez egy megadott URI-ból.
 
-If a helper advertises 'connect', Git will use it if possible and
-fall back to another capability if the helper requests so when
-connecting (see the 'connect' command under COMMANDS).
-When choosing between 'fetch' and 'import', Git prefers 'fetch'.
-Other frontends may have some other order of preference.
+Ha egy helper hirdeti a 'connect'-et, a Git ha lehetséges, azt fogja
+használni, és visszaesik egy másik képességre, ha a helper ezt kéri
+kapcsolódáskor (lásd a 'connect' parancsot a COMMANDS alatt).
+A 'fetch' és az 'import' közötti választáskor a Git a 'fetch'-et preferálja.
+Más frontendeknek más preferencia-sorrendjük lehet.
 
-Miscellaneous capabilities
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_miscellaneous_capabilities]]
+Egyéb képességek
+^^^^^^^^^^^^^^^^
 
 'option'::
-	For specifying settings like `verbosity` (how much output to
-	write to stderr) and `depth` (how much history is wanted in the
-	case of a shallow clone) that affect how other commands are
-	carried out.
+	Olyan beállítások megadására, mint a `verbosity` (mennyi kimenetet
+	írjon a stderr-re) és a `depth` (mennyi történet szükséges egy
+	shallow clone esetén), amelyek befolyásolják, hogyan hajtódnak végre a
+	többi parancsok.
 
 'refspec' <refspec>::
-	For remote helpers that implement 'import' or 'export', this capability
-	allows the refs to be constrained to a private namespace, instead of
-	writing to refs/heads or refs/remotes directly.
-	It is recommended that all importers providing the 'import'
-	capability use this. It's mandatory for 'export'.
+	Az 'import' vagy 'export' képességet megvalósító remote helperek esetén ez a képesség
+	lehetővé teszi, hogy a refek egy privát névtérre legyenek korlátozva, ahelyett hogy
+	közvetlenül a refs/heads-be vagy refs/remotes-ba írnának.
+	Ajánlott, hogy minden importer, amely az 'import'
+	képességet biztosítja, ezt használja. Az 'export' esetén kötelező.
 +
-A helper advertising the capability
-`refspec refs/heads/*:refs/svn/origin/branches/*`
-is saying that, when it is asked to `import refs/heads/topic`, the
-stream it outputs will update the `refs/svn/origin/branches/topic`
-ref.
+Egy helper, amely hirdeti a
+`refspec refs/heads/*:refs/svn/origin/branches/*` képességet,
+azt mondja, hogy amikor arra kérik, hogy `import refs/heads/topic`, az
+általa kiadott stream a `refs/svn/origin/branches/topic`
+refet fogja frissíteni.
 +
-This capability can be advertised multiple times.  The first
-applicable refspec takes precedence.  The left-hand of refspecs
-advertised with this capability must cover all refs reported by
-the list command.  If no 'refspec' capability is advertised,
-there is an implied `refspec *:*`.
+Ez a képesség többször is hirdethető.  Az első
+alkalmazható refspec élvez elsőbbséget.  Az ezzel a képességgel
+hirdetett refspecek bal oldalának le kell fednie a list parancs által jelentett
+összes refet.  Ha nincs 'refspec' képesség hirdetve,
+egy implicit `refspec *:*` érvényesül.
 +
-When writing remote-helpers for decentralized version control
-systems, it is advised to keep a local copy of the repository to
-interact with, and to let the private namespace refs point to this
-local repository, while the refs/remotes namespace is used to track
-the remote repository.
+Elosztott verziókövető rendszerekhez remote-helperek
+írásakor javasolt megtartani a repository egy helyi másolatát, amellyel
+interakcióba lehet lépni, és hagyni, hogy a privát névtér refjei erre a
+helyi repository-ra mutassanak, míg a refs/remotes névteret a
+remote repository követésére használják.
 
 'bidi-import'::
-	This modifies the 'import' capability.
-	The fast-import commands 'cat-blob' and 'ls' can be used by remote-helpers
-	to retrieve information about blobs and trees that already exist in
-	fast-import's memory. This requires a channel from fast-import to the
-	remote-helper.
-	If it is advertised in addition to "import", Git establishes a pipe from
-	fast-import to the remote-helper's stdin.
-	It follows that Git and fast-import are both connected to the
-	remote-helper's stdin. Because Git can send multiple commands to
-	the remote-helper it is required that helpers that use 'bidi-import'
-	buffer all 'import' commands of a batch before sending data to fast-import.
-	This is to prevent mixing commands and fast-import responses on the
-	helper's stdin.
+	Ez módosítja az 'import' képességet.
+	A fast-import 'cat-blob' és 'ls' parancsai a remote-helperek által
+	használhatók, hogy információt szerezzenek a fast-import memóriájában már
+	létező blobokról és fákról. Ez egy csatornát igényel a fast-importtól a
+	remote-helperhez.
+	Ha az "import" mellett is hirdetve van, a Git egy pipe-ot létesít a
+	fast-importtól a remote-helper stdin-jéhez.
+	Ebből következik, hogy a Git és a fast-import is a
+	remote-helper stdin-jéhez kapcsolódik. Mivel a Git több parancsot is küldhet
+	a remote-helpernek, szükséges, hogy azok a helperek, amelyek a 'bidi-import'-ot használják,
+	egy batch összes 'import' parancsát pufferelje, mielőtt adatokat küldenek a fast-importnak.
+	Ez azért van, hogy megelőzze a parancsok és a fast-import válaszok keveredését a
+	helper stdin-jén.
 
 'export-marks' <file>::
-	This modifies the 'export' capability, instructing Git to dump the
-	internal marks table to <file> when complete. For details,
-	read up on `--export-marks=<file>` in linkgit:git-fast-export[1].
+	Ez módosítja az 'export' képességet, utasítva a Gitet, hogy a befejezéskor dumpolja a
+	belső marks-táblát a <file>-ba. A részletekért
+	olvasd el a `--export-marks=<file>`-t a linkgit:git-fast-export[1] oldalon.
 
 'import-marks' <file>::
-	This modifies the 'export' capability, instructing Git to load the
-	marks specified in <file> before processing any input. For details,
-	read up on `--import-marks=<file>` in linkgit:git-fast-export[1].
+	Ez módosítja az 'export' képességet, utasítva a Gitet, hogy töltse be a
+	<file>-ban megadott marks-okat, mielőtt bármilyen bemenetet feldolgozna. A részletekért
+	olvasd el a `--import-marks=<file>`-t a linkgit:git-fast-export[1] oldalon.
 
 'signed-tags'::
-	This modifies the 'export' capability, instructing Git to pass
-	`--signed-tags=verbatim` to linkgit:git-fast-export[1].  In the
-	absence of this capability, Git will use `--signed-tags=warn-strip`.
+	Ez módosítja az 'export' képességet, utasítva a Gitet, hogy adja át
+	a `--signed-tags=verbatim`-ot a linkgit:git-fast-export[1] parancsnak.  Ennek
+	a képességnek a hiányában a Git a `--signed-tags=warn-strip`-et fogja használni.
 
 'object-format'::
-	This indicates that the helper is able to interact with the remote
-	side using an explicit hash algorithm extension.
+	Ez azt jelzi, hogy a helper képes egy explicit hash-algoritmus
+	kiterjesztés használatával interakcióba lépni a remote oldallal.
 
 
 COMMANDS
 --------
 
-Commands are given by the caller on the helper's standard input, one per line.
+A parancsokat a hívó adja meg a helper standard bemenetén, soronként egyet.
 
 'capabilities'::
-	Lists the capabilities of the helper, one per line, ending
-	with a blank line. Each capability may be preceded with '*',
-	which marks them mandatory for Git versions using the remote
-	helper to understand. Any unknown mandatory capability is a
-	fatal error.
+	Felsorolja a helper képességeit, soronként egyet, üres
+	sorral zárva. Minden képességet megelőzhet egy '*',
+	amely azt jelzi, hogy kötelező a remote helpert használó Git-
+	verzióknak megérteniük. Bármely ismeretlen kötelező képesség
+	végzetes hiba.
 +
-Support for this command is mandatory.
+Ennek a parancsnak a támogatása kötelező.
 
 'list'::
-	Lists the refs, one per line, in the format "<value> <name>
-	[<attr> ...]". The value may be a hex sha1 hash, "@<dest>" for
-	a symref, ":<keyword> <value>" for a key-value pair, or
-	"?" to indicate that the helper could not get the value of the
-	ref. A space-separated list of attributes follows the name;
-	unrecognized attributes are ignored. The list ends with a
-	blank line.
+	Felsorolja a refeket, soronként egyet, "<value> <name>
+	[<attr> ...]" formátumban. Az érték lehet egy hex sha1 hash, "@<dest>"
+	egy symref esetén, ":<keyword> <value>" egy kulcs-érték pár esetén, vagy
+	"?", ha a helper nem tudta megszerezni a ref
+	értékét. A nevet egy szóközzel elválasztott attribútumlista követi;
+	a fel nem ismert attribútumok figyelmen kívül maradnak. A lista üres
+	sorral ér véget.
 +
-See REF LIST ATTRIBUTES for a list of currently defined attributes.
-See REF LIST KEYWORDS for a list of currently defined keywords.
+A jelenleg definiált attribútumok listájáért lásd a REF LIST ATTRIBUTES szakaszt.
+A jelenleg definiált kulcsszavak listájáért lásd a REF LIST KEYWORDS szakaszt.
 +
-Supported if the helper has the "fetch" or "import" capability.
+Támogatott, ha a helper rendelkezik a "fetch" vagy "import" képességgel.
 
 'list for-push'::
-	Similar to 'list', except that it is used if and only if
-	the caller wants to the resulting ref list to prepare
-	push commands.
-	A helper supporting both push and fetch can use this
-	to distinguish for which operation the output of 'list'
-	is going to be used, possibly reducing the amount
-	of work that needs to be performed.
+	Hasonló a 'list'-hez, azzal a különbséggel, hogy akkor és csak akkor van
+	használva, ha a hívó push-parancsok
+	előkészítéséhez akarja használni az eredményül kapott ref-listát.
+	Egy helper, amely mind a pushot, mind a fetchet támogatja, ezt felhasználhatja
+	annak megkülönböztetésére, hogy melyik művelethez lesz felhasználva a 'list'
+	kimenete, esetleg csökkentve az elvégzendő
+	munka mennyiségét.
 +
-Supported if the helper has the "push" or "export" capability.
+Támogatott, ha a helper rendelkezik a "push" vagy "export" képességgel.
 
 'option' <name> <value>::
-	Sets the transport helper option <name> to <value>.  Outputs a
-	single line containing one of 'ok' (option successfully set),
-	'unsupported' (option not recognized) or 'error <msg>'
-	(option <name> is supported but <value> is not valid
-	for it).  Options should be set before other commands,
-	and may influence the behavior of those commands.
+	Beállítja a <name> transport helper opciót <value>-ra.  Kiad egy
+	egysoros választ, amely a következők egyike: 'ok' (az opció sikeresen be lett állítva),
+	'unsupported' (az opció nem ismert fel) vagy 'error <msg>'
+	(a <name> opció támogatott, de a <value> nem érvényes
+	hozzá).  Az opciókat a többi parancs előtt kell beállítani,
+	és befolyásolhatják azok viselkedését.
 +
-See OPTIONS for a list of currently defined options.
+A jelenleg definiált opciók listájáért lásd az OPTIONS szakaszt.
 +
-Supported if the helper has the "option" capability.
+Támogatott, ha a helper rendelkezik az "option" képességgel.
 
 'fetch' <sha1> <name>::
-	Fetches the given object, writing the necessary objects
-	to the database.  Fetch commands are sent in a batch, one
-	per line, terminated with a blank line.
-	Outputs a single blank line when all fetch commands in the
-	same batch are complete. Only objects which were reported
-	in the output of 'list' with a sha1 may be fetched this way.
+	Fetcheli a megadott objektumot, a szükséges objektumokat
+	az adatbázisba írva.  A fetch parancsok egy batch-ben vannak küldve, soronként
+	egy, üres sorral lezárva.
+	Egyetlen üres sort ad ki, amikor ugyanannak a batchnek az összes fetch parancsa
+	befejeződött. Csak azok az objektumok fetchelhetők így, amelyek
+	a 'list' kimenetében sha1-gyel voltak jelentve.
 +
-Optionally may output a 'lock <file>' line indicating the full path of
-a file under `$GIT_DIR/objects/pack` which is keeping a pack until
-refs can be suitably updated.  The path must end with `.keep`. This is
-a mechanism to name a <pack,idx,keep> tuple by giving only the keep
-component.  The kept pack will not be deleted by a concurrent repack,
-even though its objects may not be referenced until the fetch completes.
-The `.keep` file will be deleted at the conclusion of the fetch.
+Opcionálisan kiadhat egy 'lock <file>' sort, amely egy fájl teljes útvonalát jelzi
+a `$GIT_DIR/objects/pack` alatt, amely megtart egy packet, amíg
+a refek megfelelően frissíthetők.  Az útvonalnak `.keep`-re kell végződnie. Ez
+egy mechanizmus egy <pack,idx,keep> hármas megnevezésére csak a keep
+komponens megadásával.  A megtartott packet egy párhuzamos repack nem fogja törölni,
+még akkor sem, ha az objektumaira esetleg nem hivatkoznak, amíg a fetch be nem fejeződik.
+A `.keep` fájl törlésre kerül a fetch végén.
 +
-If option 'check-connectivity' is requested, the helper must output
-'connectivity-ok' if the clone is self-contained and connected.
+Ha a 'check-connectivity' opció kérve van, a helpernek ki kell adnia
+a 'connectivity-ok'-ot, ha a klón önmagában teljes és összekapcsolt.
 +
-Supported if the helper has the "fetch" capability.
+Támogatott, ha a helper rendelkezik a "fetch" képességgel.
 
 'push' +<src>:<dst>::
-	Pushes the given local <src> commit or branch to the
-	remote branch described by <dst>.  A batch sequence of
-	one or more 'push' commands is terminated with a blank line
-	(if there is only one reference to push, a single 'push' command
-	is followed by a blank line). For example, the following would
-	be two batches of 'push', the first asking the remote-helper
-	to push the local ref 'master' to the remote ref 'master' and
-	the local `HEAD` to the remote 'branch', and the second
-	asking to push ref 'foo' to ref 'bar' (forced update requested
-	by the '+').
+	Pusholja a megadott helyi <src> commitot vagy branchet a
+	<dst> által leírt remote branchre.  Egy vagy több
+	'push' parancsból álló batch-szekvenciát egy üres sor zár le
+	(ha csak egy referenciát kell pusholni, egyetlen 'push' parancsot
+	egy üres sor követ). Például a következő két 'push'
+	batch lenne, az első arra kéri a remote-helpert,
+	hogy pusholja a helyi 'master' refet a remote 'master' refre, és
+	a helyi `HEAD`-et a remote 'branch'-re, a második pedig
+	arra kéri, hogy pusholja a 'foo' refet a 'bar' refre (a '+' által kért
+	kényszerített frissítéssel).
 +
 ------------
 push refs/heads/master:refs/heads/master
@@ -338,214 +341,212 @@ push +refs/heads/foo:refs/heads/bar
 \n
 ------------
 +
-Zero or more protocol options may be entered after the last 'push'
-command, before the batch's terminating blank line.
+Nulla vagy több protokoll-opció adható meg az utolsó 'push'
+parancs után, a batch záró üres sora előtt.
 +
-When the push is complete, outputs one or more 'ok <dst>' or
-'error <dst> <why>?' lines to indicate success or failure of
-each pushed ref.  The status report output is terminated by
-a blank line.  The option field <why> may be quoted in a C
-style string if it contains an LF.
+Amikor a push befejeződik, egy vagy több 'ok <dst>' vagy
+'error <dst> <why>?' sort ad ki, hogy jelezze az egyes pusholt
+refek sikerét vagy sikertelenségét.  A státuszjelentés kimenetét
+egy üres sor zárja le.  A <why> opciómező C-
+stílusú sztringben idézőjelezhető, ha LF-et tartalmaz.
 +
-Supported if the helper has the "push" capability.
+Támogatott, ha a helper rendelkezik a "push" képességgel.
 
 'import' <name>::
-	Produces a fast-import stream which imports the current value
-	of the named ref. It may additionally import other refs as
-	needed to construct the history efficiently. The script writes
-	to a helper-specific private namespace. The value of the named
-	ref should be written to a location in this namespace derived
-	by applying the refspecs from the "refspec" capability to the
-	name of the ref.
+	Előállít egy fast-import streamet, amely importálja a megnevezett ref
+	aktuális értékét. Emellett szükség szerint más refeket is importálhat, hogy
+	hatékonyan felépítse a történetet. A szkript egy helper-
+	specifikus privát névtérbe ír. A megnevezett
+	ref értékét ennek a névtérnek egy olyan helyére kell írni, amelyet
+	a "refspec" képesség refspecjeinek a ref nevére
+	alkalmazásával kapunk.
 +
-Especially useful for interoperability with a foreign versioning
-system.
+Különösen hasznos egy idegen verziókövető rendszerrel való
+interoperabilitáshoz.
 +
-Just like 'push', a batch sequence of one or more 'import' is
-terminated with a blank line. For each batch of 'import', the remote
-helper should produce a fast-import stream terminated by a 'done'
-command.
+Ugyanúgy, mint a 'push' esetén, egy vagy több 'import'-ból álló batch-szekvenciát
+egy üres sor zár le. Az 'import' minden batchjéhez a remote
+helpernek egy 'done' paranccsal lezárt fast-import streamet kell előállítania.
 +
-Note that if the 'bidi-import' capability is used the complete batch
-sequence has to be buffered before starting to send data to fast-import
-to prevent mixing of commands and fast-import responses on the helper's
-stdin.
+Vedd figyelembe, hogy ha a 'bidi-import' képesség használatban van, a teljes batch-
+szekvenciát pufferelni kell, mielőtt elkezdenénk adatokat küldeni a fast-importnak,
+hogy megelőzzük a parancsok és a fast-import válaszok keveredését a helper
+stdin-jén.
 +
-Supported if the helper has the "import" capability.
+Támogatott, ha a helper rendelkezik az "import" képességgel.
 
 'export'::
-	Instructs the remote helper that any subsequent input is
-	part of a fast-import stream (generated by 'git fast-export')
-	containing objects which should be pushed to the remote.
+	Utasítja a remote helpert, hogy minden ezt követő bemenet
+	egy (a 'git fast-export' által generált) fast-import stream része,
+	amely a remote-ba pusholandó objektumokat tartalmazza.
 +
-Especially useful for interoperability with a foreign versioning
-system.
+Különösen hasznos egy idegen verziókövető rendszerrel való
+interoperabilitáshoz.
 +
-The 'export-marks' and 'import-marks' capabilities, if specified,
-affect this command in so far as they are passed on to 'git
-fast-export', which then will load/store a table of marks for
-local objects. This can be used to implement for incremental
-operations.
+Az 'export-marks' és 'import-marks' képességek, ha meg vannak adva,
+annyiban befolyásolják ezt a parancsot, hogy át vannak adva a 'git
+fast-export'-nak, amely ekkor betölti/tárolja a helyi objektumok marks-
+tábláját. Ez felhasználható inkrementális
+műveletek megvalósításához.
 +
-Supported if the helper has the "export" capability.
+Támogatott, ha a helper rendelkezik az "export" képességgel.
 
 'connect' <service>::
-	Connects to given service. Standard input and standard output
-	of helper are connected to specified service (git prefix is
-	included in service name so e.g. fetching uses 'git-upload-pack'
-	as service) on remote side. Valid replies to this command are
-	empty line (connection established), 'fallback' (no smart
-	transport support, fall back to dumb transports) and just
-	exiting with error message printed (can't connect, don't
-	bother trying to fall back). After line feed terminating the
-	positive (empty) response, the output of service starts. After
-	the connection ends, the remote helper exits.
+	Kapcsolódik a megadott szolgáltatáshoz. A helper standard bemenete
+	és standard kimenete a megadott szolgáltatáshoz (a git előtag
+	a szolgáltatásnévben szerepel, így pl. a fetchelés 'git-upload-pack'-et használ
+	szolgáltatásként) van kapcsolva a remote oldalon. Az erre a parancsra adott
+	érvényes válaszok: üres sor (a kapcsolat létrejött), 'fallback' (nincs smart
+	transport támogatás, visszaesés dumb transportokra), és egyszerűen
+	kilépés hibaüzenet kiírásával (nem lehet kapcsolódni, ne
+	próbálkozz visszaeséssel). A pozitív (üres) választ lezáró soremelés után
+	elkezdődik a szolgáltatás kimenete. A kapcsolat végén a remote helper kilép.
 +
-Supported if the helper has the "connect" capability.
+Támogatott, ha a helper rendelkezik a "connect" képességgel.
 
 'stateless-connect' <service>::
-	Experimental; for internal use only.
-	Connects to the given remote service for communication using
-	git's wire-protocol version 2.  Valid replies to this command
-	are empty line (connection established), 'fallback' (no smart
-	transport support, fall back to dumb transports) and just
-	exiting with error message printed (can't connect, don't bother
-	trying to fall back).  After line feed terminating the positive
-	(empty) response, the output of the service starts.  Messages
-	(both request and response) must consist of zero or more
-	PKT-LINEs, terminating in a flush packet. Response messages will
-	then have a response end packet after the flush packet to
-	indicate the end of a response.  The client must not
-	expect the server to store any state in between request-response
-	pairs.  After the connection ends, the remote helper exits.
+	Kísérleti; csak belső használatra.
+	Kapcsolódik a megadott remote szolgáltatáshoz a git wire-
+	protocol version 2-jét használó kommunikációhoz.  Az erre a parancsra adott
+	érvényes válaszok: üres sor (a kapcsolat létrejött), 'fallback' (nincs smart
+	transport támogatás, visszaesés dumb transportokra), és egyszerűen
+	kilépés hibaüzenet kiírásával (nem lehet kapcsolódni, ne próbálkozz
+	visszaeséssel).  A pozitív (üres) választ lezáró soremelés után
+	elkezdődik a szolgáltatás kimenete.  Az üzeneteknek
+	(mind a kérésnek, mind a válasznak) nulla vagy több
+	PKT-LINE-ból kell állniuk, egy flush csomaggal lezárva. A válaszüzenetek
+	ezután egy válasz-vég csomagot tartalmaznak a flush csomag után, hogy
+	jelezzék egy válasz végét.  A kliens nem várhatja el, hogy
+	a szerver bármilyen állapotot tároljon a kérés-válasz
+	párok között.  A kapcsolat végén a remote helper kilép.
 +
-Supported if the helper has the "stateless-connect" capability.
+Támogatott, ha a helper rendelkezik a "stateless-connect" képességgel.
 
 'get' <uri> <path>::
-	Downloads the file from the given `<uri>` to the given `<path>`. If
-	`<path>.temp` exists, then Git assumes that the `.temp` file is a
-	partial download from a previous attempt and will resume the
-	download from that position.
+	Letölti a fájlt a megadott `<uri>`-ból a megadott `<path>`-ra. Ha
+	a `<path>.temp` létezik, a Git feltételezi, hogy a `.temp` fájl egy
+	korábbi kísérletből származó részleges letöltés, és onnan folytatja a
+	letöltést.
 
-If a fatal error occurs, the program writes the error message to
-stderr and exits. The caller should expect that a suitable error
-message has been printed if the child closes the connection without
-completing a valid response for the current command.
+Ha végzetes hiba történik, a program kiírja a hibaüzenetet a
+stderr-re, és kilép. A hívónak fel kell készülnie arra, hogy egy megfelelő hiba-
+üzenet ki lett írva, ha a gyermek folyamat lezárja a kapcsolatot anélkül,
+hogy egy érvényes választ adott volna az aktuális parancsra.
 
-Additional commands may be supported, as may be determined from
-capabilities reported by the helper.
+További parancsok is támogatottak lehetnek, ahogy az a helper
+által jelentett képességekből megállapítható.
 
 REF LIST ATTRIBUTES
 -------------------
 
-The 'list' command produces a list of refs in which each ref
-may be followed by a list of attributes. The following ref list
-attributes are defined.
+A 'list' parancs egy reflistát állít elő, amelyben minden refet
+követhet egy attribútumlista. A következő ref-lista
+attribútumok vannak definiálva.
 
 'unchanged'::
-	This ref is unchanged since the last import or fetch, although
-	the helper cannot necessarily determine what value that produced.
+	Ez a ref változatlan az utolsó import vagy fetch óta, bár
+	a helper nem feltétlenül tudja megállapítani, milyen érték jött ki abból.
 
 REF LIST KEYWORDS
 -----------------
 
-The 'list' command may produce a list of key-value pairs.
-The following keys are defined.
+A 'list' parancs előállíthat egy kulcs-érték pár listát.
+A következő kulcsok vannak definiálva.
 
 'object-format'::
-	The refs are using the given hash algorithm.  This keyword is only
-	used if the server and client both support the object-format
-	extension.
+	A refek a megadott hash-algoritmust használják.  Ez a kulcsszó csak akkor
+	van használva, ha mind a szerver, mind a kliens támogatja az object-format
+	kiterjesztést.
 
 
 OPTIONS
 -------
 
-The following options are defined and (under suitable circumstances)
-set by Git if the remote helper has the 'option' capability.
+A következő opciók vannak definiálva, és (megfelelő körülmények között)
+a Git állítja be őket, ha a remote helper rendelkezik az 'option' képességgel.
 
 'option verbosity' <n>::
-	Changes the verbosity of messages displayed by the helper.
-	A value of 0 for <n> means that processes operate
-	quietly, and the helper produces only error output.
-	1 is the default level of verbosity, and higher values
-	of <n> correspond to the number of -v flags passed on the
-	command line.
+	Megváltoztatja a helper által megjelenített üzenetek részletességét.
+	A <n> 0 értéke azt jelenti, hogy a folyamatok
+	csendben működnek, és a helper csak hibakimenetet ad.
+	Az 1 a részletesség alapértelmezett szintje, és a <n> magasabb
+	értékei a parancssoron átadott -v flagek
+	számának felelnek meg.
 
 'option progress' {'true'|'false'}::
-	Enables (or disables) progress messages displayed by the
-	transport helper during a command.
+	Engedélyezi (vagy letiltja) a transport helper által egy
+	parancs közben megjelenített folyamatüzeneteket.
 
 'option depth' <depth>::
-	Deepens the history of a shallow repository.
+	Elmélyíti egy shallow repository történetét.
 
 'option deepen-since' <timestamp>::
-	Deepens the history of a shallow repository based on time.
+	Elmélyíti egy shallow repository történetét idő alapján.
 
 'option deepen-not' <ref>::
-	Deepens the history of a shallow repository excluding ref.
-	Multiple options add up.
+	Elmélyíti egy shallow repository történetét, kizárva a refet.
+	Több opció összeadódik.
 
 'option deepen-relative' {'true'|'false'}::
-	Deepens the history of a shallow repository relative to
-	current boundary. Only valid when used with "option depth".
+	Elmélyíti egy shallow repository történetét az aktuális
+	határhoz képest. Csak akkor érvényes, ha az "option depth"-tel együtt van használva.
 
 'option followtags' {'true'|'false'}::
-	If enabled the helper should automatically fetch annotated
-	tag objects if the object the tag points at was transferred
-	during the fetch command.  If the tag is not fetched by
-	the helper a second fetch command will usually be sent to
-	ask for the tag specifically.  Some helpers may be able to
-	use this option to avoid a second network connection.
+	Ha engedélyezve van, a helpernek automatikusan fetchelnie kell az annotált
+	tag-objektumokat, ha az az objektum, amelyre a tag mutat, át lett vive
+	a fetch parancs során.  Ha a tag-et a helper nem
+	fetcheli, általában egy második fetch parancs lesz küldve, hogy
+	kifejezetten a tag-et kérje.  Egyes helperek képesek lehetnek
+	ezt az opciót felhasználni egy második hálózati kapcsolat elkerülésére.
 
 'option dry-run' {'true'|'false'}::
-	If true, pretend the operation completed successfully,
-	but don't actually change any repository data.  For most
-	helpers this only applies to the 'push', if supported.
+	Ha true, úgy tesz, mintha a művelet sikeresen befejeződött volna,
+	de valójában nem változtat semmilyen repository-adatot.  A legtöbb
+	helper esetén ez csak a 'push'-ra vonatkozik, ha támogatott.
 
 'option servpath <c-style-quoted-path>'::
-	Sets service path (--upload-pack, --receive-pack etc.) for
-	next connect. Remote helper may support this option, but
-	must not rely on this option being set before
-	connect request occurs.
+	Beállítja a szolgáltatás útvonalát (--upload-pack, --receive-pack stb.) a
+	következő connecthez. A remote helper támogathatja ezt az opciót, de
+	nem támaszkodhat arra, hogy ez az opció be van állítva a
+	connect kérés előtt.
 
 'option check-connectivity' {'true'|'false'}::
-	Request the helper to check connectivity of a clone.
+	Kéri a helpert, hogy ellenőrizze egy klón összekapcsoltságát.
 
 'option force' {'true'|'false'}::
-	Request the helper to perform a force update.  Defaults to
+	Kéri a helpert, hogy hajtson végre kényszerített frissítést.  Alapból
 	'false'.
 
 'option cloning' {'true'|'false'}::
-	Notify the helper this is a clone request (i.e. the current
-	repository is guaranteed empty).
+	Értesíti a helpert, hogy ez egy klónozási kérés (azaz az aktuális
+	repository garantáltan üres).
 
 'option update-shallow' {'true'|'false'}::
-	Allow to extend .git/shallow if the new refs require it.
+	Lehetővé teszi a .git/shallow kiterjesztését, ha az új refek ezt megkövetelik.
 
 'option pushcert' {'true'|'false'}::
-	GPG sign pushes.
+	GPG-vel aláírja a pusholásokat.
 
 'option push-option' <string>::
-	Transmit <string> as a push option. As the push option
-	must not contain LF or NUL characters, the string is not encoded.
+	Átadja a <string>-et push-opcióként. Mivel a push-opció
+	nem tartalmazhat LF vagy NUL karaktert, a sztring nincs kódolva.
 
 'option from-promisor' {'true'|'false'}::
-	Indicate that these objects are being fetched from a promisor.
+	Jelzi, hogy ezek az objektumok egy promisorból vannak fetchelve.
 
 'option no-dependents' {'true'|'false'}::
-	Indicate that only the objects wanted need to be fetched, not
-	their dependents.
+	Jelzi, hogy csak a kívánt objektumokat kell fetchelni, a
+	függőségeiket nem.
 
 'option atomic' {'true'|'false'}::
-	When pushing, request the remote server to update refs in a single atomic
-	transaction.  If successful, all refs will be updated, or none will.  If the
-	remote side does not support this capability, the push will fail.
+	Pusholáskor kéri a remote szervert, hogy egyetlen atomi
+	tranzakcióban frissítse a refeket.  Siker esetén minden ref frissül, vagy egyik sem.  Ha a
+	remote oldal nem támogatja ezt a képességet, a push meghiúsul.
 
 'option object-format true'::
-	Indicate that the caller wants hash algorithm information
-	to be passed back from the remote.  This mode is used when fetching
-	refs.
+	Jelzi, hogy a hívó azt akarja, hogy a hash-algoritmus információ
+	visszaadásra kerüljön a remote-tól.  Ez a mód refek fetchelésekor van
+	használva.
 
 SEE ALSO
 --------
@@ -559,4 +560,4 @@ linkgit:git-fast-import[1]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

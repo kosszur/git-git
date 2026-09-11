@@ -136,7 +136,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-name-rev.adoc | [x] |  | 2026-09-10 |
 | git-notes.adoc | [x] |  | 2026-09-11 |
 | git-p4.adoc | [ ] |  |  |
-| git-pack-objects.adoc | [ ] |  |  |
+| git-pack-objects.adoc | [x] |  | 2026-09-11 |
 | git-pack-redundant.adoc | [x] |  | 2026-09-10 |
 | git-pack-refs.adoc | [x] |  | 2026-09-10 |
 | git-patch-id.adoc | [x] |  | 2026-09-10 |
@@ -160,10 +160,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-repo.adoc | [x] |  | 2026-09-10 |
 | git-request-pull.adoc | [x] |  | 2026-09-10 |
 | git-rerere.adoc | [x] |  | 2026-09-10 |
-| git-reset.adoc | [ ] |  |  |
+| git-reset.adoc | [x] |  | 2026-09-11 |
 | git-restore.adoc | [x] |  | 2026-09-10 |
 | git-rev-list.adoc | [x] |  | 2026-09-10 |
-| git-rev-parse.adoc | [ ] |  |  |
+| git-rev-parse.adoc | [x] |  | 2026-09-11 |
 | git-revert.adoc | [x] |  | 2026-09-10 |
 | git-rm.adoc | [x] |  | 2026-09-10 |
 | git-send-email.adoc | [ ] |  |  |
@@ -177,10 +177,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-show-index.adoc | [x] |  | 2026-09-10 |
 | git-show-ref.adoc | [x] |  | 2026-09-10 |
 | git-show.adoc | [x] |  | 2026-09-10 |
-| git-sparse-checkout.adoc | [ ] |  |  |
+| git-sparse-checkout.adoc | [x] |  | 2026-09-11 |
 | git-stage.adoc | [x] |  | 2026-09-10 |
 | git-stash.adoc | [x] |  | 2026-09-11 |
-| git-status.adoc | [ ] |  |  |
+| git-status.adoc | [x] |  | 2026-09-11 |
 | git-stripspace.adoc | [x] |  | 2026-09-10 |
 | git-submodule.adoc | [x] |  | 2026-09-11 |
 | git-svn.adoc | [ ] |  |  |
@@ -203,7 +203,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-version.adoc | [x] |  | 2026-09-10 |
 | git-web--browse.adoc | [x] |  | 2026-09-10 |
 | git-whatchanged.adoc | [x] |  | 2026-09-10 |
-| git-worktree.adoc | [ ] |  |  |
+| git-worktree.adoc | [x] |  | 2026-09-11 |
 | git-write-tree.adoc | [x] |  | 2026-09-10 |
 
 ### Gyökér — egyéb `.adoc` (guide-ok, option-fragmensek, includimport)
@@ -238,7 +238,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitdatamodel.adoc | [x] |  | 2026-09-10 |
 | gitdiffcore.adoc | [x] |  | 2026-09-10 |
 | giteveryday.adoc | [x] |  | 2026-09-11 |
-| gitfaq.adoc | [ ] |  |  |
+| gitfaq.adoc | [x] |  | 2026-09-11 |
 | gitformat-bundle.adoc | [x] |  | 2026-09-10 |
 | gitformat-chunk.adoc | [x] |  | 2026-09-10 |
 | gitformat-commit-graph.adoc | [x] |  | 2026-09-10 |
@@ -256,10 +256,10 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitpacking.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-capabilities.adoc | [x] |  | 2026-09-10 |
 | gitprotocol-common.adoc | [x] |  | 2026-09-10 |
-| gitprotocol-http.adoc | [ ] |  |  |
+| gitprotocol-http.adoc | [x] |  | 2026-09-11 |
 | gitprotocol-pack.adoc | [ ] |  |  |
 | gitprotocol-v2.adoc | [ ] |  |  |
-| gitremote-helpers.adoc | [ ] |  |  |
+| gitremote-helpers.adoc | [x] |  | 2026-09-11 |
 | gitrepository-layout.adoc | [x] |  | 2026-09-10 |
 | gitrevisions.adoc | [x] |  | 2026-09-10 |
 | gitsubmodules.adoc | [x] |  | 2026-09-10 |
@@ -276,7 +276,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | merge-strategies.adoc | [x] |  | 2026-09-10 |
 | object-format-disclaimer.adoc | [x] |  | 2026-09-10 |
 | pack-refs-options.adoc | [x] |  | 2026-09-10 |
-| pretty-formats.adoc | [ ] |  |  |
+| pretty-formats.adoc | [x] |  | 2026-09-11 |
 | pretty-options.adoc | [x] |  | 2026-09-10 |
 | pull-fetch-param.adoc | [x] |  | 2026-09-10 |
 | ref-reachability-filters.adoc | [x] |  | 2026-09-10 |
@@ -887,3 +887,27 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `[caption=...]` bájtazonos (skill-szabály). A `====` „Rule/Recipe" blokkokban a **prózát**
   lefordítottam, a csak `` `parancsot` `` tartalmazó blokkokat bájtazonosan hagytam. Orchestrátor
   végezte közvetlenül. Részletek: `glossary-git-git-docs.md` „37. blokk".
+- **2026-09-11 — a 10 legkisebb méretű, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére; a két gyökér-tábla együttes, sorméret szerint növekvő listája,
+  `gitglossary.adoc`/`git.adoc`/`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc`
+  kihagyva): `pretty-formats.adoc` (422 sor, include-fragmens), `git-reset.adoc` (512),
+  `git-rev-parse.adoc` (517), `git-pack-objects.adoc` (525), `git-sparse-checkout.adoc` (530),
+  `git-status.adoc` (537), `gitprotocol-http.adoc` (544, RFC-stílusú protokoll-spec),
+  `git-worktree.adoc` (546), `gitremote-helpers.adoc` (562, protokoll-spec), `gitfaq.adoc` (578,
+  FAQ-formátum, meglévő explicit `[[...]]` anchorokkal minden kérdés előtt). Orchestrátor végezte
+  közvetlenül, célzott `Edit`-ekkel, egy usage-limit miatti megszakítás után folytatva. RFC 2119
+  kulcsszavak (`MUST`/`SHOULD`/`MAY`/`SHOULD NOT`/`MUST NOT`) angolul maradtak
+  `gitprotocol-http.adoc`-ban és `gitremote-helpers.adoc`-ban (34. blokk precedens), a
+  `gitcli.adoc`/`gitprotocol-capabilities.adoc` mintáját követve: `[Alany dativus] [KULCSSZÓ]
+  [ige infinitivus]` szórenddel (pl. „A klienseknek MUST eltávolítaniuk…"). „FAQ" angolul maradt
+  `gitfaq.adoc`-ban (bevett kölcsönszó, nincs korábbi „GYIK"-precedens). Defenzív `[[...]]` anchorok
+  a Title Case alcímekhez: `git-rev-parse.adoc` (9), `git-status.adoc` (8), `gitprotocol-http.adoc`
+  (11), `gitremote-helpers.adoc` (4), `gitfaq.adoc` (a 8 fő szakaszcím fölé, a meglévő
+  kérdésenkénti anchorok mellett). Man-page-stílusú, kanonikus listán kívüli, csupa nagybetűs
+  címek a VÉGLEGES DÖNTÉS szerint angolul: `DELTA ISLANDS` (`git-pack-objects.adoc`), `REFS` /
+  `CONFIGURATION FILE` / `DETAILS` / `LIST OUTPUT FORMAT` (`git-worktree.adoc`), `INVOCATION` /
+  `INPUT FORMAT` / `REF LIST ATTRIBUTES` / `REF LIST KEYWORDS` (`gitremote-helpers.adoc`),
+  `COMMANDS` (`git-sparse-checkout.adoc`), `BACKGROUND REFRESH` / `UNTRACKED FILES AND
+  PERFORMANCE` (`git-status.adoc`), a kétsoros „THIS COMMAND IS EXPERIMENTAL…" mondat
+  nagybetűsen lefordítva (`git-sparse-checkout.adoc`, 3./29. blokk precedens). Részletek:
+  `glossary-git-git-docs.md` „38. blokk".

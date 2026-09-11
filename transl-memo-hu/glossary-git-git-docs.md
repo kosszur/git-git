@@ -3344,3 +3344,128 @@ listájából a következő 5 legkisebb, még `[ ]` fájl (`gitglossary.adoc`/`g
   `submodule.fetchJobs` / `core.worktree` config-kulcsok, `.gitmodules` / `$GIT_DIR/modules` /
   `.git/config` útvonalak, `++||:++` passthrough, `$PATH`/`$path` változónevek angolul; a
   `NOTE:` admonition-kulcsszó megtartva (törzs fordult).
+
+## 38. blokk — `pretty-formats.adoc`, `git-reset.adoc`, `git-rev-parse.adoc`, `git-pack-objects.adoc`, `git-sparse-checkout.adoc`, `git-status.adoc`, `gitprotocol-http.adoc`, `git-worktree.adoc`, `gitremote-helpers.adoc`, `gitfaq.adoc` — 2026-09-11
+
+**Módszer:** a felhasználó a 10 legkisebb méretű, még lefordítatlan „Gyökér" fájlt kérte (a
+két gyökér-tábla együttes, sorméret szerint növekvő listája, `gitglossary.adoc`/`git.adoc`/
+`config.adoc`/`git-fast-import.adoc`/`glossary-content.adoc` kihagyva). Orchestrátor végezte
+közvetlenül, célzott `Edit`-ekkel; a munkamenet egy usage-limit miatti megszakítás után
+folytatódott (a felhasználó „continue" üzenetével), a munka onnan folytatva, ahol
+megszakadt.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| RFC 2119 kulcsszavak (`MUST`/`SHOULD`/`MAY`/`SHOULD NOT`/`MUST NOT`) mondatba ágyazva | **angolul maradnak**, `[Alany dativus] [KULCSSZÓ] [ige infinitivus]` szórenddel (pl. „A klienseknek MUST eltávolítaniuk a záró `/`-t…", „A szervereknek SHOULD kezelniük…") | `gitprotocol-http.adoc`, `gitremote-helpers.adoc` — a 34. blokk döntésének (a kulcsszavak angolul maradnak) folytatása, a `gitcli.adoc`/`gitprotocol-capabilities.adoc`-ban (34./21./23./32. blokk) már kialakult mondatszerkesztési minta szerint |
+| commit-ish, commit-hash, fa-hash, szülő-hash | `%H`/`%h`/`%T`/`%t`/`%P`/`%p` leírásában, „commit-ish" angolul maradt (Git jargon), a hash-típusok összetett szóval fordultak | `pretty-formats.adoc`, `git-rev-parse.adoc` |
+| committer (dátum-előtag placeholder-leírásban) | **„committeri dátum"** (a „szerzői dátum" párhuzamos alakja) | `pretty-formats.adoc` — `%cd`/`%cD`/`%cr`/… leírásokban, új, a 0. blokk „committer" tételét (szerepkör-főnév) egy melléknévi alakkal egészíti ki |
+| „Interactive Mode" (`git-add.adoc` szakaszra mutató prózahivatkozás, `git-reset.adoc`-ban) | **„Interaktív mód"** (fordítva, idézőjelben) | a `git-stash.adoc`-beli (36. blokk) azonos hivatkozás mintáját folytatja |
+| „Reset, restore and revert" (`git.adoc` szakaszra mutató prózahivatkozás) | **angolul maradt, idézőjelben** | `git-reset.adoc` — `git.adoc` még lefordítatlan, a 32. blokk `gitcli.adoc`-beli „Values" precedensét követi |
+| dumb/smart szerver válasza (prózacímke kódblokk előtt) | **„dumb szerver válasza:" / „smart szerver válasza:"** | `gitprotocol-http.adoc` — a 17./19./32./33. blokk „smart"/„dumb" HTTP kezelésének folytatása |
+| Extra Parameters (gitprotocol-pack fogalom) | **angolul maradt** (Title Case, terminus-jellegű) | `gitprotocol-http.adoc` — `gitprotocol-pack.adoc` még lefordítatlan, nincs magyar precedens |
+| FAQ | **marad „FAQ"** (angol kölcsönszó, nincs „GYIK"-precedens a projektben) | `gitfaq.adoc` |
+| credential helper / credential manager | **marad „credential helper" / „credential-kezelő"** | `gitfaq.adoc` — a 0. blokk `credential` tételének ([]„hitelesítő adatok", összetételben angol marad) folytatása; a Windows/macOS/Unix natív eszközneveket (`wincred`, `osxkeychain`, `libsecret`) angolul hagyva |
+| merge-alap (merge base) | **„merge-alap"** | `gitfaq.adoc` — a 14. blokk `git-diff.adoc`-beli mintáját követi, itt új fájlban is konzisztensen |
+| Recursive / Parent (cone mode mintatípus-nevek) | **angolul maradtak, dőlt/félkövér jelöléssel** (`*Recursive:*`/`*Parent:*`), a prózában is `recursive`/`parent minta`-ként | `git-sparse-checkout.adoc` — terminus-jellegű, a mintafájlban ismételten hivatkozott névpár |
+
+### Címsor-anchorok
+
+- **`pretty-formats.adoc`**: nincs `[[...]]`/`<<...>>` (a `PRETTY FORMATS` man-page-stílusú
+  kétsoros cím angolul, aláhúzással együtt, bájtazonos — include-fragmens, nincs NAME/OPTIONS).
+- **`git-reset.adoc`**, **`git-pack-objects.adoc`**: nincs `[[...]]`/`<<...>>`, csak kanonikus
+  man-page szekciócímek.
+- **`git-rev-parse.adoc`**: 9 defenzív `[[...]]` a `~~~~` Title Case alcímek fölé:
+  `[[_operation_modes]]` „Működési módok", `[[_options_for_parseopt]]` „A --parseopt opciói",
+  `[[_options_for_filtering]]` „Szűrési opciók", `[[_options_for_output]]` „Kimeneti opciók",
+  `[[_options_for_objects]]` „Objektum-opciók", `[[_options_for_files]]` „Fájl-opciók",
+  `[[_other_options]]` „Egyéb opciók", `[[_input_format]]` „Bemeneti formátum",
+  `[[_usage_text]]` „Használati szöveg". A kétszer ismétlődő „Example" alcím (PARSEOPT és
+  SQ-QUOTE alatt) → „Példa", **defenzív anchor nélkül** (ismételt generikus alcím, 1. blokk
+  precedens). A `PARSEOPT` és `SQ-QUOTE` kétsoros, csupa nagybetűs man-page-stílusú címek
+  (prózahivatkozással: „see PARSEOPT section below") a VÉGLEGES DÖNTÉS szerint angolul,
+  bájtazonosak.
+- **`git-status.adoc`**: 8 defenzív `[[...]]` a `~~~~`/`^^^^` Title Case alcímek fölé:
+  `[[_short_format]]` „Rövid formátum", `[[_porcelain_format_version_1]]` „Porcelain formátum,
+  1. verzió", `[[_porcelain_format_version_2]]` „Porcelain formátum, 2. verzió",
+  `[[_branch_headers]]` „Branch-fejlécek", `[[_stash_information]]` „Stash-információ",
+  `[[_changed_tracked_entries]]` „Megváltozott követett bejegyzések", `[[_other_items]]`
+  „Egyéb elemek", `[[_pathname_format_notes_and_z]]` „Útvonalnév-formátum megjegyzések és a
+  -z". Nincs meglévő `<<...>>` xref rájuk. A `BACKGROUND REFRESH` / `UNTRACKED FILES AND
+  PERFORMANCE` kétsoros, csupa nagybetűs címek a VÉGLEGES DÖNTÉS szerint angolul.
+- **`gitprotocol-http.adoc`**: 11 defenzív `[[...]]` a Title Case (`----`/`~~~~`/`^^^^`)
+  alcímek fölé: `[[_url_format]]` „URL-formátum", `[[_session_state]]` „Munkamenet-állapot",
+  `[[_general_request_processing]]` „Általános kérésfeldolgozás",
+  `[[_discovering_references]]` „Referenciák felfedezése", `[[_dumb_clients]]` „Dumb
+  kliensek", `[[_smart_clients]]` „Smart kliensek", `[[_dumb_server_response]]` „Dumb szerver
+  válasza", `[[_smart_server_response]]` „Smart szerver válasza",
+  `[[_smart_service_git_upload_pack]]` „Smart szolgáltatás: git-upload-pack",
+  `[[_the_negotiation_algorithm]]` „A tárgyalási algoritmus",
+  `[[_smart_service_git_receive_pack]]` „Smart szolgáltatás: git-receive-pack". A `SSL`
+  (rövid akronim-cím, `---`-aláhúzás) és a `REFERENCES` csupa nagybetűs cím a VÉGLEGES DÖNTÉS
+  szerint angolul; a `REFERENCES` alatti RFC-hivatkozások (`https://…[RFC 1738: Uniform
+  Resource Locators (URL)]` stb.) linkszövege angolul maradt (hivatalos RFC-címek, tulajdonnév-
+  jellegűek).
+- **`git-worktree.adoc`**: 1 defenzív `[[_porcelain_format]]` „Porcelain formátum" a `~~~~`
+  alcím fölé. A `REFS` / `CONFIGURATION FILE` / `DETAILS` / `LIST OUTPUT FORMAT` csupa
+  nagybetűs, kétsoros man-page-stílusú címek a VÉGLEGES DÖNTÉS szerint angolul (a `REFS`-re és
+  `DETAILS`-re prózahivatkozás is mutat: „see 'DETAILS' below").
+- **`gitremote-helpers.adoc`**: 4 defenzív `[[...]]` a `~~~~`/`^^^^` alcímek fölé:
+  `[[_capabilities]]` „Képességek", `[[_capabilities_for_pushing]]` „Képességek pusholáshoz",
+  `[[_capabilities_for_fetching]]` „Képességek fetcheléshez", `[[_miscellaneous_capabilities]]`
+  „Egyéb képességek". Az `INVOCATION` / `INPUT FORMAT` / `REF LIST ATTRIBUTES` / `REF LIST
+  KEYWORDS` csupa nagybetűs, kétsoros címek a VÉGLEGES DÖNTÉS szerint angolul (prózahivatkozás
+  is mutat rájuk: „See OPTIONS for…", „See REF LIST ATTRIBUTES…").
+- **`git-sparse-checkout.adoc`**: nincs `[[...]]`/`<<...>>` (grep-pel ellenőrizve). A
+  `COMMANDS` kanonikus; az `INTERNALS -- SPARSE CHECKOUT` / `INTERNALS -- NON-CONE PROBLEMS` /
+  `INTERNALS -- CONE MODE HANDLING` / `INTERNALS -- FULL PATTERN SET` / `INTERNALS -- CONE
+  PATTERN SET` / `INTERNALS -- SUBMODULES` csupa nagybetűs, kétsoros man-page-stílusú
+  főcímek (prózahivatkozásokkal: „the 'Non-cone Problems' section below" stb.) a VÉGLEGES
+  DÖNTÉS szerint angolul, bájtazonosak.
+- **`gitfaq.adoc`**: ez a fájl **nem man page** — minden FAQ-kérdés előtt már meglévő,
+  kebab-case explicit `[[anchor]]` volt (pl. `[[user-name]]`, `[[recommended-storage-settings]]`),
+  ezek **bájtazonosan** megmaradtak, csak a kérdés szövege fordult. A `<<recommended-storage-settings,
+  the question on recommended storage settings>>` xref vessző utáni látható szövege
+  „az ajánlott tárolási beállításokról szóló kérdést"-re fordult. A 8 fő szakaszcím
+  (`-------` szintű, Title Case, NEM man-page): `Configuration` → „Konfiguráció"
+  (`[[_configuration]]`), `Credentials` → „Hitelesítő adatok" (`[[_credentials]]`), `Transfers`
+  → „Átvitelek" (`[[_transfers]]`), `Common Issues` → „Gyakori problémák"
+  (`[[_common_issues]]`), `Merging and Rebasing` → „Merge-elés és rebase-elés"
+  (`[[_merging_and_rebasing]]`), `Hooks` → „Hookok" (`[[_hooks]]`), `Cross-Platform Issues` →
+  „Platformok közötti problémák" (`[[_cross_platform_issues]]`) — mindegyik defenzív
+  `[[...]]`-t kapott.
+
+### Megőrzött markup / megjegyzések
+
+- **`pretty-formats.adoc`**: `[synopsis]`/`--`…`--` blokkok a formátumpéldáknál (pl.
+  `oneline`/`short`/`medium`/`full`/`fuller`/`reference`/`email` formátumleírás) bájtazonosak;
+  a `%H`/`%h`/`%an`/`%ad`/… placeholder-táblázat `::`-címkéi (maguk a `%`-kódok) bájtazonosak,
+  csak a leírás-törzs fordult; `ifndef::git-rev-list[]`/`endif::` guard érintetlen; a
+  `subject`/`body`/`raw body` mezőnevek közül a `%s`/`subject` leírásban a „subject" szó
+  angolul maradt (a 37. blokk `git-for-each-ref.adoc`-beli `"subject"` precedense).
+- **`git-reset.adoc`**: 10 pár `------------` (12 kötőjel) EXAMPLES-blokk + a DISCUSSION 8 db
+  `....`/`----------------------------------------------------` (52 kötőjel) táblázat-blokkja
+  bájtazonos; a `<1>`…`<8>` callout-magyarázatok fordultak; `include::diff-context-options.adoc[]`
+  érintetlen.
+- **`git-pack-objects.adoc`**: a `[pack]` config-blokkok (`-------------------------------------------`,
+  43 kötőjel, 2 pár) bájtazonosak; a `--`…`--` open-block (`--stdin-packs` mód `*`-felsorolása)
+  törzse fordult, a `*`-jelölők megmaradtak.
+- **`git-sparse-checkout.adoc`**: a `----` (4 kötőjel) példablokkok (pl.
+  `git sparse-checkout set '/toplevel-dir/*.c'`), a `----------------` (16 kötőjel)
+  sparse-checkout-fájl-tartalom-blokkok és a `--------------------------` (26 kötőjel)
+  `git sparse-checkout list` kimeneti blokk bájtazonosak.
+- **`git-status.adoc`**: a `[cols=...]`/`|===` táblázatok (XY-állapotkód-tábla, Branch Headers
+  tábla, két mező-leíró tábla) `|`-cellái fordultak, a `[cols=...]`/`options="header"`
+  attribútum-sorok és a mezőnév-oszlopok (`_<XY>_`, `_<sub>_` stb.) bájtazonosak.
+- **`gitprotocol-http.adoc`**, **`gitremote-helpers.adoc`**: ABNF-grammatika-blokkok
+  (`info_refs = *( ref_record )` stb.) és a `C:`/`S:` protokoll-dialógus-példák (indentált
+  literál bekezdések, nem `----`-blokkok) bájtazonosak; a `dumb szerver válasza:`/`smart
+  szerver válasza:` prózacímkék fordultak, a mögöttük lévő literál blokkok nem.
+- **`git-worktree.adoc`**: az `.ssh/config` és a `worktree list --porcelain` példablokkok
+  (`------------`, 12 kötőjel, 8 pár) bájtazonosak.
+- **`gitfaq.adoc`**: a `----` (4 kötőjel) shell-/config-példablokkok (pl. `export VISUAL=nano`,
+  a `.ssh/config` proxy-alias-blokk, a `.gitattributes` minták) és a bennük lévő `#`-kommentek
+  bájtazonosak, csak a blokkok körüli/feletti próza fordult.
+
+Orchestrátor végezte közvetlenül. Részletek fent, „38. blokk".
