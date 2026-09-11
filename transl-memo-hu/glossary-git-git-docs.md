@@ -3694,3 +3694,68 @@ man page — az összes Git hook leírása). 2 párhuzamos subagent végezte, me
 
 Orchestrátor konszolidálta, közvetlen fájlmódosítás nélkül (mindkét subagent megszakítás nélkül
 fejezte be a saját fájlját). Részletek fent, „41. blokk".
+
+## 42. blokk — `git-format-patch.adoc`, `git-push.adoc` — 2026-09-11
+
+**Fájlok:** `git-format-patch.adoc` (30,8KB, 824 sor, man page), `git-push.adoc` (32,2KB, 809
+sor, man page). 2 párhuzamos subagent végezte.
+
+### Orchestrátor-javítások a subagent-eredményben
+
+- **`git-format-patch.adoc` — terminológiai inkonzisztencia javítva**: a subagent a
+  `--thread`/`--no-thread` opció leírásában a „threading"/„threadeli" szavakat angolul hagyta
+  (`shallow threading`, `deep threading`, „maga threadeli az e-maileket"). Ez ellentmondott a
+  már lefordított `git-send-email.adoc`-nak (40. blokk), amely kifejezetten kimondja: „(`deep`
+  szálazás, a `git format-patch` terminológiája szerint)" — tehát a `git-send-email.adoc` már
+  előre feltételezte, hogy a `git-format-patch.adoc` a „szálazás" terminust fogja használni.
+  Javítva: „shallow threading" → „`shallow` szálazás", „deep threading" → „`deep` szálazás",
+  „threadeli az e-maileket" → „szálazza az e-maileket", „gondoskodjon a threadingről" →
+  „gondoskodjon a szálazásról", „a threading le legyen tiltva" → „a szálazás le legyen tiltva",
+  „a threadek megszakadjanak" → „a szálak megszakadjanak". A szó szerinti `--thread`/`--no-thread`
+  kapcsolónevek és a `format.thread` config-kulcs értelemszerűen érintetlenek maradtak.
+  **Ez a végleges terminológiai döntés: „thread" (szálazás fogalomkörben) → „szálazás" (fn) /
+  „szálaz" (ige), NEM angol kölcsönszóként kezelve.**
+- **`git-format-patch.adoc` — hiányzó fordítás pótolva**: a záró „GIT" szakasz „Part of the
+  linkgit:git[1] suite" sora angolul maradt a subagent munkájában; pótolva „A linkgit:git[1]
+  csomag része"-ként, a bevett precedens szerint.
+- **`git-push.adoc`**: nem igényelt orchestrátor-javítást, hibátlanul készült el.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| thread / threading (e-mail-szálazás fogalomkörben) | **VÉGLEGES: „szálaz" (ige) / „szálazás" (fn)** | `git-format-patch.adoc`, megerősítve a `git-send-email.adoc` (40. blokk) előzetes használatával; a `--thread`/`--no-thread` kapcsolónevek és a `format.thread` kulcs angolul maradnak |
+| lease (`--force-with-lease` metafora) | **marad „lease" idézőjelben**, első előforduláskor „(bérletet)" glosszával | `git-push.adoc` — egyedi, a kapcsolónévhez kötött metafora, nem önálló glossary-fogalom |
+| no-op | **marad „no-op"** | `git-push.adoc` — bevett technikai rövidítés |
+
+### Címsor-anchorok
+
+- **`git-format-patch.adoc`**: 7 defenzív anchor a fordított, nem kanonikus alcímek fölött:
+  `_checking_for_patch_corruption` („Patch-korrupció ellenőrzése"), `_gmail`, `_thunderbird`,
+  `_approach_1_add_on` („1. megközelítés (add-on)"), `_approach_2_configuration` („2.
+  megközelítés (konfiguráció)"), `_approach_3_external_editor` („3. megközelítés (külső
+  szerkesztő)"), `_kmail`. Nincs `<<...>>` a fájlban. Az `include::format-patch-caveats.adoc[]`
+  és `include::diff-options.adoc[]` érintetlen. A `MUA-SPECIFIC HINTS`, `BASE TREE INFORMATION`
+  és `=== PATCH APPLICATION` csupa nagybetűs, kanonikus listán kívüli címek a 39. blokk VÉGLEGES
+  DÖNTÉSE szerint angolul.
+- **`git-push.adoc`**: nem igényelt új anchort — minden anchorral rendelkező cím
+  (`[[OPTIONS]]`, `[[CONFIGURATION]]`, `[[REMOTE-GROUPS]]`) egyben csupa nagybetűs, ezért
+  angolul is marad. `<<URLS,GIT URLS>>` → `<<URLS,GIT URL-ek>>` (a `git-pull.adoc`/23./26. blokk
+  precedens szerint); `<<REMOTES,REMOTES>>`, `<<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>>`,
+  `<<REMOTE-GROUPS,REMOTE GROUPS>>`, `<<CONFIGURATION,CONFIGURATION>>`, `<<OPTIONS,OPTIONS>>`
+  mind bájtazonosan angolul maradtak (a linkszöveg maga is csupa nagybetűs cím-név).
+  `REMOTE GROUPS`, `OUTPUT`, `PUSH RULES`, `NOTE ABOUT FAST-FORWARDS` a 39. blokk VÉGLEGES
+  DÖNTÉSE szerint angolul.
+
+### Megőrzött markup / megjegyzések
+
+- `git-format-patch.adoc`: az e-mail-fejléc-példák (`From:`, `Date:`, `Subject:`,
+  `MIME-Version:` stb.), a `MUA-SPECIFIC HINTS` alatti idézett e-mail-átiratok (`Do the same for
+  ia64...`, `-- >8 --` olló-jelölés) és minden `----` kódblokk bájtazonos.
+- `git-push.adoc`: az ASCII commit-gráf-diagramok (`B`/`A`/`X` csomópontokkal), a `git
+  fetch`/`git tag`/`git rebase`/`git push` példa `#`-kommentekkel, és minden `----` kódblokk
+  bájtazonos. A subagent egy forrásbeli elgépelést (dupla backtick) is javított kozmetikailag a
+  fordítás közben, szemantikai változás nélkül.
+
+Orchestrátor konszolidálta, a fent leírt 2 javítással (`git-format-patch.adoc`-on). Részletek
+fent, „42. blokk".

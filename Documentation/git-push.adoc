@@ -3,7 +3,7 @@ git-push(1)
 
 NAME
 ----
-git-push - Update remote refs along with associated objects
+git-push - Frissíti a remote referenciákat a hozzájuk tartozó objektumokkal együtt
 
 
 SYNOPSIS
@@ -18,298 +18,304 @@ git push [--all | --branches | --mirror | --tags] [--follow-tags] [--atomic] [-n
 
 DESCRIPTION
 -----------
-Updates one or more branches, tags, or other references in one or more
-remote repositories from your local repository, and sends all necessary
-data that isn't already on the remote.
+Frissít egy vagy több branchet, tag-et vagy más referenciát egy vagy több
+remote repositoryban a lokális repositoryból, és elküld minden szükséges
+adatot, ami még nincs meg a remote-on.
 
-The simplest way to push is `git push <remote> <branch>`.
-`git push origin main` will push the local `main` branch to the `main`
-branch on the remote named `origin`.
+A push-olás legegyszerűbb módja a `git push <remote> <branch>`.
+A `git push origin main` a lokális `main` branchet az `origin` nevű
+remote `main` branchére push-olja.
 
-You can also push to multiple remotes at once by using a remote group.
-A remote group is a named list of remotes configured via `remotes.<name>`
-in your git config:
+Egy remote-csoport használatával egyszerre több remote-ra is push-olhatsz.
+A remote-csoport a `remotes.<name>` beállításon keresztül konfigurált,
+elnevezett remote-lista a git configban:
 
 	$ git config remotes.all-remotes "origin gitlab backup"
 
-Then `git push all-remotes` will push to `origin`, `gitlab`, and
-`backup` in turn, as if you had run `git push` against each one
-individually.  Each remote is pushed independently using its own
-push mapping configuration. There is a `remotes.<group>` entry in
-the configuration file. (See linkgit:git-config[1]).
+Ekkor a `git push all-remotes` sorban push-ol az `origin`, a `gitlab` és
+a `backup` remote-okra, mintha a `git push`-t mindegyikre külön-külön
+futtattad volna. Minden remote a saját push-mapping konfigurációja
+alapján, egymástól függetlenül kerül push-olásra. A konfigurációs
+fájlban van egy `remotes.<group>` bejegyzés. (Lásd: linkgit:git-config[1]).
 
-The `<repository>` argument defaults to the upstream for the current
-branch, or `origin` if there's no configured upstream.
+A `<repository>` argumentum alapértelmezetten a jelenlegi branch
+upstreamje, vagy `origin`, ha nincs beállítva upstream.
 
-To decide which branches, tags, or other refs to push, Git uses
-(in order of precedence):
+Annak eldöntésére, hogy mely branchek, tagek vagy más referenciák
+kerüljenek push-olásra, a Git a következő sorrendben dönt:
 
-1. The `<refspec>` argument(s) (for example `main` in `git push origin main`)
-   or the `--all`, `--mirror`, or `--tags` options
-2. The `remote.<name>.push` configuration for the repository being pushed to
-3. The `push.default` configuration. The default is `push.default=simple`,
-   which will push to a branch with the same name as the current branch.
-   See the <<CONFIGURATION,CONFIGURATION>> section below for more on `push.default`.
+1. A `<refspec>` argumentum(ok) (például `main` a `git push origin main`
+   parancsban), vagy a `--all`, `--mirror` vagy `--tags` kapcsolók
+2. A push célpontjául szolgáló repository `remote.<name>.push` konfigurációja
+3. A `push.default` konfiguráció. Az alapértelmezés `push.default=simple`,
+   ami a jelenlegi branchhel megegyező nevű branchre push-ol.
+   A `push.default`-ról bővebben lásd lent a <<CONFIGURATION,CONFIGURATION>> szakaszt.
 
-`git push` may fail if you haven't set an upstream for the current branch,
-depending on what `push.default` is set to.
-See the <<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>> section below for more
-on how to set and use upstreams.
+Előfordulhat, hogy a `git push` hibával leáll, ha nincs beállítva
+upstream a jelenlegi branchhez, attól függően, hogy mire van állítva a
+`push.default`. Az upstreamek beállításáról és használatáról bővebben
+lásd lent az <<UPSTREAM-BRANCHES,UPSTREAM BRANCHES>> szakaszt.
 
-You can make interesting things happen to a repository
-every time you push into it, by setting up 'hooks' there.  See
-documentation for linkgit:git-receive-pack[1].
+Érdekes dolgokat idézhetsz elő egy repositoryban minden alkalommal, amikor
+push-olsz bele, ha 'hookokat' állítasz be ott. Lásd a
+linkgit:git-receive-pack[1] dokumentációját.
 
 [[OPTIONS]]
 OPTIONS
 -------
 _<repository>_::
-	The "remote" repository that is the destination of a push
-	operation.  This parameter can be either a URL
-	(see the section <<URLS,GIT URLS>> below), the name
-	of a remote (see the section <<REMOTES,REMOTES>> below),
-	or the name of a remote group
-	(see the section <<REMOTE-GROUPS,REMOTE GROUPS>> below).
+	A push célpontjául szolgáló "remote" repository. Ez a paraméter
+	lehet egy URL (lásd lent a <<URLS,GIT URL-ek>> szakaszt), egy
+	remote neve (lásd lent a <<REMOTES,REMOTES>> szakaszt),
+	vagy egy remote-csoport neve
+	(lásd lent a <<REMOTE-GROUPS,REMOTE GROUPS>> szakaszt).
 
 `<refspec>...`::
-	Specify what destination ref to update with what source object.
+	Megadja, melyik cél-refet melyik forrás-objektummal kell frissíteni.
 +
-The format for a refspec is `[+]<src>[:<dst>]`, for example `main`,
-`main:other`, or `HEAD^:refs/heads/main`.
+A refspec formátuma `[+]<src>[:<dst>]`, például `main`,
+`main:other`, vagy `HEAD^:refs/heads/main`.
 +
-The _<src>_ is often the name of the local branch to push, but it can be
-any arbitrary "SHA-1 expression" (see linkgit:gitrevisions[7]).
+Az _<src>_ gyakran a push-olandó lokális branch neve, de lehet
+bármilyen tetszőleges "SHA-1 kifejezés" is (lásd linkgit:gitrevisions[7]).
 +
-The _<dst>_ determines what ref to update on the remote side. It must be the
-name of a branch, tag, or other ref, not an arbitrary expression.
+Az _<dst>_ határozza meg, hogy a remote oldalon melyik ref frissüljön.
+Egy branch, tag vagy más ref nevének kell lennie, nem egy tetszőleges
+kifejezésnek.
 +
-The `+` is optional and does the same thing as `--force`.
+A `+` opcionális, és ugyanazt csinálja, mint a `--force`.
 +
-You can write a refspec using the fully expanded form (for
-example `refs/heads/main:refs/heads/main`) which specifies the exact source
-and destination, or with a shorter form (for example `main` or
-`main:other`). Here are the rules for how refspecs are expanded,
-as well as various other special refspec forms:
+A refspecet megírhatod a teljesen kifejtett formában (például
+`refs/heads/main:refs/heads/main`), ami pontosan megadja a forrást és a
+célt, vagy egy rövidebb formában (például `main` vagy
+`main:other`). Az alábbiakban a refspecek kifejtésének szabályai
+találhatók, valamint néhány egyéb speciális refspec-forma:
 +
- *  _<src>_ without a `:<dst>` means to update the same ref as the
-    _<src>_, unless the `remote.<repository>.push` configuration specifies a
-    different _<dst>_. For example, if `main` is a branch, then the refspec
-    `main` expands to `main:refs/heads/main`.
- *  If _<dst>_ unambiguously refers to a ref on the <repository> remote,
-    then expand it to that ref. For example, if `v1.0` is a tag on the
-    remote, then `HEAD:v1.0` expands to `HEAD:refs/tags/v1.0`.
- *  If _<src>_ resolves to a ref starting with `refs/heads/` or `refs/tags/`,
-    then prepend that to <dst>. For example, if `main` is a branch, then
-    `main:other` expands to `main:refs/heads/other`
- *  The special refspec `:` (or `+:` to allow non-fast-forward updates)
-    directs Git to push "matching" branches: for every branch that exists on
-    the local side, the remote side is updated if a branch of the same name
-    already exists on the remote side.
- *  _<src>_ may contain a `*` to indicate a simple pattern match.
-    This works like a glob that matches any ref matching the pattern.
-    There must be only one `*` in both the `<src>` and `<dst>`.
-    It will map refs to the destination by replacing the * with the
-    contents matched from the source. For example, `refs/heads/*:refs/heads/*`
-    will push all branches.
- *  A refspec starting with `^` is a negative refspec.
-    This specifies refs to exclude. A ref will be considered to
-    match if it matches at least one positive refspec, and does not
-    match any negative refspec. Negative refspecs can be pattern refspecs.
-    They must only contain a _<src>_.
-    Fully spelled out hex object names are also not supported.
-    For example, `git push origin 'refs/heads/*' '^refs/heads/dev-*'`
-    will push all branches except for those starting with `dev-`
- *  If _<src>_ is empty, it deletes the _<dst>_ ref from the remote
-    repository. For example, `git push origin :dev` will
-    delete the `dev` branch.
- *  `tag <tag>` expands to `refs/tags/<tag>:refs/tags/<tag>`.
-	This is technically a special syntax for `git push` and not a refspec,
-	since in `git push origin tag v1.0` the arguments `tag` and `v1.0`
-	are separate.
- *  If the refspec can't be expanded unambiguously, error out
-    with an error indicating what was tried, and depending
-    on the `advice.pushUnqualifiedRefname` configuration (see
-    linkgit:git-config[1]) suggest what refs/ namespace you may have
-    wanted to push to.
+ *  Az _<src>_, `:<dst>` nélkül, ugyanazon ref frissítését jelenti, mint az
+    _<src>_, hacsak a `remote.<repository>.push` konfiguráció más _<dst>_-t
+    nem ad meg. Például ha a `main` egy branch, akkor a `main` refspec
+    `main:refs/heads/main`-re fejtődik ki.
+ *  Ha az _<dst>_ egyértelműen a <repository> remote egy refjére utal,
+    akkor arra a refre fejtődik ki. Például ha a `v1.0` egy tag a
+    remote-on, akkor a `HEAD:v1.0` a `HEAD:refs/tags/v1.0`-ra fejtődik ki.
+ *  Ha az _<src>_ egy `refs/heads/`-szel vagy `refs/tags/`-szel kezdődő
+    refre oldódik fel, akkor ezt kell a <dst> elé illeszteni. Például ha a
+    `main` egy branch, akkor a `main:other` a `main:refs/heads/other`-re
+    fejtődik ki.
+ *  A speciális `:` refspec (vagy `+:` a non-fast-forward frissítések
+    engedélyezéséhez) arra utasítja a Gitet, hogy "matching" brancheket
+    push-oljon: minden branch esetén, amely a lokális oldalon létezik, a
+    remote oldal frissül, ha ott már létezik ugyanolyan nevű branch.
+ *  Az _<src>_ tartalmazhat egy `*` karaktert egy egyszerű mintaillesztés
+    jelzésére. Ez úgy működik, mint egy glob, amely a mintára illeszkedő
+    bármely refre illik. A `<src>`-ben és a `<dst>`-ben is csak egy `*`
+    szerepelhet. Ez a refeket a * helyére a forrásból illeszkedő tartalom
+    behelyettesítésével képezi le a célra. Például a
+    `refs/heads/*:refs/heads/*` az összes branchet push-olja.
+ *  A `^`-tal kezdődő refspec egy negatív refspec.
+    Ez a kizárandó refeket adja meg. Egy ref akkor számít illeszkedőnek,
+    ha legalább egy pozitív refspecre illeszkedik, és egyetlen negatív
+    refspecre sem illeszkedik. A negatív refspecek lehetnek minta-refspecek.
+    Ezeknek csak egy _<src>_-t szabad tartalmazniuk.
+    A teljesen kiírt hex objektumnevek sem támogatottak.
+    Például a `git push origin 'refs/heads/*' '^refs/heads/dev-*'`
+    az összes branchet push-olja, kivéve a `dev-`-vel kezdődőket.
+ *  Ha az _<src>_ üres, akkor törli a _<dst>_ refet a remote
+    repositoryból. Például a `git push origin :dev` törli
+    a `dev` branchet.
+ *  A `tag <tag>` a `refs/tags/<tag>:refs/tags/<tag>`-ra fejtődik ki.
+	Ez technikailag egy speciális szintaxis a `git push` számára, nem
+	egy refspec, mivel a `git push origin tag v1.0` parancsban a `tag`
+	és a `v1.0` argumentumok külön szerepelnek.
+ *  Ha a refspec nem fejthető ki egyértelműen, hibával leáll, jelezve,
+    hogy mit próbált meg, és az `advice.pushUnqualifiedRefname`
+    konfigurációtól függően (lásd linkgit:git-config[1]) javaslatot tesz,
+    melyik refs/ névtérbe szándékozhattál push-olni.
 
-Not all updates are allowed: see PUSH RULES below for the details.
+Nem minden frissítés engedélyezett: a részletekért lásd lent a PUSH RULES szakaszt.
 
 `--all`::
 `--branches`::
-	Push all branches (i.e. refs under `refs/heads/`); cannot be
-	used with other <refspec>.
+	Push-olja az összes branchet (azaz a `refs/heads/` alatti
+	refeket); nem használható más <refspec>-cel együtt.
 
 `--prune`::
-	Remove remote branches that don't have a local counterpart. For example
-	a remote branch `tmp` will be removed if a local branch with the same
-	name doesn't exist any more. This also respects refspecs, e.g.
-	`git push --prune remote refs/heads/*:refs/tmp/*` would
-	make sure that remote `refs/tmp/foo` will be removed if `refs/heads/foo`
-	doesn't exist.
+	Eltávolítja azokat a remote brancheket, amelyeknek nincs lokális
+	megfelelője. Például egy `tmp` nevű remote branch eltávolításra
+	kerül, ha már nem létezik ugyanolyan nevű lokális branch. Ez a
+	refspeceket is figyelembe veszi, pl. a
+	`git push --prune remote refs/heads/*:refs/tmp/*` gondoskodik
+	arról, hogy a remote `refs/tmp/foo` eltávolításra kerüljön, ha a
+	`refs/heads/foo` nem létezik.
 
 `--mirror`::
-	Instead of naming each ref to push, specifies that all
-	refs under `refs/` (which includes but is not
-	limited to `refs/heads/`, `refs/remotes/`, and `refs/tags/`)
-	be mirrored to the remote repository.  Newly created local
-	refs will be pushed to the remote end, locally updated refs
-	will be force updated on the remote end, and deleted refs
-	will be removed from the remote end.  This is the default
-	if the configuration option `remote.<remote>.mirror` is
-	set.
+	Ahelyett, hogy a push-olandó refeket egyenként megneveznéd,
+	megadja, hogy a `refs/` alatti összes ref (ami magában foglalja,
+	de nem korlátozódik a `refs/heads/`, `refs/remotes/` és
+	`refs/tags/` refekre) tükröződjön a remote repositoryba. Az
+	újonnan létrehozott lokális refek push-olásra kerülnek a remote
+	oldalra, a lokálisan frissített refek force update-elésre kerülnek
+	a remote oldalon, a törölt refek pedig eltávolításra kerülnek a
+	remote oldalról. Ez az alapértelmezett viselkedés, ha a
+	`remote.<remote>.mirror` konfigurációs opció be van állítva.
 
 `-n`::
 `--dry-run`::
-	Do everything except actually send the updates.
+	Mindent elvégez, kivéve a frissítések tényleges elküldését.
 
 `--porcelain`::
-	Produce machine-readable output.  The output status line for each ref
-	will be tab-separated and sent to stdout instead of stderr.  The full
-	symbolic names of the refs will be given.
+	Gépileg feldolgozható kimenetet állít elő. Az egyes refekhez
+	tartozó állapotsor tabulátorral tagolt lesz, és a standard
+	kimenetre kerül a standard hiba helyett. A refek teljes
+	szimbolikus nevei jelennek meg.
 
 `-d`::
 `--delete`::
-	All listed refs are deleted from the remote repository. This is
-	the same as prefixing all refs with a colon.
+	Az összes felsorolt ref törlésre kerül a remote repositoryból. Ez
+	ugyanaz, mintha minden ref elé kettőspontot tennél.
 
 `--tags`::
-	All refs under `refs/tags` are pushed, in
-	addition to refspecs explicitly listed on the command
-	line.
+	A `refs/tags` alatti összes ref push-olásra kerül, a
+	parancssorban explicit módon megadott refspecek mellett.
 
 `--follow-tags`::
-	Push all the refs that would be pushed without this option,
-	and also push annotated tags in `refs/tags` that are missing
-	from the remote but are pointing at commit-ish that are
-	reachable from the refs being pushed.  This can also be specified
-	with configuration variable `push.followTags`.  For more
-	information, see `push.followTags` in linkgit:git-config[1].
+	Push-olja az összes olyan refet, amely ezen opció nélkül is
+	push-olásra kerülne, és emellett push-olja azokat az annotált
+	tageket a `refs/tags` alatt, amelyek hiányoznak a remote-ról, de
+	olyan commit-ish objektumra mutatnak, amely elérhető a push-olt
+	refekből. Ez a `push.followTags` konfigurációs változóval is
+	megadható. További információért lásd a `push.followTags`-t a
+	linkgit:git-config[1]-ben.
 
 `--signed`::
 `--no-signed`::
 `--signed=(true|false|if-asked)`::
-	GPG-sign the push request to update refs on the receiving
-	side, to allow it to be checked by the hooks and/or be
-	logged. Possible values are:
+	GPG-vel aláírja a push-kérést a fogadó oldalon frissítendő refekhez,
+	hogy azt a hookok ellenőrizhessék, és/vagy naplózásra kerülhessen.
+	A lehetséges értékek:
 `false`;;
 `--no-signed`;;
-no signing will be attempted.
+nem történik aláírási kísérlet.
 `true`;;
 `--signed`;;
-the push will fail if the server does not support signed pushes.
+a push meghiúsul, ha a szerver nem támogatja az aláírt push-olást.
 `if-asked`;;
-sign if and only if the server supports signed pushes.  The push
-will also fail if the actual call to `gpg --sign` fails.  See
-linkgit:git-receive-pack[1] for the details on the receiving end.
+csak akkor ír alá, ha a szerver támogatja az aláírt push-olást. A push
+akkor is meghiúsul, ha a `gpg --sign` tényleges hívása sikertelen. A
+fogadó oldal részleteiért lásd a linkgit:git-receive-pack[1]-et.
 
 `--atomic`::
 `--no-atomic`::
-	Use an atomic transaction on the remote side if available.
-	Either all refs are updated, or on error, no refs are updated.
-	If the server does not support atomic pushes the push will fail.
+	Atomi tranzakciót használ a remote oldalon, ha elérhető. Vagy
+	minden ref frissül, vagy hiba esetén egyik ref sem frissül. Ha a
+	szerver nem támogatja az atomi push-olást, a push meghiúsul.
 
 `-o <option>`::
 `--push-option=<option>`::
-	Transmit the given string to the server, which passes them to
-	the pre-receive as well as the post-receive hook. The given string
-	must not contain a _NUL_ or _LF_ character.
-	When multiple `--push-option=<option>` are given, they are
-	all sent to the other side in the order listed on the
-	command line.
-	When no `--push-option=<option>` is given from the command
-	line, the values of configuration variable `push.pushOption`
-	are used instead.
+	Átküldi a megadott stringet a szervernek, amely azt továbbadja a
+	pre-receive és a post-receive hooknak is. A megadott string nem
+	tartalmazhat _NUL_ vagy _LF_ karaktert.
+	Ha több `--push-option=<option>` is meg van adva, mindegyik
+	elküldésre kerül a másik oldalra, a parancssorban felsorolt
+	sorrendben.
+	Ha a parancssorból nincs megadva `--push-option=<option>`,
+	helyette a `push.pushOption` konfigurációs változó értékei
+	kerülnek felhasználásra.
 
 `--receive-pack=<git-receive-pack>`::
 `--exec=<git-receive-pack>`::
-	Path to the 'git-receive-pack' program on the remote
-	end.  Sometimes useful when pushing to a remote
-	repository over ssh, and you do not have the program in
-	a directory on the default `$PATH`.
+	A 'git-receive-pack' program elérési útja a remote oldalon.
+	Néha hasznos, ha ssh-n keresztül push-olsz egy remote
+	repositoryba, és a program nincs benne az alapértelmezett
+	`$PATH` valamelyik könyvtárában.
 
 `--force-with-lease`::
 `--no-force-with-lease`::
 `--force-with-lease=<refname>`::
 `--force-with-lease=<refname>:<expect>`::
-	Usually, `git push` refuses to update a remote ref that is
-	not an ancestor of the local ref used to overwrite it.
+	Általában a `git push` megtagadja egy olyan remote ref frissítését,
+	amely nem őse a felülírásra használt lokális refnek.
 +
-This option overrides this restriction if the current value of the
-remote ref is the expected value.  `git push` fails otherwise.
+Ez az opció felülbírálja ezt a korlátozást, ha a remote ref jelenlegi
+értéke megegyezik a várt értékkel. Egyébként a `git push` meghiúsul.
 +
-Imagine that you have to rebase what you have already published.
-You will have to bypass the "must fast-forward" rule in order to
-replace the history you originally published with the rebased history.
-If somebody else built on top of your original history while you are
-rebasing, the tip of the branch at the remote may advance with their
-commit, and blindly pushing with `--force` will lose their work.
+Képzeld el, hogy rebase-elned kell azt, amit már publikáltál. Meg
+kell kerülnöd a "kötelező fast-forward" szabályt, hogy az eredetileg
+publikált történelmet lecserélhesd a rebase-elt történelemre. Ha
+valaki más is épített az eredeti történelmedre, amíg rebase-eltél, a
+branch csúcsa a remote-on előrehaladhatott az ő commitjával, és a
+`--force`-szal történő vak push-olás elveszítené a munkáját.
 +
-This option allows you to say that you expect the history you are
-updating is what you rebased and want to replace. If the remote ref
-still points at the commit you specified, you can be sure that no
-other people did anything to the ref. It is like taking a "lease" on
-the ref without explicitly locking it, and the remote ref is updated
-only if the "lease" is still valid.
+Ez az opció lehetővé teszi, hogy jelezd: elvárod, hogy a frissítendő
+történelem az legyen, amit rebase-eltél, és amelyet le akarsz
+cserélni. Ha a remote ref még mindig a megadott commitra mutat,
+biztos lehetsz benne, hogy senki más nem csinált semmit a reffel. Ez
+olyan, mintha egy "lease"-t (bérletet) vennél fel a refre anélkül,
+hogy explicit módon zárolnád, és a remote ref csak akkor frissül, ha
+a "lease" még érvényes.
 +
-`--force-with-lease` alone, without specifying the details, will protect
-all remote refs that are going to be updated by requiring their
-current value to be the same as the remote-tracking branch we have
-for them.
+A `--force-with-lease` önmagában, a részletek megadása nélkül, minden
+frissítendő remote refet véd azáltal, hogy megköveteli, hogy azok
+jelenlegi értéke megegyezzen az azokhoz tartozó remote-tracking
+branchünk értékével.
 +
-`--force-with-lease=<refname>`, without specifying the expected value, will
-protect _<refname>_ (alone), if it is going to be updated, by
-requiring its current value to be the same as the remote-tracking
-branch we have for it.
+A `--force-with-lease=<refname>`, a várt érték megadása nélkül,
+kizárólag az _<refname>_-t védi, ha az frissítésre kerülne, azáltal,
+hogy megköveteli, hogy jelenlegi értéke megegyezzen az ahhoz tartozó
+remote-tracking branchünk értékével.
 +
-`--force-with-lease=<refname>:<expect>` will protect _<refname>_ (alone),
-if it is going to be updated, by requiring its current value to be
-the same as the specified value _<expect>_ (which is allowed to be
-different from the remote-tracking branch we have for the refname,
-or we do not even have to have such a remote-tracking branch when
-this form is used).  If _<expect>_ is the empty string, then the named ref
-must not already exist.
+A `--force-with-lease=<refname>:<expect>` kizárólag az _<refname>_-t
+védi, ha az frissítésre kerülne, azáltal, hogy megköveteli, hogy
+jelenlegi értéke megegyezzen a megadott _<expect>_ értékkel (amely
+eltérhet az adott refnévhez tartozó remote-tracking branchünk
+értékétől, sőt ilyen forma használatakor nem is kell, hogy legyen
+ilyen remote-tracking branchünk). Ha az _<expect>_ egy üres string,
+akkor a megnevezett ref még nem létezhet.
 +
-Note that all forms other than `--force-with-lease=<refname>:<expect>`
-that specifies the expected current value of the ref explicitly are
-still experimental and their semantics may change as we gain experience
-with this feature.
+Vedd figyelembe, hogy minden forma, a `--force-with-lease=<refname>:<expect>`
+kivételével, amely explicit módon megadja a ref várt jelenlegi
+értékét, még kísérleti jellegű, és a szemantikájuk változhat, ahogy
+tapasztalatot szerzünk ezzel a funkcióval kapcsolatban.
 +
-`--no-force-with-lease` will cancel all the previous `--force-with-lease` on the
-command line.
+A `--no-force-with-lease` törli a parancssorban megelőzően megadott
+összes `--force-with-lease`-t.
 +
-A general note on safety: supplying this option without an expected
-value, i.e. as `--force-with-lease` or `--force-with-lease=<refname>`
-interacts very badly with anything that implicitly runs `git fetch` on
-the remote to be pushed to in the background, e.g. `git fetch origin`
-on your repository in a cronjob.
+Egy általános biztonsági megjegyzés: ha ezt az opciót várt érték
+nélkül adod meg, azaz `--force-with-lease` vagy
+`--force-with-lease=<refname>` formában, az nagyon rosszul lép
+kölcsönhatásba bármivel, ami a háttérben implicit módon `git fetch`-et
+futtat a push célpontjául szolgáló remote-on, pl. egy `git fetch
+origin` a repositorydon egy cronjobban.
 +
-The protection it offers over `--force` is ensuring that subsequent
-changes your work wasn't based on aren't clobbered, but this is
-trivially defeated if some background process is updating refs in the
-background. We don't have anything except the remote tracking info to
-go by as a heuristic for refs you're expected to have seen & are
-willing to clobber.
+A `--force`-hoz képest nyújtott védelem abban áll, hogy biztosítja,
+hogy az olyan későbbi változtatások, amelyekre a munkád nem
+támaszkodott, ne íródjanak felül, de ezt egy háttérfolyamat, amely a
+háttérben refeket frissít, könnyedén meghiúsíthatja. Nincs más, csak
+a remote-tracking információ, amire heurisztikaként támaszkodhatunk
+azokhoz a refekhez, amelyeket feltehetően láttál, és amelyeket hajlandó
+vagy felülírni.
 +
-If your editor or some other system is running `git fetch` in the
-background for you a way to mitigate this is to simply set up another
-remote:
+Ha a szerkesztőd vagy valamilyen más rendszer a háttérben `git
+fetch`-et futtat neked, ennek mérséklésére egy módszer, ha egyszerűen
+felállítasz egy másik remote-ot:
 +
 ----
 git remote add origin-push $(git config remote.origin.url)
 git fetch origin-push
 ----
 +
-Now when the background process runs `git fetch origin` the references
-on `origin-push` won't be updated, and thus commands like:
+Most, amikor a háttérfolyamat lefuttatja a `git fetch origin`-t, az
+`origin-push`-on lévő referenciák nem frissülnek, így az olyan
+parancsok, mint:
 +
 ----
 git push --force-with-lease origin-push
 ----
 +
-Will fail unless you manually run `git fetch origin-push`. This method
-is of course entirely defeated by something that runs `git fetch
---all`, in that case you'd need to either disable it or do something
-more tedious like:
+Meg fognak hiúsulni, hacsak nem futtatod le manuálisan a `git fetch
+origin-push`-t. Ezt a módszert természetesen teljesen meghiúsítja
+bármi, ami `git fetch --all`-t futtat, ebben az esetben vagy ki kell
+kapcsolnod, vagy valami fáradságosabbat kell tenned, például:
 +
 ----
 git fetch              # update 'master' from remote
@@ -318,128 +324,138 @@ git rebase -i master   # rewrite some commits
 git push --force-with-lease=master:base master:master
 ----
 +
-I.e. create a `base` tag for versions of the upstream code that you've
-seen and are willing to overwrite, then rewrite history, and finally
-force push changes to `master` if the remote version is still at
-`base`, regardless of what your local `remotes/origin/master` has been
-updated to in the background.
+Azaz hozz létre egy `base` taget az upstream kód azon verzióihoz,
+amelyeket láttál, és amelyeket hajlandó vagy felülírni, majd írd át a
+történelmet, végül force push-old a változtatásokat a `master`-re, ha
+a remote verzió még mindig a `base`-nél tart, függetlenül attól, hogy
+a lokális `remotes/origin/master` mire frissült a háttérben.
 +
-Alternatively, specifying `--force-if-includes` as an ancillary option
-along with `--force-with-lease[=<refname>]` (i.e., without saying what
-exact commit the ref on the remote side must be pointing at, or which
-refs on the remote side are being protected) at the time of "push" will
-verify if updates from the remote-tracking refs that may have been
-implicitly updated in the background are integrated locally before
-allowing a forced update.
+Alternatívaként, ha a `--force-if-includes`-t kiegészítő opcióként
+adod meg a `--force-with-lease[=<refname>]` mellett (azaz anélkül,
+hogy megmondanád, pontosan melyik commitra kell mutatnia a remote
+oldali refnek, vagy hogy melyik refek vannak védve a remote oldalon),
+akkor a "push" idején ellenőrzésre kerül, hogy a remote-tracking
+refekből esetlegesen a háttérben implicit módon frissült
+változtatások lokálisan integrálva lettek-e, mielőtt a force
+frissítés engedélyezésre kerülne.
 
 `-f`::
 `--force`::
-	Usually, `git push` will refuse to update a branch that is not an
-	ancestor of the commit being pushed.
+	Általában a `git push` megtagadja egy olyan branch frissítését,
+	amely nem őse a push-olandó commitnak.
 +
-This flag disables that check, the other safety checks in PUSH RULES
-below, and the checks in `--force-with-lease`. It can cause the remote
-repository to lose commits; use it with care.
+Ez a kapcsoló kikapcsolja ezt az ellenőrzést, a PUSH RULES szakaszban
+lent leírt egyéb biztonsági ellenőrzéseket, valamint a
+`--force-with-lease` ellenőrzéseit is. Emiatt a remote repository
+elveszíthet commitokat; óvatosan használd.
 +
-Note that `--force` applies to all the refs that are pushed, hence
-using it with `push.default` set to `matching` or with multiple push
-destinations configured with `remote.<name>.push` may overwrite refs
-other than the current branch (including local refs that are
-strictly behind their remote counterpart).  To force a push to only
-one branch, use a `+` in front of the refspec to push (e.g `git push
-origin +master` to force a push to the `master` branch). See the
-`<refspec>...` section above for details.
+Vedd figyelembe, hogy a `--force` az összes push-olt refre
+vonatkozik, ezért ha `push.default` értéke `matching`, vagy a
+`remote.<name>.push` több push célpontot is konfigurál, felülírhat a
+jelenlegi branchtől eltérő refeket is (beleértve azokat a lokális
+refeket, amelyek szigorúan lemaradva állnak a remote megfelelőjükhöz
+képest). Ha csak egyetlen branchre akarsz force push-olni, tegyél egy
+`+`-t a push-olandó refspec elé (pl. `git push origin +master` a
+`master` branchre való force push-oláshoz). A részletekért lásd a
+`<refspec>...` szakaszt fent.
 
 `--force-if-includes`::
 `--no-force-if-includes`::
-	Force an update only if the tip of the remote-tracking ref
-	has been integrated locally.
+	Csak akkor kényszerít frissítést, ha a remote-tracking ref
+	csúcsa lokálisan integrálva lett.
 +
-This option enables a check that verifies if the tip of the
-remote-tracking ref is reachable from one of the "reflog" entries of
-the local branch based in it for a rewrite. The check ensures that any
-updates from the remote have been incorporated locally by rejecting the
-forced update if that is not the case.
+Ez az opció egy olyan ellenőrzést kapcsol be, amely megvizsgálja, hogy
+a remote-tracking ref csúcsa elérhető-e az átíráshoz alapul vett
+lokális branch "reflog" bejegyzéseinek valamelyikéből. Az ellenőrzés
+biztosítja, hogy a remote-ról érkező frissítések lokálisan be lettek
+építve, azáltal, hogy elutasítja a force frissítést, ha ez nem
+teljesül.
 +
-If the option is passed without specifying `--force-with-lease`, or
-specified along with `--force-with-lease=<refname>:<expect>`, it is
-a "no-op".
+Ha az opció a `--force-with-lease` megadása nélkül kerül átadásra,
+vagy a `--force-with-lease=<refname>:<expect>` mellett kerül
+megadásra, akkor "no-op".
 +
-Specifying `--no-force-if-includes` disables this behavior.
+A `--no-force-if-includes` megadása kikapcsolja ezt a viselkedést.
 
 `--repo=<repository>`::
-	This option is equivalent to the _<repository>_ argument. If both
-	are specified, the command-line argument takes precedence.
+	Ez az opció egyenértékű az _<repository>_ argumentummal. Ha
+	mindkettő meg van adva, a parancssori argumentum élvez elsőbbséget.
 
 `-u`::
 `--set-upstream`::
-	For every branch that is up to date or successfully pushed, add
-	upstream (tracking) reference, used by argument-less
-	linkgit:git-pull[1] and other commands. For more information,
-	see `branch.<name>.merge` in linkgit:git-config[1].
+	Minden naprakész vagy sikeresen push-olt branchhez hozzáad egy
+	upstream (tracking) referenciát, amelyet az argumentum nélküli
+	linkgit:git-pull[1] és más parancsok használnak. További
+	információért lásd a `branch.<name>.merge`-t a
+	linkgit:git-config[1]-ben.
 
 `--thin`::
 `--no-thin`::
-	These options are passed to linkgit:git-send-pack[1]. A thin transfer
-	significantly reduces the amount of sent data when the sender and
-	receiver share many of the same objects in common. The default is
-	`--thin`.
+	Ezek az opciók a linkgit:git-send-pack[1]-nek kerülnek átadásra. A
+	thin transfer jelentősen csökkenti az elküldött adat mennyiségét,
+	ha a küldő és a fogadó sok azonos objektumon osztozik. Az
+	alapértelmezés a `--thin`.
 
 `-q`::
 `--quiet`::
-	Suppress all output, including the listing of updated refs,
-	unless an error occurs. Progress is not reported to the standard
-	error stream.
+	Elnyom minden kimenetet, beleértve a frissített refek listázását
+	is, hacsak nem történik hiba. A folyamat állapota nem kerül
+	jelentésre a standard hiba adatfolyamra.
 
 `-v`::
 `--verbose`::
-	Run verbosely.
+	Bőbeszédűen fut.
 
 `--progress`::
-	Progress status is reported on the standard error stream
-	by default when it is attached to a terminal, unless `-q`
-	is specified. This flag forces progress status even if the
-	standard error stream is not directed to a terminal.
+	A folyamat állapota alapértelmezetten a standard hiba
+	adatfolyamra kerül jelentésre, ha az egy terminálhoz van
+	csatolva, hacsak nincs megadva a `-q`. Ez a kapcsoló akkor is
+	kikényszeríti a folyamat állapotának jelentését, ha a standard
+	hiba adatfolyam nem terminálra van irányítva.
 
 `--no-recurse-submodules`::
 `--recurse-submodules=(check|on-demand|only|no)`::
-	May be used to make sure all submodule commits used by the
-	revisions to be pushed are available on a remote-tracking branch.
-	Possible values are:
+	Arra használható, hogy biztosítsd, hogy a push-olandó revíziók
+	által használt összes submodule-commit elérhető legyen egy
+	remote-tracking branchen. A lehetséges értékek:
 `check`;;
-        Git will verify that all submodule commits that
-	changed in the revisions to be pushed are available on at least one
-	remote of the submodule. If any commits are missing the push will
-	be aborted and exit with non-zero status.
+        A Git ellenőrizni fogja, hogy a push-olandó revíziókban
+	módosult összes submodule-commit elérhető-e a submodule legalább
+	egy remote-ján. Ha bármelyik commit hiányzik, a push megszakad,
+	és nem nulla státuszkóddal lép ki.
 `on-demand`;;
-	all submodules that changed in the revisions to be pushed will be
-	pushed. If `on-demand` was not able to push all necessary revisions it will
-	also be aborted and exit with non-zero status.
+	az összes olyan submodule push-olásra kerül, amely módosult a
+	push-olandó revíziókban. Ha az `on-demand` nem tudta push-olni
+	az összes szükséges revíziót, szintén megszakad, és nem nulla
+	státuszkóddal lép ki.
 `only`;;
-	all submodules will be pushed while the superproject is left
-	unpushed.
+	az összes submodule push-olásra kerül, míg a szuperprojekt
+	push-olatlan marad.
 `no`;;
-	override the `push.recurseSubmodules` configuration variable when no
-	submodule recursion is required. Similar to using `--no-recurse-submodules`.
+	felülbírálja a `push.recurseSubmodules` konfigurációs változót,
+	ha nincs szükség submodule-rekurzióra. Hasonló a
+	`--no-recurse-submodules` használatához.
 
 +
-When using `on-demand` or `only`, if a submodule has a
-`push.recurseSubmodules=(on-demand|only)` or `submodule.recurse` configuration,
-further recursion will occur. In this case, `only` is treated as `on-demand`.
+Ha `on-demand`-ot vagy `only`-t használsz, és egy submodule-nak van
+`push.recurseSubmodules=(on-demand|only)` vagy `submodule.recurse`
+konfigurációja, további rekurzió történik. Ebben az esetben az `only`
+`on-demand`-ként kezelendő.
 
 `--verify`::
 `--no-verify`::
-	Toggle the pre-push hook (see linkgit:githooks[5]).  The
-	default is `--verify`, giving the hook a chance to prevent the
-	push.  With `--no-verify`, the hook is bypassed completely.
+	Be- vagy kikapcsolja a pre-push hookot (lásd linkgit:githooks[5]).
+	Az alapértelmezés a `--verify`, amely esélyt ad a hooknak arra,
+	hogy megakadályozza a push-t. A `--no-verify`-jal a hook teljesen
+	megkerülésre kerül.
 
 `-4`::
 `--ipv4`::
-	Use IPv4 addresses only, ignoring IPv6 addresses.
+	Csak IPv4-címeket használ, figyelmen kívül hagyva az IPv6-címeket.
 
 `-6`::
 `--ipv6`::
-	Use IPv6 addresses only, ignoring IPv4 addresses.
+	Csak IPv6-címeket használ, figyelmen kívül hagyva az IPv4-címeket.
 
 include::urls-remotes.adoc[]
 
@@ -447,181 +463,196 @@ include::urls-remotes.adoc[]
 REMOTE GROUPS
 -------------
 
-A remote group is a named list of remotes configured via `remotes.<name>`
-in your git config:
+A remote-csoport a `remotes.<name>` beállításon keresztül konfigurált,
+elnevezett remote-lista a git configban:
 
 	$ git config remotes.all-remotes "r1 r2 r3"
 
-When a group name is given as the `<repository>` argument, the push is
-performed to each member remote in turn.  The defining principle is:
+Ha egy csoportnév van megadva a `<repository>` argumentumként, a push
+sorban végrehajtásra kerül a csoport minden egyes tagremote-jára. A
+meghatározó elv:
 
 	git push <options> all-remotes <args>
 
-is exactly equivalent to:
+pontosan egyenértékű a következővel:
 
 	git push <options> r1 <args>
 	git push <options> r2 <args>
 	...
 	git push <options> rN <args>
 
-where r1, r2, ..., rN are the members of `all-remotes`.  No special
-behaviour is added or removed — the group is purely a shorthand for
-running the same push command against each member remote individually.
+ahol r1, r2, ..., rN az `all-remotes` tagjai. Nincs hozzáadva vagy
+elvéve semmilyen speciális viselkedés — a csoport pusztán egy rövidítés
+ugyanazon push parancs egyénileg történő futtatására minden egyes
+tagremote-on.
 
-When pushing to a group of more than one remote, Git spawns a separate
-`git push` subprocess for each member remote in sequence.  Each subprocess
-receives the same flags and refspecs as the original invocation.  This
-means that per-remote push mappings configured via `remote.<name>.push`
-and mirror mode (`remote.<name>.mirror`) are evaluated independently for
-each remote, and a mirror remote in the group cannot affect the push
-behaviour of other non-mirror remotes in the same group.
+Amikor egynél több remote-ból álló csoportra push-olsz, a Git egy
+külön `git push` alfolyamatot indít minden egyes tagremote-hoz,
+sorban. Minden alfolyamat ugyanazokat a kapcsolókat és refspeceket
+kapja, mint az eredeti hívás. Ez azt jelenti, hogy a
+`remote.<name>.push`-on keresztül konfigurált remote-onkénti
+push-mappingek és a mirror mód (`remote.<name>.mirror`) egymástól
+függetlenül kerülnek kiértékelésre minden egyes remote-nál, és egy
+mirror remote a csoportban nem befolyásolhatja a csoport többi,
+nem-mirror remote-jának push-viselkedését.
 
-The `--atomic` option is not supported for group pushes, because atomicity
-can only be guaranteed within a single transport connection to a single
-remote.  Git will refuse the invocation with an error if `--atomic` is
-combined with a group name.
+A `--atomic` opció nem támogatott csoportos push-oknál, mivel az
+atomicitás csak egyetlen remote-hoz tartozó, egyetlen
+transzportkapcsolaton belül garantálható. A Git hibával elutasítja a
+hívást, ha a `--atomic` egy csoportnévvel kombinálva szerepel.
 
-If any member remote fails whether due to a push rejection (e.g. a
-non-fast-forward update, a server-side hook refusing a ref) or a connection
-error (e.g. the repository does not exist, authentication fails, or the
-network is unreachable), Git reports the error and continues pushing to
-the remaining remotes in the group.  The overall exit code is non-zero if
-any member push fails.
+Ha bármelyik tagremote meghiúsul, akár egy push elutasítása miatt
+(pl. egy non-fast-forward frissítés, egy szerveroldali hook, amely
+elutasít egy refet), akár egy kapcsolódási hiba miatt (pl. a
+repository nem létezik, a hitelesítés sikertelen, vagy a hálózat nem
+elérhető), a Git jelenti a hibát, és folytatja a push-olást a csoport
+fennmaradó remote-jaira. A teljes kilépési kód nem nulla, ha bármelyik
+tag push-a meghiúsul.
 
-This means the user is responsible for ensuring that the sequence of
-individual pushes makes sense. If `git push r1`` would fail for a given
-set of options and arguments, then `git push all-remotes` will fail in
-the same way when it reaches r1. The group push does not do anything
-special to make a failing individual push succeed.
+Ez azt jelenti, hogy a felhasználó felelős azért, hogy az egyéni
+push-ok sorrendje értelmes legyen. Ha a `git push r1` meghiúsulna egy
+adott opció- és argumentumkészlettel, akkor a `git push all-remotes`
+ugyanúgy meg fog hiúsulni, amikor eléri az r1-et. A csoportos push nem
+tesz semmi különöset azért, hogy egy meghiúsuló egyéni push
+sikeressé váljon.
 
 OUTPUT
 ------
 
-The output of "git push" depends on the transport method used; this
-section describes the output when pushing over the Git protocol (either
-locally or via ssh).
+A "git push" kimenete a használt transzportmódszertől függ; ez a
+szakasz a Git protokollon (akár lokálisan, akár ssh-n keresztül)
+történő push-olás kimenetét írja le.
 
-The status of the push is output in tabular form, with each line
-representing the status of a single ref. Each line is of the form:
+A push állapota táblázatos formában kerül kiírásra, minden sor egy
+adott ref állapotát jelöli. Minden sor formátuma:
 
 -------------------------------
  <flag> <summary> <from> -> <to> (<reason>)
 -------------------------------
 
-If `--porcelain` is used, then each line of the output is of the form:
+Ha a `--porcelain` van használva, akkor a kimenet minden sorának
+formátuma:
 
 -------------------------------
  <flag> \t <from>:<to> \t <summary> (<reason>)
 -------------------------------
 
-The status of up-to-date refs is shown only if `--porcelain` or `--verbose`
-option is used.
+A naprakész refek állapota csak akkor jelenik meg, ha a `--porcelain`
+vagy a `--verbose` opció van használva.
 
 _<flag>_::
-	A single character indicating the status of the ref:
-(space);; for a successfully pushed fast-forward;
-`+`;; for a successful forced update;
-`-`;; for a successfully deleted ref;
-`*`;; for a successfully pushed new ref;
-`!`;; for a ref that was rejected or failed to push; and
-`=`;; for a ref that was up to date and did not need pushing.
+	Egyetlen karakter, amely jelzi a ref állapotát:
+(space);; sikeresen push-olt fast-forward esetén;
+`+`;; sikeres force update esetén;
+`-`;; sikeresen törölt ref esetén;
+`*`;; sikeresen push-olt új ref esetén;
+`!`;; olyan ref esetén, amelyet elutasítottak, vagy nem sikerült push-olni; és
+`=`;; olyan ref esetén, amely naprakész volt, és nem volt szükség push-olásra.
 
 _<summary>_::
-	For a successfully pushed ref, the summary shows the old and new
-	values of the ref in a form suitable for using as an argument to
-	`git log` (this is `<old>..<new>` in most cases, and
-	`<old>...<new>` for forced non-fast-forward updates).
+	Egy sikeresen push-olt ref esetén az összefoglaló megmutatja a
+	ref régi és új értékét egy olyan formában, amely alkalmas a
+	`git log` argumentumaként való felhasználásra (ez a legtöbb
+	esetben `<old>..<new>`, forced non-fast-forward frissítéseknél
+	pedig `<old>...<new>`).
 +
-For a failed update, more details are given:
+Egy sikertelen frissítés esetén további részletek is megadásra
+kerülnek:
 +
 --
 rejected::
-	Git did not try to send the ref at all, typically because it
-	is not a fast-forward and you did not force the update.
+	A Git meg sem próbálta elküldeni a refet, jellemzően azért,
+	mert az nem fast-forward, és nem force-oltad a frissítést.
 
 remote rejected::
-	The remote end refused the update.  Usually caused by a hook
-	on the remote side, or because the remote repository has one
-	of the following safety options in effect:
-	`receive.denyCurrentBranch` (for pushes to the checked out
-	branch), `receive.denyNonFastForwards` (for forced
-	non-fast-forward updates), `receive.denyDeletes` or
-	`receive.denyDeleteCurrent`.  See linkgit:git-config[1].
+	A remote oldal elutasította a frissítést. Ezt általában egy
+	hook okozza a remote oldalon, vagy az, hogy a remote
+	repositoryn a következő biztonsági opciók valamelyike aktív:
+	`receive.denyCurrentBranch` (a checkoutolt branchre történő
+	push-oknál), `receive.denyNonFastForwards` (forced
+	non-fast-forward frissítéseknél), `receive.denyDeletes` vagy
+	`receive.denyDeleteCurrent`. Lásd linkgit:git-config[1].
 
 remote failure::
-	The remote end did not report the successful update of the ref,
-	perhaps because of a temporary error on the remote side, a
-	break in the network connection, or other transient error.
+	A remote oldal nem jelentette a ref sikeres frissítését,
+	esetleg a remote oldali átmeneti hiba, a hálózati kapcsolat
+	megszakadása vagy más átmeneti hiba miatt.
 --
 
 from::
-	The name of the local ref being pushed, minus its
-	`refs/<type>/` prefix. In the case of deletion, the
-	name of the local ref is omitted.
+	A push-olt lokális ref neve, a `refs/<type>/` előtag nélkül.
+	Törlés esetén a lokális ref neve elmarad.
 
 to::
-	The name of the remote ref being updated, minus its
-	`refs/<type>/` prefix.
+	A frissítendő remote ref neve, a `refs/<type>/` előtag nélkül.
 
 reason::
-	A human-readable explanation. In the case of successfully pushed
-	refs, no explanation is needed. For a failed ref, the reason for
-	failure is described.
+	Emberi nyelven megfogalmazott magyarázat. Sikeresen push-olt
+	refeknél nincs szükség magyarázatra. Egy sikertelen ref esetén a
+	hiba oka kerül leírásra.
 
 PUSH RULES
 ----------
 
-As a safety feature, the `git push` command only allows certain kinds of
-updates to prevent you from accidentally losing data on the remote.
+Biztonsági funkcióként a `git push` parancs csak bizonyos típusú
+frissítéseket engedélyez, hogy megakadályozza az adatok véletlen
+elvesztését a remote-on.
 
-Because branches and tags are intended to be used differently, the
-safety rules for pushing to a branch are different from the rules
-for pushing to a tag. In the following rules "update" means any
-modifications except deletions and creations. Deletions and creations
-are always allowed, except when forbidden by configuration or hooks.
+Mivel a branchek és a tagek eltérő célra szolgálnak, a branchre
+push-olás biztonsági szabályai eltérnek a tagre push-olás
+szabályaitól. Az alábbi szabályokban "frissítés" alatt minden
+módosítást értünk, a törlések és létrehozások kivételével. A törlések
+és létrehozások mindig engedélyezettek, kivéve, ha a konfiguráció
+vagy a hookok megtiltják.
 
-1. If the push destination is a **branch** (`refs/heads/*`): only
-   fast-forward updates are allowed, which means the destination must be
-   an ancestor of the source commit. The source must be a commit.
-2. If the push destination is a **tag** (`refs/tags/*`): all updates will
-   be rejected. The source can be any object.
-3. If the push destination is not a branch or tag:
-   * If the source is a tree or blob object, any updates will be rejected
-   * If the source is a tag or commit object, any fast-forward update
-     is allowed, even in cases where what's being fast-forwarded is not a
-     commit, but a tag object which happens to point to a new commit which
-     is a fast-forward of the commit the last tag (or commit) it's
-     replacing. Replacing a tag with an entirely different tag is also
-     allowed, if it points to the same commit, as well as pushing a peeled
-     tag, i.e. pushing the commit that existing tag object points to, or a
-     new tag object which an existing commit points to.
+1. Ha a push célpontja egy **branch** (`refs/heads/*`): csak
+   fast-forward frissítések engedélyezettek, ami azt jelenti, hogy a
+   célpontnak a forráscommit ősének kell lennie. A forrásnak commitnak
+   kell lennie.
+2. Ha a push célpontja egy **tag** (`refs/tags/*`): minden frissítés
+   elutasításra kerül. A forrás bármilyen objektum lehet.
+3. Ha a push célpontja nem branch, sem tag:
+   * Ha a forrás egy tree vagy blob objektum, minden frissítés
+     elutasításra kerül.
+   * Ha a forrás egy tag vagy commit objektum, bármilyen fast-forward
+     frissítés engedélyezett, még olyan esetekben is, amikor az, ami
+     fast-forwardolásra kerül, nem egy commit, hanem egy tag objektum,
+     amely véletlenül egy olyan új commitra mutat, amely fast-forwardja
+     az utolsó tagnek (vagy commitnak), amelyet lecserél. Egy tag
+     teljesen más tagre cserélése is engedélyezett, ha ugyanarra a
+     commitra mutat, csakúgy, mint egy peelelt tag push-olása, azaz a
+     meglévő tag objektum által mutatott commit, vagy egy meglévő
+     commit által mutatott új tag objektum push-olása.
 
-You can override these rules by passing `--force` or by adding the
-optional leading `+` to a refspec. The only exceptions are that no
-amount of forcing will make a branch accept a non-commit object,
-and forcing won't make the remote repository accept a push that it's
-configured to deny.
+Ezeket a szabályokat felülbírálhatod a `--force` megadásával, vagy az
+opcionális vezető `+` hozzáadásával egy refspechez. Az egyetlen
+kivétel, hogy semennyi force-olás sem fogja rávenni egy branchet, hogy
+egy nem-commit objektumot elfogadjon, és a force-olás sem fogja rávenni
+a remote repositoryt, hogy elfogadjon egy push-t, amelyet
+konfigurációval megtiltottak elfogadni.
 
-Hooks and configuration can also override or amend these rules,
-see e.g. `receive.denyNonFastForwards` and `receive.denyDeletes`
-in linkgit:git-config[1] and `pre-receive` and `update` in
-linkgit:githooks[5].
+A hookok és a konfiguráció is felülbírálhatják vagy módosíthatják
+ezeket a szabályokat, lásd pl. a `receive.denyNonFastForwards`-t és a
+`receive.denyDeletes`-t a linkgit:git-config[1]-ben, valamint a
+`pre-receive`-t és az `update`-et a linkgit:githooks[5]-ben.
 
 NOTE ABOUT FAST-FORWARDS
 ------------------------
 
-When an update changes a branch (or more in general, a ref) that used to
-point at commit A to point at another commit B, it is called a
-fast-forward update if and only if B is a descendant of A.
+Amikor egy frissítés egy olyan branchet (vagy általánosabban egy
+refet) módosít, amely korábban az A commitra mutatott, úgy, hogy az
+egy másik, B commitra mutasson, akkor ezt fast-forward frissítésnek
+nevezzük, ha és csak ha B az A leszármazottja.
 
-In a fast-forward update from A to B, the set of commits that the original
-commit A built on top of is a subset of the commits the new commit B
-builds on top of.  Hence, it does not lose any history.
+Egy A-ból B-be történő fast-forward frissítésnél az a commitkészlet,
+amelyre az eredeti A commit épült, részhalmaza azoknak a commitoknak,
+amelyekre az új B commit épül. Ezért nem vész el semmilyen történelem.
 
-In contrast, a non-fast-forward update will lose history.  For example,
-suppose you and somebody else started at the same commit X, and you built
-a history leading to commit B while the other person built a history
-leading to commit A.  The history looks like this:
+Ezzel szemben egy non-fast-forward frissítés történelmet veszít el.
+Például tegyük fel, hogy te és valaki más ugyanabból az X commitból
+indultatok ki, és te egy B commithoz vezető történelmet építettél fel,
+míg a másik személy egy A commithoz vezető történelmet épített. A
+történelem így néz ki:
 
 ----------------
 
@@ -631,29 +662,32 @@ leading to commit A.  The history looks like this:
 
 ----------------
 
-Further suppose that the other person already pushed changes leading to A
-back to the original repository from which you two obtained the original
-commit X.
+Tegyük fel továbbá, hogy a másik személy már push-olta az A-hoz vezető
+változtatásokat vissza abba az eredeti repositoryba, amelyből
+mindketten megszereztétek az eredeti X commitot.
 
-The push done by the other person updated the branch that used to point at
-commit X to point at commit A.  It is a fast-forward.
+A másik személy által végzett push frissítette azt a branchet, amely
+korábban az X commitra mutatott, úgy, hogy az A commitra mutasson. Ez
+egy fast-forward.
 
-But if you try to push, you will attempt to update the branch (that
-now points at A) with commit B.  This does _not_ fast-forward.  If you did
-so, the changes introduced by commit A will be lost, because everybody
-will now start building on top of B.
+De ha te próbálsz push-olni, akkor a branchet (amely most A-ra mutat)
+próbálod a B committal frissíteni. Ez _nem_ fast-forward. Ha ezt
+tennéd, az A commit által bevezetett változtatások elvesznének, mert
+mindenki innentől B tetejére kezdene építeni.
 
-The command by default does not allow an update that is not a fast-forward
-to prevent such loss of history.
+A parancs alapértelmezetten nem engedélyez olyan frissítést, amely nem
+fast-forward, hogy megelőzze a történelem ilyen elvesztését.
 
-If you do not want to lose your work (history from X to B) or the work by
-the other person (history from X to A), you would need to first fetch the
-history from the repository, create a history that contains changes done
-by both parties, and push the result back.
+Ha nem akarod elveszíteni sem a saját munkádat (az X-től B-ig tartó
+történelmet), sem a másik személy munkáját (az X-től A-ig tartó
+történelmet), akkor először le kell fetchelned a történelmet a
+repositoryból, létre kell hoznod egy olyan történelmet, amely mindkét
+fél változtatásait tartalmazza, és vissza kell push-olnod az
+eredményt.
 
-You can perform "git pull", resolve potential conflicts, and "git push"
-the result.  A "git pull" will create a merge commit C between commits A
-and B.
+Ezt megteheted a "git pull" futtatásával, az esetleges konfliktusok
+feloldásával, majd az eredmény "git push"-olásával. A "git pull" létre
+fog hozni egy C merge commitot az A és a B commitok között.
 
 ----------------
 
@@ -663,13 +697,13 @@ and B.
 
 ----------------
 
-Updating A with the resulting merge commit will fast-forward and your
-push will be accepted.
+Az A frissítése a kapott merge committal fast-forward lesz, és a
+push-od elfogadásra kerül.
 
-Alternatively, you can rebase your change between X and B on top of A,
-with `git pull --rebase`, and push the result back.  The rebase will
-create a new commit D that builds the change between X and B on top of
-A.
+Alternatívaként rebase-elheted az X és B közötti változtatásodat A
+tetejére a `git pull --rebase` segítségével, és push-olhatod vissza az
+eredményt. A rebase létre fog hozni egy új, D commitot, amely az X és
+B közötti változtatást A tetejére építi.
 
 ----------------
 
@@ -679,102 +713,108 @@ A.
 
 ----------------
 
-Again, updating A with this commit will fast-forward and your push will be
-accepted.
+Az A frissítése ezzel a committal ismét fast-forward lesz, és a
+push-od elfogadásra kerül.
 
-There is another common situation where you may encounter non-fast-forward
-rejection when you try to push, and it is possible even when you are
-pushing into a repository nobody else pushes into. After you push commit
-A yourself (in the first picture in this section), replace it with `git
-commit --amend` to produce commit B, and you try to push it out, because
-forgot that you have pushed A out already. In such a case, and only if
-you are certain that nobody in the meantime fetched your earlier commit A
-(and started building on top of it), you can run `git push --force` to
-overwrite it. In other words, `git push --force` is a method reserved for
-a case where you do mean to lose history.
+Van egy másik gyakori helyzet, amikor non-fast-forward elutasításba
+ütközhetsz push-olás közben, és ez akkor is előfordulhat, amikor egy
+olyan repositoryba push-olsz, amelybe rajtad kívül senki más nem
+push-ol. Miután te magad push-oltad az A commitot (a szakasz első
+ábráján), lecseréled azt a `git commit --amend`-del a B commit
+előállítására, majd megpróbálod kipush-olni, mert elfelejtetted, hogy
+az A-t már push-oltad. Ilyen esetben, és csak akkor, ha biztos vagy
+benne, hogy időközben senki nem fetchelte le a korábbi A commitodat
+(és nem kezdett rá építeni), lefuttathatod a `git push --force`-ot a
+felülírásához. Más szóval, a `git push --force` egy olyan esetre
+fenntartott módszer, amikor ténylegesen történelmet akarsz elveszíteni.
 
 
 EXAMPLES
 --------
 
 `git push`::
-	Works like `git push <remote>`, where <remote> is the
-	current branch's remote (or `origin`, if no remote is
-	configured for the current branch).
+	Úgy működik, mint a `git push <remote>`, ahol <remote> a
+	jelenlegi branch remote-ja (vagy `origin`, ha a jelenlegi
+	branchhez nincs remote konfigurálva).
 
 `git push origin`::
-	Without additional configuration, pushes the current branch to
-	the configured upstream (`branch.<name>.merge` configuration
-	variable) if it has the same name as the current branch, and
-	errors out without pushing otherwise.
+	További konfiguráció nélkül a jelenlegi branchet push-olja a
+	beállított upstreamre (`branch.<name>.merge` konfigurációs
+	változó), ha annak neve megegyezik a jelenlegi branch nevével,
+	egyébként hibával leáll, push-olás nélkül.
 +
-The default behavior of this command when no _<refspec>_ is given can be
-configured by setting the `push` option of the remote, or the `push.default`
-configuration variable.
+Ennek a parancsnak az alapértelmezett viselkedése, amikor nincs
+megadva _<refspec>_, beállítható a remote `push` opciójának, vagy a
+`push.default` konfigurációs változónak a beállításával.
 +
-For example, to default to pushing only the current branch to `origin`
-use `git config remote.origin.push HEAD`.  Any valid _<refspec>_ (like
-the ones in the examples below) can be configured as the default for
-`git push origin`.
+Például, ha alapértelmezetten csak a jelenlegi branchet szeretnéd
+push-olni az `origin`-re, használd a `git config remote.origin.push
+HEAD`-et. Bármely érvényes _<refspec>_ (mint az alábbi példákban
+szereplők) beállítható alapértelmezettként a `git push origin`
+számára.
 
 `git push origin :`::
-	Push "matching" branches to `origin`. See
-	_<refspec>_ in the <<OPTIONS,OPTIONS>> section above for a
-	description of "matching" branches.
+	A "matching" brancheket push-olja az `origin`-re. A "matching"
+	branchek leírásáért lásd az _<refspec>_-et fent, az
+	<<OPTIONS,OPTIONS>> szakaszban.
 
 `git push origin master`::
-	Find a ref that matches `master` in the source repository
-	(most likely, it would find `refs/heads/master`), and update
-	the same ref (e.g. `refs/heads/master`) in `origin` repository
-	with it.  If `master` did not exist remotely, it would be
-	created.
+	Keresd meg a `master`-nek megfelelő refet a forrás repositoryban
+	(legvalószínűbb, hogy a `refs/heads/master`-t találná meg), és
+	frissítsd vele ugyanazt a refet (pl. `refs/heads/master`) az
+	`origin` repositoryban. Ha a `master` nem létezett a remote-on,
+	létrejönne.
 
 `git push origin HEAD`::
-	A handy way to push the current branch to the same name on the
-	remote.
+	Kényelmes módja annak, hogy a jelenlegi branchet a remote-on
+	ugyanolyan néven push-old.
 
 `git push mothership master:satellite/master dev:satellite/dev`::
-	Use the source ref that matches `master` (e.g. `refs/heads/master`)
-	to update the ref that matches `satellite/master` (most probably
-	`refs/remotes/satellite/master`) in the `mothership` repository;
-	do the same for `dev` and `satellite/dev`.
+	Használd a `master`-nek megfelelő forrás refet (pl.
+	`refs/heads/master`) a `satellite/master`-nek megfelelő ref
+	frissítésére (legvalószínűbb, hogy `refs/remotes/satellite/master`)
+	a `mothership` repositoryban; ugyanezt tedd a `dev` és a
+	`satellite/dev` esetén is.
 +
-See the section describing `<refspec>...` above for a discussion of
-the matching semantics.
+Az illesztési szemantika tárgyalásáért lásd a `<refspec>...`-t leíró
+szakaszt fent.
 +
-This is to emulate `git fetch` run on the `mothership` using `git
-push` that is run in the opposite direction in order to integrate
-the work done on `satellite`, and is often necessary when you can
-only make connection in one way (i.e. satellite can ssh into
-mothership but mothership cannot initiate connection to satellite
-because the latter is behind a firewall or does not run sshd).
+Ez arra szolgál, hogy emulálja a `mothership`-en futtatott `git
+fetch`-et az ellenkező irányban futtatott `git push` segítségével,
+azért, hogy integrálja a `satellite`-en végzett munkát, és gyakran
+szükséges, amikor a kapcsolat csak egy irányban hozható létre (azaz a
+satellite tud ssh-zni a mothershipbe, de a mothership nem tud
+kapcsolatot kezdeményezni a satellite-hoz, mert az utóbbi egy tűzfal
+mögött van, vagy nem futtat sshd-t).
 +
-After running this `git push` on the `satellite` machine, you would
-ssh into the `mothership` and run `git merge` there to complete the
-emulation of `git pull` that were run on `mothership` to pull changes
-made on `satellite`.
+Miután lefuttattad ezt a `git push`-t a `satellite` gépen, ssh-znál a
+`mothership`-be, és ott futtatnál egy `git merge`-et, hogy befejezd a
+`mothership`-en futtatott `git pull` emulációját, amely a
+`satellite`-en végzett változtatások lehúzására szolgált volna.
 
 `git push origin HEAD:master`::
-	Push the current branch to the remote ref matching `master` in the
-	`origin` repository. This form is convenient to push the current
-	branch without thinking about its local name.
+	A jelenlegi branchet push-olja a `master`-nek megfelelő remote
+	refre az `origin` repositoryban. Ez a forma kényelmes a jelenlegi
+	branch push-olására anélkül, hogy a lokális nevére kellene
+	gondolnod.
 
 `git push origin master:refs/heads/experimental`::
-	Create the branch `experimental` in the `origin` repository
-	by copying the current `master` branch.  This form is only
-	needed to create a new branch or tag in the remote repository when
-	the local name and the remote name are different; otherwise,
-	the ref name on its own will work.
+	Létrehozza az `experimental` branchet az `origin` repositoryban a
+	jelenlegi `master` branch lemásolásával. Erre a formára csak
+	akkor van szükség, ha egy új branchet vagy taget kell létrehozni a
+	remote repositoryban, és a lokális név eltér a remote névtől;
+	egyébként önmagában a ref neve is működik.
 
 `git push origin :experimental`::
-	Find a ref that matches `experimental` in the `origin` repository
-	(e.g. `refs/heads/experimental`), and delete it.
+	Keresd meg az `experimental`-nak megfelelő refet az `origin`
+	repositoryban (pl. `refs/heads/experimental`), és töröld azt.
 
 `git push origin +dev:master`::
-	Update the origin repository's master branch with the dev branch,
-	allowing non-fast-forward updates.  *This can leave unreferenced
-	commits dangling in the origin repository.*  Consider the
-	following situation, where a fast-forward is not possible:
+	Frissíti az origin repository master branchét a dev branchcsel,
+	engedélyezve a non-fast-forward frissítéseket. *Ez a hivatkozás
+	nélkül maradt commitokat hagyhat lógva az origin repositoryban.*
+	Vedd figyelembe a következő helyzetet, ahol a fast-forward nem
+	lehetséges:
 +
 ----
 	    o---o---o---A---B  origin/master
@@ -782,7 +822,7 @@ made on `satellite`.
 		      X---Y---Z  dev
 ----
 +
-The above command would change the origin repository to
+A fenti parancs a következőre változtatná az origin repositoryt:
 +
 ----
 		      A---B  (unnamed branch)
@@ -790,9 +830,9 @@ The above command would change the origin repository to
 	    o---o---o---X---Y---Z  master
 ----
 +
-Commits A and B would no longer belong to a branch with a symbolic name,
-and so would be unreachable.  As such, these commits would be removed by
-a `git gc` command on the origin repository.
+Az A és B commitok többé nem tartoznának szimbolikus nevű branchhez,
+így elérhetetlenné válnának. Emiatt ezeket a commitokat eltávolítaná
+az origin repositoryn futtatott `git gc` parancs.
 
 include::transfer-data-leaks.adoc[]
 
@@ -806,4 +846,4 @@ include::config/push.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

@@ -91,7 +91,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-fmt-merge-msg.adoc | [x] |  | 2026-09-10 |
 | git-for-each-ref.adoc | [x] |  | 2026-09-11 |
 | git-for-each-repo.adoc | [x] |  | 2026-09-10 |
-| git-format-patch.adoc | [ ] |  |  |
+| git-format-patch.adoc | [x] |  | 2026-09-11 |
 | git-format-rev.adoc | [x] |  | 2026-09-10 |
 | git-fsck-objects.adoc | [x] |  | 2026-09-10 |
 | git-fsck.adoc | [x] |  | 2026-09-10 |
@@ -143,7 +143,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-prune-packed.adoc | [x] |  | 2026-09-10 |
 | git-prune.adoc | [x] |  | 2026-09-10 |
 | git-pull.adoc | [x] |  | 2026-09-10 |
-| git-push.adoc | [ ] |  |  |
+| git-push.adoc | [x] |  | 2026-09-11 |
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
 | git-range-diff.adoc | [x] |  | 2026-09-10 |
 | git-read-tree.adoc | [x] |  | 2026-09-11 |
@@ -953,3 +953,13 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   angol találatok mind kódblokkon/C-kommenten/protokoll-pszeudokód-kommenten belüli, szándékosan
   érintetlen tartalom, ill. egy szó szerint idézett történelmi Git commit-üzenet).
   Részletek: `glossary-git-git-docs.md` „41. blokk".
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére): `git-format-patch.adoc` (30,8KB, 824 sor, man page), `git-push.adoc` (32,2KB, 809
+  sor, man page). 2 párhuzamos subagent végezte. Az orchestrátor javított egy terminológiai
+  inkonzisztenciát (`git-format-patch.adoc` „threading"/„threadeli" → „szálazás"/„szálazza", hogy
+  megegyezzen a `git-send-email.adoc`-ban [40. blokk] már rögzített „szálazás" terminussal, amely
+  kifejezetten a `git format-patch` szóhasználatára hivatkozott) és pótolta a záró „GIT"/"Part of
+  the linkgit:git[1] suite" sor fordítását, amit a subagent kihagyott. A `git-push.adoc`
+  megszakítás és hiba nélkül, hibátlanul készült el, a `<<URLS,GIT URLS>>` → `<<URLS,GIT
+  URL-ek>>` és a `<<REMOTES,...>>`/`<<UPSTREAM-BRANCHES,...>>`/`<<REMOTE-GROUPS,...>>`
+  bájtazonos-hagyási precedenst követve. Részletek: `glossary-git-git-docs.md` „42. blokk".
