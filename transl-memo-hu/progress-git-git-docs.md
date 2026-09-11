@@ -147,7 +147,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-quiltimport.adoc | [x] |  | 2026-09-10 |
 | git-range-diff.adoc | [x] |  | 2026-09-10 |
 | git-read-tree.adoc | [x] |  | 2026-09-11 |
-| git-rebase.adoc | [ ] |  |  |
+| git-rebase.adoc | [x] |  | 2026-09-11 |
 | git-receive-pack.adoc | [x] |  | 2026-09-10 |
 | git-reflog.adoc | [x] |  | 2026-09-10 |
 | git-refs.adoc | [x] |  | 2026-09-10 |
@@ -230,7 +230,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | format-patch-end-of-commit-message.adoc | [x] |  | 2026-09-10 |
 | fsck-msgids.adoc | [x] |  | 2026-09-10 |
 | git.adoc | [ ] |  |  |
-| gitattributes.adoc | [ ] |  |  |
+| gitattributes.adoc | [x] |  | 2026-09-11 |
 | gitcli.adoc | [x] |  | 2026-09-10 |
 | gitcore-tutorial.adoc | [ ] |  |  |
 | gitcredentials.adoc | [x] |  | 2026-09-10 |
@@ -983,3 +983,13 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   orchestrátor-javítás nem volt szükséges egyik fájlon sem. Strukturális ellenőrzés (kötőjel-/
   aláhúzás-számlálás, anchor-duplikátum, reziduális angol szöveg heurisztikus grep) mindkét
   fájlon hibátlan. Részletek: `glossary-git-git-docs.md` „44. blokk".
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére): `git-rebase.adoc` (47,4KB, 1289→1354 sor, man page), `gitattributes.adoc` (50,6KB,
+  1385→1484 sor, man page — eddig a legnagyobb fájl ebben a batch-sorozatban). 2 párhuzamos
+  subagent végezte. Az orchestrátor javított egy apró terminológiai következetlenséget
+  (`git-rebase.adoc`: az „Easy Case" `::`-definíciós-címke „Egyszerű eset"-re fordult, míg a
+  hozzá tartozó `[[_the_easy_case]]` cím és egy NOTE-glossza „könnyű eset"-et használt — a
+  címkét „Könnyű eset"-re javítva az egységesség kedvéért). A `gitattributes.adoc` (23 defenzív
+  anchorral, sok új terminológiával: checkin/checkout igeként, clean/smudge filter, hunk-fejléc,
+  konfliktusjelölő) strukturálisan hibátlanul készült el. Részletek: `glossary-git-git-docs.md`
+  „45. blokk".

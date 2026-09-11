@@ -3,7 +3,7 @@ gitattributes(5)
 
 NAME
 ----
-gitattributes - Defining attributes per path
+gitattributes - Útvonalankénti attribútumok megadása
 
 SYNOPSIS
 --------
@@ -13,196 +13,214 @@ $GIT_DIR/info/attributes, .gitattributes
 DESCRIPTION
 -----------
 
-A `gitattributes` file is a simple text file that gives
-`attributes` to pathnames.
+A `gitattributes` fájl egy egyszerű szöveges fájl, amely
+`attribútumokat` rendel útvonalnevekhez.
 
-Each line in `gitattributes` file is of form:
+A `gitattributes` fájl minden sora a következő alakú:
 
-	pattern attr1 attr2 ...
+	minta attr1 attr2 ...
 
-That is, a pattern followed by an attributes list,
-separated by whitespaces. Leading and trailing whitespaces are
-ignored. Lines that begin with '#' are ignored. Patterns
-that begin with a double quote are quoted in C style.
-When the pattern matches the path in question, the attributes
-listed on the line are given to the path.
+Vagyis egy minta, amelyet whitespace-ekkel elválasztott
+attribútumlista követ. A kezdő és záró whitespace-eket
+figyelmen kívül hagyja a rendszer. A '#'-tal kezdődő sorokat
+figyelmen kívül hagyja. A dupla idézőjellel kezdődő mintákat
+C stílusban idézettnek tekinti.
+Amikor a minta illeszkedik a szóban forgó útvonalra, a soron
+felsorolt attribútumokat az útvonal megkapja.
 
-Each attribute can be in one of these states for a given path:
+Minden attribútum az alábbi állapotok egyikében lehet egy adott
+útvonalra nézve:
 
-Set::
+Beállítva::
 
-	The path has the attribute with special value "true";
-	this is specified by listing only the name of the
-	attribute in the attribute list.
+	Az útvonal rendelkezik az attribútummal, "true" speciális
+	értékkel; ezt úgy adjuk meg, hogy csak az attribútum nevét
+	soroljuk fel az attribútumlistában.
 
-Unset::
+Törölve::
 
-	The path has the attribute with special value "false";
-	this is specified by listing the name of the attribute
-	prefixed with a dash `-` in the attribute list.
+	Az útvonal rendelkezik az attribútummal, "false" speciális
+	értékkel; ezt úgy adjuk meg, hogy az attribútum nevét egy
+	kötőjellel `-` megelőzve soroljuk fel az attribútumlistában.
 
-Set to a value::
+Értékre állítva::
 
-	The path has the attribute with specified string value;
-	this is specified by listing the name of the attribute
-	followed by an equal sign `=` and its value in the
-	attribute list.
+	Az útvonal rendelkezik az attribútummal, a megadott string
+	értékkel; ezt úgy adjuk meg, hogy az attribútum nevét egy
+	egyenlőségjellel `=` és az értékkel követve soroljuk fel az
+	attribútumlistában.
 
-Unspecified::
+Meghatározatlan::
 
-	No pattern matches the path, and nothing says if
-	the path has or does not have the attribute, the
-	attribute for the path is said to be Unspecified.
+	Egyetlen minta sem illeszkedik az útvonalra, és semmi nem
+	mondja meg, hogy az útvonalnak van-e vagy nincs az adott
+	attribútuma; ilyenkor az útvonal attribútuma Meghatározatlannak
+	számít.
 
-When more than one pattern matches the path, a later line
-overrides an earlier line.  This overriding is done per
-attribute.
+Ha egynél több minta illeszkedik az útvonalra, egy későbbi sor
+felülbírálja a korábbit. Ez a felülbírálás attribútumonként
+történik.
 
-The rules by which the pattern matches paths are the same as in
-`.gitignore` files (see linkgit:gitignore[5]), with a few exceptions:
+A minták útvonalakra illesztésének szabályai ugyanazok, mint a
+`.gitignore` fájloknál (lásd: linkgit:gitignore[5]), néhány kivétellel:
 
-  - negative patterns are forbidden
+  - a negatív minták tiltottak
 
-  - patterns that match a directory do not recursively match paths
-    inside that directory (so using the trailing-slash `path/` syntax is
-    pointless in an attributes file; use `path/**` instead)
+  - a könyvtárra illeszkedő minták nem illeszkednek rekurzívan az
+    adott könyvtáron belüli útvonalakra (így a záró perjeles `path/`
+    szintaxis használata értelmetlen egy attribútumfájlban; helyette
+    a `path/**` alakot használjuk)
 
-When deciding what attributes are assigned to a path, Git
-consults `$GIT_DIR/info/attributes` file (which has the highest
-precedence), `.gitattributes` file in the same directory as the
-path in question, and its parent directories up to the toplevel of the
-work tree (the further the directory that contains `.gitattributes`
-is from the path in question, the lower its precedence). Finally
-global and system-wide files are considered (they have the lowest
-precedence).
+Amikor eldönti, hogy mely attribútumokat rendeli egy útvonalhoz, a Git
+megvizsgálja a `$GIT_DIR/info/attributes` fájlt (ennek van a legmagasabb
+precedenciája), a szóban forgó útvonallal azonos könyvtárban lévő
+`.gitattributes` fájlt, és annak szülőkönyvtárait egészen a munkakönyvtár
+legfelső szintjéig (minél távolabb van a `.gitattributes`-t tartalmazó
+könyvtár a szóban forgó útvonaltól, annál alacsonyabb a precedenciája).
+Végül a globális és a rendszerszintű fájlokat veszi figyelembe (ezeknek
+van a legalacsonyabb precedenciájuk).
 
-When the `.gitattributes` file is missing from the work tree, the
-path in the index is used as a fall-back.  During checkout process,
-`.gitattributes` in the index is used and then the file in the
-working tree is used as a fall-back.
+Ha a `.gitattributes` fájl hiányzik a munkakönyvtárból, az indexben
+lévő útvonal szolgál tartalékként. A checkout folyamat során az
+indexben lévő `.gitattributes` fájlt használja, majd a munkakönyvtárban
+lévő fájl szolgál tartalékként.
 
-If you wish to affect only a single repository (i.e., to assign
-attributes to files that are particular to
-one user's workflow for that repository), then
-attributes should be placed in the `$GIT_DIR/info/attributes` file.
-Attributes which should be version-controlled and distributed to other
-repositories (i.e., attributes of interest to all users) should go into
-`.gitattributes` files. Attributes that should affect all repositories
-for a single user should be placed in a file specified by the
-`core.attributesFile` configuration option (see linkgit:git-config[1]).
-Its default value is $XDG_CONFIG_HOME/git/attributes. If $XDG_CONFIG_HOME
-is either not set or empty, $HOME/.config/git/attributes is used instead.
-Attributes for all users on a system should be placed in the
-`$(prefix)/etc/gitattributes` file.
+Ha csak egyetlen repository-ra szeretnél hatni (vagyis olyan
+attribútumokat rendelni fájlokhoz, amelyek az adott repository-nál
+egy adott felhasználó munkafolyamatára jellemzőek), akkor az
+attribútumokat a `$GIT_DIR/info/attributes` fájlba kell helyezni.
+Azokat az attribútumokat, amelyeket verziókövetni és más
+repository-knak is terjeszteni kell (vagyis amelyek minden
+felhasználó számára érdekesek), a `.gitattributes` fájlokba kell
+tenni. Azokat az attribútumokat, amelyeknek egyetlen felhasználó
+összes repository-jára hatniuk kell, a `core.attributesFile`
+konfigurációs opció (lásd: linkgit:git-config[1]) által megadott
+fájlba kell helyezni. Ennek alapértelmezett értéke
+$XDG_CONFIG_HOME/git/attributes. Ha az $XDG_CONFIG_HOME nincs
+beállítva vagy üres, akkor helyette a $HOME/.config/git/attributes
+fájlt használja. A rendszer összes felhasználójára vonatkozó
+attribútumokat a `$(prefix)/etc/gitattributes` fájlba kell tenni.
 
-Sometimes you would need to override a setting of an attribute
-for a path to `Unspecified` state.  This can be done by listing
-the name of the attribute prefixed with an exclamation point `!`.
+Néha szükség lehet arra, hogy egy attribútum beállítását egy
+útvonalon `Meghatározatlan` állapotra írjuk felül. Ez úgy tehető meg,
+hogy az attribútum nevét egy felkiáltójellel `!` megelőzve soroljuk
+fel.
 
 
 RESERVED BUILTIN_* ATTRIBUTES
 -----------------------------
 
-builtin_* is a reserved namespace for builtin attribute values. Any
-user defined attributes under this namespace will be ignored and
-trigger a warning.
+A builtin_* egy fenntartott névtér a beépített attribútumértékek
+számára. Az ebben a névtérben definiált, felhasználó által megadott
+attribútumokat a rendszer figyelmen kívül hagyja, és figyelmeztetést ad.
 
 `builtin_objectmode`
 ~~~~~~~~~~~~~~~~~~~~
-This attribute is for filtering files by their file bit modes (40000,
-120000, 160000, 100755, 100644). e.g. ':(attr:builtin_objectmode=160000)'.
-You may also check these values with `git check-attr builtin_objectmode -- <file>`.
-If the object is not in the index `git check-attr --cached` will return unspecified.
+Ez az attribútum a fájlok fájl bit módjaik szerinti szűrésére szolgál
+(40000, 120000, 160000, 100755, 100644), pl.
+':(attr:builtin_objectmode=160000)'.
+Ezeket az értékeket a `git check-attr builtin_objectmode -- <file>`
+paranccsal is ellenőrizheted.
+Ha az objektum nincs az indexben, a `git check-attr --cached`
+meghatározatlant fog visszaadni.
 
 
 EFFECTS
 -------
 
-Certain operations by Git can be influenced by assigning
-particular attributes to a path.  Currently, the following
-operations are attributes-aware.
+Bizonyos Git-műveleteket befolyásolni lehet azzal, hogy adott
+attribútumokat rendelünk egy útvonalhoz. Jelenleg a következő
+műveletek veszik figyelembe az attribútumokat.
 
-Checking-out and checking-in
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_checking_out_and_checking_in]]
+Checkout és checkin
+~~~~~~~~~~~~~~~~~~~
 
-These attributes affect how the contents stored in the
-repository are copied to the working tree files when commands
-such as 'git switch', 'git checkout'  and 'git merge' run.
-They also affect how
-Git stores the contents you prepare in the working tree in the
-repository upon 'git add' and 'git commit'.
+Ezek az attribútumok befolyásolják, hogy a repository-ban tárolt
+tartalom hogyan másolódik át a munkakönyvtár fájljaiba, amikor
+olyan parancsok futnak, mint a 'git switch', a 'git checkout' és a
+'git merge'. Azt is befolyásolják, hogy a Git hogyan tárolja a
+munkakönyvtárban előkészített tartalmat a repository-ban a
+'git add' és a 'git commit' futtatásakor.
 
 `text`
 ^^^^^^
 
-This attribute marks the path as a text file, which enables end-of-line
-conversion: When a matching file is added to the index, the file's line
-endings are normalized to LF in the index.  Conversely, when the file is
-copied from the index to the working directory, its line endings may be
-converted from LF to CRLF depending on the `eol` attribute, the Git
-config, and the platform (see explanation of `eol` below).
+Ez az attribútum szövegfájlként jelöli meg az útvonalat, ami engedélyezi
+a sorvég-konverziót: amikor egy illeszkedő fájlt hozzáadunk az indexhez,
+a fájl sorvégei LF-re normalizálódnak az indexben. Ezzel szemben, amikor
+a fájl az indexből a munkakönyvtárba másolódik, a sorvégei LF-ről
+CRLF-re konvertálódhatnak, az `eol` attribútumtól, a Git konfigurációtól
+és a platformtól függően (lásd az `eol` alábbi magyarázatát).
 
-Set::
+Beállítva::
 
-	Setting the `text` attribute on a path enables end-of-line
-	conversion on checkin and checkout as described above.  Line endings
-	are normalized to LF in the index every time the file is checked in,
-	even if the file was previously added to Git with CRLF line endings.
+	A `text` attribútum beállítása egy útvonalon engedélyezi a
+	fent leírt sorvég-konverziót checkinkor és checkoutkor. A
+	sorvégek minden alkalommal LF-re normalizálódnak az indexben,
+	amikor a fájlt checkinolják, még akkor is, ha a fájlt korábban
+	CRLF sorvégekkel adták a Githez.
 
-Unset::
+Törölve::
 
-	Unsetting the `text` attribute on a path tells Git not to
-	attempt any end-of-line conversion upon checkin or checkout.
+	A `text` attribútum törlése egy útvonalon azt mondja a Gitnek,
+	hogy ne kíséreljen meg semmilyen sorvég-konverziót checkinkor
+	vagy checkoutkor.
 
-Set to string value "auto"::
+„auto" string értékre állítva::
 
-	When `text` is set to "auto", Git decides by itself whether the file
-	is text or binary.  If it is text and the file was not already in
-	Git with CRLF endings, line endings are converted on checkin and
-	checkout as described above.  Otherwise, no conversion is done on
-	checkin or checkout.
+	Amikor a `text` "auto"-ra van állítva, a Git saját maga dönti
+	el, hogy a fájl szöveges vagy bináris. Ha szöveges, és a fájl
+	még nem volt a Gitben CRLF sorvégekkel, akkor a sorvégek a
+	fent leírtak szerint konvertálódnak checkinkor és checkoutkor.
+	Egyébként semmilyen konverzió nem történik checkinkor vagy
+	checkoutkor.
 
-Unspecified::
+Meghatározatlan::
 
-	If the `text` attribute is unspecified, Git uses the
-	`core.autocrlf` configuration variable to determine if the
-	file should be converted.
+	Ha a `text` attribútum meghatározatlan, a Git a
+	`core.autocrlf` konfigurációs változó alapján dönti el, hogy a
+	fájlt konvertálni kell-e.
 
-Any other value causes Git to act as if `text` has been left
-unspecified.
+Bármely más érték hatására a Git úgy viselkedik, mintha a `text`
+meghatározatlanul lenne hagyva.
 
 `eol`
 ^^^^^
 
-This attribute marks a path to use a specific line-ending style in the
-working tree when it is checked out.  It has effect only if `text` or
-`text=auto` is set (see above), but specifying `eol` automatically sets
-`text` if `text` was left unspecified.
+Ez az attribútum azt jelöli meg egy útvonalon, hogy a munkakönyvtárban
+egy adott sorvég-stílust kell használni a checkoutkor. Csak akkor van
+hatása, ha a `text` vagy a `text=auto` be van állítva (lásd fent), de
+az `eol` megadása automatikusan beállítja a `text`-et is, ha az
+meghatározatlanul volt hagyva.
 
-Set to string value "crlf"::
+„crlf" string értékre állítva::
 
-	This setting converts the file's line endings in the working
-	directory to CRLF when the file is checked out.
+	Ez a beállítás CRLF-re konvertálja a fájl sorvégeit a
+	munkakönyvtárban, amikor a fájlt checkoutolják.
 
-Set to string value "lf"::
+„lf" string értékre állítva::
 
-	This setting uses the same line endings in the working directory as
-	in the index when the file is checked out.
+	Ez a beállítás ugyanazokat a sorvégeket használja a
+	munkakönyvtárban, mint amilyenek az indexben vannak, amikor a
+	fájlt checkoutolják.
 
-Unspecified::
+Meghatározatlan::
 
-	If the `eol` attribute is unspecified for a file, its line endings
-	in the working directory are determined by the `core.autocrlf` or
-	`core.eol` configuration variable (see the definitions of those
-	options in linkgit:git-config[1]).  If `text` is set but neither of
-	those variables is, the default is `eol=crlf` on Windows and
-	`eol=lf` on all other platforms.
+	Ha az `eol` attribútum meghatározatlan egy fájlra, a
+	munkakönyvtárban lévő sorvégeit a `core.autocrlf` vagy a
+	`core.eol` konfigurációs változó határozza meg (lásd ezen
+	opciók definícióit a linkgit:git-config[1] oldalon). Ha a
+	`text` be van állítva, de e két változó egyike sincs, az
+	alapértelmezés `eol=crlf` Windows alatt, és `eol=lf` minden
+	más platformon.
 
-Backwards compatibility with `crlf` attribute
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_backwards_compatibility_with_crlf_attribute]]
+A `crlf` attribútummal való visszafelé kompatibilitás
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For backwards compatibility, the `crlf` attribute is interpreted as
-follows:
+A visszafelé kompatibilitás érdekében a `crlf` attribútumot a
+rendszer a következőképpen értelmezi:
 
 ------------------------
 crlf		text
@@ -210,41 +228,44 @@ crlf		text
 crlf=input	eol=lf
 ------------------------
 
-End-of-line conversion
-^^^^^^^^^^^^^^^^^^^^^^
+[[_end_of_line_conversion]]
+Sorvég-konverzió
+^^^^^^^^^^^^^^^^^^
 
-While Git normally leaves file contents alone, it can be configured to
-normalize line endings to LF in the repository and, optionally, to
-convert them to CRLF when files are checked out.
+Bár a Git normál esetben békén hagyja a fájlok tartalmát, beállítható
+úgy, hogy a sorvégeket LF-re normalizálja a repository-ban, és
+opcionálisan CRLF-re konvertálja azokat, amikor a fájlokat checkoutolják.
 
-If you simply want to have CRLF line endings in your working directory
-regardless of the repository you are working with, you can set the
-config variable "core.autocrlf" without using any attributes.
+Ha egyszerűen azt szeretnéd, hogy a munkakönyvtáradban CRLF sorvégek
+legyenek, függetlenül attól, hogy melyik repository-val dolgozol,
+beállíthatod a "core.autocrlf" konfigurációs változót, attribútumok
+használata nélkül.
 
 ------------------------
 [core]
 	autocrlf = true
 ------------------------
 
-This does not force normalization of text files, but does ensure
-that text files that you introduce to the repository have their line
-endings normalized to LF when they are added, and that files that are
-already normalized in the repository stay normalized.
+Ez nem kényszeríti ki a szövegfájlok normalizálását, de biztosítja,
+hogy azoknak a szövegfájloknak, amelyeket a repository-ba bevezetsz,
+LF-re normalizálódjanak a sorvégei, amikor hozzáadod őket, és hogy a
+repository-ban már normalizált fájlok normalizáltak maradjanak.
 
-If you want to ensure that text files that any contributor introduces to
-the repository have their line endings normalized, you can set the
-`text` attribute to "auto" for _all_ files.
+Ha azt szeretnéd biztosítani, hogy bármely közreműködő által a
+repository-ba bevezetett szövegfájlok sorvégei normalizálva legyenek,
+beállíthatod a `text` attribútumot "auto"-ra _minden_ fájlra.
 
 ------------------------
 *	text=auto
 ------------------------
 
-The attributes allow a fine-grained control, how the line endings
-are converted.
-Here is an example that will make Git normalize .txt, .vcproj and .sh
-files, ensure that .vcproj files have CRLF and .sh files have LF in
-the working directory, and prevent .jpg files from being normalized
-regardless of their content.
+Az attribútumok finomhangolt szabályozást tesznek lehetővé afelett,
+hogy a sorvégek hogyan konvertálódnak.
+Íme egy példa, amely arra készteti a Gitet, hogy normalizálja a .txt,
+.vcproj és .sh fájlokat, biztosítsa, hogy a .vcproj fájloknak CRLF, a
+.sh fájloknak pedig LF sorvégeik legyenek a munkakönyvtárban, és
+megakadályozza, hogy a .jpg fájlok normalizálódjanak, a tartalmuktól
+függetlenül.
 
 ------------------------
 *               text=auto
@@ -254,138 +275,150 @@ regardless of their content.
 *.jpg		-text
 ------------------------
 
-NOTE: When `text=auto` conversion is enabled in a cross-platform
-project using push and pull to a central repository the text files
-containing CRLFs should be normalized.
+NOTE: Amikor a `text=auto` konverzió engedélyezve van egy platformok
+közötti projektben, amely push-t és pull-t használ egy központi
+repository-hoz, a CRLF-eket tartalmazó szövegfájlokat normalizálni
+kell.
 
-From a clean working directory:
+Egy tiszta munkakönyvtárból kiindulva:
 
 -------------------------------------------------
 $ echo "* text=auto" >.gitattributes
 $ git add --renormalize .
-$ git status        # Show files that will be normalized
+$ git status        # Mutatja a normalizálandó fájlokat
 $ git commit -m "Introduce end-of-line normalization"
 -------------------------------------------------
 
-If any files that should not be normalized show up in 'git status',
-unset their `text` attribute before running 'git add -u'.
+Ha olyan fájlok jelennek meg a 'git status' kimenetében, amelyeket
+nem kellene normalizálni, töröld a `text` attribútumukat, mielőtt
+futtatnád a 'git add -u' parancsot.
 
 ------------------------
 manual.pdf	-text
 ------------------------
 
-Conversely, text files that Git does not detect can have normalization
-enabled manually.
+Fordítva, azokra a szövegfájlokra, amelyeket a Git nem ismer fel,
+a normalizálás manuálisan is engedélyezhető.
 
 ------------------------
 weirdchars.txt	text
 ------------------------
 
-If `core.safecrlf` is set to "true" or "warn", Git verifies if
-the conversion is reversible for the current setting of
-`core.autocrlf`.  For "true", Git rejects irreversible
-conversions; for "warn", Git only prints a warning but accepts
-an irreversible conversion.  The safety triggers to prevent such
-a conversion done to the files in the work tree, but there are a
-few exceptions.  Even though...
+Ha a `core.safecrlf` "true"-ra vagy "warn"-ra van állítva, a Git
+ellenőrzi, hogy a konverzió visszafordítható-e a `core.autocrlf`
+aktuális beállítására nézve. "true" esetén a Git elutasítja a nem
+visszafordítható konverziókat; "warn" esetén a Git csak figyelmeztetést
+ír ki, de elfogadja a nem visszafordítható konverziót. A biztonsági
+mechanizmus azért lép működésbe, hogy megakadályozza az ilyen
+konverziót a munkakönyvtár fájljain, de van néhány kivétel. Bár...
 
-- 'git add' itself does not touch the files in the work tree, the
-  next checkout would, so the safety triggers;
+- a 'git add' önmagában nem nyúl a munkakönyvtár fájljaihoz, de a
+  következő checkout hozzányúlna, ezért a biztonsági mechanizmus
+  működésbe lép;
 
-- 'git apply' to update a text file with a patch does touch the files
-  in the work tree, but the operation is about text files and CRLF
-  conversion is about fixing the line ending inconsistencies, so the
-  safety does not trigger;
+- a 'git apply', amikor egy szövegfájlt egy patch-csel frissít,
+  hozzányúl a munkakönyvtár fájljaihoz, de a művelet szövegfájlokról
+  szól, és a CRLF-konverzió a sorvég-inkonzisztenciák javításáról,
+  ezért a biztonsági mechanizmus nem lép működésbe;
 
-- 'git diff' itself does not touch the files in the work tree, it is
-  often run to inspect the changes you intend to next 'git add'.  To
-  catch potential problems early, safety triggers.
+- a 'git diff' önmagában nem nyúl a munkakönyvtár fájljaihoz, gyakran
+  azért futtatják, hogy megvizsgálják azokat a változtatásokat, amelyeket
+  a felhasználó a következő 'git add'-del szándékozik hozzáadni. A
+  lehetséges problémák korai felismerése érdekében a biztonsági
+  mechanizmus működésbe lép.
 
 
 `working-tree-encoding`
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Git recognizes files encoded in ASCII or one of its supersets (e.g.
-UTF-8, ISO-8859-1, ...) as text files. Files encoded in certain other
-encodings (e.g. UTF-16) are interpreted as binary and consequently
-built-in Git text processing tools (e.g. 'git diff') as well as most Git
-web front ends do not visualize the contents of these files by default.
+A Git az ASCII-ban vagy annak valamelyik szupersetjében (pl. UTF-8,
+ISO-8859-1, ...) kódolt fájlokat szövegfájlként ismeri fel. Bizonyos
+más kódolásban (pl. UTF-16) kódolt fájlokat binárisként értelmezi, és
+ennek következtében a beépített Git szövegfeldolgozó eszközök (pl. a
+'git diff'), valamint a legtöbb Git webes felület alapértelmezetten
+nem jeleníti meg ezen fájlok tartalmát.
 
-In these cases you can tell Git the encoding of a file in the working
-directory with the `working-tree-encoding` attribute. If a file with this
-attribute is added to Git, then Git re-encodes the content from the
-specified encoding to UTF-8. Finally, Git stores the UTF-8 encoded
-content in its internal data structure (called "the index"). On checkout
-the content is re-encoded back to the specified encoding.
+Ilyen esetekben a `working-tree-encoding` attribútummal közölheted a
+Gittel egy fájl kódolását a munkakönyvtárban. Ha egy ezzel az
+attribútummal rendelkező fájlt adsz a Githez, a Git a tartalmat a
+megadott kódolásból UTF-8-ra kódolja át. Végül a Git az UTF-8
+kódolású tartalmat tárolja a belső adatszerkezetében (amit "az
+index"-nek hívnak). Checkoutkor a tartalom visszakódolódik a megadott
+kódolásra.
 
-Please note that using the `working-tree-encoding` attribute may have a
-number of pitfalls:
+Ne feledd, hogy a `working-tree-encoding` attribútum használatának
+számos buktatója lehet:
 
-- Alternative Git implementations (e.g. JGit or libgit2) and older Git
-  versions (as of March 2018) do not support the `working-tree-encoding`
-  attribute. If you decide to use the `working-tree-encoding` attribute
-  in your repository, then it is strongly recommended to ensure that all
-  clients working with the repository support it.
+- Az alternatív Git implementációk (pl. a JGit vagy a libgit2) és a
+  régebbi Git verziók (2018 márciusáig bezárólag) nem támogatják a
+  `working-tree-encoding` attribútumot. Ha úgy döntesz, hogy a
+  repository-dban a `working-tree-encoding` attribútumot használod,
+  akkor erősen ajánlott meggyőződni arról, hogy a repository-val
+  dolgozó összes kliens támogatja azt.
 +
-For example, Microsoft Visual Studio resources files (`*.rc`) or
-PowerShell script files (`*.ps1`) are sometimes encoded in UTF-16.
-If you declare `*.ps1` as files as UTF-16 and you add `foo.ps1` with
-a `working-tree-encoding` enabled Git client, then `foo.ps1` will be
-stored as UTF-8 internally. A client without `working-tree-encoding`
-support will checkout `foo.ps1` as UTF-8 encoded file. This will
-typically cause trouble for the users of this file.
+Például a Microsoft Visual Studio erőforrásfájljai (`*.rc`) vagy a
+PowerShell szkriptfájlok (`*.ps1`) néha UTF-16 kódolásúak. Ha a
+`*.ps1` fájlokat UTF-16-osként deklarálod, és a `foo.ps1` fájlt egy
+`working-tree-encoding`-ot támogató Git klienssel adod hozzá, akkor a
+`foo.ps1` belsőleg UTF-8-ként lesz tárolva. Egy `working-tree-encoding`
+támogatás nélküli kliens UTF-8 kódolású fájlként fogja checkoutolni
+a `foo.ps1` fájlt. Ez jellemzően problémát okoz a fájl felhasználóinak.
 +
-If a Git client that does not support the `working-tree-encoding`
-attribute adds a new file `bar.ps1`, then `bar.ps1` will be
-stored "as-is" internally (in this example probably as UTF-16).
-A client with `working-tree-encoding` support will interpret the
-internal contents as UTF-8 and try to convert it to UTF-16 on checkout.
-That operation will fail and cause an error.
+Ha egy `working-tree-encoding` attribútumot nem támogató Git kliens
+ad hozzá egy új `bar.ps1` fájlt, akkor a `bar.ps1` "változtatás
+nélkül" lesz tárolva belsőleg (ebben a példában valószínűleg
+UTF-16-ként). Egy `working-tree-encoding` támogatással rendelkező
+kliens a belső tartalmat UTF-8-ként fogja értelmezni, és megpróbálja
+azt UTF-16-ra konvertálni checkoutkor. Ez a művelet meg fog hiúsulni,
+és hibát fog okozni.
 
-- Reencoding content to non-UTF encodings can cause errors as the
-  conversion might not be UTF-8 round trip safe. If you suspect your
-  encoding to not be round trip safe, then add it to
-  `core.checkRoundtripEncoding` to make Git check the round trip
-  encoding (see linkgit:git-config[1]). SHIFT-JIS (Japanese character
-  set) is known to have round trip issues with UTF-8 and is checked by
-  default.
+- A tartalom nem UTF kódolásokra való átkódolása hibákat okozhat,
+  mivel előfordulhat, hogy a konverzió nem UTF-8 körbeutazás-biztos
+  (round trip safe). Ha gyanítod, hogy a kódolásod nem
+  körbeutazás-biztos, akkor add hozzá a
+  `core.checkRoundtripEncoding` változóhoz, hogy a Git ellenőrizze a
+  körbeutazásos kódolást (lásd: linkgit:git-config[1]). A SHIFT-JIS
+  (japán karakterkészlet) ismerten körbeutazási problémákkal
+  rendelkezik az UTF-8-cal, és alapértelmezetten ellenőrzésre kerül.
 
-- Reencoding content requires resources that might slow down certain
-  Git operations (e.g 'git checkout' or 'git add').
+- A tartalom átkódolása erőforrásokat igényel, ami lelassíthat
+  bizonyos Git-műveleteket (pl. a 'git checkout'-ot vagy a 'git
+  add'-et).
 
-Use the `working-tree-encoding` attribute only if you cannot store a file
-in UTF-8 encoding and if you want Git to be able to process the content
-as text.
+A `working-tree-encoding` attribútumot csak akkor használd, ha nem
+tudod egy fájlt UTF-8 kódolásban tárolni, és azt szeretnéd, hogy a Git
+szövegként tudja feldolgozni a tartalmát.
 
-As an example, use the following attributes if your '*.ps1' files are
-UTF-16 encoded with byte order mark (BOM) and you want Git to perform
-automatic line ending conversion based on your platform.
+Példaként a következő attribútumokat használd, ha a '*.ps1' fájljaid
+bájtsorrend-jellel (BOM) ellátott UTF-16 kódolásúak, és azt szeretnéd,
+hogy a Git a platformod alapján automatikus sorvég-konverziót végezzen.
 
 ------------------------
 *.ps1		text working-tree-encoding=UTF-16
 ------------------------
 
-Use the following attributes if your '*.ps1' files are UTF-16 little
-endian encoded without BOM and you want Git to use Windows line endings
-in the working directory (use `UTF-16LE-BOM` instead of `UTF-16LE` if
-you want UTF-16 little endian with BOM).
-Please note, it is highly recommended to
-explicitly define the line endings with `eol` if the `working-tree-encoding`
-attribute is used to avoid ambiguity.
+A következő attribútumokat használd, ha a '*.ps1' fájljaid BOM nélküli
+UTF-16 little endian kódolásúak, és azt szeretnéd, hogy a Git Windows
+sorvégeket használjon a munkakönyvtárban (használd a `UTF-16LE-BOM`
+értéket a `UTF-16LE` helyett, ha BOM-mal ellátott UTF-16 little
+endian kódolást szeretnél).
+Ne feledd, erősen ajánlott a sorvégeket explicit módon megadni az
+`eol` attribútummal, ha a `working-tree-encoding` attribútumot
+használod, a kétértelműség elkerülése végett.
 
 ------------------------
 *.ps1		text working-tree-encoding=UTF-16LE eol=crlf
 ------------------------
 
-You can get a list of all available encodings on your platform with the
-following command:
+A platformodon elérhető összes kódolás listáját a következő
+paranccsal kaphatod meg:
 
 ------------------------
 iconv --list
 ------------------------
 
-If you do not know the encoding of a file, then you can use the `file`
-command to guess the encoding:
+Ha nem ismered egy fájl kódolását, akkor a `file` paranccsal
+megbecsülheted azt:
 
 ------------------------
 file foo.ps1
@@ -395,73 +428,76 @@ file foo.ps1
 `ident`
 ^^^^^^^
 
-When the attribute `ident` is set for a path, Git replaces
-`$Id$` in the blob object with `$Id:`, followed by the
-40-character hexadecimal blob object name, followed by a dollar
-sign `$` upon checkout.  Any byte sequence that begins with
-`$Id:` and ends with `$` in the worktree file is replaced
-with `$Id$` upon check-in.
+Ha az `ident` attribútum be van állítva egy útvonalra, a Git a blob
+objektumban lévő `$Id$`-t `$Id:`-re cseréli, amelyet a 40 karakteres
+hexadecimális blob objektumnév követ, amelyet pedig egy dollárjel `$`
+követ, checkoutkor. Bármely, a munkafa fájljában `$Id:`-vel kezdődő és
+`$`-lal végződő bájtsorozatot a rendszer `$Id$`-re cserél checkinkor.
 
 
 `filter`
 ^^^^^^^^
 
-A `filter` attribute can be set to a string value that names a
-filter driver specified in the configuration.
+A `filter` attribútum egy olyan string értékre állítható, amely a
+konfigurációban megadott filter drivert nevezi meg.
 
-A filter driver consists of a `clean` command and a `smudge`
-command, either of which can be left unspecified.  Upon
-checkout, when the `smudge` command is specified, the command is
-fed the blob object from its standard input, and its standard
-output is used to update the worktree file.  Similarly, the
-`clean` command is used to convert the contents of worktree file
-upon checkin. By default these commands process only a single
-blob and terminate. If a long running `process` filter is used
-in place of `clean` and/or `smudge` filters, then Git can process
-all blobs with a single filter command invocation for the entire
-life of a single Git command, for example `git add --all`. If a
-long running `process` filter is configured then it always takes
-precedence over a configured single blob filter. See section
-below for the description of the protocol used to communicate with
-a `process` filter.
+Egy filter driver egy `clean` parancsból és egy `smudge` parancsból
+áll, amelyek közül bármelyik megadatlanul hagyható. Checkoutkor,
+amikor a `smudge` parancs meg van adva, a parancs a blob objektumot
+kapja meg a standard bemenetén, és a standard kimenete frissíti a
+munkafa fájlját. Hasonlóképp, a `clean` parancs a munkafa fájljának
+tartalmát alakítja át checkinkor. Alapértelmezetten ezek a parancsok
+csak egyetlen blobot dolgoznak fel, majd befejeződnek. Ha a `clean`
+és/vagy a `smudge` filterek helyett egy hosszan futó `process` filter
+van használva, akkor a Git egyetlen filter-parancs meghívásával
+tud feldolgozni minden blobot egy adott Git-parancs teljes
+életciklusa alatt, például a `git add --all` esetén. Ha egy hosszan
+futó `process` filter van konfigurálva, az mindig elsőbbséget élvez
+egy konfigurált, egyetlen blobbal dolgozó filterrel szemben. A
+`process` filterrel való kommunikációhoz használt protokoll leírását
+lásd az alábbi szakaszban.
 
-One use of the content filtering is to massage the content into a shape
-that is more convenient for the platform, filesystem, and the user to use.
-For this mode of operation, the key phrase here is "more convenient" and
-not "turning something unusable into usable".  In other words, the intent
-is that if someone unsets the filter driver definition, or does not have
-the appropriate filter program, the project should still be usable.
+A tartalomszűrés egyik felhasználási módja az, hogy a tartalmat olyan
+alakra hozza, amely kényelmesebb a platform, a fájlrendszer és a
+felhasználó számára. Ennél a működési módnál a kulcskifejezés a
+"kényelmesebb", nem pedig az, hogy "valami használhatatlant
+használhatóvá alakít". Más szóval, a szándék az, hogy ha valaki
+törli a filter driver definícióját, vagy nem rendelkezik a megfelelő
+filter programmal, a projektnek akkor is használhatónak kell maradnia.
 
-Another use of the content filtering is to store the content that cannot
-be directly used in the repository (e.g. a UUID that refers to the true
-content stored outside Git, or an encrypted content) and turn it into a
-usable form upon checkout (e.g. download the external content, or decrypt
-the encrypted content).
+A tartalomszűrés egy másik felhasználási módja az, hogy olyan
+tartalmat tárol, amely közvetlenül nem használható a repository-ban
+(pl. egy UUID, amely a Giten kívül tárolt valódi tartalomra utal,
+vagy titkosított tartalom), és checkoutkor használható formára
+alakítja azt (pl. letölti a külső tartalmat, vagy visszafejti a
+titkosított tartalmat).
 
-These two filters behave differently, and by default, a filter is taken as
-the former, massaging the contents into more convenient shape.  A missing
-filter driver definition in the config, or a filter driver that exits with
-a non-zero status, is not an error but makes the filter a no-op passthru.
+Ez a két filter eltérően viselkedik, és alapértelmezetten egy filtert
+az előbbiként kezel a rendszer, amely a tartalmat kényelmesebb
+alakra hozza. A konfigurációban hiányzó filter driver definíció,
+vagy egy nem nulla állapottal kilépő filter driver nem hiba, hanem
+no-op passthru-vá teszi a filtert.
 
-You can declare that a filter turns a content that by itself is unusable
-into a usable content by setting the filter.<driver>.required configuration
-variable to `true`.
+Kijelentheted, hogy egy filter egy önmagában használhatatlan
+tartalmat használható tartalommá alakít, ha a
+filter.<driver>.required konfigurációs változót `true`-ra állítod.
 
-Note: Whenever the clean filter is changed, the repo should be renormalized:
+Megjegyzés: valahányszor a clean filter megváltozik, a repót
+renormalizálni kell:
 $ git add --renormalize .
 
-For example, in .gitattributes, you would assign the `filter`
-attribute for paths.
+Például a .gitattributes fájlban a `filter` attribútumot rendelnéd
+hozzá útvonalakhoz.
 
 ------------------------
 *.c	filter=indent
 ------------------------
 
-Then you would define a "filter.indent.clean" and "filter.indent.smudge"
-configuration in your .git/config to specify a pair of commands to
-modify the contents of C programs when the source files are checked
-in ("clean" is run) and checked out (no change is made because the
-command is "cat").
+Ezután a .git/config fájlban definiálnál egy "filter.indent.clean" és
+egy "filter.indent.smudge" konfigurációt, hogy megadj egy pár parancsot
+a C programok tartalmának módosítására, amikor a forrásfájlokat
+checkinolják ("clean" fut) és checkoutolják (nem történik változás,
+mert a parancs "cat").
 
 ------------------------
 [filter "indent"]
@@ -469,19 +505,21 @@ command is "cat").
 	smudge = cat
 ------------------------
 
-For best results, `clean` should not alter its output further if it is
-run twice ("clean->clean" should be equivalent to "clean"), and
-multiple `smudge` commands should not alter `clean`'s output
-("smudge->smudge->clean" should be equivalent to "clean").  See the
-section on merging below.
+A legjobb eredmény érdekében a `clean`-nek nem szabadna tovább
+módosítania a kimenetét, ha kétszer futtatják ("clean->clean"-nek
+egyenértékűnek kell lennie a "clean"-nel), és több `smudge`
+parancsnak sem szabadna módosítania a `clean` kimenetét
+("smudge->smudge->clean"-nek egyenértékűnek kell lennie a
+"clean"-nel). Lásd a lentebbi, merge-elésről szóló szakaszt.
 
-The "indent" filter is well-behaved in this regard: it will not modify
-input that is already correctly indented.  In this case, the lack of a
-smudge filter means that the clean filter _must_ accept its own output
-without modifying it.
+Az "indent" filter ebből a szempontból jól viselkedik: nem fogja
+módosítani azt a bemenetet, amely már helyesen van behúzva. Ebben az
+esetben a smudge filter hiánya azt jelenti, hogy a clean filternek
+_muszáj_ elfogadnia a saját kimenetét, anélkül, hogy módosítaná azt.
 
-If a filter _must_ succeed in order to make the stored contents usable,
-you can declare that the filter is `required`, in the configuration:
+Ha egy filternek _muszáj_ sikeresnek lennie ahhoz, hogy a tárolt
+tartalom használható legyen, kijelentheted, hogy a filter `required`,
+a konfigurációban:
 
 ------------------------
 [filter "crypt"]
@@ -490,9 +528,9 @@ you can declare that the filter is `required`, in the configuration:
 	required
 ------------------------
 
-Sequence "%f" on the filter command line is replaced with the name of
-the file the filter is working on.  A filter might use this in keyword
-substitution.  For example:
+A "%f" sorozatot a filter parancssorában annak a fájlnak a neve
+váltja fel, amelyen a filter éppen dolgozik. Egy filter ezt
+kulcsszó-behelyettesítésre használhatja. Például:
 
 ------------------------
 [filter "p4"]
@@ -500,37 +538,41 @@ substitution.  For example:
 	smudge = git-p4-filter --smudge %f
 ------------------------
 
-Note that "%f" is the name of the path that is being worked on. Depending
-on the version that is being filtered, the corresponding file on disk may
-not exist, or may have different contents. So, smudge and clean commands
-should not try to access the file on disk, but only act as filters on the
-content provided to them on standard input.
+Vedd figyelembe, hogy a "%f" annak az útvonalnak a neve, amelyen éppen
+dolgoznak. A szűrt verziótól függően lehet, hogy a lemezen lévő
+megfelelő fájl nem létezik, vagy más tartalma van. Ezért a smudge és a
+clean parancsok ne próbáljanak hozzáférni a lemezen lévő fájlhoz,
+hanem csak a standard bemeneten nekik átadott tartalmon
+szűrőként működjenek.
 
-Long Running Filter Process
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_long_running_filter_process]]
+Hosszan futó filterfolyamat
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the filter command (a string value) is defined via
-`filter.<driver>.process` then Git can process all blobs with a
-single filter invocation for the entire life of a single Git
-command. This is achieved by using the long-running process protocol
-(described in Documentation/technical/long-running-process-protocol.adoc).
+Ha a filterparancs (egy string érték) a `filter.<driver>.process`
+révén van megadva, akkor a Git egyetlen filter-meghívással tud
+feldolgozni minden blobot egy adott Git-parancs teljes életciklusa
+alatt. Ezt a hosszan futó folyamat protokoll (long-running process
+protocol) használatával éri el (a
+Documentation/technical/long-running-process-protocol.adoc fájlban
+leírtak szerint).
 
-When Git encounters the first file that needs to be cleaned or smudged,
-it starts the filter and performs the handshake. In the handshake, the
-welcome message sent by Git is "git-filter-client", only version 2 is
-supported, and the supported capabilities are "clean", "smudge", and
-"delay".
+Amikor a Git az első olyan fájlba ütközik, amelyet clean-elni vagy
+smudge-olni kell, elindítja a filtert, és elvégzi a kézfogást
+(handshake). A kézfogás során a Git által küldött üdvözlő üzenet a
+"git-filter-client", csak a 2-es verzió támogatott, és a támogatott
+képességek a "clean", a "smudge" és a "delay".
 
-Afterwards Git sends a list of "key=value" pairs terminated with
-a flush packet. The list will contain at least the filter command
-(based on the supported capabilities) and the pathname of the file
-to filter relative to the repository root. Right after the flush packet
-Git sends the content split in zero or more pkt-line packets and a
-flush packet to terminate content. Please note, that the filter
-must not send any response before it received the content and the
-final flush packet. Also note that the "value" of a "key=value" pair
-can contain the "=" character whereas the key would never contain
-that character.
+Ezután a Git elküld egy "kulcs=érték" párokból álló listát, amelyet
+egy flush csomag zár le. A lista legalább a filterparancsot (a
+támogatott képességek alapján) és a szűrendő fájl repository
+gyökeréhez viszonyított útvonalnevét fogja tartalmazni. Közvetlenül a
+flush csomag után a Git elküldi a tartalmat, nulla vagy több
+pkt-line csomagra bontva, majd egy flush csomagot a tartalom
+lezárásához. Ne feledd, hogy a filter nem küldhet semmilyen választ,
+mielőtt megkapta a tartalmat és a záró flush csomagot. Azt is vedd
+figyelembe, hogy egy "kulcs=érték" pár "értéke" tartalmazhatja a "="
+karaktert, míg a kulcs soha nem tartalmazhatja azt a karaktert.
 
 -----------------------
 packet:          git> command=smudge
@@ -540,15 +582,15 @@ packet:          git> CONTENT
 packet:          git> 0000
 -----------------------
 
-The filter is expected to respond with a list of "key=value" pairs
-terminated with a flush packet. If the filter does not experience
-problems then the list must contain a "success" status. Right after
-these packets the filter is expected to send the content in zero
-or more pkt-line packets and a flush packet at the end. Finally, a
-second list of "key=value" pairs terminated with a flush packet
-is expected. The filter can change the status in the second list
-or keep the status as is with an empty list. Please note that the
-empty list must be terminated with a flush packet regardless.
+A filternek egy "kulcs=érték" párokból álló, flush csomaggal lezárt
+listával kell válaszolnia. Ha a filter nem ütközik problémákba,
+akkor a listának tartalmaznia kell egy "success" állapotot.
+Közvetlenül ezek után a csomagok után a filternek el kell küldenie a
+tartalmat nulla vagy több pkt-line csomagban, majd a végén egy flush
+csomagot. Végül egy második, flush csomaggal lezárt "kulcs=érték"
+listát vár a rendszer. A filter megváltoztathatja az állapotot a
+második listában, vagy megtarthatja azt egy üres listával. Ne
+feledd, hogy az üres listát mindenképp flush csomaggal kell lezárni.
 
 ------------------------
 packet:          git< status=success
@@ -558,8 +600,8 @@ packet:          git< 0000
 packet:          git< 0000  # empty list, keep "status=success" unchanged!
 ------------------------
 
-If the result content is empty then the filter is expected to respond
-with a "success" status and a flush packet to signal the empty content.
+Ha az eredménytartalom üres, akkor a filternek egy "success"
+állapottal és egy flush csomaggal kell jeleznie az üres tartalmat.
 
 ------------------------
 packet:          git< status=success
@@ -568,17 +610,17 @@ packet:          git< 0000  # empty content!
 packet:          git< 0000  # empty list, keep "status=success" unchanged!
 ------------------------
 
-In case the filter cannot or does not want to process the content,
-it is expected to respond with an "error" status.
+Abban az esetben, ha a filter nem tudja vagy nem akarja feldolgozni a
+tartalmat, egy "error" állapottal kell válaszolnia.
 
 -----------------------
 packet:          git< status=error
 packet:          git< 0000
 -----------------------
 
-If the filter experiences an error during processing, then it can
-send the status "error" after the content was (partially or
-completely) sent.
+Ha a filter hibát tapasztal a feldolgozás során, akkor küldheti az
+"error" állapotot azután, hogy a tartalmat (részben vagy teljesen)
+elküldte.
 
 ------------------------
 packet:          git< status=success
@@ -589,35 +631,36 @@ packet:          git< status=error
 packet:          git< 0000
 ------------------------
 
-In case the filter cannot or does not want to process the content
-as well as any future content for the lifetime of the Git process,
-then it is expected to respond with an "abort" status at any point
-in the protocol.
+Abban az esetben, ha a filter nem tudja vagy nem akarja feldolgozni a
+tartalmat, sem semmilyen jövőbeli tartalmat a Git-folyamat teljes
+élettartama alatt, akkor a protokoll bármely pontján egy "abort"
+állapottal kell válaszolnia.
 
 -----------------------
 packet:          git< status=abort
 packet:          git< 0000
 -----------------------
 
-Git neither stops nor restarts the filter process in case the
-"error"/"abort" status is set. However, Git sets its exit code
-according to the `filter.<driver>.required` flag, mimicking the
-behavior of the `filter.<driver>.clean` / `filter.<driver>.smudge`
-mechanism.
+A Git az "error"/"abort" állapot beállítása esetén sem nem állítja
+le, sem nem indítja újra a filterfolyamatot. Azonban a Git a
+`filter.<driver>.required` jelző alapján állítja be a kilépési
+kódját, utánozva a `filter.<driver>.clean` / `filter.<driver>.smudge`
+mechanizmus viselkedését.
 
-If the filter dies during the communication or does not adhere to
-the protocol then Git will stop the filter process and restart it
-with the next file that needs to be processed. Depending on the
-`filter.<driver>.required` flag Git will interpret that as error.
+Ha a filter meghal a kommunikáció során, vagy nem tartja be a
+protokollt, akkor a Git leállítja a filterfolyamatot, és újraindítja
+azt a következő feldolgozandó fájllal. A `filter.<driver>.required`
+jelzőtől függően a Git ezt hibaként fogja értelmezni.
 
-Delay
-^^^^^
+[[_delay]]
+Késleltetés
+^^^^^^^^^^^^^
 
-If the filter supports the "delay" capability, then Git can send the
-flag "can-delay" after the filter command and pathname. This flag
-denotes that the filter can delay filtering the current blob (e.g. to
-compensate network latencies) by responding with no content but with
-the status "delayed" and a flush packet.
+Ha a filter támogatja a "delay" képességet, akkor a Git elküldheti a
+"can-delay" jelzőt a filterparancs és az útvonalnév után. Ez a jelző
+azt jelöli, hogy a filter késleltetheti az aktuális blob szűrését
+(pl. a hálózati késleltetés kompenzálására), azzal, hogy tartalom
+nélkül válaszol, de a "delayed" állapottal és egy flush csomaggal.
 
 -----------------------
 packet:          git> command=smudge
@@ -630,18 +673,19 @@ packet:          git< status=delayed
 packet:          git< 0000
 -----------------------
 
-If the filter supports the "delay" capability then it must support the
-"list_available_blobs" command. If Git sends this command, then the
-filter is expected to return a list of pathnames representing blobs
-that have been delayed earlier and are now available.
-The list must be terminated with a flush packet followed
-by a "success" status that is also terminated with a flush packet. If
-no blobs for the delayed paths are available, yet, then the filter is
-expected to block the response until at least one blob becomes
-available. The filter can tell Git that it has no more delayed blobs
-by sending an empty list. As soon as the filter responds with an empty
-list, Git stops asking. All blobs that Git has not received at this
-point are considered missing and will result in an error.
+Ha a filter támogatja a "delay" képességet, akkor a
+"list_available_blobs" parancsot is támogatnia kell. Ha a Git elküldi
+ezt a parancsot, a filternek egy útvonalnevekből álló listát kell
+visszaadnia, amelyek a korábban késleltetett, most már elérhető
+blobokat jelölik.
+A listát flush csomaggal kell lezárni, amelyet egy "success" állapot
+követ, azt is flush csomaggal lezárva. Ha a késleltetett útvonalakhoz
+tartozó blobok még nem elérhetők, akkor a filternek blokkolnia kell a
+választ, amíg legalább egy blob elérhetővé nem válik. A filter egy
+üres lista küldésével jelezheti a Gitnek, hogy nincs több
+késleltetett blobja. Amint a filter üres listával válaszol, a Git
+abbahagyja a kérdezést. Minden olyan blobot, amelyet a Git eddig a
+pontig nem kapott meg, hiányzónak tekint, és ez hibát fog eredményezni.
 
 ------------------------
 packet:          git> command=list_available_blobs
@@ -654,10 +698,10 @@ packet:          git< 0000
 ------------------------
 
 
-After Git received the pathnames, it will request the corresponding
-blobs again. These requests contain a pathname and an empty content
-section. The filter is expected to respond with the smudged content
-in the usual way as explained above.
+Miután a Git megkapta az útvonalneveket, ismét lekéri a megfelelő
+blobokat. Ezek a kérések egy útvonalnevet és egy üres tartalomszakaszt
+tartalmaznak. A filternek a fent leírt szokásos módon kell
+válaszolnia a smudge-olt tartalommal.
 
 ------------------------
 packet:          git> command=smudge
@@ -671,316 +715,342 @@ packet:          git< 0000
 packet:          git< 0000  # empty list, keep "status=success" unchanged!
 ------------------------
 
-Example
-^^^^^^^
+[[_example]]
+Példa
+^^^^^^
 
-A long running filter demo implementation can be found in
-`contrib/long-running-filter/example.pl` located in the Git
-core repository. If you develop your own long running filter
-process then the `GIT_TRACE_PACKET` environment variables can be
-very helpful for debugging (see linkgit:git[1]).
+Egy hosszan futó filter demó-implementációja megtalálható a Git
+core repository-jában található
+`contrib/long-running-filter/example.pl` fájlban. Ha saját hosszan
+futó filterfolyamatot fejlesztesz, akkor a `GIT_TRACE_PACKET`
+környezeti változó nagyon hasznos lehet a hibakereséshez (lásd:
+linkgit:git[1]).
 
-Please note that you cannot use an existing `filter.<driver>.clean`
-or `filter.<driver>.smudge` command with `filter.<driver>.process`
-because the former two use a different inter process communication
-protocol than the latter one.
-
-
-Interaction between checkin/checkout attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In the check-in codepath, the worktree file is first converted
-with `filter` driver (if specified and corresponding driver
-defined), then the result is processed with `ident` (if
-specified), and then finally with `text` (again, if specified
-and applicable).
-
-In the check-out codepath, the blob content is first converted
-with `text`, and then `ident` and fed to `filter`.
+Ne feledd, hogy nem használhatsz egy meglévő `filter.<driver>.clean`
+vagy `filter.<driver>.smudge` parancsot a `filter.<driver>.process`
+mellett, mert az előbbi kettő más folyamatközi kommunikációs
+protokollt használ, mint az utóbbi.
 
 
-Merging branches with differing checkin/checkout attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_interaction_between_checkin_checkout_attributes]]
+A checkin/checkout attribútumok kölcsönhatása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you have added attributes to a file that cause the canonical
-repository format for that file to change, such as adding a
-clean/smudge filter or text/eol/ident attributes, merging anything
-where the attribute is not in place would normally cause merge
-conflicts.
+A checkin kódútban a munkafa fájlja először a `filter` driverrel
+konvertálódik (ha meg van adva, és a megfelelő driver definiálva
+van), majd az eredmény az `ident`-tel kerül feldolgozásra (ha meg
+van adva), végül pedig a `text`-tel (megint csak, ha meg van adva és
+alkalmazható).
 
-To prevent these unnecessary merge conflicts, Git can be told to run a
-virtual check-out and check-in of all three stages of each file that
-needs a three-way content merge, by setting the `merge.renormalize`
-configuration variable.  This prevents changes caused by check-in
-conversion from causing spurious merge conflicts when a converted file
-is merged with an unconverted file.
-
-As long as a "smudge->clean" results in the same output as a "clean"
-even on files that are already smudged, this strategy will
-automatically resolve all filter-related conflicts.  Filters that do
-not act in this way may cause additional merge conflicts that must be
-resolved manually.
+A checkout kódútban a blob tartalma először a `text`-tel
+konvertálódik, majd az `ident`-tel, és a `filter`-nek van átadva.
 
 
-Generating diff text
-~~~~~~~~~~~~~~~~~~~~
+[[_merging_branches_with_differing_checkin_checkout_attributes]]
+Eltérő checkin/checkout attribútumú branchek merge-elése
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Ha olyan attribútumokat adtál hozzá egy fájlhoz, amelyek
+megváltoztatják az adott fájl kanonikus repository-formátumát, mint
+például egy clean/smudge filter vagy text/eol/ident attribútumok
+hozzáadása, akkor bármi merge-elése, ahol az attribútum nincs
+alkalmazva, normál esetben merge-konfliktusokat okozna.
+
+E felesleges merge-konfliktusok megelőzésére a Gitnek megmondható,
+hogy futtasson egy virtuális checkoutot és checkint minden olyan fájl
+mindhárom stage-jén, amelyhez háromutas tartalom-merge szükséges, a
+`merge.renormalize` konfigurációs változó beállításával. Ez
+megakadályozza, hogy a checkin-konverzió által okozott változtatások
+hamis merge-konfliktusokat okozzanak, amikor egy konvertált fájlt egy
+nem konvertált fájllal merge-elnek.
+
+Amíg egy "smudge->clean" ugyanazt az eredményt adja, mint egy
+"clean", még olyan fájlokon is, amelyek már smudge-olva vannak, ez a
+stratégia automatikusan feloldja az összes filterrel kapcsolatos
+konfliktust. Azok a filterek, amelyek nem így viselkednek, további
+merge-konfliktusokat okozhatnak, amelyeket manuálisan kell feloldani.
+
+
+[[_generating_diff_text]]
+A diffszöveg előállítása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `diff`
 ^^^^^^
 
-The attribute `diff` affects how Git generates diffs for particular
-files. It can tell Git whether to generate a textual patch for the path
-or to treat the path as a binary file.  It can also affect what line is
-shown on the hunk header `@@ -k,l +n,m @@` line, tell Git to use an
-external command to generate the diff, or ask Git to convert binary
-files to a text format before generating the diff.
+A `diff` attribútum befolyásolja, hogy a Git hogyan állítja elő az
+egyes fájlok diffjeit. Megmondhatja a Gitnek, hogy szöveges patch-et
+állítson-e elő az útvonalhoz, vagy bináris fájlként kezelje azt. Azt
+is befolyásolhatja, hogy milyen sor jelenjen meg a hunk-fejlécen (a
+`@@ -k,l +n,m @@` soron), megmondhatja a Gitnek, hogy egy külső
+parancsot használjon a diff előállítására, vagy megkérheti a Gitet,
+hogy szöveges formátumra konvertálja a bináris fájlokat a diff
+előállítása előtt.
 
-Set::
+Beállítva::
 
-	A path to which the `diff` attribute is set is treated
-	as text, even when they contain byte values that
-	normally never appear in text files, such as NUL.
+	Az az útvonal, amelyre a `diff` attribútum be van állítva,
+	szövegként van kezelve, még akkor is, ha olyan bájtértékeket
+	tartalmaz, amelyek normál esetben soha nem jelennek meg
+	szövegfájlokban, mint például a NUL.
 
-Unset::
+Törölve::
 
-	A path to which the `diff` attribute is unset will
-	generate `Binary files differ` (or a binary patch, if
-	binary patches are enabled).
+	Az az útvonal, amelyre a `diff` attribútum törölve van,
+	`Binary files differ` üzenetet fog generálni (vagy egy
+	bináris patch-et, ha a bináris patch-ek engedélyezve vannak).
 
-Unspecified::
+Meghatározatlan::
 
-	A path to which the `diff` attribute is unspecified
-	first gets its contents inspected, and if it looks like
-	text and is smaller than core.bigFileThreshold, it is treated
-	as text. Otherwise it would generate `Binary files differ`.
+	Annak az útvonalnak, amelyre a `diff` attribútum
+	meghatározatlan, először megvizsgálja a tartalmát, és ha az
+	szövegnek tűnik, és kisebb, mint a core.bigFileThreshold,
+	akkor szövegként kezeli. Egyébként `Binary files differ`
+	üzenetet generálna.
 
 String::
 
-	Diff is shown using the specified diff driver.  Each driver may
-	specify one or more options, as described in the following
-	section. The options for the diff driver "foo" are defined
-	by the configuration variables in the "diff.foo" section of the
-	Git config file.
+	A diff a megadott diff driverrel jelenik meg. Minden driver
+	megadhat egy vagy több opciót, ahogy azt a következő szakasz
+	leírja. A "foo" diff driver opcióit a Git konfigurációs
+	fájl "diff.foo" szakaszában lévő konfigurációs változók
+	definiálják.
 
 
-Defining an external diff driver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_defining_an_external_diff_driver]]
+Egy külső diff driver definiálása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The definition of a diff driver is done in `gitconfig`, not
-`gitattributes` file, so strictly speaking this manual page is a
-wrong place to talk about it.  However...
+Egy diff driver definiálása a `gitconfig`-ban történik, nem a
+`gitattributes` fájlban, tehát szigorúan véve ez a kézikönyvoldal
+rossz hely erről beszélni. Azonban...
 
-To define an external diff driver `jcdiff`, add a section to your
-`$GIT_DIR/config` file (or `$HOME/.gitconfig` file) like this:
+Egy `jcdiff` külső diff driver definiálásához adj egy szakaszt a
+`$GIT_DIR/config` fájlodhoz (vagy a `$HOME/.gitconfig` fájlodhoz),
+így:
 
 ----------------------------------------------------------------
 [diff "jcdiff"]
 	command = j-c-diff
 ----------------------------------------------------------------
 
-When Git needs to show you a diff for the path with `diff`
-attribute set to `jcdiff`, it calls the command you specified
-with the above configuration, i.e. `j-c-diff`, with 7
-parameters, just like `GIT_EXTERNAL_DIFF` program is called.
-See linkgit:git[1] for details.
+Amikor a Gitnek meg kell mutatnia neked egy diffet egy olyan
+útvonalhoz, amelynek `diff` attribútuma `jcdiff`-re van állítva, a
+fenti konfigurációban megadott parancsot hívja meg, azaz a
+`j-c-diff`-et, 7 paraméterrel, ugyanúgy, ahogy a `GIT_EXTERNAL_DIFF`
+programot hívja. A részletekért lásd: linkgit:git[1].
 
-If the program is able to ignore certain changes (similar to
-`git diff --ignore-space-change`), then also set the option
-`trustExitCode` to true.  It is then expected to return exit code 1 if
-it finds significant changes and 0 if it doesn't.
+Ha a program képes figyelmen kívül hagyni bizonyos változtatásokat
+(hasonlóan a `git diff --ignore-space-change`-hez), akkor állítsd be
+a `trustExitCode` opciót is true-ra. Ekkor azt várja el a rendszer,
+hogy 1-es kilépési kóddal térjen vissza, ha jelentős változtatásokat
+talál, és 0-val, ha nem.
 
-Setting the internal diff algorithm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_setting_the_internal_diff_algorithm]]
+A belső diff algoritmus beállítása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The diff algorithm can be set through the `diff.algorithm` config key, but
-sometimes it may be helpful to set the diff algorithm per path. For example,
-one may want to use the `minimal` diff algorithm for .json files, and the
-`histogram` for .c files, and so on without having to pass in the algorithm
-through the command line each time.
+A diff algoritmus a `diff.algorithm` konfigurációs kulcson keresztül
+állítható be, de néha hasznos lehet a diff algoritmust
+útvonalanként beállítani. Például valaki szeretné a `minimal` diff
+algoritmust használni a .json fájlokhoz, a `histogram`-ot pedig a .c
+fájlokhoz, és így tovább, anélkül, hogy minden alkalommal a
+parancssoron keresztül kellene átadnia az algoritmust.
 
-First, in `.gitattributes`, assign the `diff` attribute for paths.
+Először a `.gitattributes` fájlban rendeld hozzá a `diff` attribútumot
+útvonalakhoz.
 
 ------------------------
 *.json diff=<name>
 ------------------------
 
-Then, define a "diff.<name>.algorithm" configuration to specify the diff
-algorithm, choosing from `myers`, `patience`, `minimal`, or `histogram`.
+Ezután definiálj egy "diff.<name>.algorithm" konfigurációt a diff
+algoritmus megadásához, a `myers`, a `patience`, a `minimal` vagy a
+`histogram` közül választva.
 
 ----------------------------------------------------------------
 [diff "<name>"]
   algorithm = histogram
 ----------------------------------------------------------------
 
-This diff algorithm applies to user facing diff output like git-diff(1),
-git-show(1) and is used for the `--stat` output as well. The merge machinery
-will not use the diff algorithm set through this method.
+Ez a diff algoritmus a felhasználó felé megjelenő diff kimenetre
+vonatkozik, mint a git-diff(1), a git-show(1), és a `--stat` kimenetre
+is használatos. A merge-gépezet nem fogja használni az ezen a módon
+beállított diff algoritmust.
 
-NOTE: If `diff.<name>.command` is defined for path with the
-`diff=<name>` attribute, it is executed as an external diff driver
-(see above), and adding `diff.<name>.algorithm` has no effect, as the
-algorithm is not passed to the external diff driver.
+NOTE: Ha a `diff.<name>.command` definiálva van a `diff=<name>`
+attribútummal rendelkező útvonalhoz, akkor az külső diff driverként
+kerül végrehajtásra (lásd fent), és a `diff.<name>.algorithm`
+hozzáadásának nincs hatása, mivel az algoritmus nincs átadva a külső
+diff drivernek.
 
-Defining a custom hunk-header
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_defining_a_custom_hunk_header]]
+Egyéni hunk-fejléc definiálása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each group of changes (called a "hunk") in the textual diff output
-is prefixed with a line of the form:
+A szöveges diff kimenetben minden változtatáscsoportot (amit
+"hunk"-nak neveznek) egy ilyen alakú sor előz meg:
 
 	@@ -k,l +n,m @@ TEXT
 
-This is called a 'hunk header'.  The "TEXT" portion is by default a line
-that begins with an alphabet, an underscore or a dollar sign; this
-matches what GNU 'diff -p' output uses.  This default selection however
-is not suited for some contents, and you can use a customized pattern
-to make a selection.
+Ezt 'hunk header'-nek (hunk-fejlécnek) nevezik. A "TEXT" rész
+alapértelmezetten egy olyan sor, amely betűvel, aláhúzásjellel vagy
+dollárjellel kezdődik; ez megfelel annak, amit a GNU 'diff -p'
+kimenete használ. Ez az alapértelmezett kiválasztás azonban nem
+alkalmas bizonyos tartalmakra, és egyéni mintát is használhatsz a
+kiválasztáshoz.
 
-First, in .gitattributes, you would assign the `diff` attribute
-for paths.
+Először a .gitattributes fájlban rendelnéd hozzá a `diff`
+attribútumot útvonalakhoz.
 
 ------------------------
 *.tex	diff=tex
 ------------------------
 
-Then, you would define a "diff.tex.xfuncname" configuration to
-specify a regular expression that matches a line that you would
-want to appear as the hunk header "TEXT". Add a section to your
-`$GIT_DIR/config` file (or `$HOME/.gitconfig` file) like this:
+Ezután definiálnál egy "diff.tex.xfuncname" konfigurációt, hogy
+megadj egy reguláris kifejezést, amely illeszkedik arra a sorra,
+amelyet a hunk-fejléc "TEXT" részeként szeretnél megjeleníteni. Adj
+egy szakaszt a `$GIT_DIR/config` fájlodhoz (vagy a
+`$HOME/.gitconfig` fájlodhoz), így:
 
 ------------------------
 [diff "tex"]
 	xfuncname = "^(\\\\(sub)*section\\{.*)$"
 ------------------------
 
-Note.  A single level of backslashes are eaten by the
-configuration file parser, so you would need to double the
-backslashes; the pattern above picks a line that begins with a
-backslash, and zero or more occurrences of `sub` followed by
-`section` followed by open brace, to the end of line.
+Megjegyzés. A konfigurációs fájl feldolgozója felfal egy szint
+visszaperjelet, ezért meg kell duplázni a visszaperjeleket; a fenti
+minta egy olyan sort választ ki, amely visszaperjellel kezdődik,
+majd nulla vagy több `sub` előfordulást tartalmaz, amelyet `section`
+követ, amelyet nyitó kapcsos zárójel követ, a sor végéig.
 
-There are a few built-in patterns to make this easier, and `tex`
-is one of them, so you do not have to write the above in your
-configuration file (you still need to enable this with the
-attribute mechanism, via `.gitattributes`).  The following built in
-patterns are available:
+Van néhány beépített minta, amely megkönnyíti ezt, és a `tex` az
+egyik közülük, így nem kell megírnod a fentieket a konfigurációs
+fájlodban (ezt még mindig engedélyezned kell az attribútum-
+mechanizmussal, a `.gitattributes` fájlon keresztül). A következő
+beépített minták érhetők el:
 
-- `ada` suitable for source code in the Ada language.
+- `ada` az Ada nyelvű forráskódhoz alkalmas.
 
-- `bash` suitable for source code in the Bourne-Again SHell language.
-  Covers a superset of POSIX shell function definitions.
+- `bash` a Bourne-Again SHell nyelvű forráskódhoz alkalmas. Lefedi a
+  POSIX shell függvénydefiníciók egy szupersetjét.
 
-- `bibtex` suitable for files with BibTeX coded references.
+- `bibtex` a BibTeX kódolású hivatkozásokat tartalmazó fájlokhoz
+  alkalmas.
 
-- `cpp` suitable for source code in the C and C++ languages.
+- `cpp` a C és C++ nyelvű forráskódhoz alkalmas.
 
-- `csharp` suitable for source code in the C# language.
+- `csharp` a C# nyelvű forráskódhoz alkalmas.
 
-- `css` suitable for cascading style sheets.
+- `css` a Cascading Style Sheets fájlokhoz alkalmas.
 
-- `dts` suitable for devicetree (DTS) files.
+- `dts` a devicetree (DTS) fájlokhoz alkalmas.
 
-- `elixir` suitable for source code in the Elixir language.
+- `elixir` az Elixir nyelvű forráskódhoz alkalmas.
 
-- `fortran` suitable for source code in the Fortran language.
+- `fortran` a Fortran nyelvű forráskódhoz alkalmas.
 
-- `fountain` suitable for Fountain documents.
+- `fountain` a Fountain dokumentumokhoz alkalmas.
 
-- `golang` suitable for source code in the Go language.
+- `golang` a Go nyelvű forráskódhoz alkalmas.
 
-- `html` suitable for HTML/XHTML documents.
+- `html` a HTML/XHTML dokumentumokhoz alkalmas.
 
-- `java` suitable for source code in the Java language.
+- `java` a Java nyelvű forráskódhoz alkalmas.
 
-- `kotlin` suitable for source code in the Kotlin language.
+- `kotlin` a Kotlin nyelvű forráskódhoz alkalmas.
 
-- `markdown` suitable for Markdown documents.
+- `markdown` a Markdown dokumentumokhoz alkalmas.
 
-- `matlab` suitable for source code in the MATLAB and Octave languages.
+- `matlab` a MATLAB és az Octave nyelvű forráskódhoz alkalmas.
 
-- `objc` suitable for source code in the Objective-C language.
+- `objc` az Objective-C nyelvű forráskódhoz alkalmas.
 
-- `pascal` suitable for source code in the Pascal/Delphi language.
+- `pascal` a Pascal/Delphi nyelvű forráskódhoz alkalmas.
 
-- `perl` suitable for source code in the Perl language.
+- `perl` a Perl nyelvű forráskódhoz alkalmas.
 
-- `php` suitable for source code in the PHP language.
+- `php` a PHP nyelvű forráskódhoz alkalmas.
 
-- `python` suitable for source code in the Python language.
+- `python` a Python nyelvű forráskódhoz alkalmas.
 
-- `ruby` suitable for source code in the Ruby language.
+- `ruby` a Ruby nyelvű forráskódhoz alkalmas.
 
-- `rust` suitable for source code in the Rust language.
+- `rust` a Rust nyelvű forráskódhoz alkalmas.
 
-- `scheme` suitable for source code in most Lisp dialects,
-  including Scheme, Emacs Lisp, Common Lisp, and Clojure.
+- `scheme` a legtöbb Lisp dialektushoz alkalmas, beleértve a
+  Scheme-et, az Emacs Lispet, a Common Lispet és a Clojure-t.
 
-- `swift` suitable for source code in the Swift language.
+- `swift` a Swift nyelvű forráskódhoz alkalmas.
 
-- `tex` suitable for source code for LaTeX documents.
+- `tex` a LaTeX dokumentumok forráskódjához alkalmas.
 
 
-Customizing word diff
-^^^^^^^^^^^^^^^^^^^^^
+[[_customizing_word_diff]]
+A szódiff testreszabása
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can customize the rules that `git diff --word-diff` uses to
-split words in a line, by specifying an appropriate regular expression
-in the "diff.*.wordRegex" configuration variable.  For example, in TeX
-a backslash followed by a sequence of letters forms a command, but
-several such commands can be run together without intervening
-whitespace.  To separate them, use a regular expression in your
-`$GIT_DIR/config` file (or `$HOME/.gitconfig` file) like this:
+Testreszabhatod azokat a szabályokat, amelyeket a
+`git diff --word-diff` a sorban lévő szavak felosztásához használ,
+egy megfelelő reguláris kifejezés megadásával a "diff.*.wordRegex"
+konfigurációs változóban. Például TeX-ben egy visszaperjel, amelyet
+betűk sorozata követ, egy parancsot alkot, de több ilyen parancs
+futtatható együtt, közbeeső whitespace nélkül. Ezek elválasztásához
+használj egy reguláris kifejezést a `$GIT_DIR/config` fájlodban
+(vagy a `$HOME/.gitconfig` fájlodban), így:
 
 ------------------------
 [diff "tex"]
 	wordRegex = "\\\\[a-zA-Z]+|[{}]|\\\\.|[^\\{}[:space:]]+"
 ------------------------
 
-A built-in pattern is provided for all languages listed in the
-previous section.
+Egy beépített minta van megadva az előző szakaszban felsorolt összes
+nyelvhez.
 
 
-Performing text diffs of binary files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_performing_text_diffs_of_binary_files]]
+Bináris fájlok szöveges diffjeinek elkészítése
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Sometimes it is desirable to see the diff of a text-converted
-version of some binary files. For example, a word processor
-document can be converted to an ASCII text representation, and
-the diff of the text shown. Even though this conversion loses
-some information, the resulting diff is useful for human
-viewing (but cannot be applied directly).
+Néha kívánatos látni néhány bináris fájl szövegre konvertált
+verziójának diffjét. Például egy szövegszerkesztő dokumentum
+átalakítható ASCII szöveges reprezentációvá, és a szöveg diffje
+megjeleníthető. Bár ez a konverzió némi információt elveszít, a
+kapott diff hasznos az emberi megtekintéshez (de közvetlenül nem
+alkalmazható).
 
-The `textconv` config option is used to define a program for
-performing such a conversion. The program should take a single
-argument, the name of a file to convert, and produce the
-resulting text on stdout.
+A `textconv` konfigurációs opció egy ilyen konverziót végző program
+megadására szolgál. A programnak egyetlen argumentumot kell fogadnia,
+a konvertálandó fájl nevét, és a kapott szöveget a stdoutra kell
+kiadnia.
 
-For example, to show the diff of the exif information of a
-file instead of the binary information (assuming you have the
-exif tool installed), add the following section to your
-`$GIT_DIR/config` file (or `$HOME/.gitconfig` file):
+Például, hogy egy fájl exif-információjának diffjét mutasd a bináris
+információ helyett (feltéve, hogy telepítve van az exif eszköz), add
+a következő szakaszt a `$GIT_DIR/config` fájlodhoz (vagy a
+`$HOME/.gitconfig` fájlodhoz):
 
 ------------------------
 [diff "jpg"]
 	textconv = exif
 ------------------------
 
-NOTE: The text conversion is generally a one-way conversion;
-in this example, we lose the actual image contents and focus
-just on the text data. This means that diffs generated by
-textconv are _not_ suitable for applying. For this reason,
-only `git diff` and the `git log` family of commands (i.e.,
-log, whatchanged, show) will perform text conversion. `git
-format-patch` will never generate this output. If you want to
-send somebody a text-converted diff of a binary file (e.g.,
-because it quickly conveys the changes you have made), you
-should generate it separately and send it as a comment _in
-addition to_ the usual binary diff that you might send.
+NOTE: A szöveges konverzió általában egyirányú konverzió; ebben a
+példában elveszítjük a tényleges képtartalmat, és csak a szöveges
+adatra koncentrálunk. Ez azt jelenti, hogy a textconv által
+generált diffek _nem_ alkalmasak alkalmazásra. Emiatt csak a
+`git diff` és a `git log` parancscsalád (azaz a log, a whatchanged,
+a show) fog szöveges konverziót végezni. A `git format-patch`
+soha nem fogja generálni ezt a kimenetet. Ha valakinek egy bináris
+fájl szövegre konvertált diffjét szeretnéd elküldeni (pl. mert az
+gyorsan közvetíti az elvégzett változtatásokat), akkor azt külön kell
+előállítanod, és megjegyzésként kell elküldened a szokásos bináris
+diff _mellett_, amit esetleg küldenél.
 
-Because text conversion can be slow, especially when doing a
-large number of them with `git log -p`, Git provides a mechanism
-to cache the output and use it in future diffs.  To enable
-caching, set the "cachetextconv" variable in your diff driver's
-config. For example:
+Mivel a szöveges konverzió lassú lehet, különösen, ha nagy számban
+végzik el őket a `git log -p` futtatásával, a Git egy mechanizmust
+biztosít a kimenet gyorsítótárazására és a jövőbeli diffekben való
+felhasználására. A gyorsítótárazás engedélyezéséhez állítsd be a
+"cachetextconv" változót a diff driver konfigurációjában. Például:
 
 ------------------------
 [diff "jpg"]
@@ -988,72 +1058,82 @@ config. For example:
 	cachetextconv = true
 ------------------------
 
-This will cache the result of running "exif" on each blob
-indefinitely. If you change the textconv config variable for a
-diff driver, Git will automatically invalidate the cache entries
-and re-run the textconv filter. If you want to invalidate the
-cache manually (e.g., because your version of "exif" was updated
-and now produces better output), you can remove the cache
-manually with `git update-ref -d refs/notes/textconv/jpg` (where
-"jpg" is the name of the diff driver, as in the example above).
+Ez korlátlan ideig gyorsítótárazza az "exif" minden egyes blobon
+való futtatásának eredményét. Ha megváltoztatod egy diff driver
+textconv konfigurációs változóját, a Git automatikusan érvényteleníti
+a gyorsítótár-bejegyzéseket, és újra lefuttatja a textconv filtert.
+Ha manuálisan szeretnéd érvényteleníteni a gyorsítótárat (pl. mert
+frissült az "exif" verziód, és most jobb kimenetet ad), akkor a
+gyorsítótárat manuálisan is eltávolíthatod a
+`git update-ref -d refs/notes/textconv/jpg` paranccsal (ahol a "jpg"
+a diff driver neve, mint a fenti példában).
 
-Choosing textconv versus external diff
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_choosing_textconv_versus_external_diff]]
+Textconv vagy külső diff választása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to show differences between binary or specially-formatted
-blobs in your repository, you can choose to use either an external diff
-command, or to use textconv to convert them to a diff-able text format.
-Which method you choose depends on your exact situation.
+Ha a repository-dban lévő bináris vagy speciálisan formázott blobok
+közötti különbségeket szeretnéd megjeleníteni, választhatsz egy
+külső diff parancs vagy a textconv használata között, hogy diffelhető
+szöveges formátumra konvertáld őket. Az, hogy melyik módszert
+választod, a konkrét helyzetedtől függ.
 
-The advantage of using an external diff command is flexibility. You are
-not bound to find line-oriented changes, nor is it necessary for the
-output to resemble unified diff. You are free to locate and report
-changes in the most appropriate way for your data format.
+A külső diff parancs használatának előnye a rugalmasság. Nem vagy
+kötve ahhoz, hogy sor-orientált változtatásokat találj, és a
+kimenetnek sem kell egyesített diffre (unified diff) hasonlítania.
+Szabadon megtalálhatod és jelentheted a változtatásokat az
+adatformátumod számára legmegfelelőbb módon.
 
-A textconv, by comparison, is much more limiting. You provide a
-transformation of the data into a line-oriented text format, and Git
-uses its regular diff tools to generate the output. There are several
-advantages to choosing this method:
+Egy textconv ehhez képest sokkal korlátozóbb. Az adatok
+sor-orientált szöveges formátumra való átalakítását biztosítod, és a
+Git a szokásos diff eszközeivel állítja elő a kimenetet. Ennek a
+módszernek több előnye is van:
 
-1. Ease of use. It is often much simpler to write a binary to text
-   transformation than it is to perform your own diff. In many cases,
-   existing programs can be used as textconv filters (e.g., exif,
-   odt2txt).
+1. Egyszerű használat. Gyakran sokkal egyszerűbb megírni egy
+   bináris-szöveges átalakítást, mint saját diffet készíteni. Sok
+   esetben meglévő programok is használhatók textconv filterként
+   (pl. exif, odt2txt).
 
-2. Git diff features. By performing only the transformation step
-   yourself, you can still utilize many of Git's diff features,
-   including colorization, word-diff, and combined diffs for merges.
+2. Git diff funkciók. Mivel csak az átalakítási lépést végzed el
+   magad, továbbra is kihasználhatod a Git diff funkcióinak nagy
+   részét, beleértve a színezést, a szódiffet és a merge-ekhez való
+   kombinált diffeket.
 
-3. Caching. Textconv caching can speed up repeated diffs, such as those
-   you might trigger by running `git log -p`.
+3. Gyorsítótárazás. A textconv gyorsítótárazása felgyorsíthatja az
+   ismétlődő diffeket, mint amilyeneket a `git log -p` futtatásával
+   idézhetsz elő.
 
 
-Marking files as binary
-^^^^^^^^^^^^^^^^^^^^^^^
+[[_marking_files_as_binary]]
+Fájlok binárisként való megjelölése
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Git usually guesses correctly whether a blob contains text or binary
-data by examining the beginning of the contents. However, sometimes you
-may want to override its decision, either because a blob contains binary
-data later in the file, or because the content, while technically
-composed of text characters, is opaque to a human reader. For example,
-many postscript files contain only ASCII characters, but produce noisy
-and meaningless diffs.
+A Git általában helyesen tippeli meg, hogy egy blob szöveges vagy
+bináris adatot tartalmaz-e, a tartalom elejének megvizsgálásával.
+Néha azonban szükséged lehet a döntésének felülbírálására, akár
+azért, mert egy blob a fájl későbbi részében bináris adatot
+tartalmaz, akár azért, mert a tartalom, bár technikailag
+szövegkarakterekből áll, egy ember számára átláthatatlan. Például sok
+postscript fájl csak ASCII karaktereket tartalmaz, mégis zajos és
+értelmetlen diffeket eredményez.
 
-The simplest way to mark a file as binary is to unset the diff
-attribute in the `.gitattributes` file:
+A legegyszerűbb módja annak, hogy egy fájlt binárisként jelölj meg,
+a diff attribútum törlése a `.gitattributes` fájlban:
 
 ------------------------
 *.ps -diff
 ------------------------
 
-This will cause Git to generate `Binary files differ` (or a binary
-patch, if binary patches are enabled) instead of a regular diff.
+Ez arra készteti a Gitet, hogy `Binary files differ` üzenetet
+generáljon (vagy bináris patch-et, ha a bináris patch-ek engedélyezve
+vannak), egy normál diff helyett.
 
-However, one may also want to specify other diff driver attributes. For
-example, you might want to use `textconv` to convert postscript files to
-an ASCII representation for human viewing, but otherwise treat them as
-binary files. You cannot specify both `-diff` and `diff=ps` attributes.
-The solution is to use the `diff.*.binary` config option:
+Azonban előfordulhat, hogy más diff driver attribútumokat is meg
+szeretnél adni. Például szeretnéd a `textconv`-ot használni, hogy a
+postscript fájlokat ASCII reprezentációra konvertáld emberi
+megtekintéshez, de egyébként binárisként kezelnéd őket. Nem adhatod
+meg egyszerre a `-diff` és a `diff=ps` attribútumokat. A megoldás a
+`diff.*.binary` konfigurációs opció használata:
 
 ------------------------
 [diff "ps"]
@@ -1061,86 +1141,90 @@ The solution is to use the `diff.*.binary` config option:
   binary = true
 ------------------------
 
-Performing a three-way merge
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_performing_a_three_way_merge]]
+Háromutas merge végrehajtása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `merge`
 ^^^^^^^
 
-The attribute `merge` affects how three versions of a file are
-merged when a file-level merge is necessary during `git merge`,
-and other commands such as `git revert` and `git cherry-pick`.
+A `merge` attribútum befolyásolja, hogy egy fájl három verziója
+hogyan lesz merge-elve, amikor egy fájlszintű merge szükséges a
+`git merge`, illetve más parancsok, mint a `git revert` és a
+`git cherry-pick` során.
 
-Set::
+Beállítva::
 
-	Built-in 3-way merge driver is used to merge the
-	contents in a way similar to 'merge' command of `RCS`
-	suite.  This is suitable for ordinary text files.
+	A beépített 3-utas merge driver kerül felhasználásra a
+	tartalom merge-eléséhez, a `RCS` csomag 'merge' parancsához
+	hasonló módon. Ez a hétköznapi szövegfájlokhoz alkalmas.
 
-Unset::
+Törölve::
 
-	Take the version from the current branch as the
-	tentative merge result, and declare that the merge has
-	conflicts.  This is suitable for binary files that do
-	not have a well-defined merge semantics.
+	A jelenlegi branchből származó verzió lesz az ideiglenes
+	merge-eredmény, és a merge konfliktusokkal rendelkezőnek lesz
+	nyilvánítva. Ez jól definiált merge-szemantikával nem
+	rendelkező bináris fájlokhoz alkalmas.
 
-Unspecified::
+Meghatározatlan::
 
-	By default, this uses the same built-in 3-way merge
-	driver as is the case when the `merge` attribute is set.
-	However, the `merge.default` configuration variable can name
-	different merge driver to be used with paths for which the
-	`merge` attribute is unspecified.
+	Alapértelmezetten ugyanaz a beépített 3-utas merge driver
+	kerül felhasználásra, mint amikor a `merge` attribútum be
+	van állítva. Azonban a `merge.default` konfigurációs változó
+	megnevezhet egy másik merge drivert azokhoz az útvonalakhoz,
+	amelyekre a `merge` attribútum meghatározatlan.
 
 String::
 
-	3-way merge is performed using the specified custom
-	merge driver.  The built-in 3-way merge driver can be
-	explicitly specified by asking for "text" driver; the
-	built-in "take the current branch" driver can be
-	requested with "binary".
+	A 3-utas merge a megadott egyéni merge driverrel kerül
+	végrehajtásra. A beépített 3-utas merge driver a "text"
+	driver kérésével adható meg explicit módon; a beépített,
+	"a jelenlegi branchet veszi" driver a "binary" kéréssel
+	adható meg.
 
 
-Built-in merge drivers
-^^^^^^^^^^^^^^^^^^^^^^
+[[_built_in_merge_drivers]]
+Beépített merge driverek
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There are a few built-in low-level merge drivers defined that
-can be asked for via the `merge` attribute.
+Van néhány beépített, alacsonyszintű merge driver definiálva,
+amelyek a `merge` attribútumon keresztül kérhetők.
 
 text::
 
-	Usual 3-way file level merge for text files.  Conflicted
-	regions are marked with conflict markers `<<<<<<<`,
-	`=======` and `>>>>>>>`.  The version from your branch
-	appears before the `=======` marker, and the version
-	from the merged branch appears after the `=======`
-	marker.
+	Szokásos 3-utas fájlszintű merge szövegfájlokhoz. A
+	konfliktusos részeket a `<<<<<<<`, a `=======` és a
+	`>>>>>>>` konfliktusjelölők jelölik. A branchedből származó
+	verzió a `=======` jelölő előtt jelenik meg, a merge-elt
+	branchből származó verzió pedig a `=======` jelölő után.
 
 binary::
 
-	Keep the version from your branch in the work tree, but
-	leave the path in the conflicted state for the user to
-	sort out.
+	A branchedből származó verziót tartja meg a munkafában, de
+	az útvonalat konfliktusos állapotban hagyja, hogy a
+	felhasználó rendezze azt.
 
 union::
 
-	Run 3-way file level merge for text files, but take
-	lines from both versions, instead of leaving conflict
-	markers.  This tends to leave the added lines in the
-	resulting file in random order and the user should
-	verify the result. Do not use this if you do not
-	understand the implications.
+	3-utas fájlszintű merge-t hajt végre szövegfájlokra, de
+	mindkét verzió sorait megtartja, konfliktusjelölők hagyása
+	helyett. Ez hajlamos arra, hogy a hozzáadott sorokat
+	véletlenszerű sorrendben hagyja a kapott fájlban, és a
+	felhasználónak ellenőriznie kell az eredményt. Ne használd
+	ezt, ha nem érted a következményeit.
 
 
-Defining a custom merge driver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[[_defining_a_custom_merge_driver]]
+Egyéni merge driver definiálása
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The definition of a merge driver is done in the `.git/config`
-file, not in the `gitattributes` file, so strictly speaking this
-manual page is a wrong place to talk about it.  However...
+Egy merge driver definiálása a `.git/config` fájlban történik, nem a
+`gitattributes` fájlban, tehát szigorúan véve ez a kézikönyvoldal
+rossz hely erről beszélni. Azonban...
 
-To define a custom merge driver `filfre`, add a section to your
-`$GIT_DIR/config` file (or `$HOME/.gitconfig` file) like this:
+Egy `filfre` egyéni merge driver definiálásához adj egy szakaszt a
+`$GIT_DIR/config` fájlodhoz (vagy a `$HOME/.gitconfig` fájlodhoz),
+így:
 
 ----------------------------------------------------------------
 [merge "filfre"]
@@ -1149,172 +1233,183 @@ To define a custom merge driver `filfre`, add a section to your
 	recursive = binary
 ----------------------------------------------------------------
 
-The `merge.*.name` variable gives the driver a human-readable
-name.
+A `merge.*.name` változó ad a drivernek egy emberi olvasásra szánt
+nevet.
 
-The `merge.*.driver` variable's value is used to construct a
-command to run to common ancestor's version (`%O`), current
-version (`%A`) and the other branches' version (`%B`).  These
-three tokens are replaced with the names of temporary files that
-hold the contents of these versions when the command line is
-built. Additionally, `%L` will be replaced with the conflict marker
-size (see below).
+A `merge.*.driver` változó értéke a közös ős verziójára (`%O`), az
+aktuális verzióra (`%A`) és a másik branchek verziójára (`%B`)
+futtatandó parancs felépítésére szolgál. Ezt a három tokent a
+parancssor felépítésekor azon ideiglenes fájlok neveire cseréli,
+amelyek ezen verziók tartalmát tartalmazzák. Ezenkívül a `%L`-t a
+konfliktusjelölő méretére cseréli (lásd alább).
 
-The merge driver is expected to leave the result of the merge in
-the file named with `%A` by overwriting it, and exit with zero
-status if it managed to merge them cleanly, or non-zero if there
-were conflicts.  When the driver crashes (e.g. killed by SEGV),
-it is expected to exit with non-zero status that are higher than
-128, and in such a case, the merge results in a failure (which is
-different from producing a conflict).
+A merge drivertől azt várja el a rendszer, hogy a merge eredményét a
+`%A`-val megnevezett fájlba hagyja, azt felülírva, és nulla
+állapottal lépjen ki, ha sikerült tisztán merge-elnie azokat, vagy
+nem nullával, ha voltak konfliktusok. Ha a driver összeomlik (pl.
+SEGV-vel megölve), akkor 128-nál magasabb, nem nulla állapottal
+várja el a rendszer, hogy kilépjen, és ebben az esetben a merge
+hibával zárul (ami különbözik a konfliktus előállításától).
 
-The `merge.*.recursive` variable specifies what other merge
-driver to use when the merge driver is called for an internal
-merge between common ancestors, when there are more than one.
-When left unspecified, the driver itself is used for both
-internal merge and the final merge.
+A `merge.*.recursive` változó megadja, melyik másik merge drivert
+kell használni, amikor a merge drivert egy belső, közös ősök közötti
+merge-hez hívják meg, ha egynél több van belőlük. Ha nincs megadva,
+maga a driver kerül felhasználásra mind a belső merge-hez, mind a
+végső merge-hez.
 
-The merge driver can learn the pathname in which the merged result
-will be stored via placeholder `%P`. The conflict labels to be used
-for the common ancestor, local head and other head can be passed by
-using `%S`, `%X` and `%Y` respectively.
+A merge driver a `%P` helyőrzőn keresztül tudhatja meg azt az
+útvonalnevet, amelybe a merge-elt eredmény tárolva lesz. A közös
+őshöz, a helyi HEAD-hez és a másik HEAD-hez tartozó
+konfliktuscímkéket a `%S`, a `%X` és az `%Y` átadásával lehet
+megadni, ebben a sorrendben.
 
 `conflict-marker-size`
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This attribute controls the length of conflict markers left in
-the work tree file during a conflicted merge.  Only a positive
-integer has a meaningful effect.
+Ez az attribútum szabályozza a munkafa fájljában konfliktusos merge
+során hagyott konfliktusjelölők hosszát. Csak egy pozitív egész
+számnak van értelmes hatása.
 
-For example, this line in `.gitattributes` can be used to tell the merge
-machinery to leave much longer (instead of the usual 7-character-long)
-conflict markers when merging the file `Documentation/git-merge.adoc`
-results in a conflict.
+Például a `.gitattributes` fájlban lévő ez a sor arra használható,
+hogy megmondja a merge-gépezetnek, hogy sokkal hosszabb (a szokásos
+7 karakter hosszú helyett) konfliktusjelölőket hagyjon, amikor a
+`Documentation/git-merge.adoc` fájl merge-elése konfliktust
+eredményez.
 
 ------------------------
 Documentation/git-merge.adoc	conflict-marker-size=32
 ------------------------
 
 
-Checking whitespace errors
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_checking_whitespace_errors]]
+Whitespace-hibák ellenőrzése
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `whitespace`
 ^^^^^^^^^^^^
 
-The `core.whitespace` configuration variable allows you to define what
-'diff' and 'apply' should consider whitespace errors for all paths in
-the project (See linkgit:git-config[1]).  This attribute gives you finer
-control per path.
+A `core.whitespace` konfigurációs változó lehetővé teszi, hogy
+meghatározd, mit tekintsen a 'diff' és az 'apply' whitespace-hibának
+a projekt összes útvonalára nézve (lásd: linkgit:git-config[1]). Ez
+az attribútum finomabb, útvonalankénti szabályozást biztosít.
 
-Set::
+Beállítva::
 
-	Notice all types of potential whitespace errors known to Git.
-	The tab width is taken from the value of the `core.whitespace`
-	configuration variable.
+	Az összes, a Git számára ismert lehetséges whitespace-hiba
+	fajtát észreveszi. A tabulátor szélessége a `core.whitespace`
+	konfigurációs változó értékéből származik.
 
-Unset::
+Törölve::
 
-	Do not notice anything as error.
+	Semmit sem vesz észre hibaként.
 
-Unspecified::
+Meghatározatlan::
 
-	Use the value of the `core.whitespace` configuration variable to
-	decide what to notice as error.
+	A `core.whitespace` konfigurációs változó értékét használja
+	annak eldöntésére, hogy mit vegyen észre hibaként.
 
 String::
 
-	Specify a comma separated list of common whitespace problems to
-	notice in the same format as the `core.whitespace` configuration
-	variable.
+	Egy vesszővel elválasztott listát adhatsz meg a
+	`core.whitespace` konfigurációs változóval megegyező
+	formátumban az észreveendő gyakori whitespace-problémákról.
 
 
-Creating an archive
-~~~~~~~~~~~~~~~~~~~
+[[_creating_an_archive]]
+Archívum létrehozása
+~~~~~~~~~~~~~~~~~~~~~~~
 
 `export-ignore`
 ^^^^^^^^^^^^^^^
 
-Files and directories with the attribute `export-ignore` won't be added to
-archive files.
+Az `export-ignore` attribútummal rendelkező fájlok és könyvtárak nem
+kerülnek hozzáadásra az archívumfájlokhoz.
 
 `export-subst`
 ^^^^^^^^^^^^^^
 
-If the attribute `export-subst` is set for a file then Git will expand
-several placeholders when adding this file to an archive.  The
-expansion depends on the availability of a commit ID, i.e., if
-linkgit:git-archive[1] has been given a tree instead of a commit or a
-tag then no replacement will be done.  The placeholders are the same
-as those for the option `--pretty=format:` of linkgit:git-log[1],
-except that they need to be wrapped like this: `$Format:PLACEHOLDERS$`
-in the file.  E.g. the string `$Format:%H$` will be replaced by the
-commit hash.  However, only one `%(describe)` placeholder is expanded
-per archive to avoid denial-of-service attacks.
+Ha az `export-subst` attribútum be van állítva egy fájlra, akkor a
+Git több helyőrzőt is ki fog egészíteni, amikor ezt a fájlt egy
+archívumhoz adja. A kiegészítés a commit ID elérhetőségétől függ,
+azaz ha a linkgit:git-archive[1] parancsnak egy fa lett megadva
+commit vagy tag helyett, akkor semmilyen behelyettesítés nem
+történik. A helyőrzők ugyanazok, mint a linkgit:git-log[1]
+`--pretty=format:` opciójánál, azzal a különbséggel, hogy a fájlban
+így kell őket becsomagolni: `$Format:PLACEHOLDERS$`. Pl. a `$Format:%H$`
+string a commit hash-re lesz cserélve. Azonban archívumonként csak
+egy `%(describe)` helyőrző kerül kiegészítésre, a
+szolgáltatásmegtagadásos (denial-of-service) támadások elkerülése
+végett.
 
 
-Packing objects
-~~~~~~~~~~~~~~~
+[[_packing_objects]]
+Objektumok csomagolása
+~~~~~~~~~~~~~~~~~~~~~~~
 
 `delta`
 ^^^^^^^
 
-Delta compression will not be attempted for blobs for paths with the
-attribute `delta` set to false.
+A delta tömörítést nem kísérli meg a rendszer azon útvonalak
+blobjaira, amelyekre a `delta` attribútum false-ra van állítva.
 
 
-Viewing files in GUI tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_viewing_files_in_gui_tools]]
+Fájlok megjelenítése GUI eszközökben
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `encoding`
 ^^^^^^^^^^
 
-The value of this attribute specifies the character encoding that should
-be used by GUI tools (e.g. linkgit:gitk[1] and linkgit:git-gui[1]) to
-display the contents of the relevant file. Note that due to performance
-considerations linkgit:gitk[1] does not use this attribute unless you
-manually enable per-file encodings in its options.
+Ennek az attribútumnak az értéke azt a karakterkódolást adja meg,
+amelyet a GUI eszközöknek (pl. a linkgit:gitk[1] és a
+linkgit:git-gui[1]) kell használniuk az adott fájl tartalmának
+megjelenítéséhez. Vedd figyelembe, hogy teljesítménybeli
+megfontolások miatt a linkgit:gitk[1] nem használja ezt az
+attribútumot, hacsak nem engedélyezed manuálisan a fájlonkénti
+kódolásokat a beállításaiban.
 
-If this attribute is not set or has an invalid value, the value of the
-`gui.encoding` configuration variable is used instead
-(See linkgit:git-config[1]).
+Ha ez az attribútum nincs beállítva, vagy érvénytelen értékkel
+rendelkezik, akkor helyette a `gui.encoding` konfigurációs változó
+értéke kerül felhasználásra
+(lásd: linkgit:git-config[1]).
 
 
 USING MACRO ATTRIBUTES
 ----------------------
 
-You do not want any end-of-line conversions applied to, nor textual diffs
-produced for, any binary file you track.  You would need to specify e.g.
+Nem szeretnéd, hogy bármilyen sorvég-konverzió alkalmazva legyen, sem
+azt, hogy szöveges diff készüljön bármely általad követett bináris
+fájlhoz. Ehhez például a következőt kellene megadnod:
 
 ------------
 *.jpg -text -diff
 ------------
 
-but that may become cumbersome, when you have many attributes.  Using
-macro attributes, you can define an attribute that, when set, also
-sets or unsets a number of other attributes at the same time.  The
-system knows a built-in macro attribute, `binary`:
+de ez körülményessé válhat, ha sok attribútumod van. Makróattribútumok
+használatával definiálhatsz egy olyan attribútumot, amely beállításkor
+egyszerre több más attribútumot is beállít vagy töröl. A rendszer
+ismer egy beépített makróattribútumot, a `binary`-t:
 
 ------------
 *.jpg binary
 ------------
 
-Setting the "binary" attribute also unsets the "text" and "diff"
-attributes as above.  Note that macro attributes can only be "Set",
-though setting one might have the effect of setting or unsetting other
-attributes or even returning other attributes to the "Unspecified"
-state.
+A "binary" attribútum beállítása a fentiek szerint törli a "text" és
+a "diff" attribútumokat is. Vedd figyelembe, hogy a makróattribútumok
+csak "Beállítva" állapotba kerülhetnek, bár egy ilyen beállításnak
+lehet olyan hatása, hogy más attribútumokat beállít vagy töröl, vagy
+akár visszaállít más attribútumokat a "Meghatározatlan" állapotba.
 
 
 DEFINING MACRO ATTRIBUTES
 -------------------------
 
-Custom macro attributes can be defined only in top-level gitattributes
-files (`$GIT_DIR/info/attributes`, the `.gitattributes` file at the
-top level of the working tree, or the global or system-wide
-gitattributes files), not in `.gitattributes` files in working tree
-subdirectories.  The built-in macro attribute "binary" is equivalent
-to:
+Egyéni makróattribútumok csak felső szintű gitattributes fájlokban
+definiálhatók (`$GIT_DIR/info/attributes`, a munkakönyvtár legfelső
+szintjén lévő `.gitattributes` fájl, vagy a globális, illetve
+rendszerszintű gitattributes fájlok), nem pedig a munkakönyvtár
+alkönyvtáraiban lévő `.gitattributes` fájlokban. A beépített
+"binary" makróattribútum a következővel egyenértékű:
 
 ------------
 [attr]binary -diff -merge -text
@@ -1323,14 +1418,15 @@ to:
 NOTES
 -----
 
-Git does not follow symbolic links when accessing a `.gitattributes`
-file in the working tree. This keeps behavior consistent when the file
-is accessed from the index or a tree versus from the filesystem.
+A Git nem követi a szimbolikus linkeket, amikor a munkakönyvtárban
+egy `.gitattributes` fájlhoz fér hozzá. Ez konzisztens viselkedést
+biztosít, amikor a fájlhoz az indexből vagy egy fából, illetve a
+fájlrendszerből férnek hozzá.
 
 EXAMPLES
 --------
 
-If you have these three `gitattributes` file:
+Ha a következő három `gitattributes` fájlod van:
 
 ----------------------------------------------------------------
 (in $GIT_DIR/info/attributes)
@@ -1346,26 +1442,29 @@ abc	-foo -bar
 *.c	frotz
 ----------------------------------------------------------------
 
-the attributes given to path `t/abc` are computed as follows:
+a `t/abc` útvonalhoz rendelt attribútumok a következőképpen
+számítódnak ki:
 
-1. By examining `t/.gitattributes` (which is in the same
-   directory as the path in question), Git finds that the first
-   line matches.  `merge` attribute is set.  It also finds that
-   the second line matches, and attributes `foo` and `bar`
-   are unset.
+1. A `t/.gitattributes` fájlt megvizsgálva (amely ugyanabban a
+   könyvtárban van, mint a szóban forgó útvonal), a Git megtalálja,
+   hogy az első sor illeszkedik. A `merge` attribútum be van
+   állítva. Azt is megtalálja, hogy a második sor illeszkedik, és a
+   `foo` és a `bar` attribútumok törölve vannak.
 
-2. Then it examines `.gitattributes` (which is in the parent
-   directory), and finds that the first line matches, but
-   `t/.gitattributes` file already decided how `merge`, `foo`
-   and `bar` attributes should be given to this path, so it
-   leaves `foo` and `bar` unset.  Attribute `baz` is set.
+2. Ezután megvizsgálja a `.gitattributes` fájlt (amely a
+   szülőkönyvtárban van), és megtalálja, hogy az első sor
+   illeszkedik, de a `t/.gitattributes` fájl már eldöntötte, hogy a
+   `merge`, a `foo` és a `bar` attribútumokat hogyan kell megadni
+   ehhez az útvonalhoz, így a `foo`-t és a `bar`-t törölve hagyja. A
+   `baz` attribútum be van állítva.
 
-3. Finally it examines `$GIT_DIR/info/attributes`.  This file
-   is used to override the in-tree settings.  The first line is
-   a match, and `foo` is set, `bar` is reverted to unspecified
-   state, and `baz` is unset.
+3. Végül megvizsgálja a `$GIT_DIR/info/attributes` fájlt. Ez a fájl
+   a fában lévő beállítások felülbírálására szolgál. Az első sor
+   illeszkedik, és a `foo` be van állítva, a `bar` visszaáll
+   meghatározatlan állapotba, a `baz` pedig törölve van.
 
-As the result, the attributes assignment to `t/abc` becomes:
+Ennek eredményeként a `t/abc`-hez rendelt attribútumok a következők
+lesznek:
 
 ----------------------------------------------------------------
 foo	set to true
@@ -1382,4 +1481,4 @@ linkgit:git-check-attr[1].
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része

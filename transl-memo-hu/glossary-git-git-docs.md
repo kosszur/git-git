@@ -3886,3 +3886,72 @@ igényelt orchestrátor-javítást.
 
 Orchestrátor konszolidálta, javítás nélkül (mindkét subagent hibátlanul fejezte be a saját
 fájlját). Részletek fent, „44. blokk".
+
+## 45. blokk — `git-rebase.adoc`, `gitattributes.adoc` — 2026-09-11
+
+**Fájlok:** `git-rebase.adoc` (47,4KB, 1289→1354 sor, man page), `gitattributes.adoc` (50,6KB,
+1385→1484 sor, man page — eddig a legnagyobb fájl ebben a batch-sorozatban). 2 párhuzamos
+subagent végezte.
+
+### Orchestrátor-javítás a subagent-eredményben
+
+- **`git-rebase.adoc` — terminológiai következetlenség javítva**: a „Recovering from Upstream
+  Rebase" alszakasz `::`-definíciós-listájában az „Easy Case: the changes are literally the
+  same." címke „Egyszerű eset: a változtatások szó szerint ugyanazok."-ra fordult, miközben a
+  hozzá tartozó `[[_the_easy_case]]` anchorú alcím („A könnyű eset") és egy NOTE-glossza
+  ("easy case" (könnyű eset szerinti)") a „könnyű" szót használta ugyanarra a fogalomra. Javítva:
+  „Egyszerű eset" → „Könnyű eset" a definíciós címkében, hogy a teljes szakaszban egységesen a
+  „könnyű eset" / „nehéz eset" terminológia legyen használva.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| easy case / hard case (`git-rebase.adoc`, upstream-rebase-helyreállítás fogalompár) | **VÉGLEGES: „könnyű eset" / „nehéz eset"** (NEM „egyszerű eset") | a heading + NOTE-glossza többségi használatát követve |
+| autosquash / autostash | **marad angolul**, `az auto-squashelést`, `auto-squashelés` | `git-rebase.adoc` — a `squash` (0. blokk) igeképzési mintájának kiterjesztése |
+| fixup (rebase todo-parancs, ige is) | **marad angolul**, `fixupolására` | `git-rebase.adoc` — a `squash`/`amend` mintájára |
+| todo list (rebase utasításlista) | **marad „todo lista"** | `git-rebase.adoc` — bevett Git-specifikus artifact-név, nem „teendőlista" |
+| commit-ish | **marad angolul**, változatlanul | `git-rebase.adoc` — nincs magyar megfelelője a projektben |
+| checkin / checkout (generikus ige, NEM a `git checkout` parancs) | **marad angolul, magyar igeragozással**: `checkinkor`, `checkoutkor`, `checkinolják`, `checkoutolják` | `gitattributes.adoc` — a `checkoutol` (0. blokk parancsnév-ige mintája) generikus kiterjesztése |
+| clean / smudge (filter driver parancsnevek) | **marad angolul**: `clean filter`, `smudge filter`, `clean-elni`, `smudge-olni`, `smudge-olt` | `gitattributes.adoc` — nincs magyar megfelelő, Git-specifikus filter-mechanizmus |
+| hunk header | **„hunk-fejléc"** (első előforduláskor `'hunk header' (hunk-fejléc)` glosszával) | `gitattributes.adoc` — a `hunk` (0. blokk) kiterjesztése |
+| conflict marker(s) | **„konfliktusjelölő(k)"** | `gitattributes.adoc` — új, fixált rendering a `<<<<<<<`/`=======`/`>>>>>>>` jelölőkre |
+| round trip safe (kódolás) | **„körbeutazás-biztos"** (első előforduláskor `(round trip safe)` glosszával) | `gitattributes.adoc` |
+| long-running process protocol | **„hosszan futó folyamat protokoll (long-running process protocol)"** | `gitattributes.adoc` — konkrét, névvel ellátott technikai dokumentum-cím |
+| flush packet / pkt-line packet | **„flush csomag" / „pkt-line csomag"** | `gitattributes.adoc` — a „packet" szó fordul, a technikai minősítő angolul marad |
+| denial-of-service | **„szolgáltatásmegtagadásos (denial-of-service)"** | `gitattributes.adoc` |
+
+### Címsor-anchorok
+
+- **`git-rebase.adoc`**: 10 defenzív `[[...]]` anchor a fordított, NEM csupa nagybetűs
+  `~~~~`-alcímek fölött (`_empty_commits`, `_directory_rename_detection`, `_context`,
+  `_labelling_of_conflicts_markers`, `_hooks`, `_interruptability`, `_commit_rewording`,
+  `_miscellaneous_differences`, `_the_easy_case`, `_the_hard_case`). Nincs `<<...>>` a fájlban
+  (a `<<<<<<<` találat a konfliktusjelölő szó szerinti szövege, nem xref). A `TRANSPLANTING A
+  TOPIC BRANCH WITH --ONTO`, `MODE OPTIONS`, `INCOMPATIBLE OPTIONS`, `BEHAVIORAL DIFFERENCES`,
+  `INTERACTIVE MODE`, `SPLITTING COMMITS`, `RECOVERING FROM UPSTREAM REBASE`, `REBASING MERGES`
+  csupa nagybetűs alcímek a 39. blokk VÉGLEGES DÖNTÉSE szerint angolul.
+- **`gitattributes.adoc`**: 23 defenzív `[[...]]` anchor (l. subagent-jelentés a teljes
+  listáért, pl. `_end_of_line_conversion`, `_long_running_filter_process`,
+  `_defining_a_custom_hunk_header`, `_built_in_merge_drivers` stb.). Nincs `<<...>>` a fájlban
+  (a subagent alapos keresést végzett, mivel ez a fájl sok belső fogalmi kereszthivatkozást
+  tartalmazhatott volna — végül egyik cím sem anchor-hivatkozott máshonnan). A `RESERVED
+  BUILTIN_* ATTRIBUTES`, `EFFECTS`, `USING MACRO ATTRIBUTES`, `DEFINING MACRO ATTRIBUTES` csupa
+  nagybetűs alcímek a 39. blokk VÉGLEGES DÖNTÉSE szerint angolul; az attribútumnév-címek
+  (`` `text` ``, `` `eol` ``, `` `ident` ``, `` `filter` ``, `` `diff` ``, `` `merge` `` stb.)
+  szó szerinti azonosítóként érintetlenek.
+
+### Megőrzött markup / megjegyzések
+
+- `git-rebase.adoc`: minden ASCII commit-gráf (`A---B---C`), todo-lista-példa (`pick`/`label`/
+  `reset`/`merge`/`exec` mintasorok, beágyazott `#`-kommentekkel) és a `rerere-options.adoc`/
+  `merge-strategies.adoc`/`includes/cmd-config-section-all.adoc`/`config/rebase.adoc`/
+  `config/sequencer.adoc` include-ok bájtazonosak. A todo-lista-parancsszavak (`pick`, `edit`,
+  `reword`, `drop`, `squash`, `fixup`, `fixup -c`/`-C`, `break`, `label`, `reset`, `merge`,
+  `exec`) szó szerinti kulcsszóként angolul maradtak.
+- `gitattributes.adoc`: minden `.gitattributes`-szintaxis-példa (`*.txt text`, `*.jpg -text`
+  stb.), config-részlet, `packet:` protokoll-dump és a záró attribútum-táblázat (`foo set to
+  true` stb.) bájtazonos.
+
+Orchestrátor konszolidálta, 1 javítással (`git-rebase.adoc` „egyszerű"→„könnyű eset"
+egységesítés). Részletek fent, „45. blokk".

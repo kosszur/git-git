@@ -3,7 +3,7 @@ git-rebase(1)
 
 NAME
 ----
-git-rebase - Reapply commits on top of another base tip
+git-rebase - Commitok újbóli alkalmazása egy másik bázis csúcsán
 
 SYNOPSIS
 --------
@@ -16,12 +16,12 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-Transplant a series of commits onto a different starting point.
-You can also use `git rebase` to reorder or combine commits: see INTERACTIVE
-MODE below for how to do that.
+Egy commit-sorozat áthelyezése egy másik kiindulási pontra.
+A `git rebase` paranccsal a commitok átrendezhetők vagy egyesíthetők is: lásd
+lentebb az INTERACTIVE MODE szakaszt, hogy ez hogyan végezhető el.
 
-For example, imagine that you have been working on the `topic` branch in this
-history, and you want to "catch up" to the work done on the `master` branch.
+Képzeld el például, hogy a `topic` branchen dolgozol ebben a történetben, és
+szeretnéd "utolérni" a `master` branchen végzett munkát.
 
 ------------
           A---B---C topic
@@ -29,11 +29,12 @@ history, and you want to "catch up" to the work done on the `master` branch.
     D---E---F---G master
 ------------
 
-You want to transplant the commits you made on `topic` since it diverged from
-`master` (i.e. A, B, and C), on top of the current `master`.  You can do this
-by running `git rebase master` while the `topic` branch is checked out.  If you
-want to rebase `topic` while on another branch, `git rebase master topic` is a
-shortcut for `git checkout topic && git rebase master`.
+Át szeretnéd helyezni a `topic`-on tett commitokat, amelyek azóta készültek,
+hogy a branch elágazott a `master`-től (azaz A, B és C), az aktuális `master`
+tetejére. Ezt úgy teheted meg, hogy futtatod a `git rebase master` parancsot,
+miközben a `topic` branch van kicheckoutolva. Ha egy másik branchen állva
+szeretnéd rebase-elni a `topic`-ot, a `git rebase master topic` parancs
+gyorsítóút a `git checkout topic && git rebase master` helyett.
 
 ------------
                   A'--B'--C' topic
@@ -42,63 +43,68 @@ shortcut for `git checkout topic && git rebase master`.
 ------------
 
 
-If there is a merge conflict during this process, `git rebase` will stop at the
-first problematic commit and leave conflict markers. If this happens, you can do
-one of these things:
+Ha a folyamat során merge-konfliktus lép fel, a `git rebase` megáll az első
+problémás commitnál, és konfliktusjelölőket hagy hátra. Ha ez történik, az
+alábbiak közül teheted meg valamelyiket:
 
-1. Resolve the conflict. You can use `git diff` to find the markers (<<<<<<)
-   and make edits to resolve the conflict. For each file you edit, you need to
-   tell Git that the conflict has been resolved. You can mark the conflict as
-   resolved with  `git add <filename>`. After resolving all of the conflicts,
-   you can continue the rebasing process with
+1. Oldd fel a konfliktust. A `git diff` segítségével megtalálhatod a jelölőket
+   (<<<<<<), és elvégezheted a konfliktus feloldásához szükséges
+   szerkesztéseket. Minden szerkesztett fájlnál jelezned kell a Gitnek, hogy a
+   konfliktus fel van oldva. A konfliktust a `git add <filename>` paranccsal
+   jelölheted feloldottnak. Az összes konfliktus feloldása után a rebase
+   folyamatát a következővel folytathatod:
 
    git rebase --continue
 
-2. Stop the `git rebase` and return your branch to its original state with
+2. Állítsd le a `git rebase`-t, és állítsd vissza a branchedet az eredeti
+   állapotába a következővel:
 
    git rebase --abort
 
-3. Skip the commit that caused the merge conflict with
+3. Hagyd ki a merge-konfliktust okozó commitot a következővel:
 
    git rebase --skip
 
-If you don't specify an `<upstream>` to rebase onto, the upstream configured in
-`branch.<name>.remote` and `branch.<name>.merge` options will be used (see
-linkgit:git-config[1] for details) and the `--fork-point` option is
-assumed.  If you are currently not on any branch or if the current
-branch does not have a configured upstream, the rebase will abort.
+Ha nem adsz meg `<upstream>`-et, amelyre rebase-elni szeretnél, akkor a
+`branch.<name>.remote` és `branch.<name>.merge` opciókban beállított upstream
+kerül felhasználásra (részletekért lásd: linkgit:git-config[1]), és a
+`--fork-point` opció automatikusan feltételezve lesz. Ha jelenleg nem vagy
+egyik branchen sem, vagy az aktuális branchnek nincs beállított upstreamje, a
+rebase megszakad.
 
-Here is a simplified description of what `git rebase <upstream>` does:
+Íme egy egyszerűsített leírás arról, hogy a `git rebase <upstream>` mit csinál:
 
-1. Make a list of all commits on your current branch since it branched
-   off from `<upstream>` that do not have an equivalent commit in
-   `<upstream>`.
-2. Check out `<upstream>` with the equivalent of
-   `git checkout --detach <upstream>`.
-3. Replay the commits, one by one, in order. This is similar to running
-   `git cherry-pick <commit>` for each commit. See REBASING MERGES for how merges
-   are handled.
-4. Update your branch to point to the final commit with the equivalent
-   of `git checkout -B <branch>`.
+1. Elkészíti az aktuális brancheden lévő összes olyan commit listáját, amelyek
+   azóta jöttek létre, hogy a branch elágazott az `<upstream>`-től, és
+   amelyeknek nincs megfelelőjük az `<upstream>`-ben.
+2. Kicheckoutolja az `<upstream>`-et, a `git checkout --detach <upstream>`
+   parancsnak megfelelően.
+3. Sorban, egyenként újra lejátssza a commitokat. Ez hasonló ahhoz, mintha
+   minden egyes commitra lefuttatnád a `git cherry-pick <commit>` parancsot.
+   Lásd a REBASING MERGES szakaszt arról, hogy a merge-ek hogyan kerülnek
+   kezelésre.
+4. Frissíti a branchedet, hogy a végső commitra mutasson, a
+   `git checkout -B <branch>` parancsnak megfelelően.
 
 [NOTE]
-When starting the rebase, `ORIG_HEAD` is set to point to the commit at the tip
-of the to-be-rebased branch. However, `ORIG_HEAD` is not guaranteed to still
-point to that commit at the end of the rebase if other commands that change
-`ORIG_HEAD` (like `git reset`) are used during the rebase. The previous branch
-tip, however, is accessible using the reflog of the current branch (i.e. `@{1}`,
-see linkgit:gitrevisions[7]).
+A rebase indításakor az `ORIG_HEAD` a rebase-elendő branch csúcsán lévő
+commitra lesz beállítva. Az `ORIG_HEAD` azonban nem garantáltan mutat továbbra
+is erre a commitra a rebase végén, ha a rebase során olyan más parancsokat is
+használsz, amelyek megváltoztatják az `ORIG_HEAD`-et (mint például a
+`git reset`). Az előző branch-csúcs azonban továbbra is elérhető az aktuális
+branch reflogján keresztül (azaz a `@{1}` segítségével, lásd:
+linkgit:gitrevisions[7]).
 
 TRANSPLANTING A TOPIC BRANCH WITH --ONTO
 ----------------------------------------
 
-Here is how you would transplant a topic branch based on one
-branch to another, to pretend that you forked the topic branch
-from the latter branch, using `rebase --onto`.
+Íme, hogyan helyeznél át egy topic branchet, amely az egyik branchen alapul,
+egy másikra, úgy téve, mintha a topic branchet ez utóbbiból ágaztattad volna
+le, a `rebase --onto` használatával.
 
-First let's assume your 'topic' is based on branch 'next'.
-For example, a feature developed in 'topic' depends on some
-functionality which is found in 'next'.
+Először tegyük fel, hogy a 'topic' a 'next' branchen alapul. Például egy, a
+'topic'-ban fejlesztett funkció függ néhány, a 'next'-ben található
+funkcionalitástól.
 
 ------------
     o---o---o---o---o  master
@@ -108,9 +114,9 @@ functionality which is found in 'next'.
                             o---o---o  topic
 ------------
 
-We want to make 'topic' forked from branch 'master'; for example,
-because the functionality on which 'topic' depends was merged into the
-more stable 'master' branch. We want our tree to look like this:
+Azt szeretnénk, hogy a 'topic' a 'master' branchből legyen leágaztatva; például
+azért, mert az a funkcionalitás, amelytől a 'topic' függ, be lett merge-elve a
+stabilabb 'master' branchbe. Azt szeretnénk, hogy a fánk így nézzen ki:
 
 ------------
     o---o---o---o---o  master
@@ -120,13 +126,13 @@ more stable 'master' branch. We want our tree to look like this:
           o---o---o---o---o  next
 ------------
 
-We can get this using the following command:
+Ezt a következő paranccsal érhetjük el:
 
     git rebase --onto master next topic
 
 
-Another example of --onto option is to rebase part of a
-branch.  If we have the following situation:
+A --onto opcióra egy másik példa egy branch egy részének rebase-elése. Ha a
+következő helyzetben vagyunk:
 
 ------------
                             H---I---J topicB
@@ -136,11 +142,11 @@ branch.  If we have the following situation:
     A---B---C---D  master
 ------------
 
-then the command
+akkor a következő parancs
 
     git rebase --onto master topicA topicB
 
-would result in:
+ezt eredményezné:
 
 ------------
                  H'--I'--J'  topicB
@@ -150,503 +156,523 @@ would result in:
     A---B---C---D  master
 ------------
 
-This is useful when topicB does not depend on topicA.
+Ez akkor hasznos, ha a topicB nem függ a topicA-tól.
 
-A range of commits could also be removed with rebase.  If we have
-the following situation:
+Rebase-eléssel commitok egy tartománya is eltávolítható. Ha a következő
+helyzetben vagyunk:
 
 ------------
     E---F---G---H---I---J  topicA
 ------------
 
-then the command
+akkor a következő parancs
 
     git rebase --onto topicA~5 topicA~3 topicA
 
-would result in the removal of commits F and G:
+az F és G commitok eltávolítását eredményezné:
 
 ------------
     E---H'---I'---J'  topicA
 ------------
 
-This is useful if F and G were flawed in some way, or should not be
-part of topicA.  Note that the argument to `--onto` and the `<upstream>`
-parameter can be any valid commit-ish.
+Ez akkor hasznos, ha az F és G valamilyen módon hibás volt, vagy nem kellene a
+topicA részét képeznie. Vedd figyelembe, hogy a `--onto` argumentuma és az
+`<upstream>` paraméter bármilyen érvényes commit-ish lehet.
 
 MODE OPTIONS
 ------------
 
-The options in this section cannot be used with any other option,
-including not with each other:
+Az ebben a szakaszban lévő opciók semmilyen más opcióval nem használhatók,
+egymással sem:
 
 --continue::
-	Restart the rebasing process after having resolved a merge conflict.
+	A rebase folyamatának újraindítása egy merge-konfliktus feloldása után.
 
 --skip::
-	Restart the rebasing process by skipping the current patch.
+	A rebase folyamatának újraindítása az aktuális patch kihagyásával.
 
 --abort::
-	Abort the rebase operation and reset HEAD to the original
-	branch. If `<branch>` was provided when the rebase operation was
-	started, then `HEAD` will be reset to `<branch>`. Otherwise `HEAD`
-	will be reset to where it was when the rebase operation was
-	started.
+	A rebase-művelet megszakítása, és a HEAD visszaállítása az eredeti
+	branchre. Ha a `<branch>` meg volt adva a rebase-művelet indításakor,
+	akkor a `HEAD` a `<branch>`-re lesz visszaállítva. Egyébként a `HEAD`
+	arra a helyre lesz visszaállítva, ahol a rebase-művelet indításakor
+	volt.
 
 --quit::
-	Abort the rebase operation but `HEAD` is not reset back to the
-	original branch. The index and working tree are also left
-	unchanged as a result. If a temporary stash entry was created
-	using `--autostash`, it will be saved to the stash list.
+	A rebase-művelet megszakítása, de a `HEAD` nem lesz visszaállítva az
+	eredeti branchre. Emiatt az index és a munkakönyvtár is változatlanul
+	marad. Ha a `--autostash` használatával egy ideiglenes stash-bejegyzés
+	jött létre, az mentésre kerül a stash-listába.
 
 --edit-todo::
-	Edit the todo list during an interactive rebase.
+	A todo lista szerkesztése egy interaktív rebase során.
 
 --show-current-patch::
-	Show the current patch in an interactive rebase or when rebase
-	is stopped because of conflicts. This is the equivalent of
-	`git show REBASE_HEAD`.
+	Az aktuális patch megjelenítése egy interaktív rebase-ben, vagy amikor
+	a rebase konfliktusok miatt megállt. Ez egyenértékű a
+	`git show REBASE_HEAD` paranccsal.
 
 OPTIONS
 -------
 --onto <newbase>::
-	Starting point at which to create the new commits. If the
-	`--onto` option is not specified, the starting point is
-	`<upstream>`.  May be any valid commit, and not just an
-	existing branch name.
+	Az a kiindulási pont, amelynél az új commitok létrejönnek. Ha a
+	`--onto` opció nincs megadva, a kiindulási pont az `<upstream>`.
+	Bármilyen érvényes commit lehet, nem csak egy már létező
+	branch-név.
 +
-As a special case, you may use "A\...B" as a shortcut for the
-merge base of A and B if there is exactly one merge base. You can
-leave out at most one of A and B, in which case it defaults to HEAD.
+Speciális esetként az "A\...B" alak használható az A és B merge-alapjának
+rövidítéseként, ha pontosan egy merge-alap létezik. Az A és B közül
+legfeljebb az egyik hagyható el, ez esetben az alapértelmezés a HEAD.
 
-See TRANSPLANTING A TOPIC BRANCH WITH --ONTO above for examples.
+Példákért lásd a fenti TRANSPLANTING A TOPIC BRANCH WITH --ONTO szakaszt.
 
 --keep-base::
-	Set the starting point at which to create the new commits to the
-	merge base of `<upstream>` and `<branch>`. Running
-	`git rebase --keep-base <upstream> <branch>` is equivalent to
-	running
+	Az új commitok létrehozásának kiindulási pontját az `<upstream>` és a
+	`<branch>` merge-alapjára állítja. A `git rebase --keep-base <upstream>
+	<branch>` futtatása egyenértékű a következő futtatásával:
 	`git rebase --reapply-cherry-picks --no-fork-point --onto <upstream>...<branch> <upstream> <branch>`.
 +
-This option is useful in the case where one is developing a feature on
-top of an upstream branch. While the feature is being worked on, the
-upstream branch may advance and it may not be the best idea to keep
-rebasing on top of the upstream but to keep the base commit as-is. As
-the base commit is unchanged this option implies `--reapply-cherry-picks`
-to avoid losing commits.
+Ez az opció akkor hasznos, ha valaki egy upstream branch tetején fejleszt
+egy funkciót. Amíg a funkción dolgoznak, az upstream branch előrehaladhat,
+és nem feltétlenül a legjobb ötlet folyamatosan az upstreamre rebase-elni,
+hanem inkább változatlanul hagyni az alap commitot. Mivel az alap commit
+változatlan marad, ez az opció maga után vonja a `--reapply-cherry-picks`
+opciót is, hogy elkerülje a commitok elvesztését.
 +
-Although both this option and `--fork-point` find the merge base between
-`<upstream>` and `<branch>`, this option uses the merge base as the _starting
-point_ on which new commits will be created, whereas `--fork-point` uses
-the merge base to determine the _set of commits_ which will be rebased.
+Bár mind ez az opció, mind a `--fork-point` megkeresi az `<upstream>` és a
+`<branch>` merge-alapját, ez az opció a merge-alapot _kiindulási pontként_
+használja, amelyen az új commitok létrejönnek, míg a `--fork-point` a
+merge-alapot a rebase-elendő _commitok halmazának_ meghatározására
+használja.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 <upstream>::
-	Upstream branch to compare against.  May be any valid commit,
-	not just an existing branch name. Defaults to the configured
-	upstream for the current branch.
+	Az az upstream branch, amelyhez viszonyítva összehasonlítunk. Bármilyen
+	érvényes commit lehet, nem csak egy már létező branch-név.
+	Alapértelmezésben az aktuális branchhez beállított upstream.
 
 <branch>::
-	Working branch; defaults to `HEAD`.
+	A munkabranch; alapértelmezésben a `HEAD`.
 
 --apply::
-	Use applying strategies to rebase (calling `git-am`
-	internally).  This option may become a no-op in the future
-	once the merge backend handles everything the apply one does.
+	Alkalmazó (applying) stratégiák használata a rebase-eléshez (belsőleg
+	a `git-am`-et hívja meg). Ez az opció a jövőben no-oppá válhat, amint
+	a merge backend mindent kezel, amit az apply backend kezel.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --empty=(drop|keep|stop)::
-	How to handle commits that are not empty to start and are not
-	clean cherry-picks of any upstream commit, but which become
-	empty after rebasing (because they contain a subset of already
-	upstream changes):
+	Hogyan kezelje azokat a commitokat, amelyek kezdetben nem üresek, és
+	nem tiszta cherry-pickjei egyetlen upstream commitnak sem, de a
+	rebase után üressé válnak (mert olyan változtatásokat tartalmaznak,
+	amelyek már részhalmazként megvannak az upstreamben):
 +
 --
 `drop`;;
-	The commit will be dropped. This is the default behavior.
+	A commit el lesz dobva. Ez az alapértelmezett viselkedés.
 `keep`;;
-	The commit will be kept. This option is implied when `--exec` is
-	specified unless `-i`/`--interactive` is also specified.
+	A commit megmarad. Ez az opció akkor érvényesül automatikusan, ha a
+	`--exec` meg van adva, kivéve, ha az `-i`/`--interactive` is meg van
+	adva.
 `stop`;;
 `ask`;;
-	The rebase will halt when the commit is applied, allowing you to
-	choose whether to drop it, edit files more, or just commit the empty
-	changes. This option is implied when `-i`/`--interactive` is
-	specified. `ask` is a deprecated synonym of `stop`.
+	A rebase megáll, amikor a commit alkalmazásra kerül, lehetővé téve,
+	hogy eldöntsd, eldobod-e, tovább szerkeszted-e a fájlokat, vagy
+	egyszerűen commitolod az üres változtatásokat. Ez az opció akkor
+	érvényesül automatikusan, ha az `-i`/`--interactive` meg van adva.
+	Az `ask` a `stop` elavult szinonimája.
 --
 +
-Note that commits which start empty are kept (unless `--no-keep-empty`
-is specified), and commits which are clean cherry-picks (as determined
-by `git log --cherry-mark ...`) are detected and dropped as a
-preliminary step (unless `--reapply-cherry-picks` or `--keep-base` is
-passed).
+Vedd figyelembe, hogy a kezdetben üres commitok megmaradnak (kivéve, ha a
+`--no-keep-empty` meg van adva), és a tiszta cherry-pickek (amelyeket a
+`git log --cherry-mark ...` határoz meg) felismerésre és eldobásra kerülnek
+egy előzetes lépésként (kivéve, ha a `--reapply-cherry-picks` vagy a
+`--keep-base` meg van adva).
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --no-keep-empty::
 --keep-empty::
-	Do not keep commits that start empty before the rebase
-	(i.e. that do not change anything from its parent) in the
-	result.  The default is to keep commits which start empty,
-	since creating such commits requires passing the `--allow-empty`
-	override flag to `git commit`, signifying that a user is very
-	intentionally creating such a commit and thus wants to keep
-	it.
+	Ne tartsa meg az eredményben azokat a commitokat, amelyek a rebase
+	előtt már üresek voltak (azaz semmit nem változtatnak a szülőjükhöz
+	képest). Az alapértelmezés a kezdetben üres commitok megtartása,
+	mivel az ilyen commitok létrehozásához a `--allow-empty` felülbíráló
+	kapcsolót kell átadni a `git commit`-nak, ami azt jelzi, hogy a
+	felhasználó nagyon szándékosan hozza létre az ilyen commitot, és így
+	meg is akarja tartani.
 +
-Usage of this flag will probably be rare, since you can get rid of
-commits that start empty by just firing up an interactive rebase and
-removing the lines corresponding to the commits you don't want.  This
-flag exists as a convenient shortcut, such as for cases where external
-tools generate many empty commits and you want them all removed.
+Ennek a kapcsolónak a használata valószínűleg ritka lesz, mivel a
+kezdetben üres commitoktól egy interaktív rebase elindításával és a nem
+kívánt commitoknak megfelelő sorok eltávolításával is megszabadulhatsz.
+Ez a kapcsoló egy kényelmes gyorsítóútként létezik, olyan esetekre, amikor
+például külső eszközök sok üres commitot generálnak, és ezeket mind el
+szeretnéd távolítani.
 +
-For commits which do not start empty but become empty after rebasing,
-see the `--empty` flag.
+Azokról a commitokról, amelyek nem üresen kezdődnek, de a rebase után
+üressé válnak, lásd a `--empty` kapcsolót.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --reapply-cherry-picks::
 --no-reapply-cherry-picks::
-	Reapply all clean cherry-picks of any upstream commit instead
-	of preemptively dropping them. (If these commits then become
-	empty after rebasing, because they contain a subset of already
-	upstream changes, the behavior towards them is controlled by
-	the `--empty` flag.)
+	Minden, bármelyik upstream commit tiszta cherry-pickjének minősülő
+	commit újbóli alkalmazása, ahelyett hogy elővigyázatosan eldobná
+	őket. (Ha ezek a commitok a rebase után üressé válnak, mert olyan
+	változtatások részhalmazát tartalmazzák, amelyek már megvannak az
+	upstreamben, a velük szembeni viselkedést a `--empty` kapcsoló
+	szabályozza.)
 +
-In the absence of `--keep-base` (or if `--no-reapply-cherry-picks` is
-given), these commits will be automatically dropped.  Because this
-necessitates reading all upstream commits, this can be expensive in
-repositories with a large number of upstream commits that need to be
-read. When using the 'merge' backend, warnings will be issued for each
-dropped commit (unless `--quiet` is given). Advice will also be issued
-unless `advice.skippedCherryPicks` is set to false (see
+A `--keep-base` hiányában (vagy ha a `--no-reapply-cherry-picks` meg van
+adva) ezek a commitok automatikusan eldobásra kerülnek. Mivel ehhez az
+összes upstream commitot be kell olvasni, ez költséges lehet olyan
+repository-kban, ahol nagyszámú beolvasandó upstream commit van. A
+'merge' backend használatakor minden eldobott commitra figyelmeztetés
+kerül kiadásra (kivéve, ha a `--quiet` meg van adva). Tanács is kiadásra
+kerül, hacsak az `advice.skippedCherryPicks` nincs false-ra állítva (lásd:
 linkgit:git-config[1]).
 +
-`--reapply-cherry-picks` allows rebase to forgo reading all upstream
-commits, potentially improving performance.
+A `--reapply-cherry-picks` lehetővé teszi a rebase számára, hogy lemondjon
+az összes upstream commit beolvasásáról, ezáltal potenciálisan javítva a
+teljesítményt.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --allow-empty-message::
-	No-op.  Rebasing commits with an empty message used to fail
-	and this option would override that behavior, allowing commits
-	with empty messages to be rebased.  Now commits with an empty
-	message do not cause rebasing to halt.
+	No-op. Korábban az üres üzenetű commitok rebase-elése sikertelen volt,
+	és ez az opció felülbírálta ezt a viselkedést, lehetővé téve az üres
+	üzenetű commitok rebase-elését. Most már az üres üzenetű commitok nem
+	okozzák a rebase megállását.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 -m::
 --merge::
-	Using merging strategies to rebase (default).
+	Merge-stratégiák használata a rebase-eléshez (alapértelmezett).
 +
-Note that a rebase merge works by replaying each commit from the working
-branch on top of the `<upstream>` branch.  Because of this, when a merge
-conflict happens, the side reported as 'ours' is the so-far rebased
-series, starting with `<upstream>`, and 'theirs' is the working branch.
-In other words, the sides are swapped.
+Vedd figyelembe, hogy egy rebase-merge úgy működik, hogy a munkabranch
+minden egyes commitját újra lejátssza az `<upstream>` branch tetején.
+Emiatt, amikor egy merge-konfliktus történik, az 'ours'-ként jelentett
+oldal az eddig rebase-elt sorozat, amely az `<upstream>`-mel kezdődik, a
+'theirs' pedig a munkabranch. Más szóval, az oldalak fel vannak cserélve.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 -s <strategy>::
 --strategy=<strategy>::
-	Use the given merge strategy, instead of the default `ort`.
-	This implies `--merge`.
+	A megadott merge-stratégia használata az alapértelmezett `ort` helyett.
+	Ez maga után vonja a `--merge` opciót.
 +
-Because `git rebase` replays each commit from the working branch
-on top of the `<upstream>` branch using the given strategy, using
-the `ours` strategy simply empties all patches from the `<branch>`,
-which makes little sense.
+Mivel a `git rebase` a munkabranch minden egyes commitját a megadott
+stratégiával játssza le újra az `<upstream>` branch tetején, az `ours`
+stratégia használata egyszerűen kiüresíti a `<branch>` összes patch-ét,
+aminek kevés értelme van.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 -X <strategy-option>::
 --strategy-option=<strategy-option>::
-	Pass the <strategy-option> through to the merge strategy.
-	This implies `--merge` and, if no strategy has been
-	specified, `-s ort`.  Note the reversal of 'ours' and
-	'theirs' as noted above for the `-m` option.
+	A <strategy-option> átadása a merge-stratégiának. Ez maga után vonja a
+	`--merge` opciót, és ha nincs megadva stratégia, a `-s ort`-ot is.
+	Vedd figyelembe az 'ours' és 'theirs' fent, a `-m` opciónál leírt
+	felcserélését.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 include::rerere-options.adoc[]
 
 -S[<keyid>]::
 --gpg-sign[=<keyid>]::
 --no-gpg-sign::
-	GPG-sign commits. The `keyid` argument is optional and
-	defaults to the committer identity; if specified, it must be
-	stuck to the option without a space. `--no-gpg-sign` is useful to
-	countermand both `commit.gpgSign` configuration variable, and
-	earlier `--gpg-sign`.
+	Commitok GPG-aláírása. A `keyid` argumentum opcionális, és
+	alapértelmezésben a committer személyazonossága; ha meg van adva,
+	szóköz nélkül közvetlenül az opcióhoz kell illeszteni. A
+	`--no-gpg-sign` a `commit.gpgSign` konfigurációs változó és egy
+	korábbi `--gpg-sign` felülbírálására hasznos.
 
 -q::
 --quiet::
-	Be quiet. Implies `--no-stat`.
+	Legyen csendes. Maga után vonja a `--no-stat` opciót.
 
 -v::
 --verbose::
-	Be verbose. Implies `--stat`.
+	Legyen bőbeszédű. Maga után vonja a `--stat` opciót.
 
 --stat::
-	Show a diffstat of what changed upstream since the last rebase. The
-	diffstat is also controlled by the configuration option rebase.stat.
+	Egy diffstat megjelenítése arról, hogy mi változott az upstreamben az
+	utolsó rebase óta. A diffstatot a rebase.stat konfigurációs opció is
+	szabályozza.
 
 -n::
 --no-stat::
-	Do not show a diffstat as part of the rebase process.
+	Ne jelenítsen meg diffstatot a rebase folyamat részeként.
 
 --no-verify::
-	This option bypasses the pre-rebase hook.  See also linkgit:githooks[5].
+	Ez az opció megkerüli a pre-rebase hookot. Lásd még: linkgit:githooks[5].
 
 --verify::
-	Allows the pre-rebase hook to run, which is the default.  This option can
-	be used to override `--no-verify`.  See also linkgit:githooks[5].
+	Engedélyezi a pre-rebase hook futtatását, ami az alapértelmezett. Ez
+	az opció a `--no-verify` felülbírálására használható. Lásd még:
+	linkgit:githooks[5].
 
 -C<n>::
-	Ensure at least `<n>` lines of surrounding context match before
-	and after each change.  When fewer lines of surrounding
-	context exist they all must match.  By default no context is
-	ever ignored.  Implies `--apply`.
+	Biztosítja, hogy minden változtatás előtt és után legalább `<n>` sornyi
+	körülvevő kontextus egyezzen. Ha kevesebb sornyi körülvevő kontextus
+	létezik, akkor mindnek egyeznie kell. Alapértelmezésben soha nincs
+	figyelmen kívül hagyott kontextus. Maga után vonja a `--apply` opciót.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --no-ff::
 --force-rebase::
 -f::
-	Individually replay all rebased commits instead of fast-forwarding
-	over the unchanged ones.  This ensures that the entire history of
-	the rebased branch is composed of new commits.
+	Az összes rebase-elt commit egyenkénti újralejátszása, ahelyett hogy
+	fast-forwardolna a változatlanok felett. Ez biztosítja, hogy a
+	rebase-elt branch teljes története új commitokból álljon.
 +
-You may find this helpful after reverting a topic branch merge, as this option
-recreates the topic branch with fresh commits so it can be remerged
-successfully without needing to "revert the reversion" (see the
-link:howto/revert-a-faulty-merge.html[revert-a-faulty-merge How-To] for
-details).
+Ez hasznos lehet egy topic branch merge-jének revertálása után, mivel ez
+az opció friss commitokkal újra létrehozza a topic branchet, így az sikeresen
+újra merge-elhető anélkül, hogy "revertálni kellene a revertálást" (lásd a
+link:howto/revert-a-faulty-merge.html[revert-a-faulty-merge How-To]
+leírást a részletekért).
 
 --fork-point::
 --no-fork-point::
-	Use reflog to find a better common ancestor between `<upstream>`
-	and `<branch>` when calculating which commits have been
-	introduced by `<branch>`.
+	A reflog használata egy jobb közös ős megtalálásához az `<upstream>`
+	és a `<branch>` között, amikor kiszámítja, hogy mely commitokat
+	vezette be a `<branch>`.
 +
-When `--fork-point` is active, 'fork_point' will be used instead of
-`<upstream>` to calculate the set of commits to rebase, where
-'fork_point' is the result of `git merge-base --fork-point <upstream>
-<branch>` command (see linkgit:git-merge-base[1]).  If 'fork_point'
-ends up being empty, the `<upstream>` will be used as a fallback.
+Amikor a `--fork-point` aktív, az `<upstream>` helyett a 'fork_point' kerül
+felhasználásra a rebase-elendő commitok halmazának kiszámításához, ahol a
+'fork_point' a `git merge-base --fork-point <upstream> <branch>` parancs
+eredménye (lásd: linkgit:git-merge-base[1]). Ha a 'fork_point' üresnek
+adódik, az `<upstream>` lesz a tartalék.
 +
-If `<upstream>` or `--keep-base` is given on the command line, then
-the default is `--no-fork-point`, otherwise the default is
-`--fork-point`. See also `rebase.forkpoint` in linkgit:git-config[1].
+Ha az `<upstream>` vagy a `--keep-base` meg van adva a parancssorban, akkor
+az alapértelmezés a `--no-fork-point`, egyébként az alapértelmezés a
+`--fork-point`. Lásd még a `rebase.forkpoint`-ot a linkgit:git-config[1]
+leírásában.
 +
-If your branch was based on `<upstream>` but `<upstream>` was rewound and
-your branch contains commits which were dropped, this option can be used
-with `--keep-base` in order to drop those commits from your branch.
+Ha a branched az `<upstream>`-en alapult, de az `<upstream>` vissza lett
+tekerve, és a branched olyan commitokat tartalmaz, amelyek el lettek dobva,
+ez az opció a `--keep-base`-zel együtt használható arra, hogy eldobd
+ezeket a commitokat a brancheből.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --ignore-whitespace::
-	Ignore whitespace differences when trying to reconcile
-	differences. Currently, each backend implements an approximation of
-	this behavior:
+	A whitespace-eltérések figyelmen kívül hagyása az eltérések
+	összeegyeztetésekor. Jelenleg mindkét backend ennek a viselkedésnek
+	egy közelítését valósítja meg:
 +
 apply backend;;
-	When applying a patch, ignore changes in whitespace in context
-	lines. Unfortunately, this means that if the "old" lines being
-	replaced by the patch differ only in whitespace from the existing
-	file, you will get a merge conflict instead of a successful patch
-	application.
+	Egy patch alkalmazásakor a whitespace-változtatások figyelmen kívül
+	hagyása a kontextussorokban. Sajnos ez azt jelenti, hogy ha a
+	patch által lecserélt "régi" sorok csak whitespace-ben térnek el a
+	meglévő fájltól, merge-konfliktust fogsz kapni a sikeres
+	patch-alkalmazás helyett.
 +
 merge backend;;
-	Treat lines with only whitespace changes as unchanged when merging.
-	Unfortunately, this means that any patch hunks that were intended
-	to modify whitespace and nothing else will be dropped, even if the
-	other side had no changes that conflicted.
+	A csak whitespace-változtatásokat tartalmazó sorok változatlannak
+	tekintése merge-elés közben. Sajnos ez azt jelenti, hogy azok a
+	patch-hunkok, amelyek célja kizárólag a whitespace módosítása volt,
+	el lesznek dobva, még akkor is, ha a másik oldalon nem voltak
+	konfliktusban lévő változtatások.
 
 --whitespace=<option>::
-	This flag is passed to the `git apply` program
-	(see linkgit:git-apply[1]) that applies the patch.
-	Implies `--apply`.
+	Ez a kapcsoló a patch-et alkalmazó `git apply` programnak kerül
+	átadásra (lásd: linkgit:git-apply[1]). Maga után vonja a `--apply`
+	opciót.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --committer-date-is-author-date::
-	Instead of using the current time as the committer date, use
-	the author date of the commit being rebased as the committer
-	date. This option implies `--force-rebase`.
+	Ahelyett, hogy a jelenlegi időt használná committer-dátumként, a
+	rebase-elt commit szerző-dátumát használja committer-dátumként. Ez
+	az opció maga után vonja a `--force-rebase` opciót.
 +
-WARNING: The history walking machinery assumes that commits have
-non-decreasing commit timestamps. You should consider if you really need
-to use this option. Then you should only use this option to override the
-committer date when rebasing commits on top of a base which commit is
-older (in terms of the commit date) than the oldest commit you are
-applying (in terms of the author date).
+WARNING: A történet-bejárási gépezet feltételezi, hogy a commitok
+nem-csökkenő commit-időbélyegekkel rendelkeznek. Fontold meg, hogy valóban
+szükséged van-e erre az opcióra. Ezt az opciót csak akkor kellene
+használnod a committer-dátum felülbírálására, amikor olyan alap tetejére
+rebase-elsz commitokat, amelynek commitja régebbi (a commit-dátum
+szempontjából), mint a legrégebbi commit, amelyet alkalmazol (a
+szerző-dátum szempontjából).
 
 --ignore-date::
 --reset-author-date::
-	Instead of using the author date of the original commit, use
-	the current time as the	author date of the rebased commit.  This
-	option implies `--force-rebase`.
+	Az eredeti commit szerző-dátuma helyett a jelenlegi időt használja a
+	rebase-elt commit szerző-dátumaként. Ez az opció maga után vonja a
+	`--force-rebase` opciót.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --signoff::
-	Add a `Signed-off-by` trailer to all the rebased commits. Note
-	that if `--interactive` is given then only commits marked to be
-	picked, edited or reworded will have the trailer added.
+	Egy `Signed-off-by` trailer hozzáadása az összes rebase-elt commithoz.
+	Vedd figyelembe, hogy ha az `--interactive` meg van adva, akkor csak a
+	pickelésre, szerkesztésre vagy átfogalmazásra megjelölt commitokhoz
+	kerül hozzáadásra a trailer.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --trailer=<trailer>::
-	Append the given trailer to every rebased commit message, processed
-	via linkgit:git-interpret-trailers[1]. This option implies
-	`--force-rebase`.
+	A megadott trailer hozzáfűzése minden rebase-elt commit-üzenethez, a
+	linkgit:git-interpret-trailers[1] segítségével feldolgozva. Ez az
+	opció maga után vonja a `--force-rebase` opciót.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 -i::
 --interactive::
-	Make a list of the commits which are about to be rebased.  Let the
-	user edit that list before rebasing.  This mode can also be used to
-	split commits (see SPLITTING COMMITS below).
+	Elkészíti a rebase-elendő commitok listáját. Lehetővé teszi a
+	felhasználó számára, hogy a rebase-elés előtt szerkessze ezt a
+	listát. Ez a mód commitok szétbontására is használható (lásd
+	lentebb a SPLITTING COMMITS szakaszt).
 +
-The commit list format can be changed by setting the configuration option
-rebase.instructionFormat.  A customized instruction format will automatically
-have the commit hash prepended to the format.
+A commit-lista formátuma a rebase.instructionFormat konfigurációs opció
+beállításával módosítható. Egy testreszabott instrukció-formátum elé
+automatikusan bekerül a commit hash-e.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 -r::
 --rebase-merges[=(rebase-cousins|no-rebase-cousins)]::
 --no-rebase-merges::
-	By default, a rebase will simply drop merge commits from the todo
-	list, and put the rebased commits into a single, linear branch.
-	With `--rebase-merges`, the rebase will instead try to preserve
-	the branching structure within the commits that are to be rebased,
-	by recreating the merge commits. Any resolved merge conflicts or
-	manual amendments in these merge commits will have to be
-	resolved/re-applied manually. `--no-rebase-merges` can be used to
-	countermand both the `rebase.rebaseMerges` config option and a previous
-	`--rebase-merges`.
+	Alapértelmezésben a rebase egyszerűen eldobja a merge-commitokat a
+	todo listából, és a rebase-elt commitokat egyetlen, lineáris branchbe
+	teszi. A `--rebase-merges` esetén a rebase ehelyett megpróbálja
+	megőrizni a branch-struktúrát a rebase-elendő commitokon belül, a
+	merge-commitok újralétrehozásával. Az ilyen merge-commitokban feloldott
+	merge-konfliktusokat vagy kézi módosításokat manuálisan kell
+	feloldani/újra alkalmazni. A `--no-rebase-merges` mind a
+	`rebase.rebaseMerges` konfigurációs opció, mind egy korábbi
+	`--rebase-merges` felülbírálására használható.
 +
-When rebasing merges, there are two modes: `rebase-cousins` and
-`no-rebase-cousins`. If the mode is not specified, it defaults to
-`no-rebase-cousins`. In `no-rebase-cousins` mode, commits which do not have
-`<upstream>` as direct ancestor will keep their original branch point, i.e.
-commits that would be excluded by linkgit:git-log[1]'s `--ancestry-path`
-option will keep their original ancestry by default. In `rebase-cousins` mode,
-such commits are instead rebased onto `<upstream>` (or `<onto>`, if
-specified).
+A merge-ek rebase-elésekor két mód létezik: a `rebase-cousins` és a
+`no-rebase-cousins`. Ha a mód nincs megadva, az alapértelmezés a
+`no-rebase-cousins`. A `no-rebase-cousins` módban azok a commitok,
+amelyeknek nem közvetlen őse az `<upstream>`, megtartják eredeti
+branch-pontjukat, azaz azok a commitok, amelyeket a linkgit:git-log[1]
+`--ancestry-path` opciója kizárna, alapértelmezésben megtartják eredeti
+származásukat. A `rebase-cousins` módban az ilyen commitok ehelyett az
+`<upstream>`-re (vagy az `<onto>`-ra, ha meg van adva) kerülnek
+rebase-elésre.
 +
-It is currently only possible to recreate the merge commits using the
-`ort` merge strategy; different merge strategies can be used only via
-explicit `exec git merge -s <strategy> [...]` commands.
+Jelenleg a merge-commitok újralétrehozása csak az `ort` merge-stratégiával
+lehetséges; eltérő merge-stratégiák csak explicit `exec git merge -s
+<strategy> [...]` parancsokon keresztül használhatók.
 +
-See also REBASING MERGES and INCOMPATIBLE OPTIONS below.
+Lásd még lentebb a REBASING MERGES és az INCOMPATIBLE OPTIONS szakaszt is.
 
 -x <cmd>::
 --exec <cmd>::
-	Append "exec <cmd>" after each line creating a commit in the
-	final history. `<cmd>` will be interpreted as one or more shell
-	commands. Any command that fails will interrupt the rebase,
-	with exit code 1.
+	Egy "exec <cmd>" hozzáfűzése minden olyan sor után, amely a végleges
+	történetben egy commitot hoz létre. A `<cmd>` egy vagy több
+	shell-parancsként kerül értelmezésre. Minden olyan parancs, amely
+	sikertelen, megszakítja a rebase-t, 1-es kilépési kóddal.
 +
-You may execute several commands by either using one instance of `--exec`
-with several commands:
+Több parancsot is végrehajthatsz, akár a `--exec` egyetlen példányát
+használva több paranccsal:
 +
 	git rebase -i --exec "cmd1 && cmd2 && ..."
 +
-or by giving more than one `--exec`:
+akár több `--exec`-et megadva:
 +
 	git rebase -i --exec "cmd1" --exec "cmd2" --exec ...
 +
-If `--autosquash` is used, `exec` lines will not be appended for
-the intermediate commits, and will only appear at the end of each
-squash/fixup series.
+Ha a `--autosquash` van használva, az `exec` sorok nem kerülnek
+hozzáfűzésre a köztes commitok után, és csak az egyes squash/fixup
+sorozatok végén jelennek meg.
 +
-This uses the `--interactive` machinery internally, but it can be run
-without an explicit `--interactive`.
+Ez belsőleg az `--interactive` gépezetét használja, de explicit
+`--interactive` nélkül is futtatható.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --root::
-	Rebase all commits reachable from `<branch>`, instead of
-	limiting them with an `<upstream>`.  This allows you to rebase
-	the root commit(s) on a branch.
+	Az összes, a `<branch>`-ből elérhető commit rebase-elése, ahelyett
+	hogy egy `<upstream>`-mel korlátozná őket. Ez lehetővé teszi egy
+	branch gyökér-commitjának/commitjainak rebase-elését.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --autosquash::
 --no-autosquash::
-	Automatically squash commits with specially formatted messages into
-	previous commits being rebased.  If a commit message starts with
-	"squash! ", "fixup! " or "amend! ", the remainder of the title
-	is taken as a commit specifier, which matches a previous commit if it
-	matches the title or the hash of that commit.  If no commit
-	matches fully, matches of the specifier with the start of commit
-	titles are considered.
+	A speciálisan formázott üzenetű commitok automatikus squashelése a
+	rebase-elt korábbi commitokba. Ha egy commit-üzenet "squash! ",
+	"fixup! " vagy "amend! " szöveggel kezdődik, a cím fennmaradó része
+	egy commit-specifikátorként kerül értelmezésre, amely akkor illeszkedik
+	egy korábbi commitra, ha megegyezik annak a commitnak a címével vagy
+	hash-ével. Ha egyetlen commit sem illeszkedik teljesen, a
+	specifikátornak a commit-címek elejével való egyezései vannak
+	figyelembe véve.
 +
-In the rebase todo list, the actions of squash, fixup and amend commits are
-changed from `pick` to `squash`, `fixup` or `fixup -C`, respectively, and they
-are moved right after the commit they modify.  The `--interactive` option can
-be used to review and edit the todo list before proceeding.
+A rebase todo listájában a squash, fixup és amend commitok műveletei
+`pick`-ről rendre `squash`-ra, `fixup`-ra vagy `fixup -C`-re változnak, és
+közvetlenül azon commit után kerülnek áthelyezésre, amelyet módosítanak.
+A `--interactive` opció használható a todo lista áttekintésére és
+szerkesztésére, mielőtt folytatódna a folyamat.
 +
-The recommended way to create commits with squash markers is by using the
-`--squash`, `--fixup`, `--fixup=amend:` or `--fixup=reword:` options of
-linkgit:git-commit[1], which take the target commit as an argument and
-automatically fill in the title of the new commit from that.
+A squash-jelölőkkel rendelkező commitok létrehozásának ajánlott módja a
+linkgit:git-commit[1] `--squash`, `--fixup`, `--fixup=amend:` vagy
+`--fixup=reword:` opcióinak használata, amelyek a cél commitot veszik
+argumentumként, és automatikusan kitöltik az új commit címét abból.
 +
-Setting configuration variable `rebase.autoSquash` to true enables
-auto-squashing by default for interactive rebase.  The `--no-autosquash`
-option can be used to override that setting.
+A `rebase.autoSquash` konfigurációs változó true-ra állítása
+alapértelmezésben bekapcsolja az auto-squashelést az interaktív
+rebase-hez. A `--no-autosquash` opció ennek a beállításnak a
+felülbírálására használható.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 --autostash::
 --no-autostash::
-	Automatically create a temporary stash entry before the operation
-	begins, and apply it after the operation ends.  This means
-	that you can run rebase on a dirty worktree.  However, use
-	with care: the final stash application after a successful
-	rebase might result in non-trivial conflicts.
+	Automatikusan létrehoz egy ideiglenes stash-bejegyzést a művelet
+	kezdete előtt, és alkalmazza azt a művelet végén. Ez azt jelenti,
+	hogy egy piszkos munkafán is futtathatsz rebase-t. Azonban legyél
+	óvatos ezzel: a sikeres rebase utáni végső stash-alkalmazás nem
+	triviális konfliktusokat eredményezhet.
 
 --reschedule-failed-exec::
 --no-reschedule-failed-exec::
-	Automatically reschedule `exec` commands that failed. This only makes
-	sense in interactive mode (or when an `--exec` option was provided).
+	A sikertelen `exec` parancsok automatikus újraütemezése. Ennek csak
+	interaktív módban van értelme (vagy ha meg volt adva egy `--exec`
+	opció).
 +
-This option applies once a rebase is started. It is preserved for the whole
-rebase based on, in order, the command line option provided to the initial `git
-rebase`, the `rebase.rescheduleFailedExec` configuration (see
-linkgit:git-config[1] or "CONFIGURATION" below), or it defaults to false.
+Ez az opció a rebase elindítása után lép érvénybe. A teljes rebase-re
+megőrződik, ebben a sorrendben: a kezdeti `git rebase`-nek megadott
+parancssori opció, a `rebase.rescheduleFailedExec` konfiguráció (lásd:
+linkgit:git-config[1] vagy lentebb a „CONFIGURATION" szakaszt), vagy
+alapértelmezésben false.
 +
-Recording this option for the whole rebase is a convenience feature. Otherwise
-an explicit `--no-reschedule-failed-exec` at the start would be overridden by
-the presence of a `rebase.rescheduleFailedExec=true` configuration when `git
-rebase --continue` is invoked. Currently, you cannot pass
-`--[no-]reschedule-failed-exec` to `git rebase --continue`.
+Ennek az opciónak a teljes rebase-re való rögzítése egy kényelmi funkció.
+Egyébként egy explicit `--no-reschedule-failed-exec` a kezdéskor
+felülíródna a `rebase.rescheduleFailedExec=true` konfiguráció jelenléte
+által, amikor a `git rebase --continue` meghívásra kerül. Jelenleg nem
+adhatod át a `--[no-]reschedule-failed-exec`-et a `git rebase --continue`-nak.
 
 --update-refs::
 --no-update-refs::
-	Automatically force-update any branches that point to commits that
-	are being rebased. Any branches that are checked out in a worktree
-	are not updated in this way.
+	Automatikusan force-frissíti azokat a brancheket, amelyek a
+	rebase-elés alatt álló commitokra mutatnak. Azok a branchek, amelyek
+	egy munkafában ki vannak checkoutolva, ilyen módon nem kerülnek
+	frissítésre.
 +
-If the configuration variable `rebase.updateRefs` is set, then this option
-can be used to override and disable this setting.
+Ha a `rebase.updateRefs` konfigurációs változó be van állítva, akkor ez az
+opció ennek a beállításnak a felülbírálására és letiltására használható.
 +
-See also INCOMPATIBLE OPTIONS below.
+Lásd még lentebb az INCOMPATIBLE OPTIONS szakaszt is.
 
 INCOMPATIBLE OPTIONS
 --------------------
 
-The following options:
+A következő opciók:
 
  * --apply
  * --whitespace
  * -C
 
-are incompatible with the following options:
+nem kompatibilisek a következő opciókkal:
 
  * --merge
  * --strategy
@@ -657,213 +683,227 @@ are incompatible with the following options:
  * --exec
  * --no-keep-empty
  * --empty=
- * --[no-]reapply-cherry-picks when used without --keep-base
+ * --[no-]reapply-cherry-picks, ha a --keep-base nélkül van használva
  * --update-refs
- * --root when used without --onto
+ * --root, ha a --onto nélkül van használva
  * --trailer
 
-In addition, the following pairs of options are incompatible:
+Ezenkívül a következő opciópárok nem kompatibilisek egymással:
 
- * --keep-base and --onto
- * --keep-base and --root
- * --fork-point and --root
+ * --keep-base és --onto
+ * --keep-base és --root
+ * --fork-point és --root
 
 BEHAVIORAL DIFFERENCES
 ----------------------
 
-`git rebase` has two primary backends: 'apply' and 'merge'.  (The 'apply'
-backend used to be known as the 'am' backend, but the name led to
-confusion as it looks like a verb instead of a noun.  Also, the 'merge'
-backend used to be known as the interactive backend, but it is now
-used for non-interactive cases as well.  Both were renamed based on
-lower-level functionality that underpinned each.) There are some
-subtle differences in how these two backends behave:
+A `git rebase`-nek két elsődleges backendje van: az 'apply' és a 'merge'. (Az
+'apply' backendet régebben 'am' backendként ismerték, de ez a név
+zavart okozott, mivel inkább igének, mint főnévnek tűnik. Emellett a
+'merge' backendet régebben interaktív backendként ismerték, de mostanra
+nem-interaktív esetekben is használják. Mindkettő át lett nevezve az
+alattuk húzódó alacsonyabb szintű funkcionalitás alapján.) Van néhány
+finom eltérés abban, ahogyan ez a két backend viselkedik:
 
-Empty commits
+[[_empty_commits]]
+Üres commitok
 ~~~~~~~~~~~~~
 
-The 'apply' backend unfortunately drops intentionally empty commits, i.e.
-commits that started empty, though these are rare in practice.  It
-also drops commits that become empty and has no option for controlling
-this behavior.
+Az 'apply' backend sajnos eldobja a szándékosan üres commitokat, azaz
+azokat a commitokat, amelyek kezdetben üresek voltak, bár ezek a
+gyakorlatban ritkák. Azokat a commitokat is eldobja, amelyek üressé
+válnak, és nincs opció ennek a viselkedésnek a szabályozására.
 
-The 'merge' backend keeps intentionally empty commits by default (though
-with `-i` they are marked as empty in the todo list editor, or they can
-be dropped automatically with `--no-keep-empty`).
+A 'merge' backend alapértelmezésben megtartja a szándékosan üres
+commitokat (bár `-i` esetén ezek üresként vannak megjelölve a todo lista
+szerkesztőjében, vagy automatikusan eldobhatók a `--no-keep-empty`-vel).
 
-Similar to the apply backend, by default the merge backend drops
-commits that become empty unless `-i`/`--interactive` is specified (in
-which case it stops and asks the user what to do).  The merge backend
-also has an `--empty=(drop|keep|stop)` option for changing the behavior
-of handling commits that become empty.
+Az apply backendhez hasonlóan a merge backend is alapértelmezésben eldobja
+azokat a commitokat, amelyek üressé válnak, hacsak nincs megadva az
+`-i`/`--interactive` (ebben az esetben megáll, és megkérdezi a
+felhasználót, mit tegyen). A merge backendnek van egy
+`--empty=(drop|keep|stop)` opciója is az üressé váló commitok kezelési
+viselkedésének módosítására.
 
-Directory rename detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_directory_rename_detection]]
+Könyvtár-átnevezés-felismerés
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Due to the lack of accurate tree information (arising from
-constructing fake ancestors with the limited information available in
-patches), directory rename detection is disabled in the 'apply' backend.
-Disabled directory rename detection means that if one side of history
-renames a directory and the other adds new files to the old directory,
-then the new files will be left behind in the old directory without
-any warning at the time of rebasing that you may want to move these
-files into the new directory.
+A pontos fa-információ hiánya miatt (amely a patchekben elérhető
+korlátozott információból hamis ősök felépítéséből ered) a
+könyvtár-átnevezés-felismerés le van tiltva az 'apply' backendben. A
+letiltott könyvtár-átnevezés-felismerés azt jelenti, hogy ha a történet
+egyik oldala átnevez egy könyvtárat, a másik pedig új fájlokat ad a régi
+könyvtárhoz, akkor az új fájlok minden figyelmeztetés nélkül a régi
+könyvtárban maradnak a rebase-elés idején, holott ezeket a fájlokat az új
+könyvtárba érdemes lenne áthelyezni.
 
-Directory rename detection works with the 'merge' backend to provide you
-warnings in such cases.
+A könyvtár-átnevezés-felismerés a 'merge' backenddel együttműködve
+figyelmeztetéseket ad az ilyen esetekben.
 
-Context
-~~~~~~~
+[[_context]]
+Kontextus
+~~~~~~~~~
 
-The 'apply' backend works by creating a sequence of patches (by calling
-`format-patch` internally), and then applying the patches in sequence
-(calling `am` internally).  Patches are composed of multiple hunks,
-each with line numbers, a context region, and the actual changes.  The
-line numbers have to be taken with some offset, since the other side
-will likely have inserted or deleted lines earlier in the file.  The
-context region is meant to help find how to adjust the line numbers in
-order to apply the changes to the right lines.  However, if multiple
-areas of the code have the same surrounding lines of context, the
-wrong one can be picked.  There are real-world cases where this has
-caused commits to be reapplied incorrectly with no conflicts reported.
-Setting `diff.context` to a larger value may prevent such types of
-problems, but increases the chance of spurious conflicts (since it
-will require more lines of matching context to apply).
+Az 'apply' backend úgy működik, hogy létrehoz egy patch-sorozatot
+(belsőleg a `format-patch`-et hívva meg), majd sorban alkalmazza a
+patcheket (belsőleg az `am`-et hívva meg). A patchek több hunkból
+állnak, mindegyiknek van sorszáma, egy kontextusrégiója, és a tényleges
+változtatásai. A sorszámokat bizonyos eltolással kell figyelembe venni,
+mivel a másik oldal valószínűleg korábban beszúrt vagy törölt sorokat a
+fájlban. A kontextusrégió célja, hogy segítsen megtalálni, hogyan kell
+módosítani a sorszámokat ahhoz, hogy a változtatások a megfelelő
+sorokra kerüljenek alkalmazásra. Azonban ha a kód több területén is
+ugyanazok a körülvevő kontextussorok szerepelnek, a rossz terület is
+kiválasztható. Vannak valós esetek, amikor ez azt okozta, hogy
+commitok helytelenül kerültek újra alkalmazásra, konfliktus jelzése
+nélkül. A `diff.context` nagyobb értékre állítása megelőzheti az ilyen
+típusú problémákat, de növeli a hamis konfliktusok esélyét (mivel több
+sornyi egyező kontextust igényel az alkalmazáshoz).
 
-The 'merge' backend works with a full copy of each relevant file,
-insulating it from these types of problems.
+A 'merge' backend minden érintett fájl teljes másolatával dolgozik,
+ezáltal elszigetelve magát az ilyen típusú problémáktól.
 
-Labelling of conflicts markers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_labelling_of_conflicts_markers]]
+Konfliktusjelölők címkézése
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When there are content conflicts, the merge machinery tries to
-annotate each side's conflict markers with the commits where the
-content came from.  Since the 'apply' backend drops the original
-information about the rebased commits and their parents (and instead
-generates new fake commits based off limited information in the
-generated patches), those commits cannot be identified; instead it has
-to fall back to a commit summary.  Also, when `merge.conflictStyle` is
-set to `diff3` or `zdiff3`, the 'apply' backend will use "constructed merge
-base" to label the content from the merge base, and thus provide no
-information about the merge base commit whatsoever.
+Amikor tartalmi konfliktusok vannak, a merge-gépezet megpróbálja mindkét
+oldal konfliktusjelölőit megjegyzésekkel ellátni azokkal a commitokkal,
+amelyekből a tartalom származik. Mivel az 'apply' backend eldobja az
+eredeti információt a rebase-elt commitokról és azok szülőiről (és
+ehelyett új, hamis commitokat generál a generált patchekben elérhető
+korlátozott információ alapján), ezek a commitok nem azonosíthatók;
+ehelyett egy commit-összefoglalóra kell hagyatkoznia. Emellett, amikor a
+`merge.conflictStyle` `diff3`-ra vagy `zdiff3`-ra van állítva, az 'apply'
+backend a "constructed merge base" szöveget fogja használni a merge-alap
+tartalmának címkézésére, így semmilyen információt sem szolgáltat a
+merge-alap commitjáról.
 
-The 'merge' backend works with the full commits on both sides of history
-and thus has no such limitations.
+A 'merge' backend a történet mindkét oldalán a teljes commitokkal
+dolgozik, így nincsenek ilyen korlátai.
 
-Hooks
-~~~~~
+[[_hooks]]
+Hookok
+~~~~~~
 
-The 'apply' backend has not traditionally called the post-commit hook,
-while the 'merge' backend has.  Both have called the post-checkout hook,
-though the 'merge' backend has squelched its output.  Further, both
-backends only call the post-checkout hook with the starting point
-commit of the rebase, not the intermediate commits nor the final
-commit.  In each case, the calling of these hooks was by accident of
-implementation rather than by design (both backends were originally
-implemented as shell scripts and happened to invoke other commands
-like `git checkout` or `git commit` that would call the hooks).  Both
-backends should have the same behavior, though it is not entirely
-clear which, if any, is correct.  We will likely make rebase stop
-calling either of these hooks in the future.
+Az 'apply' backend hagyományosan nem hívta meg a post-commit hookot,
+míg a 'merge' backend igen. Mindkettő meghívta a post-checkout hookot,
+bár a 'merge' backend elnémította annak kimenetét. Továbbá mindkét
+backend csak a rebase kiindulási pontjának commitjával hívja meg a
+post-checkout hookot, nem a köztes commitokkal, sem a végleges
+committal. Mindkét esetben ezeknek a hookoknak a meghívása inkább az
+implementáció véletlen következménye volt, mintsem tudatos tervezés
+(mindkét backend eredetileg shell szkriptként volt megvalósítva, és
+véletlenül olyan más parancsokat hívtak meg, mint a `git checkout` vagy
+a `git commit`, amelyek meghívták a hookokat). Mindkét backendnek
+ugyanúgy kellene viselkednie, bár egyáltalán nem világos, hogy melyik –
+ha egyáltalán bármelyik – a helyes. A jövőben valószínűleg elérjük,
+hogy a rebase egyik hookot se hívja meg többé.
 
-Interruptability
+[[_interruptability]]
+Megszakíthatóság
 ~~~~~~~~~~~~~~~~
 
-The 'apply' backend has safety problems with an ill-timed interrupt; if
-the user presses Ctrl-C at the wrong time to try to abort the rebase,
-the rebase can enter a state where it cannot be aborted with a
-subsequent `git rebase --abort`.  The 'merge' backend does not appear to
-suffer from the same shortcoming.  (See
-https://lore.kernel.org/git/20200207132152.GC2868@szeder.dev/ for
-details.)
+Az 'apply' backendnek biztonsági problémái vannak egy rosszkor érkező
+megszakítással; ha a felhasználó rossz pillanatban nyomja meg a
+Ctrl-C-t, hogy megpróbálja megszakítani a rebase-t, a rebase olyan
+állapotba kerülhet, amelyből nem szakítható meg egy utólagos `git
+rebase --abort` paranccsal. Úgy tűnik, a 'merge' backend nem szenved
+ugyanettől a hiányosságtól. (Részletekért lásd:
+https://lore.kernel.org/git/20200207132152.GC2868@szeder.dev/.)
 
-Commit Rewording
-~~~~~~~~~~~~~~~~
+[[_commit_rewording]]
+Commit-üzenet átfogalmazása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a conflict occurs while rebasing, rebase stops and asks the user
-to resolve.  Since the user may need to make notable changes while
-resolving conflicts, after conflicts are resolved and the user has run
-`git rebase --continue`, the rebase should open an editor and ask the
-user to update the commit message.  The 'merge' backend does this, while
-the 'apply' backend blindly applies the original commit message.
+Amikor egy konfliktus lép fel rebase-elés közben, a rebase megáll, és
+megkéri a felhasználót a feloldására. Mivel a felhasználónak jelentős
+változtatásokat kell tennie a konfliktusok feloldása közben, a
+konfliktusok feloldása és a `git rebase --continue` futtatása után a
+rebase-nek meg kellene nyitnia egy szerkesztőt, és meg kellene kérnie a
+felhasználót a commit-üzenet frissítésére. A 'merge' backend ezt teszi,
+míg az 'apply' backend vakon alkalmazza az eredeti commit-üzenetet.
 
-Miscellaneous differences
-~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_miscellaneous_differences]]
+Egyéb eltérések
+~~~~~~~~~~~~~~~
 
-There are a few more behavioral differences that most folks would
-probably consider inconsequential but which are mentioned for
-completeness:
+Van még néhány további viselkedésbeli eltérés, amelyet a legtöbben
+valószínűleg lényegtelennek tartanának, de a teljesség kedvéért itt
+említésre kerülnek:
 
-* Reflog: The two backends will use different wording when describing
-  the changes made in the reflog, though both will make use of the
-  word "rebase".
+* Reflog: A két backend eltérő megfogalmazást használ a reflogban
+  végzett változtatások leírásakor, bár mindkettő használja a "rebase"
+  szót.
 
-* Progress, informational, and error messages: The two backends
-  provide slightly different progress and informational messages.
-  Also, the apply backend writes error messages (such as "Your files
-  would be overwritten...") to stdout, while the merge backend writes
-  them to stderr.
+* Folyamat-, informatív és hibaüzenetek: A két backend kissé eltérő
+  folyamat- és informatív üzeneteket ad. Emellett az apply backend a
+  hibaüzeneteket (mint például a "Your files would be overwritten...")
+  a stdoutra írja, míg a merge backend a stderrre írja őket.
 
-* State directories: The two backends keep their state in different
-  directories under `.git/`
+* Állapotkönyvtárak: A két backend eltérő könyvtárakban tartja az
+  állapotát a `.git/` alatt.
 
 include::merge-strategies.adoc[]
 
 NOTES
 -----
 
-You should understand the implications of using `git rebase` on a
-repository that you share.  See also RECOVERING FROM UPSTREAM REBASE
-below.
+Meg kell értened annak a következményeit, ha egy `git rebase`-t egy olyan
+repository-n használsz, amelyet megosztasz másokkal. Lásd még lentebb a
+RECOVERING FROM UPSTREAM REBASE szakaszt.
 
-When the rebase is run, it will first execute a `pre-rebase` hook if one
-exists.  You can use this hook to do sanity checks and reject the rebase
-if it isn't appropriate.  Please see the template `pre-rebase` hook script
-for an example.
+Amikor a rebase fut, először végrehajt egy `pre-rebase` hookot, ha létezik
+ilyen. Ezt a hookot használhatod épségellenőrzésekhez, és a rebase
+elutasításához, ha az nem megfelelő. Egy példáért lásd a `pre-rebase` hook
+szkript sablonját.
 
-Upon completion, `<branch>` will be the current branch.
+A befejezés után a `<branch>` lesz az aktuális branch.
 
 INTERACTIVE MODE
 ----------------
 
-Rebasing interactively means that you have a chance to edit the commits
-which are rebased.  You can reorder the commits, and you can
-remove them (weeding out bad or otherwise unwanted patches).
+Az interaktív rebase-elés azt jelenti, hogy lehetőséged van szerkeszteni a
+rebase-elt commitokat. Átrendezheted a commitokat, és el is
+távolíthatod őket (kigyomlálva a hibás vagy egyéb nemkívánatos
+patcheket).
 
-The interactive mode is meant for this type of workflow:
+Az interaktív mód a következő típusú munkafolyamathoz készült:
 
-1. have a wonderful idea
-2. hack on the code
-3. prepare a series for submission
-4. submit
+1. legyen egy csodálatos ötleted
+2. hackelj a kódon
+3. készíts elő egy sorozatot beküldésre
+4. küldd be
 
-where point 2. consists of several instances of
+ahol a 2. pont az alábbiak több példányából áll
 
-a) regular use
+a) szokásos használat
 
- 1. finish something worthy of a commit
- 2. commit
+ 1. fejezz be valamit, ami megér egy commitot
+ 2. commitold
 
-b) independent fixup
+b) független javítás (fixup)
 
- 1. realize that something does not work
- 2. fix that
- 3. commit it
+ 1. vedd észre, hogy valami nem működik
+ 2. javítsd ki
+ 3. commitold
 
-Sometimes the thing fixed in b.2. cannot be amended to the not-quite
-perfect commit it fixes, because that commit is buried deeply in a
-patch series.  That is exactly what interactive rebase is for: use it
-after plenty of "a"s and "b"s, by rearranging and editing
-commits, and squashing multiple commits into one.
+Néha a b.2.-ben javított dolgot nem lehet amendelni ahhoz a nem egészen
+tökéletes commithoz, amit javít, mert az a commit egy patch-sorozat
+mélyén van eltemetve. Pontosan erre való az interaktív rebase: rengeteg
+"a" és "b" után használd, a commitok átrendezésével és szerkesztésével,
+valamint több commit egybe squashelésével.
 
-Start it with the last commit you want to retain as-is:
+Indítsd el az utolsó committal, amelyet változatlanul szeretnél
+megtartani:
 
 	git rebase -i <after-this-commit>
 
-An editor will be fired up with all the commits in your current branch
-(ignoring merge commits), which come after the given commit.  You can
-reorder the commits in this list to your heart's content, and you can
-remove them.  The list looks more or less like this:
+Megnyílik egy szerkesztő az aktuális brancheden lévő összes committal
+(a merge-commitokat figyelmen kívül hagyva), amelyek a megadott commit
+után következnek. A listában a commitokat kedved szerint átrendezheted,
+és el is távolíthatod őket. A lista körülbelül így néz ki:
 
 -------------------------------------------
 pick deadbee The oneline of this commit
@@ -871,55 +911,57 @@ pick fa1afe1 The oneline of the next commit
 ...
 -------------------------------------------
 
-The oneline descriptions are purely for your pleasure; 'git rebase' will
-not look at them but at the commit names ("deadbee" and "fa1afe1" in this
-example), so do not delete or edit the names.
+Az oneline leírások kizárólag a te örömödre szolgálnak; a 'git rebase' nem
+ezeket nézi, hanem a commit-neveket ("deadbee" és "fa1afe1" ebben a
+példában), ezért ne töröld vagy szerkeszd a neveket.
 
-By replacing the command "pick" with the command "edit", you can tell
-`git rebase` to stop after applying that commit, so that you can edit
-the files and/or the commit message, amend the commit, and continue
-rebasing.
+A "pick" parancs "edit" parancsra cserélésével megmondhatod a `git
+rebase`-nek, hogy álljon meg az adott commit alkalmazása után, hogy
+szerkeszthesd a fájlokat és/vagy a commit-üzenetet, amendelhesd a
+commitot, és folytathasd a rebase-t.
 
-To interrupt the rebase (just like an "edit" command would do, but without
-cherry-picking any commit first), use the "break" command.
+A rebase megszakításához (ugyanúgy, ahogy egy "edit" parancs is tenné,
+de anélkül, hogy előbb bármelyik commitot cherry-pickelnéd), használd a
+"break" parancsot.
 
-If you just want to edit the commit message for a commit, replace the
-command "pick" with the command "reword".
+Ha csupán egy commit üzenetét szeretnéd szerkeszteni, cseréld a "pick"
+parancsot a "reword" parancsra.
 
-To drop a commit, replace the command "pick" with "drop", or just
-delete the matching line.
+Egy commit eldobásához cseréld a "pick" parancsot "drop"-ra, vagy
+egyszerűen töröld a megfelelő sort.
 
-If you want to fold two or more commits into one, replace the command
-"pick" for the second and subsequent commits with "squash" or "fixup".
-If the commits had different authors, the folded commit will be
-attributed to the author of the first commit.  The suggested commit
-message for the folded commit is the concatenation of the first
-commit's message with those identified by "squash" commands, omitting the
-messages of commits identified by "fixup" commands, unless "fixup -c"
-is used.  In that case the suggested commit message is only the message
-of the "fixup -c" commit, and an editor is opened allowing you to edit
-the message.  The contents (patch) of the "fixup -c" commit are still
-incorporated into the folded commit. If there is more than one "fixup -c"
-commit, the message from the final one is used.  You can also use
-"fixup -C" to get the same behavior as "fixup -c" except without opening
-an editor.
+Ha két vagy több commitot szeretnél eggyé összevonni, cseréld a "pick"
+parancsot a második és az azt követő commitoknál "squash"-ra vagy
+"fixup"-ra. Ha a commitoknak eltérő szerzőik voltak, az összevont commit
+az első commit szerzőjének lesz tulajdonítva. Az összevont commithoz
+javasolt commit-üzenet az első commit üzenetének és a "squash"
+parancsokkal jelölt commitok üzeneteinek összefűzése, kihagyva a
+"fixup" parancsokkal jelölt commitok üzeneteit, kivéve, ha "fixup -c" van
+használva. Ebben az esetben a javasolt commit-üzenet kizárólag a
+"fixup -c" commit üzenete, és megnyílik egy szerkesztő, amely lehetővé
+teszi az üzenet szerkesztését. A "fixup -c" commit tartalma (a patch-e)
+továbbra is bekerül az összevont commitba. Ha több "fixup -c" commit is
+van, az utolsó üzenete kerül felhasználásra. A "fixup -C" is
+használható, hogy ugyanezt a viselkedést kapd, mint a "fixup -c"
+esetén, csak szerkesztő megnyitása nélkül.
 
-`git rebase` will stop when "pick" has been replaced with "edit" or
-when a command fails due to merge errors. When you are done editing
-and/or resolving conflicts you can continue with `git rebase --continue`.
+A `git rebase` megáll, amikor a "pick" "edit"-re lett cserélve, vagy
+amikor egy parancs merge-hibák miatt sikertelen. Amikor végeztél a
+szerkesztéssel és/vagy a konfliktusok feloldásával, a `git rebase
+--continue` paranccsal folytathatod.
 
-For example, if you want to reorder the last 5 commits, such that what
-was `HEAD~4` becomes the new `HEAD`. To achieve that, you would call
-`git rebase` like this:
+Tegyük fel például, hogy át szeretnéd rendezni az utolsó 5 commitot úgy,
+hogy ami `HEAD~4` volt, az legyen az új `HEAD`. Ennek eléréséhez a `git
+rebase`-t így hívnád meg:
 
 ----------------------
 $ git rebase -i HEAD~5
 ----------------------
 
-And move the first patch to the end of the list.
+Majd helyezd át az első patchet a lista végére.
 
-You might want to recreate merge commits, e.g. if you have a history
-like this:
+Előfordulhat, hogy merge-commitokat szeretnél újra létrehozni, például ha
+a következőhöz hasonló történeted van:
 
 ------------------
            X
@@ -929,18 +971,20 @@ like this:
 ---o---O---P---Q
 ------------------
 
-Suppose you want to rebase the side branch starting at "A" to "Q". Make
-sure that the current `HEAD` is "B", and call
+Tegyük fel, hogy az "A"-nál kezdődő mellékbranchet szeretnéd "Q"-ra
+rebase-elni. Győződj meg róla, hogy az aktuális `HEAD` "B", majd hívd
+meg a következőt
 
 -----------------------------
 $ git rebase -i -r --onto Q O
 -----------------------------
 
-Reordering and editing commits usually creates untested intermediate
-steps.  You may want to check that your history editing did not break
-anything by running a test, or at least recompiling at intermediate
-points in history by using the "exec" command (shortcut "x").  You may
-do so by creating a todo list like this one:
+A commitok átrendezése és szerkesztése rendszerint teszteletlen köztes
+lépéseket hoz létre. Érdemes lehet ellenőrizni, hogy a történet
+szerkesztése nem tört-e el semmit, egy teszt futtatásával, vagy
+legalább a történet köztes pontjain való újrafordítással, az "exec"
+parancs (rövidítése: "x") használatával. Ezt egy ehhez hasonló todo
+lista létrehozásával teheted meg:
 
 -------------------------------------------
 pick deadbee Implement feature XXX
@@ -952,20 +996,20 @@ exec cd subdir; make test
 ...
 -------------------------------------------
 
-The interactive rebase will stop when a command fails (i.e. exits with
-non-0 status) to give you an opportunity to fix the problem. You can
-continue with `git rebase --continue`.
+Az interaktív rebase megáll, amikor egy parancs sikertelen (azaz nem
+0-s státusszal lép ki), hogy lehetőséged legyen a probléma
+kijavítására. A `git rebase --continue` paranccsal folytathatod.
 
-The "exec" command launches the command in a shell (the default one, usually
-/bin/sh), so you can use shell features (like "cd", ">", ";" ...). The command
-is run from the root of the working tree.
+Az "exec" parancs egy shellben (az alapértelmezettben, ami általában a
+/bin/sh) indítja el a parancsot, így használhatsz shell-funkciókat (mint
+a "cd", ">", ";" ...). A parancs a munkafa gyökeréből fut.
 
 ----------------------------------
 $ git rebase -i --exec "make test"
 ----------------------------------
 
-This command lets you check that intermediate commits are compilable.
-The todo list becomes like that:
+Ez a parancs lehetővé teszi annak ellenőrzését, hogy a köztes commitok
+lefordíthatók-e. A todo lista így alakul:
 
 --------------------
 pick 5928aea one
@@ -981,51 +1025,55 @@ exec make test
 SPLITTING COMMITS
 -----------------
 
-In interactive mode, you can mark commits with the action "edit".  However,
-this does not necessarily mean that `git rebase` expects the result of this
-edit to be exactly one commit.  Indeed, you can undo the commit, or you can
-add other commits.  This can be used to split a commit into two:
+Interaktív módban a commitokat megjelölheted az "edit" művelettel. Ez
+azonban nem feltétlenül jelenti azt, hogy a `git rebase` ennek a
+szerkesztésnek az eredményeként pontosan egy commitot vár. Sőt,
+visszavonhatod a commitot, vagy hozzáadhatsz más commitokat is. Ez
+felhasználható egy commit kettéosztására:
 
-- Start an interactive rebase with `git rebase -i <commit>^`, where
-  `<commit>` is the commit you want to split.  In fact, any commit range
-  will do, as long as it contains that commit.
+- Indíts egy interaktív rebase-t a `git rebase -i <commit>^` paranccsal,
+  ahol a `<commit>` a szétosztani kívánt commit. Valójában bármilyen
+  commit-tartomány megteszi, amíg tartalmazza azt a commitot.
 
-- Mark the commit you want to split with the action "edit".
+- Jelöld meg a szétosztani kívánt commitot az "edit" művelettel.
 
-- When it comes to editing that commit, execute `git reset HEAD^`.  The
-  effect is that the `HEAD` is rewound by one, and the index follows suit.
-  However, the working tree stays the same.
+- Amikor annak a commitnak a szerkesztésére kerül a sor, hajtsd végre a
+  `git reset HEAD^` parancsot. A hatása az, hogy a `HEAD` egy committal
+  visszatekerésre kerül, és az index is követi. A munkakönyvtár azonban
+  változatlan marad.
 
-- Now add the changes to the index that you want to have in the first
-  commit.  You can use `git add` (possibly interactively) or
-  `git gui` (or both) to do that.
+- Most add hozzá az indexhez azokat a változtatásokat, amelyeket az
+  első commitban szeretnél. Ehhez használhatod a `git add`-ot
+  (esetleg interaktívan), a `git gui`-t (vagy mindkettőt).
 
-- Commit the now-current index with whatever commit message is appropriate
-  now.
+- Commitold a most aktuális indexet a megfelelő commit-üzenettel.
 
-- Repeat the last two steps until your working tree is clean.
+- Ismételd meg az utolsó két lépést, amíg a munkakönyvtár tiszta nem
+  lesz.
 
-- Continue the rebase with `git rebase --continue`.
+- Folytasd a rebase-t a `git rebase --continue` paranccsal.
 
-If you are not absolutely sure that the intermediate revisions are
-consistent (they compile, pass the testsuite, etc.) you should use
-`git stash` to stash away the not-yet-committed changes
-after each commit, test, and amend the commit if fixes are necessary.
+Ha nem vagy teljesen biztos abban, hogy a köztes revíziók konzisztensek
+(lefordulnak, átmennek a teszteken stb.), a `git stash`-t kellene
+használnod a még nem commitolt változtatások félretételéhez minden
+commit után, teszteld, és amendeld a commitot, ha javításokra van
+szükség.
 
 
 RECOVERING FROM UPSTREAM REBASE
 -------------------------------
 
-Rebasing (or any other form of rewriting) a branch that others have
-based work on is a bad idea: anyone downstream of it is forced to
-manually fix their history.  This section explains how to do the fix
-from the downstream's point of view.  The real fix, however, would be
-to avoid rebasing the upstream in the first place.
+Egy olyan branch rebase-elése (vagy bármilyen más formában való
+átírása), amelyre mások munkája épül, rossz ötlet: mindenki, aki
+downstream van hozzá képest, kénytelen manuálisan kijavítani a saját
+történetét. Ez a szakasz elmagyarázza, hogyan végezhető el a javítás a
+downstream nézőpontjából. Az igazi megoldás azonban az volna, ha
+eleve elkerülnénk az upstream rebase-elését.
 
-To illustrate, suppose you are in a situation where someone develops a
-'subsystem' branch, and you are working on a 'topic' that is dependent
-on this 'subsystem'.  You might end up with a history like the
-following:
+Szemléltetésképpen tegyük fel, hogy olyan helyzetben vagy, ahol valaki
+egy 'subsystem' branchet fejleszt, te pedig egy 'topic'-on dolgozol,
+amely ettől a 'subsystem'-től függ. Egy ehhez hasonló történettel
+végezhetsz:
 
 ------------
     o---o---o---o---o---o---o---o  master
@@ -1035,7 +1083,7 @@ following:
 			    *---*---*  topic
 ------------
 
-If 'subsystem' is rebased against 'master', the following happens:
+Ha a 'subsystem' rebase-elve lesz a 'master'-hez, a következő történik:
 
 ------------
     o---o---o---o---o---o---o---o  master
@@ -1045,8 +1093,9 @@ If 'subsystem' is rebased against 'master', the following happens:
 			    *---*---*  topic
 ------------
 
-If you now continue development as usual, and eventually merge 'topic'
-to 'subsystem', the commits from 'subsystem' will remain duplicated forever:
+Ha most a szokásos módon folytatod a fejlesztést, és végül merge-eled a
+'topic'-ot a 'subsystem'-be, a 'subsystem'-ből származó commitok örökre
+duplikáltak maradnak:
 
 ------------
     o---o---o---o---o---o---o---o  master
@@ -1056,44 +1105,48 @@ to 'subsystem', the commits from 'subsystem' will remain duplicated forever:
 			    *---*---*-..........-*--*  topic
 ------------
 
-Such duplicates are generally frowned upon because they clutter up
-history, making it harder to follow.  To clean things up, you need to
-transplant the commits on 'topic' to the new 'subsystem' tip, i.e.,
-rebase 'topic'.  This becomes a ripple effect: anyone downstream from
-'topic' is forced to rebase too, and so on!
+Az ilyen duplikátumokat általában rossz szemmel nézik, mert eltömítik a
+történetet, megnehezítve annak követését. A rendrakáshoz a 'topic'-on
+lévő commitokat át kell helyezned az új 'subsystem'-csúcsra, azaz
+rebase-elned kell a 'topic'-ot. Ez láncreakciót indít el: mindenki, aki
+downstream van a 'topic'-hoz képest, szintén kénytelen lesz
+rebase-elni, és így tovább!
 
-There are two kinds of fixes, discussed in the following subsections:
+Kétféle javítás létezik, ezeket az alábbi alszakaszok tárgyalják:
 
-Easy case: The changes are literally the same.::
+Könnyű eset: a változtatások szó szerint ugyanazok.::
 
-	This happens if the 'subsystem' rebase was a simple rebase and
-	had no conflicts.
+	Ez akkor történik, ha a 'subsystem' rebase-elése egy egyszerű
+	rebase volt, és nem voltak konfliktusok.
 
-Hard case: The changes are not the same.::
+Nehéz eset: a változtatások nem ugyanazok.::
 
-	This happens if the 'subsystem' rebase had conflicts, or used
-	`--interactive` to omit, edit, squash, or fixup commits; or
-	if the upstream used one of `commit --amend`, `reset`, or
-	a full history rewriting command like
-	https://github.com/newren/git-filter-repo[`filter-repo`].
+	Ez akkor történik, ha a 'subsystem' rebase-elése során
+	konfliktusok voltak, vagy az `--interactive` opció volt
+	használva commitok kihagyására, szerkesztésére, squasholására
+	vagy fixupolására; vagy ha az upstream a `commit --amend`, a
+	`reset`, vagy egy teljes történetátíró parancs, mint például a
+	https://github.com/newren/git-filter-repo[`filter-repo`], valamelyikét
+	használta.
 
 
-The easy case
+[[_the_easy_case]]
+A könnyű eset
 ~~~~~~~~~~~~~
 
-Only works if the changes (patch IDs based on the diff contents) on
-'subsystem' are literally the same before and after the rebase
-'subsystem' did.
+Ez csak akkor működik, ha a 'subsystem'-en végzett változtatások (a
+diff-tartalom alapján képzett patch ID-k) szó szerint ugyanazok a
+'subsystem' rebase-elése előtt és után.
 
-In that case, the fix is easy because 'git rebase' knows to skip
-changes that are already present in the new upstream (unless
-`--reapply-cherry-picks` is given). So if you say
-(assuming you're on 'topic')
+Ebben az esetben a javítás egyszerű, mert a 'git rebase' tudja, hogy ki
+kell hagynia azokat a változtatásokat, amelyek már jelen vannak az új
+upstreamben (kivéve, ha a `--reapply-cherry-picks` meg van adva). Tehát
+ha ezt mondod (feltéve, hogy a 'topic'-on vagy)
 
 ------------
     $ git rebase subsystem
 ------------
-you will end up with the fixed history
+a javított történettel fogsz végezni
 
 ------------
     o---o---o---o---o---o---o---o  master
@@ -1104,58 +1157,63 @@ you will end up with the fixed history
 ------------
 
 
-The hard case
-~~~~~~~~~~~~~
+[[_the_hard_case]]
+A nehéz eset
+~~~~~~~~~~~~
 
-Things get more complicated if the 'subsystem' changes do not exactly
-correspond to the ones before the rebase.
+A dolgok bonyolultabbá válnak, ha a 'subsystem' változtatásai nem
+pontosan felelnek meg a rebase előttieknek.
 
-NOTE: While an "easy case recovery" sometimes appears to be successful
-      even in the hard case, it may have unintended consequences.  For
-      example, a commit that was removed via `git rebase
-      --interactive` will be **resurrected**!
+NOTE: Bár egy "easy case" (könnyű eset szerinti) helyreállítás néha úgy
+      tűnik, hogy sikeres a nehéz esetben is, nem szándékolt
+      következményei lehetnek. Például egy commit, amelyet a `git
+      rebase --interactive` paranccsal távolítottak el, **fel fog
+      támadni**!
 
-The idea is to manually tell `git rebase` "where the old 'subsystem'
-ended and your 'topic' began", that is, what the old merge base
-between them was.  You will have to find a way to name the last commit
-of the old 'subsystem', for example:
+Az ötlet az, hogy manuálisan megmondjuk a `git rebase`-nek, "hol ért
+véget a régi 'subsystem', és hol kezdődött a 'topic'-od", azaz mi volt a
+közöttük lévő régi merge-alap. Meg kell találnod egy módot, hogy
+megnevezd a régi 'subsystem' utolsó commitját, például:
 
-* With the 'subsystem' reflog: after `git fetch`, the old tip of
-  'subsystem' is at `subsystem@{1}`.  Subsequent fetches will
-  increase the number.  (See linkgit:git-reflog[1].)
+* A 'subsystem' reflogjával: egy `git fetch` után a 'subsystem' régi
+  csúcsa a `subsystem@{1}`-nél van. A további fetchek növelik ezt a
+  számot. (Lásd: linkgit:git-reflog[1].)
 
-* Relative to the tip of 'topic': knowing that your 'topic' has three
-  commits, the old tip of 'subsystem' must be `topic~3`.
+* A 'topic' csúcsához viszonyítva: tudva, hogy a 'topic'-odnak három
+  commitja van, a 'subsystem' régi csúcsának `topic~3`-nak kell lennie.
 
-You can then transplant the old `subsystem..topic` to the new tip by
-saying (for the reflog case, and assuming you are on 'topic' already):
+Ezután áthelyezheted a régi `subsystem..topic`-ot az új csúcsra, ha ezt
+mondod (a reflog-esetre, feltéve, hogy már a 'topic'-on vagy):
 
 ------------
     $ git rebase --onto subsystem subsystem@{1}
 ------------
 
-The ripple effect of a "hard case" recovery is especially bad:
-'everyone' downstream from 'topic' will now have to perform a "hard
-case" recovery too!
+Egy "hard case" (nehéz eset szerinti) helyreállítás láncreakciója
+különösen rossz: 'mindenkinek', aki downstream van a 'topic'-hoz
+képest, most már szintén el kell végeznie egy "hard case"
+helyreállítást!
 
 REBASING MERGES
 ---------------
 
-The interactive rebase command was originally designed to handle
-individual patch series. As such, it makes sense to exclude merge
-commits from the todo list, as the developer may have merged the
-then-current `master` while working on the branch, only to rebase
-all the commits onto `master` eventually (skipping the merge
-commits).
+Az interaktív rebase parancs eredetileg egyedi patch-sorozatok
+kezelésére lett megtervezve. Ennélfogva van értelme kizárni a
+merge-commitokat a todo listából, mivel a fejlesztő esetleg
+merge-elte a branchen való munka közben az akkor aktuális
+`master`-t, csak azért, hogy végül az összes commitot a `master`-re
+rebase-elje (kihagyva a merge-commitokat).
 
-However, there are legitimate reasons why a developer may want to
-recreate merge commits: to keep the branch structure (or "commit
-topology") when working on multiple, inter-related branches.
+Vannak azonban jogos okok, amiért egy fejlesztő újra létre akarja
+hozni a merge-commitokat: hogy megőrizze a branch-struktúrát (vagy a
+"commit-topológiát") több, egymással összefüggő branchen való munka
+esetén.
 
-In the following example, the developer works on a topic branch that
-refactors the way buttons are defined, and on another topic branch
-that uses that refactoring to implement a "Report a bug" button. The
-output of `git log --graph --format=%s -5` may look like this:
+A következő példában a fejlesztő egy topic branchen dolgozik, amely
+refaktorálja a gombok definiálásának módját, valamint egy másik topic
+branchen, amely ezt a refaktorálást felhasználva valósít meg egy
+"Report a bug" gombot. A `git log --graph --format=%s -5` kimenete
+valahogy így nézhet ki:
 
 ------------
 *   Merge branch 'report-a-bug'
@@ -1168,14 +1226,15 @@ output of `git log --graph --format=%s -5` may look like this:
 | * Extract a generic Button class from the DownloadButton one
 ------------
 
-The developer might want to rebase those commits to a newer `master`
-while keeping the branch topology, for example when the first topic
-branch is expected to be integrated into `master` much earlier than the
-second one, say, to resolve merge conflicts with changes to the
-DownloadButton class that made it into `master`.
+A fejlesztő szeretné ezeket a commitokat egy újabb `master`-re
+rebase-elni, miközben megőrzi a branch-topológiát, például akkor, ha az
+első topic branch várhatóan sokkal korábban kerül integrálásra a
+`master`-be, mint a második, mondjuk azért, hogy feloldja a
+DownloadButton osztályon végzett, a `master`-be bekerült
+változtatásokkal való merge-konfliktusokat.
 
-This rebase can be performed using the `--rebase-merges` option.
-It will generate a todo list looking like this:
+Ez a rebase a `--rebase-merges` opcióval végezhető el. Egy ehhez
+hasonló todo listát fog generálni:
 
 ------------
 label onto
@@ -1196,54 +1255,59 @@ merge -C a1b2c3 refactor-button # Merge 'refactor-button'
 merge -C 6f5e4d report-a-bug # Merge 'report-a-bug'
 ------------
 
-In contrast to a regular interactive rebase, there are `label`, `reset`
-and `merge` commands in addition to `pick` ones.
+Egy szokásos interaktív rebase-hez képest itt a `pick` parancsok mellett
+`label`, `reset` és `merge` parancsok is vannak.
 
-The `label` command associates a label with the current HEAD when that
-command is executed. These labels are created as worktree-local refs
-(`refs/rewritten/<label>`) that will be deleted when the rebase
-finishes. That way, rebase operations in multiple worktrees linked to
-the same repository do not interfere with one another. If the `label`
-command fails, it is rescheduled immediately, with a helpful message how
-to proceed.
+A `label` parancs egy címkét társít az aktuális HEAD-hez, amikor az a
+parancs végrehajtásra kerül. Ezek a címkék munkafa-lokális
+referenciákként (`refs/rewritten/<label>`) jönnek létre, amelyek
+törlésre kerülnek, amikor a rebase befejeződik. Ily módon az ugyanahhoz
+a repository-hoz kapcsolódó több munkafában végzett rebase-műveletek
+nem zavarják egymást. Ha a `label` parancs sikertelen, azonnal
+újraütemezésre kerül, egy hasznos üzenettel arról, hogyan kell
+folytatni.
 
-The `reset` command resets the HEAD, index and worktree to the specified
-revision. It is similar to an `exec git reset --hard <label>`, but
-refuses to overwrite untracked files. If the `reset` command fails, it is
-rescheduled immediately, with a helpful message how to edit the todo list
-(this typically happens when a `reset` command was inserted into the todo
-list manually and contains a typo).
+A `reset` parancs visszaállítja a HEAD-et, az indexet és a munkafát a
+megadott revízióra. Hasonló egy `exec git reset --hard <label>`
+parancshoz, de megtagadja a nem követett fájlok felülírását. Ha a
+`reset` parancs sikertelen, azonnal újraütemezésre kerül, egy hasznos
+üzenettel arról, hogyan kell szerkeszteni a todo listát (ez jellemzően
+akkor fordul elő, ha egy `reset` parancs manuálisan lett beillesztve a
+todo listába, és elgépelést tartalmaz).
 
-The `merge` command will merge the specified revision(s) into whatever
-is HEAD at that time. With `-C <original-commit>`, the commit message of
-the specified merge commit will be used. When the `-C` is changed to
-a lower-case `-c`, the message will be opened in an editor after a
-successful merge so that the user can edit the message.
+A `merge` parancs a megadott revíziót/revíziókat merge-eli abba, ami
+éppen akkor a HEAD. A `-C <original-commit>` használatával a megadott
+merge-commit commit-üzenete kerül felhasználásra. Ha a `-C` kisbetűs
+`-c`-re változik, az üzenet egy szerkesztőben nyílik meg egy sikeres
+merge után, hogy a felhasználó szerkeszthesse az üzenetet.
 
-If a `merge` command fails for any reason other than merge conflicts (i.e.
-when the merge operation did not even start), it is rescheduled immediately.
+Ha egy `merge` parancs bármilyen más okból sikertelen, mint
+merge-konfliktus (azaz amikor a merge-művelet el sem indult), azonnal
+újraütemezésre kerül.
 
-By default, the `merge` command will use the `ort` merge strategy for
-regular merges, and `octopus` for octopus merges.  One can specify a
-default strategy for all merges using the `--strategy` argument when
-invoking rebase, or can override specific merges in the interactive
-list of commands by using an `exec` command to call `git merge`
-explicitly with a `--strategy` argument.  Note that when calling `git
-merge` explicitly like this, you can make use of the fact that the
-labels are worktree-local refs (the ref `refs/rewritten/onto` would
-correspond to the label `onto`, for example) in order to refer to the
-branches you want to merge.
+Alapértelmezésben a `merge` parancs az `ort` merge-stratégiát használja
+a szokásos merge-ekhez, és az `octopus`-t az octopus merge-ekhez.
+Megadható egy alapértelmezett stratégia az összes merge-hez a
+`--strategy` argumentum használatával a rebase meghívásakor, vagy
+felülbírálhatók konkrét merge-ek az interaktív parancslistában egy
+`exec` parancs használatával, amely a `git merge`-öt hívja meg
+explicit módon egy `--strategy` argumentummal. Vedd figyelembe, hogy
+amikor így, explicit módon hívod meg a `git merge`-öt, kihasználhatod
+azt a tényt, hogy a címkék munkafa-lokális referenciák (például a
+`refs/rewritten/onto` referencia felelne meg az `onto` címkének),
+hogy hivatkozz azokra a branchekre, amelyeket merge-elni szeretnél.
 
-Note: the first command (`label onto`) labels the revision onto which
-the commits are rebased; The name `onto` is just a convention, as a nod
-to the `--onto` option.
+Megjegyzés: az első parancs (`label onto`) megcímkézi azt a revíziót,
+amelyre a commitok rebase-elve lesznek; az `onto` név csupán egy
+konvenció, utalva a `--onto` opcióra.
 
-It is also possible to introduce completely new merge commits from scratch
-by adding a command of the form `merge <merge-head>`. This form will
-generate a tentative commit message and always open an editor to let the
-user edit it. This can be useful e.g. when a topic branch turns out to
-address more than a single concern and wants to be split into two or
-even more topic branches. Consider this todo list:
+Az is lehetséges, hogy teljesen új merge-commitokat vezess be a
+semmiből, egy `merge <merge-head>` alakú parancs hozzáadásával. Ez az
+alak egy próba-commit-üzenetet fog generálni, és mindig megnyit egy
+szerkesztőt, hogy a felhasználó szerkeszthesse azt. Ez akkor lehet
+hasznos, ha például kiderül, hogy egy topic branch egynél több
+problémát old meg, és két vagy akár több topic branchre szeretnénk
+szétosztani. Tekintsük ezt a todo listát:
 
 ------------
 pick 192837 Switch from GNU Makefiles to CMake
@@ -1253,10 +1317,11 @@ pick afbecd http: add support for TLS v1.3
 pick fdbaec Fix detection of cURL in CMake on Windows
 ------------
 
-The one commit in this list that is not related to CMake may very well
-have been motivated by working on fixing all those bugs introduced by
-switching to CMake, but it addresses a different concern. To split this
-branch into two topic branches, the todo list could be edited like this:
+Az ebben a listában szereplő egyetlen, CMake-hez nem kapcsolódó commitot
+nagyon is motiválhatta a CMake-re való áttérés által bevezetett hibák
+kijavításán való munka, de az egy másik problémát old meg. Ahhoz, hogy
+ezt a branchet két topic branchre osszuk szét, a todo lista így
+szerkeszthető:
 
 ------------
 label onto
@@ -1286,4 +1351,4 @@ include::config/sequencer.adoc[]
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
