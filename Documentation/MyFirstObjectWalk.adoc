@@ -1,37 +1,42 @@
-= My First Object Walk
+= Az első objektumbejárásom
 
-== What's an Object Walk?
+[[_what_s_an_object_walk]]
+== Mi az az objektumbejárás?
 
-The object walk is a key concept in Git - this is the process that underpins
-operations like object transfer and fsck. Beginning from a given commit, the
-list of objects is found by walking parent relationships between commits (commit
-X based on commit W) and containment relationships between objects (tree Y is
-contained within commit X, and blob Z is located within tree Y, giving our
-working tree for commit X something like `y/z.txt`).
+Az objektumbejárás (object walk) a Git egyik kulcsfogalma - ez az a folyamat,
+amely olyan műveletek alapját képezi, mint az objektumátvitel és az fsck. Egy
+adott commitból kiindulva az objektumok listáját a commitok közötti szülő-kapcsolatok
+bejárásával (X commit a W commitra épül) és az objektumok közötti tartalmazási
+kapcsolatok bejárásával (Y tree benne foglaltatik X commitban, Z blob pedig
+Y tree-n belül található, ami az X commithoz tartozó munkakönyvtárban valami
+ilyesmit ad, mint `y/z.txt`) találjuk meg.
 
-A related concept is the revision walk, which is focused on commit objects and
-their parent relationships and does not delve into other object types. The
-revision walk is used for operations like `git log`.
+Ehhez kapcsolódó fogalom a revízióbejárás (revision walk), amely a commit
+objektumokra és azok szülő-kapcsolataira fókuszál, más objektumtípusokba nem
+megy bele. A revízióbejárást olyan műveletek használják, mint a `git log`.
 
-=== Related Reading
+[[_related_reading]]
+=== Kapcsolódó olvasmányok
 
-- `Documentation/user-manual.adoc` under "Hacking Git" contains some coverage of
-  the revision walker in its various incarnations.
+- A `Documentation/user-manual.adoc` "Hacking Git" című része a revízióbejáró
+  (revision walker) különböző megvalósításait is részben tárgyalja.
 - `revision.h`
-- https://eagain.net/articles/git-for-computer-scientists/[Git for Computer Scientists]
-  gives a good overview of the types of objects in Git and what your object
-  walk is really describing.
+- A https://eagain.net/articles/git-for-computer-scientists/[Git for Computer Scientists]
+  jó áttekintést ad a Git objektumtípusairól, és arról, hogy mit is ír le
+  valójában az objektumbejárásod.
 
-== Setting Up
+[[_setting_up]]
+== Beállítás
 
-Create a new branch from `master`.
+Hozz létre egy új branchet a `master`-ből.
 
 ----
 git checkout -b revwalk origin/master
 ----
 
-We'll put our fiddling into a new command. For fun, let's name it `git walken`.
-Open up a new file `builtin/walken.c` and set up the command handler:
+A kísérletezésünket egy új parancsba tesszük. A viccesség kedvéért nevezzük el
+`git walken`-nek. Nyiss meg egy új `builtin/walken.c` fájlt, és állítsd be a
+parancskezelőt:
 
 ----
 /*
@@ -50,17 +55,17 @@ int cmd_walken(int argc, const char **argv, const char *prefix, struct repositor
 }
 ----
 
-NOTE: `trace_printf()`, defined in `trace.h`, differs from `printf()` in
-that it can be turned on or off at runtime. For the purposes of this
-tutorial, we will write `walken` as though it is intended for use as
-a "plumbing" command: that is, a command which is used primarily in
-scripts, rather than interactively by humans (a "porcelain" command).
-So we will send our debug output to `trace_printf()` instead.
-When running, enable trace output by setting the environment variable `GIT_TRACE`.
+NOTE: A `trace.h`-ban definiált `trace_printf()` abban különbözik a `printf()`-től,
+hogy futásidőben be- és kikapcsolható. Ennek az oktatóanyagnak a keretében úgy
+írjuk meg a `walken`-t, mintha "plumbing" (alacsonyszintű) parancsként szánnánk
+használatra: vagyis olyan parancsként, amelyet elsősorban szkriptek használnak,
+nem pedig emberek interaktívan ("porcelain" (magasszintű) parancs). Ezért a
+debug kimenetünket a `trace_printf()`-nek küldjük. Futtatáskor a `GIT_TRACE`
+környezeti változó beállításával kapcsolhatod be a trace-kimenetet.
 
-Add usage text and `-h` handling, like all subcommands should consistently do
-(our test suite will notice and complain if you fail to do so).
-We'll need to include the `parse-options.h` header.
+Adj hozzá használati szöveget és `-h` kezelést, ahogy minden alparancsnak
+következetesen tennie kell (a tesztkészletünk észreveszi és panaszkodik, ha ezt
+elmulasztod). Be kell includeolnunk a `parse-options.h` headert.
 
 ----
 #include "parse-options.h"
@@ -83,30 +88,30 @@ int cmd_walken(int argc, const char **argv, const char *prefix)
 }
 ----
 
-Also add the relevant line in `builtin.h` near `cmd_version()`:
+Vedd fel a megfelelő sort a `builtin.h`-ban is, a `cmd_version()` közelében:
 
 ----
 int cmd_walken(int argc, const char **argv, const char *prefix, struct repository *repo);
 ----
 
-Include the command in `git.c` in `commands[]` near the entry for `version`,
-maintaining alphabetical ordering:
+Vedd fel a parancsot a `git.c`-ben a `commands[]`-ban, a `version` bejegyzése
+mellé, megtartva az ábécésorrendet:
 
 ----
 { "walken", cmd_walken, RUN_SETUP },
 ----
 
-Add an entry for the new command in the both the Make and Meson build system,
-before the entry for `worktree`:
+Vegyél fel egy bejegyzést az új parancshoz mind a Make, mind a Meson build
+rendszerben, a `worktree` bejegyzése előtt:
 
-- In the `Makefile`:
+- A `Makefile`-ban:
 ----
 ...
 BUILTIN_OBJS += builtin/walken.o
 ...
 ----
 
-- In the `meson.build` file:
+- A `meson.build` fájlban:
 ----
 builtin_sources = [
    ...
@@ -115,8 +120,9 @@ builtin_sources = [
 ]
 ----
 
-Build and test out your command, without forgetting to ensure the `DEVELOPER`
-flag is set, and with `GIT_TRACE` enabled so the debug output can be seen:
+Buildeld és teszteld le a parancsodat, arról sem megfeledkezve, hogy a
+`DEVELOPER` flag be legyen állítva, és a `GIT_TRACE` engedélyezve legyen, hogy
+lásd a debug kimenetet:
 
 ----
 $ echo DEVELOPER=1 >>config.mak
@@ -124,99 +130,108 @@ $ make
 $ GIT_TRACE=1 ./bin-wrappers/git walken
 ----
 
-NOTE: For a more exhaustive overview of the new command process, take a look at
-`Documentation/MyFirstContribution.adoc`.
+NOTE: Az új parancs felvételének folyamatáról bővebb áttekintést a
+`Documentation/MyFirstContribution.adoc`-ban találsz.
 
-NOTE: A reference implementation can be found at
+NOTE: Egy referenciaimplementáció megtalálható itt:
 https://github.com/nasamuffin/git/tree/revwalk.
 
+[[_struct_rev_cmdline_info]]
 === `struct rev_cmdline_info`
 
-The definition of `struct rev_cmdline_info` can be found in `revision.h`.
+A `struct rev_cmdline_info` definíciója a `revision.h`-ban található.
 
-This struct is contained within the `rev_info` struct and is used to reflect
-parameters provided by the user over the CLI.
+Ez a struct a `rev_info` structon belül helyezkedik el, és a felhasználó által
+a parancssoron megadott paramétereket tükrözi.
 
-`nr` represents the number of `rev_cmdline_entry` present in the array.
+Az `nr` a tömbben jelen lévő `rev_cmdline_entry` elemek számát jelöli.
 
-`alloc` is used by the `ALLOC_GROW` macro. Check `alloc.h` - this variable is
-used to track the allocated size of the list.
+Az `alloc`-ot az `ALLOC_GROW` makró használja. Nézd meg az `alloc.h`-t - ez a
+változó a lista allokált méretét követi.
 
-Per entry, we find:
+Bejegyzésenként a következőket találjuk:
 
-`item` is the object provided upon which to base the object walk. Items in Git
-can be blobs, trees, commits, or tags. (See `Documentation/gittutorial-2.adoc`.)
+Az `item` az az objektum, amelyre az objektumbejárás alapul. A Git-ben az
+elemek lehetnek blobok, tree-k, commitok vagy tagek. (Lásd:
+`Documentation/gittutorial-2.adoc`.)
 
-`name` is the object ID (OID) of the object - a hex string you may be familiar
-with from using Git to organize your source in the past. Check the tutorial
-mentioned above towards the top for a discussion of where the OID can come
-from.
+A `name` az objektum objektumazonosítója (OID) - egy hex string, amelyet talán
+már ismersz onnan, hogy a Git-et korábban a forrásod rendszerezésére
+használtad. A fent, az elején említett oktatóanyagban találsz egy áttekintést
+arról, hogy honnan származhat az OID.
 
-`whence` indicates some information about what to do with the parents of the
-specified object. We'll explore this flag more later on; take a look at
-`Documentation/revisions.adoc` to get an idea of what could set the `whence`
-value.
+A `whence` némi információt jelez arról, hogy mit kell tenni a megadott
+objektum szüleivel. Ezt a flaget később bővebben is megvizsgáljuk; nézd meg a
+`Documentation/revisions.adoc`-ot, hogy képet kapj arról, mi állíthatja be a
+`whence` értékét.
 
-`flags` are used to hint the beginning of the revision walk and are the first
-block under the `#include`s in `revision.h`. The most likely ones to be set in
-the `rev_cmdline_info` are `UNINTERESTING` and `BOTTOM`, but these same flags
-can be used during the walk, as well.
+A `flags` a revízióbejárás kezdetének jelzésére szolgál, és ez az első blokk a
+`revision.h`-ban lévő `#include`-ok alatt. A `rev_cmdline_info`-ban
+legvalószínűbben beállított flagek az `UNINTERESTING` és a `BOTTOM`, de
+ugyanezek a flagek a bejárás során is használhatók.
 
+[[_struct_rev_info]]
 === `struct rev_info`
 
-This one is quite a bit longer, and many fields are only used during the walk
-by `revision.c` - not configuration options. Most of the configurable flags in
-`struct rev_info` have a mirror in `Documentation/rev-list-options.adoc`. It's a
-good idea to take some time and read through that document.
+Ez jóval hosszabb, és sok mezőt csak a bejárás közben használ a `revision.c`
+- nem konfigurációs opciók ezek. A `struct rev_info`-ban lévő konfigurálható
+flagek többségének van megfelelője a `Documentation/rev-list-options.adoc`-ban.
+Érdemes rászánni egy kis időt, hogy végigolvasd azt a dokumentumot.
 
-== Basic Commit Walk
+[[_basic_commit_walk]]
+== Alap commit-bejárás
 
-First, let's see if we can replicate the output of `git log --oneline`. We'll
-refer back to the implementation frequently to discover norms when performing
-an object walk of our own.
+Először nézzük meg, hogy le tudjuk-e reprodukálni a `git log --oneline`
+kimenetét. Gyakran vissza fogunk hivatkozni erre az implementációra, hogy
+felfedezzük a normákat egy saját objektumbejárás elvégzésekor.
 
-To do so, we'll first find all the commits, in order, which preceded the current
-commit. We'll extract the name and subject of the commit from each.
+Ehhez először sorrendben megkeressük az összes commitot, amely a jelenlegi
+commit előtt volt. Mindegyikből kinyerjük a commit nevét és tárgyát.
 
-Ideally, we will also be able to find out which ones are currently at the tip of
-various branches.
+Ideális esetben azt is ki tudjuk majd deríteni, melyek vannak jelenleg a
+különböző branchek csúcsán.
 
-=== Setting Up
+[[_setting_up_2]]
+=== Beállítás
 
-Preparing for your object walk has some distinct stages.
+Az objektumbejárás előkészítésének néhány jól elkülönülő szakasza van.
 
-1. Perform default setup for this mode, and others which may be invoked.
-2. Check configuration files for relevant settings.
-3. Set up the `rev_info` struct.
-4. Tweak the initialized `rev_info` to suit the current walk.
-5. Prepare the `rev_info` for the walk.
-6. Iterate over the objects, processing each one.
+1. Végezd el az alapértelmezett beállítást ehhez a módhoz, és bármely másikhoz,
+   amelyet meghívhatunk.
+2. Nézd meg a konfigurációs fájlokban a releváns beállításokat.
+3. Állítsd be a `rev_info` structot.
+4. Igazítsd az inicializált `rev_info`-t az aktuális bejáráshoz.
+5. Készítsd elő a `rev_info`-t a bejáráshoz.
+6. Iterálj végig az objektumokon, mindegyiket feldolgozva.
 
-==== Default Setups
+[[_default_setups]]
+==== Alapértelmezett beállítások
 
-Before examining configuration files which may modify command behavior, set up
-default state for switches or options your command may have. If your command
-utilizes other Git components, ask them to set up their default states as well.
-For instance, `git log` takes advantage of `grep` and `diff` functionality, so
-its `init_log_defaults()` sets its own state (`decoration_style`) and asks
-`grep` and `diff` to initialize themselves by calling each of their
-initialization functions.
+Mielőtt megvizsgálnánk a parancs viselkedését módosító konfigurációs fájlokat,
+állítsd be az alapértelmezett állapotot a parancsod kapcsolóihoz vagy
+opcióihoz. Ha a parancsod más Git-komponenseket is használ, kérd meg őket, hogy
+ők is állítsák be a saját alapértelmezett állapotukat. Például a `git log`
+kihasználja a `grep` és a `diff` funkcionalitást, ezért az `init_log_defaults()`
+beállítja a saját állapotát (`decoration_style`), és megkéri a `grep`-et és a
+`diff`-et, hogy inicializálják magukat a saját inicializáló függvényeik
+meghívásával.
 
-==== Configuring From `.gitconfig`
+[[_configuring_from_gitconfig]]
+==== Konfigurálás a `.gitconfig`-ból
 
-Next, we should have a look at any relevant configuration settings (i.e.,
-settings readable and settable from `git config`). This is done by providing a
-callback to `repo_config()`; within that callback, you can also invoke methods
-from other components you may need that need to intercept these options. Your
-callback will be invoked once per each configuration value which Git knows about
-(global, local, worktree, etc.).
+Ezután meg kell néznünk a releváns konfigurációs beállításokat (vagyis azokat,
+amelyek a `git config`-ból olvashatók és állíthatók). Ezt egy `repo_config()`-nak
+átadott callbackkel tesszük meg; ezen a callbacken belül meghívhatod más
+komponensek metódusait is, amelyeknek szükségük lehet arra, hogy elfogják
+ezeket az opciókat. A callbacked minden olyan konfigurációs értékre egyszer
+meghívódik, amelyről a Git tud (global, local, worktree stb.).
 
-Similarly to the default values, we don't have anything to do here yet
-ourselves; however, we should call `git_default_config()` if we aren't calling
-any other existing config callbacks.
+Az alapértelmezett értékekhez hasonlóan itt sincs még saját teendőnk; azonban
+meg kell hívnunk a `git_default_config()`-ot, ha nem hívunk más, már létező
+config-callbacket.
 
-Add a new function to `builtin/walken.c`.
-We'll also need to include the `config.h` header:
+Adj egy új függvényt a `builtin/walken.c`-hez.
+Be kell includeolnunk a `config.h` headert is:
 
 ----
 #include "config.h"
@@ -234,7 +249,7 @@ static int git_walken_config(const char *var, const char *value,
 }
 ----
 
-Make sure to invoke `repo_config()` with it in your `cmd_walken()`:
+Ügyelj rá, hogy meghívd vele a `repo_config()`-ot a `cmd_walken()`-edben:
 
 ----
 int cmd_walken(int argc, const char **argv, const char *prefix, struct repository *repo)
@@ -247,16 +262,17 @@ int cmd_walken(int argc, const char **argv, const char *prefix, struct repositor
 }
 ----
 
-==== Setting Up `rev_info`
+[[_setting_up_rev_info]]
+==== A `rev_info` beállítása
 
-Now that we've gathered external configuration and options, it's time to
-initialize the `rev_info` object which we will use to perform the walk. This is
-typically done by calling `repo_init_revisions()` with the repository you intend
-to target, as well as the `prefix` argument of `cmd_walken` and your `rev_info`
-struct.
+Most, hogy összegyűjtöttük a külső konfigurációt és opciókat, itt az ideje
+inicializálni a `rev_info` objektumot, amelyet a bejárás elvégzéséhez fogunk
+használni. Ezt jellemzően a `repo_init_revisions()` meghívásával tesszük meg,
+átadva neki a célzott repository-t, valamint a `cmd_walken` `prefix`
+argumentumát és a `rev_info` structodat.
 
-Add the `struct rev_info` and the `repo_init_revisions()` call.
-We'll also need to include the `revision.h` header:
+Vedd fel a `struct rev_info`-t és a `repo_init_revisions()` hívást.
+Be kell includeolnunk a `revision.h` headert is:
 
 ----
 #include "revision.h"
@@ -276,11 +292,13 @@ int cmd_walken(int argc, const char **argv, const char *prefix, struct repositor
 }
 ----
 
-==== Tweaking `rev_info` For the Walk
+[[_tweaking_rev_info_for_the_walk]]
+==== A `rev_info` finomhangolása a bejáráshoz
 
-We're getting close, but we're still not quite ready to go. Now that `rev` is
-initialized, we can modify it to fit our needs. This is usually done within a
-helper for clarity, so let's add one:
+Már közel vagyunk, de még nem vagyunk egészen készen az indulásra. Most, hogy a
+`rev` inicializálva van, módosíthatjuk, hogy megfeleljen az igényeinknek. Ezt
+az áttekinthetőség kedvéért általában egy segédfüggvényen belül tesszük meg,
+úgyhogy vegyünk fel egyet:
 
 ----
 static void final_rev_info_setup(struct rev_info *rev)
@@ -298,8 +316,8 @@ static void final_rev_info_setup(struct rev_info *rev)
 
 [NOTE]
 ====
-Instead of using the shorthand `add_head_to_pending()`, you could do
-something like this:
+Ahelyett, hogy a rövidített `add_head_to_pending()`-et használnád, tehetnél
+valami ilyesmit is:
 
 ----
 	struct setup_revision_opt opt;
@@ -310,12 +328,12 @@ something like this:
 	setup_revisions(argc, argv, rev, &opt);
 ----
 
-Using a `setup_revision_opt` gives you finer control over your walk's starting
-point.
+A `setup_revision_opt` használata finomabb kontrollt ad a bejárásod
+kezdőpontja felett.
 ====
 
-Then let's invoke `final_rev_info_setup()` after the call to
-`repo_init_revisions()`:
+Ezután hívjuk meg a `final_rev_info_setup()`-ot a `repo_init_revisions()`
+hívása után:
 
 ----
 int cmd_walken(int argc, const char **argv, const char *prefix, struct repository *repo)
@@ -328,16 +346,17 @@ int cmd_walken(int argc, const char **argv, const char *prefix, struct repositor
 }
 ----
 
-Later, we may wish to add more arguments to `final_rev_info_setup()`. But for
-now, this is all we need.
+Később még további argumentumokat is hozzá szeretnénk majd adni a
+`final_rev_info_setup()`-hoz. De egyelőre ennyi elég nekünk.
 
-==== Preparing `rev_info` For the Walk
+[[_preparing_rev_info_for_the_walk]]
+==== A `rev_info` előkészítése a bejáráshoz
 
-Now that `rev` is all initialized and configured, we've got one more setup step
-before we get rolling. We can do this in a helper, which will both prepare the
-`rev_info` for the walk, and perform the walk itself. Let's start the helper
-with the call to `prepare_revision_walk()`, which can return an error without
-dying on its own:
+Most, hogy a `rev` teljesen inicializálva és konfigurálva van, van még egy
+beállítási lépésünk, mielőtt nekilátnánk. Ezt megtehetjük egy segédfüggvényben,
+amely előkészíti a `rev_info`-t a bejáráshoz, és el is végzi magát a bejárást.
+Kezdjük a segédfüggvényt a `prepare_revision_walk()` hívásával, amely hibát
+tud visszaadni anélkül, hogy önmaga elhalna (die):
 
 ----
 static void walken_commit_walk(struct rev_info *rev)
@@ -347,16 +366,17 @@ static void walken_commit_walk(struct rev_info *rev)
 }
 ----
 
-NOTE: `die()` prints to `stderr` and exits the program. Since it will print to
-`stderr` it's likely to be seen by a human, so we will localize it.
+NOTE: A `die()` a `stderr`-re ír, és kilépteti a programot. Mivel a `stderr`-re
+fog írni, valószínűleg egy ember fogja látni, ezért lokalizálni fogjuk.
 
-==== Performing the Walk!
+[[_performing_the_walk]]
+==== A bejárás elvégzése!
 
-Finally! We are ready to begin the walk itself. Now we can see that `rev_info`
-can also be used as an iterator; we move to the next item in the walk by using
-`get_revision()` repeatedly. Add the listed variable declarations at the top and
-the walk loop below the `prepare_revision_walk()` call within your
-`walken_commit_walk()`:
+Végre! Készen állunk, hogy elkezdjük magát a bejárást. Most már láthatjuk,
+hogy a `rev_info` iterátorként is használható; a bejárás következő elemére a
+`get_revision()` ismételt hívásával lépünk tovább. Vedd fel a felsorolt
+változódeklarációkat a tetejére, és a bejáró ciklust a
+`prepare_revision_walk()` hívás alá, a `walken_commit_walk()`-ödön belül:
 
 ----
 #include "pretty.h"
@@ -379,30 +399,33 @@ static void walken_commit_walk(struct rev_info *rev)
 }
 ----
 
-NOTE: `puts()` prints a `char*` to `stdout`. Since this is the part of the
-command we expect to be machine-parsed, we're sending it directly to stdout.
+NOTE: A `puts()` egy `char*`-ot ír a `stdout`-ra. Mivel a parancsnak ezt a
+részét gépi feldolgozásra szánjuk, közvetlenül a stdout-ra küldjük.
 
-Give it a shot.
+Próbáld ki.
 
 ----
 $ make
 $ ./bin-wrappers/git walken
 ----
 
-You should see all of the subject lines of all the commits in
-your tree's history, in order, ending with the initial commit, "Initial revision
-of "git", the information manager from hell". Congratulations! You've written
-your first revision walk. You can play with printing some additional fields
-from each commit if you're curious; have a look at the functions available in
-`commit.h`.
+Látnod kell a tree-d történetében szereplő összes commit tárgysorát,
+sorrendben, egészen a kezdeti commitig, "Initial revision of "git", the
+information manager from hell" tárggyal bezárólag. Gratulálunk! Megírtad az
+első revízióbejárásodat. Ha kíváncsi vagy, kedvedre kipróbálhatod, hogy
+kinyomtass néhány további mezőt is az egyes commitokból; nézd meg a
+`commit.h`-ban elérhető függvényeket.
 
-=== Adding a Filter
+[[_adding_a_filter]]
+=== Filter hozzáadása
 
-Next, let's try to filter the commits we see based on their author. This is
-equivalent to running `git log --author=<pattern>`. We can add a filter by
-modifying `rev_info.grep_filter`, which is a `struct grep_opt`.
+Ezután próbáljuk meg szűrni a látott commitokat a szerzőjük alapján. Ez
+egyenértékű a `git log --author=<pattern>` futtatásával. Egy filtert a
+`rev_info.grep_filter` módosításával adhatunk hozzá, amely egy `struct
+grep_opt`.
 
-First some setup. Add `grep_config()` to `git_walken_config()`:
+Először egy kis előkészület. Add hozzá a `grep_config()`-ot a
+`git_walken_config()`-hoz:
 
 ----
 static int git_walken_config(const char *var, const char *value,
@@ -413,15 +436,15 @@ static int git_walken_config(const char *var, const char *value,
 }
 ----
 
-Next, we can modify the `grep_filter`. This is done with convenience functions
-found in `grep.h`. For fun, we're filtering to only commits from folks using a
-`gmail.com` email address - a not-very-precise guess at who may be working on
-Git as a hobby. Since we're checking the author, which is a specific line in the
-header, we'll use the `append_header_grep_pattern()` helper. We can use
-the `enum grep_header_field` to indicate which part of the commit header we want
-to search.
+Ezután módosíthatjuk a `grep_filter`-t. Ezt a `grep.h`-ban található kényelmi
+függvényekkel tesszük meg. A poén kedvéért csak azokra a commitokra szűrünk,
+amelyek szerzője `gmail.com` email-címet használ - ez egy nem túl pontos
+tippünk arra, hogy ki dolgozhat a Git-en hobbiként. Mivel a szerzőt ellenőrizzük,
+ami a header egy meghatározott sora, az `append_header_grep_pattern()`
+segédfüggvényt fogjuk használni. Az `enum grep_header_field`-et használhatjuk
+annak jelzésére, hogy a commit-header melyik részét szeretnénk keresni.
 
-In `final_rev_info_setup()`, add your filter line:
+A `final_rev_info_setup()`-ban add hozzá a filtersorodat:
 
 ----
 static void final_rev_info_setup(int argc, const char **argv,
@@ -437,30 +460,33 @@ static void final_rev_info_setup(int argc, const char **argv,
 }
 ----
 
-`append_header_grep_pattern()` adds your new "gmail" pattern to `rev_info`, but
-it won't work unless we compile it with `compile_grep_patterns()`.
+Az `append_header_grep_pattern()` hozzáadja az új "gmail" mintánkat a
+`rev_info`-hoz, de ez nem fog működni, amíg le nem fordítjuk a
+`compile_grep_patterns()`-szel.
 
-NOTE: If you are using `setup_revisions()` (for example, if you are passing a
-`setup_revision_opt` instead of using `add_head_to_pending()`), you don't need
-to call `compile_grep_patterns()` because `setup_revisions()` calls it for you.
+NOTE: Ha a `setup_revisions()`-t használod (például ha egy `setup_revision_opt`-ot
+adsz át az `add_head_to_pending()` használata helyett), nem kell meghívnod a
+`compile_grep_patterns()`-t, mert a `setup_revisions()` ezt megteszi helyetted.
 
-NOTE: We could add the same filter via the `append_grep_pattern()` helper if we
-wanted to, but `append_header_grep_pattern()` adds the `enum grep_context` and
-`enum grep_pat_token` for us.
+NOTE: Ugyanezt a filtert az `append_grep_pattern()` segédfüggvénnyel is
+hozzáadhatnánk, ha akarnánk, de az `append_header_grep_pattern()` helyettünk
+adja hozzá az `enum grep_context`-et és az `enum grep_pat_token`-t.
 
-=== Changing the Order
+[[_changing_the_order]]
+=== A sorrend megváltoztatása
 
-There are a few ways that we can change the order of the commits during a
-revision walk. Firstly, we can use the `enum rev_sort_order` to choose from some
-typical orderings.
+Néhány módon megváltoztathatjuk a commitok sorrendjét a revízióbejárás során.
+Először is használhatjuk az `enum rev_sort_order`-t, hogy néhány tipikus
+rendezés közül válasszunk.
 
-`topo_order` is the same as `git log --topo-order`: we avoid showing a parent
-before all of its children have been shown, and we avoid mixing commits which
-are in different lines of history. (`git help log`'s section on `--topo-order`
-has a very nice diagram to illustrate this.)
+A `topo_order` ugyanaz, mint a `git log --topo-order`: elkerüljük, hogy egy
+szülőt megjelenítsünk azelőtt, hogy az összes gyermeke megjelent volna, és
+elkerüljük, hogy különböző történeti ágakhoz tartozó commitokat keverjünk. (A
+`git help log` `--topo-order`-ról szóló szakaszában egy nagyon szemléletes
+diagram illusztrálja ezt.)
 
-Let's see what happens when we run with `REV_SORT_BY_COMMIT_DATE` as opposed to
-`REV_SORT_BY_AUTHOR_DATE`. Add the following:
+Nézzük meg, mi történik, ha a `REV_SORT_BY_AUTHOR_DATE` helyett a
+`REV_SORT_BY_COMMIT_DATE`-tel futtatunk. Add hozzá a következőt:
 
 ----
 static void final_rev_info_setup(int argc, const char **argv,
@@ -475,15 +501,15 @@ static void final_rev_info_setup(int argc, const char **argv,
 }
 ----
 
-Let's output this into a file so we can easily diff it with the walk sorted by
-author date.
+Írassuk ki ezt egy fájlba, hogy könnyen diffelhessük a szerzői dátum szerint
+rendezett bejárással.
 
 ----
 $ make
 $ ./bin-wrappers/git walken > commit-date.txt
 ----
 
-Then, let's sort by author date and run it again.
+Ezután rendezzünk szerzői dátum szerint, és futtassuk le újra.
 
 ----
 static void final_rev_info_setup(int argc, const char **argv,
@@ -503,18 +529,19 @@ $ make
 $ ./bin-wrappers/git walken > author-date.txt
 ----
 
-Finally, compare the two. This is a little less helpful without object names or
-dates, but hopefully we get the idea.
+Végül hasonlítsuk össze a kettőt. Objektumnevek vagy dátumok nélkül ez kicsit
+kevésbé hasznos, de reméljük, így is átjön a lényeg.
 
 ----
 $ diff -u commit-date.txt author-date.txt
 ----
 
-This display indicates that commits can be reordered after they're written, for
-example with `git rebase`.
+Ez a megjelenítés azt mutatja, hogy a commitok megírásuk után átrendezhetők,
+például a `git rebase`-szel.
 
-Let's try one more reordering of commits. `rev_info` exposes a `reverse` flag.
-Set that flag somewhere inside of `final_rev_info_setup()`:
+Próbáljunk ki még egy átrendezést a commitokon. A `rev_info` egy `reverse`
+flaget tesz elérhetővé. Állítsd be ezt a flaget valahol a
+`final_rev_info_setup()`-on belül:
 
 ----
 static void final_rev_info_setup(int argc, const char **argv, const char *prefix,
@@ -528,46 +555,49 @@ static void final_rev_info_setup(int argc, const char **argv, const char *prefix
 }
 ----
 
-Run your walk again and note the difference in order. (If you remove the grep
-pattern, you should see the last commit this call gives you as your current
-HEAD.)
+Futtasd le újra a bejárásodat, és figyeld meg a sorrend különbségét. (Ha
+eltávolítod a grep mintát, az utolsó commitnak, amit ez a hívás ad, a
+jelenlegi HEAD-nek kell lennie.)
 
-== Basic Object Walk
+[[_basic_object_walk]]
+== Alap objektumbejárás
 
-So far we've been walking only commits. But Git has more types of objects than
-that! Let's see if we can walk _all_ objects, and find out some information
-about each one.
+Eddig csak commitokat jártunk be. De a Git-nek ennél sokkal több
+objektumtípusa van! Nézzük meg, be tudjuk-e járni _az összes_ objektumot, és
+ki tudunk-e deríteni némi információt mindegyikről.
 
-We can base our work on an example. `git pack-objects` prepares all kinds of
-objects for packing into a bitmap or packfile. The work we are interested in
-resides in `builtin/pack-objects.c:get_object_list()`; examination of that
-function shows that the all-object walk is being performed by
-`traverse_commit_list()` or `traverse_commit_list_filtered()`. Those two
-functions reside in `list-objects.c`; examining the source shows that, despite
-the name, these functions traverse all kinds of objects. Let's have a look at
-the arguments to `traverse_commit_list()`.
+A munkánkat egy példára alapozhatjuk. A `git pack-objects` mindenféle
+objektumot előkészít arra, hogy bitmapbe vagy packfile-ba csomagolja őket. Az
+minket érdeklő munka a `builtin/pack-objects.c:get_object_list()`-ben
+található; ennek a függvénynek a vizsgálata megmutatja, hogy a
+teljes-objektumbejárást a `traverse_commit_list()` vagy a
+`traverse_commit_list_filtered()` végzi. Ez a két függvény a
+`list-objects.c`-ben található; a forrás vizsgálata megmutatja, hogy a nevük
+ellenére ezek a függvények mindenféle objektumot bejárnak. Nézzük meg a
+`traverse_commit_list()` argumentumait.
 
-- `struct rev_info *revs`: This is the `rev_info` used for the walk. If
-  its `filter` member is not `NULL`, then `filter` contains information for
-  how to filter the object list.
-- `show_commit_fn show_commit`: A callback which will be used to handle each
-  individual commit object.
-- `show_object_fn show_object`: A callback which will be used to handle each
-  non-commit object (so each blob, tree, or tag).
-- `void *show_data`: A context buffer which is passed in turn to `show_commit`
-  and `show_object`.
+- `struct rev_info *revs`: Ez a bejáráshoz használt `rev_info`. Ha a `filter`
+  mezője nem `NULL`, akkor a `filter` információt tartalmaz arról, hogyan
+  kell szűrni az objektumlistát.
+- `show_commit_fn show_commit`: Egy callback, amelyet az egyes commit
+  objektumok kezelésére fogunk használni.
+- `show_object_fn show_object`: Egy callback, amelyet az egyes nem-commit
+  objektumok (vagyis minden blob, tree vagy tag) kezelésére fogunk használni.
+- `void *show_data`: Egy kontextuspuffer, amelyet sorban átadunk a
+  `show_commit`-nak és a `show_object`-nek.
 
-In addition, `traverse_commit_list_filtered()` has an additional parameter:
+Emellett a `traverse_commit_list_filtered()`-nek van egy további paramétere:
 
-- `struct oidset *omitted`: A linked-list of object IDs which the provided
-  filter caused to be omitted.
+- `struct oidset *omitted`: Azon objektumazonosítók láncolt listája, amelyeket
+  a megadott filter kihagyott.
 
-It looks like these methods use callbacks we provide instead of needing us
-to call it repeatedly ourselves. Cool! Let's add the callbacks first.
+Úgy tűnik, ezek a metódusok az általunk megadott callbackeket használják,
+ahelyett hogy nekünk kellene ismételten meghívnunk őket. Menő! Adjuk hozzá
+először a callbackeket.
 
-For the sake of this tutorial, we'll simply keep track of how many of each kind
-of object we find. At file scope in `builtin/walken.c` add the following
-tracking variables:
+Ennek az oktatóanyagnak a kedvéért egyszerűen csak nyilvántartjuk, hogy az
+egyes objektumtípusokból hányat találunk. Vedd fel a következő
+nyilvántartó változókat fájl-hatókörben a `builtin/walken.c`-ben:
 
 ----
 static int commit_count;
@@ -576,8 +606,8 @@ static int blob_count;
 static int tree_count;
 ----
 
-Commits are handled by a different callback than other objects; let's do that
-one first:
+A commitokat egy másik callback kezeli, mint a többi objektumot; kezdjük
+azzal:
 
 ----
 static void walken_show_commit(struct commit *cmt, void *buf)
@@ -586,16 +616,17 @@ static void walken_show_commit(struct commit *cmt, void *buf)
 }
 ----
 
-The `cmt` argument is fairly self-explanatory. But it's worth mentioning that
-the `buf` argument is actually the context buffer that we can provide to the
-traversal calls - `show_data`, which we mentioned a moment ago.
+A `cmt` argumentum meglehetősen magától értetődő. De érdemes megemlíteni, hogy
+a `buf` argumentum valójában az a kontextuspuffer, amelyet átadhatunk a
+bejáró hívásoknak - ez a `show_data`, amelyet az imént említettünk.
 
-Since we have the `struct commit` object, we can look at all the same parts that
-we looked at in our earlier commit-only walk. For the sake of this tutorial,
-though, we'll just increment the commit counter and move on.
+Mivel megvan a `struct commit` objektumunk, megnézhetjük ugyanazokat a
+részeket, amelyeket a korábbi, csak commitokat bejáró walkunkban is
+megnéztünk. Ennek az oktatóanyagnak a kedvéért azonban most csak megnöveljük
+a commit-számlálót, és megyünk tovább.
 
-The callback for non-commits is a little different, as we'll need to check
-which kind of object we're dealing with:
+A nem-commitokhoz tartozó callback kicsit más, mivel meg kell vizsgálnunk,
+milyen típusú objektummal van dolgunk:
 
 ----
 static void walken_show_object(struct object *obj, const char *str, void *buf)
@@ -619,32 +650,34 @@ static void walken_show_object(struct object *obj, const char *str, void *buf)
 }
 ----
 
-Again, `obj` is fairly self-explanatory, and we can guess that `buf` is the same
-context pointer that `walken_show_commit()` receives: the `show_data` argument
-to `traverse_commit_list()` and `traverse_commit_list_filtered()`. Finally,
-`str` contains the name of the object, which ends up being something like
-`foo.txt` (blob), `bar/baz` (tree), or `v1.2.3` (tag).
+Ismét: az `obj` meglehetősen magától értetődő, és kitalálhatjuk, hogy a `buf`
+ugyanaz a kontextusmutató, amelyet a `walken_show_commit()` is kap: a
+`traverse_commit_list()` és a `traverse_commit_list_filtered()` `show_data`
+argumentuma. Végül a `str` az objektum nevét tartalmazza, ami valami olyasmi
+lesz, mint `foo.txt` (blob), `bar/baz` (tree), vagy `v1.2.3` (tag).
 
-To help assure us that we aren't double-counting commits, we'll include some
-complaining if a commit object is routed through our non-commit callback; we'll
-also complain if we see an invalid object type. Since those two cases should be
-unreachable, and would only change in the event of a semantic change to the Git
-codebase, we complain by using `BUG()` - which is a signal to a developer that
-the change they made caused unintended consequences, and the rest of the
-codebase needs to be updated to understand that change. `BUG()` is not intended
-to be seen by the public, so it is not localized.
+Hogy biztosak lehessünk benne, hogy nem számoljuk kétszer a commitokat,
+beleveszünk egy kis panaszkodást arra az esetre, ha egy commit objektum a
+nem-commit callbackünkön keresztül jutna el hozzánk; panaszkodunk akkor is, ha
+érvénytelen objektumtípust látunk. Mivel ennek a két esetnek elérhetetlennek
+kellene lennie, és csak a Git kódbázisának egy szemantikai változása esetén
+változna, a `BUG()`-gal panaszkodunk - ez egy jelzés a fejlesztő felé, hogy az
+általa végzett módosítás nem szándékolt következményeket okozott, és a kódbázis
+többi részét frissíteni kell, hogy megértse ezt a változást. A `BUG()`-ot nem a
+nyilvánosságnak szánjuk látni, ezért nincs lokalizálva.
 
-Our main object walk implementation is substantially different from our commit
-walk implementation, so let's make a new function to perform the object walk. We
-can perform setup which is applicable to all objects here, too, to keep separate
-from setup which is applicable to commit-only walks.
+A fő objektumbejárás-implementációnk lényegesen eltér a commit-bejárás
+implementációnktól, ezért készítsünk egy új függvényt az objektumbejárás
+elvégzésére. Itt is elvégezhetjük az összes objektumra vonatkozó beállítást,
+külön tartva azt a csak commitokat bejáró walkokra vonatkozó beállítástól.
 
-We'll start by enabling all types of objects in the `struct rev_info`.  We'll
-also turn on `tree_blobs_in_commit_order`, which means that we will walk a
-commit's tree and everything it points to immediately after we find each commit,
-as opposed to waiting for the end and walking through all trees after the commit
-history has been discovered. With the appropriate settings configured, we are
-ready to call `prepare_revision_walk()`.
+Azzal kezdjük, hogy a `struct rev_info`-ban engedélyezzük az összes
+objektumtípust. Bekapcsoljuk a `tree_blobs_in_commit_order`-t is, ami azt
+jelenti, hogy közvetlenül az egyes commitok megtalálása után bejárjuk a commit
+tree-jét és mindent, amire az mutat, ahelyett hogy megvárnánk a végét, és a
+teljes commit-történet feltárása után járnánk be az összes tree-t. A megfelelő
+beállítások konfigurálása után készen állunk a `prepare_revision_walk()`
+meghívására.
 
 ----
 static void walken_object_walk(struct rev_info *rev)
@@ -663,9 +696,9 @@ static void walken_object_walk(struct rev_info *rev)
 	tree_count = 0;
 ----
 
-Let's start by calling just the unfiltered walk and reporting our counts.
-Complete your implementation of `walken_object_walk()`.
-We'll also need to include the `list-objects.h` header.
+Kezdjük azzal, hogy csak a szűretlen bejárást hívjuk meg, és jelentjük a
+számlálóinkat. Fejezd be a `walken_object_walk()` implementációját.
+Be kell includeolnunk a `list-objects.h` headert is.
 
 ----
 #include "list-objects.h"
@@ -679,16 +712,17 @@ We'll also need to include the `list-objects.h` header.
 }
 ----
 
-NOTE: This output is intended to be machine-parsed. Therefore, we are not
-sending it to `trace_printf()`, and we are not localizing it - we need scripts
-to be able to count on the formatting to be exactly the way it is shown here.
-If we were intending this output to be read by humans, we would need to localize
-it with `_()`.
+NOTE: Ezt a kimenetet gépi feldolgozásra szánjuk. Ezért nem küldjük a
+`trace_printf()`-nek, és nem lokalizáljuk - a szkripteknek biztosra kell
+venniük, hogy a formázás pontosan olyan lesz, amilyen itt látható. Ha ezt a
+kimenetet emberek olvasására szánnánk, akkor a `_()`-vel kellene
+lokalizálnunk.
 
-Finally, we'll ask `cmd_walken()` to use the object walk instead. Discussing
-command line options is out of scope for this tutorial, so we'll just hardcode
-a branch we can change at compile time. Where you call `final_rev_info_setup()`
-and `walken_commit_walk()`, instead branch like so:
+Végül megkérjük a `cmd_walken()`-t, hogy inkább az objektumbejárást használja.
+A parancssori opciók megbeszélése kívül esik ennek az oktatóanyagnak a
+hatókörén, ezért csak hardkódolunk egy ágat, amelyet fordítási időben
+tudunk módosítani. Ott, ahol a `final_rev_info_setup()`-ot és a
+`walken_commit_walk()`-öt hívod, ágazz el helyette így:
 
 ----
 	if (1) {
@@ -700,47 +734,52 @@ and `walken_commit_walk()`, instead branch like so:
 	}
 ----
 
-NOTE: For simplicity, we've avoided all the filters and sorts we applied in
-`final_rev_info_setup()` and simply added `HEAD` to our pending queue. If you
-want, you can certainly use the filters we added before by moving
-`final_rev_info_setup()` out of the conditional and removing the call to
-`add_head_to_pending()`.
+NOTE: Az egyszerűség kedvéért elkerültük az összes, a `final_rev_info_setup()`-ban
+alkalmazott filtert és rendezést, és egyszerűen csak a `HEAD`-et adtuk hozzá a
+pending queue-nkhoz. Ha szeretnéd, természetesen használhatod a korábban
+hozzáadott filtereket is, ha a `final_rev_info_setup()`-ot kiveszed a
+feltételből, és eltávolítod az `add_head_to_pending()` hívást.
 
-Now we can try to run our command! It should take noticeably longer than the
-commit walk, but an examination of the output will give you an idea why. Your
-output should look similar to this example, but with different counts:
+Most kipróbálhatjuk a parancsunk futtatását! Ennek érezhetően tovább kell
+tartania, mint a commit-bejárásnak, de a kimenet vizsgálata megmutatja, miért.
+A kimenetednek hasonlónak kell lennie ehhez a példához, de eltérő
+számlálóértékekkel:
 
 ----
 Object walk completed. Found 55733 commits, 100274 blobs, 0 tags, and 104210 trees.
 ----
 
-This makes sense. We have more trees than commits because the Git project has
-lots of subdirectories which can change, plus at least one tree per commit. We
-have no tags because we started on a commit (`HEAD`) and while tags can point to
-commits, commits can't point to tags.
+Ennek van értelme. Több tree-nk van, mint commitunk, mert a Git projektnek
+sok, esetenként változó alkönyvtára van, plusz commitonként legalább egy
+tree. Nincs tagünk, mert egy commiton (`HEAD`) kezdtük, és bár a tagek
+mutathatnak commitokra, a commitok nem mutathatnak tagekre.
 
-NOTE: You will have different counts when you run this yourself! The number of
-objects grows along with the Git project.
+NOTE: Neked eltérő számlálóértékeid lesznek, amikor te magad futtatod ezt! Az
+objektumok száma a Git projekttel együtt növekszik.
 
-=== Adding a Filter
+[[_adding_a_filter_2]]
+=== Filter hozzáadása
 
-There are a handful of filters that we can apply to the object walk laid out in
-`Documentation/rev-list-options.adoc`. These filters are typically useful for
-operations such as creating packfiles or performing a partial clone. They are
-defined in `list-objects-filter-options.h`. For the purposes of this tutorial we
-will use the "tree:1" filter, which causes the walk to omit all trees and blobs
-which are not directly referenced by commits reachable from the commit in
-`pending` when the walk begins. (`pending` is the list of objects which need to
-be traversed during a walk; you can imagine a breadth-first tree traversal to
-help understand. In our case, that means we omit trees and blobs not directly
-referenced by `HEAD` or `HEAD`'s history, because we begin the walk with only
-`HEAD` in the `pending` list.)
+Van néhány filter, amelyet alkalmazhatunk az objektumbejárásra, ezek fel
+vannak sorolva a `Documentation/rev-list-options.adoc`-ban. Ezek a filterek
+jellemzően olyan műveleteknél hasznosak, mint a packfile-ok létrehozása vagy a
+partial clone végrehajtása. A `list-objects-filter-options.h`-ban vannak
+definiálva. Ennek az oktatóanyagnak a céljaira a "tree:1" filtert fogjuk
+használni, amely miatt a bejárás kihagy minden olyan tree-t és blobot, amelyre
+nem hivatkozik közvetlenül olyan commit, amely elérhető a `pending`-ben lévő
+commitból a bejárás kezdetekor. (A `pending` azoknak az objektumoknak a
+listája, amelyeket a bejárás során be kell járni; segít megérteni, ha egy
+szélességi fabejárásra gondolsz. A mi esetünkben ez azt jelenti, hogy
+kihagyjuk azokat a tree-ket és blobokat, amelyekre nem hivatkozik közvetlenül
+a `HEAD` vagy a `HEAD` története, mert a bejárást csak a `HEAD`-del kezdjük a
+`pending` listában.)
 
-For now, we are not going to track the omitted objects, so we'll replace those
-parameters with `NULL`. For the sake of simplicity, we'll add a simple
-build-time branch to use our filter or not. Preface the line calling
-`traverse_commit_list()` with the following, which will remind us which kind of
-walk we've just performed:
+Egyelőre nem fogjuk nyomon követni a kihagyott objektumokat, ezért ezeket a
+paramétereket `NULL`-lal helyettesítjük. Az egyszerűség kedvéért felveszünk
+egy egyszerű, fordítási időben eldöntött ágat arra, hogy használjuk-e a
+filterünket vagy sem. Illeszd a `traverse_commit_list()`-et hívó sor elé a
+következőt, amely emlékeztet minket arra, milyen fajta bejárást végeztünk el
+az imént:
 
 ----
 	if (0) {
@@ -756,27 +795,32 @@ walk we've just performed:
 			     walken_show_object, NULL);
 ----
 
-The `rev->filter` member is usually built directly from a command
-line argument, so the module provides an easy way to build one from a string.
-Even though we aren't taking user input right now, we can still build one with
-a hardcoded string using `parse_list_objects_filter()`.
+A `rev->filter` mezőt általában közvetlenül egy parancssori argumentumból
+építjük fel, ezért a modul egy egyszerű módot biztosít arra, hogy egyet egy
+stringből építsünk fel. Bár most nem fogadunk el felhasználói bemenetet, még
+mindig felépíthetünk egyet egy hardkódolt stringgel a
+`parse_list_objects_filter()` használatával.
 
-With the filter spec "tree:1", we are expecting to see _only_ the root tree for
-each commit; therefore, the tree object count should be less than or equal to
-the number of commits. (For an example of why that's true: `git commit --revert`
-points to the same tree object as its grandparent.)
+A "tree:1" filterspeccel azt várjuk, hogy _csak_ az egyes commitok
+gyökér-tree-jét lássuk; ezért a tree objektumok számának kisebbnek vagy
+egyenlőnek kell lennie a commitok számánál. (Példaként arra, hogy ez miért
+igaz: a `git commit --revert` ugyanarra a tree objektumra mutat, mint a
+nagyszülője.)
 
-=== Counting Omitted Objects
+[[_counting_omitted_objects]]
+=== A kihagyott objektumok megszámolása
 
-We also have the capability to enumerate all objects which were omitted by a
-filter, like with `git log --filter=<spec> --filter-print-omitted`. To do this,
-change `traverse_commit_list()` to `traverse_commit_list_filtered()`, which is
-able to populate an `omitted` list.  Asking for this list of filtered objects
-may cause performance degradations, however, because in this case, despite
-filtering objects, the possibly much larger set of all reachable objects must
-be processed in order to populate that list.
+Arra is képesek vagyunk, hogy felsoroljuk az összes olyan objektumot, amelyet
+egy filter kihagyott, ahogy a `git log --filter=<spec> --filter-print-omitted`
+esetében. Ehhez cseréld le a `traverse_commit_list()`-et
+`traverse_commit_list_filtered()`-re, amely képes feltölteni egy `omitted`
+listát. Ennek a szűrt objektumlistának a lekérése azonban teljesítményromlást
+okozhat, mert ebben az esetben az objektumok szűrése ellenére az összes
+elérhető objektum esetleg jóval nagyobb halmazát kell feldolgozni ahhoz, hogy
+feltöltsük azt a listát.
 
-First, add the `struct oidset` and related items we will use to iterate it:
+Először add hozzá a `struct oidset`-et és a hozzá kapcsolódó elemeket, amelyeket
+az iterálásához fogunk használni:
 
 ----
 #include "oidset.h"
@@ -795,9 +839,9 @@ static void walken_object_walk(
 	...
 ----
 
-Replace the call to `traverse_commit_list()` with
-`traverse_commit_list_filtered()` and pass a pointer to the `omitted` oidset
-defined and initialized above:
+Cseréld le a `traverse_commit_list()` hívást
+`traverse_commit_list_filtered()`-re, és add át a fent definiált és
+inicializált `omitted` oidsetre mutató pointert:
 
 ----
 	...
@@ -808,8 +852,8 @@ defined and initialized above:
 	...
 ----
 
-Then, after your traversal, the `oidset` traversal is pretty straightforward.
-Count all the objects within and modify the print statement:
+Ezután, a bejárásod után, az `oidset` bejárása meglehetősen egyszerű. Számold
+meg az összes benne lévő objektumot, és módosítsd a kiíró utasítást:
 
 ----
 	/* Count the omitted objects. */
@@ -822,17 +866,19 @@ Count all the objects within and modify the print statement:
 		commit_count, blob_count, tag_count, tree_count, omitted_count);
 ----
 
-By running your walk with and without the filter, you should find that the total
-object count in each case is identical. You can also time each invocation of
-the `walken` subcommand, with and without `omitted` being passed in, to confirm
-to yourself the runtime impact of tracking all omitted objects.
+Ha lefuttatod a bejárásodat a filterrel és anélkül is, azt kell tapasztalnod,
+hogy a teljes objektumszám mindkét esetben megegyezik. A `walken` alparancs
+egyes meghívásait is időzítheted, `omitted` átadásával és anélkül is, hogy
+magad is meggyőződj az összes kihagyott objektum nyomon követésének
+futásidőre gyakorolt hatásáról.
 
-=== Changing the Order
+[[_changing_the_order_2]]
+=== A sorrend megváltoztatása
 
-Finally, let's demonstrate that you can also reorder walks of all objects, not
-just walks of commits. First, we'll make our handlers chattier - modify
-`walken_show_commit()` and `walken_show_object()` to print the object as they
-go:
+Végül mutassuk meg, hogy nemcsak a commitok bejárását, hanem az összes
+objektum bejárását is átrendezhetjük. Először tegyük bőbeszédűbbé a
+kezelőinket - módosítsd a `walken_show_commit()`-ot és a
+`walken_show_object()`-et úgy, hogy menet közben kiírják az objektumot:
 
 ----
 #include "hex.h"
@@ -853,26 +899,27 @@ static void walken_show_object(struct object *obj, const char *str, void *buf)
 }
 ----
 
-NOTE: Since we will be examining this output directly as humans, we'll use
-`trace_printf()` here. Additionally, since this change introduces a significant
-number of printed lines, using `trace_printf()` will allow us to easily silence
-those lines without having to recompile.
+NOTE: Mivel ezt a kimenetet közvetlenül emberként fogjuk megvizsgálni, itt a
+`trace_printf()`-et fogjuk használni. Ráadásul, mivel ez a változtatás jelentős
+számú kiírt sort eredményez, a `trace_printf()` használatával könnyen
+elnémíthatjuk ezeket a sorokat újrafordítás nélkül is.
 
-(Leave the counter increment logic in place.)
+(Hagyd meg a számlálónövelő logikát.)
 
-With only that change, run again (but save yourself some scrollback):
+Csak ezzel a változtatással futtasd le újra (de spórolj magadnak egy kis
+scrollbackot):
 
 ----
 $ GIT_TRACE=1 ./bin-wrappers/git walken 2>&1 | head -n 10
 ----
 
-Take a look at the top commit with `git show` and the object ID you printed; it
-should be the same as the output of `git show HEAD`.
+Nézd meg a legfelső commitot a `git show`-val és a kiírt objektumazonosítót;
+ennek meg kell egyeznie a `git show HEAD` kimenetével.
 
-Next, let's change a setting on our `struct rev_info` within
-`walken_object_walk()`. Find where you're changing the other settings on `rev`,
-such as `rev->tree_objects` and `rev->tree_blobs_in_commit_order`, and add the
-`reverse` setting at the bottom:
+Most változtassunk meg egy beállítást a `struct rev_info`-nkon a
+`walken_object_walk()`-ön belül. Keresd meg, hol változtatod a `rev` egyéb
+beállításait, mint a `rev->tree_objects` és a `rev->tree_blobs_in_commit_order`,
+és add hozzá a `reverse` beállítást a végéhez:
 
 ----
 	...
@@ -886,28 +933,31 @@ such as `rev->tree_objects` and `rev->tree_blobs_in_commit_order`, and add the
 	...
 ----
 
-Now, run again, but this time, let's grab the last handful of objects instead
-of the first handful:
+Most futtasd le újra, de ezúttal ragadjuk meg az objektumok utolsó néhányát az
+első néhány helyett:
 
 ----
 $ make
 $ GIT_TRACE=1 ./bin-wrappers/git walken 2>&1 | tail -n 10
 ----
 
-The last commit object given should have the same OID as the one we saw at the
-top before, and running `git show <oid>` with that OID should give you again
-the same results as `git show HEAD`. Furthermore, if you run and examine the
-first ten lines again (with `head` instead of `tail` like we did before applying
-the `reverse` setting), you should see that now the first commit printed is the
-initial commit, `e83c5163`.
+Az utolsóként adott commit objektumnak ugyanazzal az OID-dal kell rendelkeznie,
+mint amelyiket korábban a tetején láttunk, és a `git show <oid>` futtatásának
+ezzel az OID-dal ismét ugyanazokat az eredményeket kell adnia, mint a `git show
+HEAD`. Továbbá, ha újra lefuttatod és megvizsgálod az első tíz sort (a `tail`
+helyett `head`-del, ahogy a `reverse` beállítás alkalmazása előtt tettük),
+azt kell látnod, hogy most az elsőként kiírt commit a kezdeti commit,
+`e83c5163`.
 
-== Wrapping Up
+[[_wrapping_up]]
+== Összefoglalás
 
-Let's review. In this tutorial, we:
+Nézzük át. Ebben az oktatóanyagban:
 
-- Built a commit walk from the ground up
-- Enabled a grep filter for that commit walk
-- Changed the sort order of that filtered commit walk
-- Built an object walk (tags, commits, trees, and blobs) from the ground up
-- Learned how to add a filter-spec to an object walk
-- Changed the display order of the filtered object walk
+- Felépítettünk egy commit-bejárást a semmiből
+- Engedélyeztünk egy grep filtert ehhez a commit-bejáráshoz
+- Megváltoztattuk ennek a szűrt commit-bejárásnak a rendezési sorrendjét
+- Felépítettünk egy objektumbejárást (tagek, commitok, tree-k és blobok) a
+  semmiből
+- Megtanultuk, hogyan adjunk filterspecet egy objektumbejáráshoz
+- Megváltoztattuk a szűrt objektumbejárás megjelenítési sorrendjét

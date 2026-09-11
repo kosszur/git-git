@@ -3632,3 +3632,65 @@ tényleges fájlállapotot Read-del, és Edit-tel közvetlenül befejezte mindk�
 
 Orchestrátor végezte közvetlenül (a két subagent munkamenet-limit miatti korai megszakadása
 után a hiányzó részek befejezésével). Részletek fent, „40. blokk".
+
+## 41. blokk — `MyFirstObjectWalk.adoc`, `githooks.adoc` — 2026-09-11
+
+**Fájlok:** `MyFirstObjectWalk.adoc` (29,6KB, 964 sor, NEM man page — contributor-tutorial a Git
+objektumbejárásáról, sok C-kódrészlettel a Git forrásából), `githooks.adoc` (29,9KB, 799 sor,
+man page — az összes Git hook leírása). 2 párhuzamos subagent végezte, megszakítás nélkül.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| object walk | **„objektumbejárás"** (első előforduláskor „object walk" glosszával) | `MyFirstObjectWalk.adoc` — a gráf-/fabejárás standard informatikai terminusa |
+| revision walk / revision walker | **„revízióbejárás" / „revízióbejáró"** | ua. |
+| commit walk | **„commit-bejárás"** | a `commit` (0. blokk) angolul marad, a `-bejárás` utótag ragad hozzá |
+| walk / traverse / traversal (ige/főnév, általános) | **„bejár" / „bejárás"** | standard bejárás-terminológia |
+| breadth-first (tree) traversal | **„szélességi (fa)bejárás"** | standard CS-terminus |
+| callback | **marad „callback"** | bevett, jelöletlen angol kölcsönszó a magyar fejlesztői nyelvben |
+| filter / filterspec | **marad „filter" / „filterspec"** | a Git saját `--filter`/`filterspec` terminológiáját követi |
+| helper (function, generikus prózában) | **„segédfüggvény"** | a tényleges függvénynevek angolul maradnak |
+| iterator | **„iterátor"** | standard CS kölcsönszó |
+| heads (branch-csúcsok értelemben, `githooks.adoc` `post-update` leírásban) | **„branch-csúcsok"** | ad hoc, nem volt a glossaryban |
+| 'forced' (kiemelt szó, NEM hook-név, `githooks.adoc`) | **marad „forced"** angolul, idézőjelben | a `force push`/`force-update` (0. blokk) angol jelző-mintájának folytatása |
+
+### Címsor-anchorok
+
+- **`MyFirstObjectWalk.adoc`** (NEM man page, minden cím fordult): 20 defenzív `[[...]]` anchor
+  (l. subagent-jelentés a teljes listáért) — köztük 2 duplikátum-feloldás Asciidoctor-stílusban:
+  a fájlban kétszer szereplő „Setting Up" → `_setting_up`/`_setting_up_2`, és a kétszer szereplő
+  „Adding a Filter" / „Changing the Order" párok → `_adding_a_filter`/`_adding_a_filter_2`,
+  `_changing_the_order`/`_changing_the_order_2`. Nincs `<<...>>` a fájlban, és más fájl sem
+  hivatkozik rá `<<...>>`-vel. A szint-0 dokumentumcím (`= Az első objektumbejárásom`) nem kapott
+  anchort (a még lefordítatlan `MyFirstContribution.adoc` angol eredetije is anchor nélküli ott).
+- **`githooks.adoc`**: a fájlnak már volt 5 explicit `[[...]]` anchorja (`pre-receive`, `update`,
+  `proc-receive`, `post-receive`, `post-update`) közvetlenül a hozzájuk tartozó, **le NEM
+  fordított** hook-név-címek fölött (l. lent) — ezek és a rájuk mutató `<<update,'update'>>` /
+  `<<post-receive,'post-receive'>>` (×2) / `<<pre-receive,'pre-receive'>>` /
+  `<<post-update,'post-update'>>` xref-ek bájtazonosan érintetlenek maradtak. Nem kellett új
+  anchort hozzáadni.
+
+### Man-page címként / hook-névként angolul hagyott címsorok
+
+- `githooks.adoc`: a **28 hook-név-alcím** (`applypatch-msg`, `pre-commit`, `pre-receive`,
+  `update`, `proc-receive` stb.) **szó szerinti szkript-fájlnevek, NEM fordítandó azonosítók** —
+  bájtazonosan, aláhúzásukkal együtt változatlanok, csak az alattuk lévő próza fordult. A
+  `HOOKS` csupa nagybetűs, kétsoros alcím a 39. blokk VÉGLEGES DÖNTÉSE szerint angolul. A
+  `"TEMPLATE DIRECTORY"` prózahivatkozás (a `git-init.adoc`-beli tényleges cím neve) szintén
+  angolul, ugyanezen döntés szerint.
+
+### Megőrzött markup / megjegyzések
+
+- `MyFirstObjectWalk.adoc`: minden C-kódblokk (40 `----` pár) és a bennük lévő **C-kommentek is**
+  bájtazonosan angolul maradtak (konzisztens a projekt eddigi kód-komment-kezelésével); a
+  szó szerint idézett történelmi Git commit-üzenet-részlet (`"Initial revision of "git", the
+  information manager from hell"`) is érintetlen; a `struct rev_info`/`struct
+  rev_cmdline_info`/függvénynevek (`get_revision()` stb.) angolul.
+- `githooks.adoc`: a pkt-line protokoll-példa (`update`/`proc-receive` hook leírásában, `#`
+  kommentekkel) bájtazonos; a `GIT` szakasz „Part of the linkgit:git[1] suite" sora
+  „A linkgit:git[1] csomag része"-re fordítva, a `git-p4.adoc`/`git-send-email.adoc` (40. blokk)
+  precedense szerint.
+
+Orchestrátor konszolidálta, közvetlen fájlmódosítás nélkül (mindkét subagent megszakítás nélkül
+fejezte be a saját fájlját). Részletek fent, „41. blokk".

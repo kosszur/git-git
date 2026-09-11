@@ -213,7 +213,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | BreakingChanges.adoc | [x] |  | 2026-09-10 |
 | DecisionMaking.adoc | [x] |  | 2026-09-10 |
 | MyFirstContribution.adoc | [ ] |  |  |
-| MyFirstObjectWalk.adoc | [ ] |  |  |
+| MyFirstObjectWalk.adoc | [x] |  | 2026-09-11 |
 | ReviewingGuidelines.adoc | [x] |  | 2026-09-10 |
 | ToolsForGit.adoc | [x] |  | 2026-09-10 |
 | blame-options.adoc | [x] |  | 2026-09-10 |
@@ -247,7 +247,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gitformat-pack.adoc | [x] |  | 2026-09-11 |
 | gitformat-signature.adoc | [x] |  | 2026-09-10 |
 | gitglossary.adoc | [ ] |  |  |
-| githooks.adoc | [ ] |  |  |
+| githooks.adoc | [x] |  | 2026-09-11 |
 | gitignore.adoc | [x] |  | 2026-09-10 |
 | gitk.adoc | [x] |  | 2026-09-10 |
 | gitmailmap.adoc | [x] |  | 2026-09-10 |
@@ -944,3 +944,12 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   belüli, szándékosan érintetlen tartalom: egy `<submit more changes...>` placeholder-sor és egy
   `# Change this to...` shell-kommentár). Ez az első `git-p4.adoc` fájl a projektben, néhány
   Perforce-specifikus terminológiai döntéssel. Részletek: `glossary-git-git-docs.md` „40. blokk".
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére; a két gyökér-tábla együttes, bájtméret szerint növekvő listája): `MyFirstObjectWalk.adoc`
+  (29,6KB, 964 sor, NEM man page — contributor-tutorial a Git objektumbejárásáról),
+  `githooks.adoc` (29,9KB, 799 sor, man page — az összes Git hook leírása). 2 párhuzamos subagent
+  végezte, ezúttal megszakítás nélkül. Strukturális ellenőrzés (`----`/`====` párszám, `[[...]]`
+  duplikátum, reziduális angol szöveg heurisztikus grep) mindkét fájlon hibátlan (a fennmaradó
+  angol találatok mind kódblokkon/C-kommenten/protokoll-pszeudokód-kommenten belüli, szándékosan
+  érintetlen tartalom, ill. egy szó szerint idézett történelmi Git commit-üzenet).
+  Részletek: `glossary-git-git-docs.md` „41. blokk".
