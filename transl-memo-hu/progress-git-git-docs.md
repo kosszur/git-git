@@ -183,7 +183,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-status.adoc | [x] |  | 2026-09-11 |
 | git-stripspace.adoc | [x] |  | 2026-09-10 |
 | git-submodule.adoc | [x] |  | 2026-09-11 |
-| git-svn.adoc | [ ] |  |  |
+| git-svn.adoc | [x] |  | 2026-09-11 |
 | git-switch.adoc | [x] |  | 2026-09-10 |
 | git-symbolic-ref.adoc | [x] |  | 2026-09-10 |
 | git-tag.adoc | [x] |  | 2026-09-11 |
@@ -266,7 +266,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | gittutorial-2.adoc | [x] |  | 2026-09-11 |
 | gittutorial.adoc | [x] |  | 2026-09-11 |
 | gitweb.adoc | [x] |  | 2026-09-11 |
-| gitweb.conf.adoc | [ ] |  |  |
+| gitweb.conf.adoc | [x] |  | 2026-09-11 |
 | gitworkflows.adoc | [x] |  | 2026-09-11 |
 | glossary-content.adoc | [ ] |  |  |
 | i18n.adoc | [x] |  | 2026-09-10 |
@@ -975,3 +975,11 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   `gitprotocol-http.adoc` NAME-sora tévesen angolul maradt („Git HTTP-based protocols") a
   projekt „NAME egysoros leírása mindig fordul" konvenciója (2. blokk) ellenére — most javítva
   „Git HTTP-alapú protokollok"-ra. Részletek: `glossary-git-git-docs.md` „43. blokk".
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére): `gitweb.conf.adoc` (42KB, 983 sor, man page — a gitweb konfigurációs fájl referenciája,
+  a `gitweb.adoc` [39. blokk] terminológiáját követve), `git-svn.adoc` (46,4KB, 1176→1238 sor,
+  man page — a legnagyobb fájl eddig ebben a batch-sorozatban, a Subversion↔Git híd, a `git-p4.adoc`
+  [40. blokk] a legközelebbi mintafájl). 2 párhuzamos subagent végezte, megszakítás nélkül,
+  orchestrátor-javítás nem volt szükséges egyik fájlon sem. Strukturális ellenőrzés (kötőjel-/
+  aláhúzás-számlálás, anchor-duplikátum, reziduális angol szöveg heurisztikus grep) mindkét
+  fájlon hibátlan. Részletek: `glossary-git-git-docs.md` „44. blokk".

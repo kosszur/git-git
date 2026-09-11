@@ -3830,3 +3830,59 @@ guardokkal), `gitprotocol-v2.adoc` (36,8KB, 904→974 sor, RFC-stílusú protoko
 
 Orchestrátor konszolidálta, 2 javítással (`diff-options.adoc` grammatika, `gitprotocol-http.adoc`
 elmulasztott NAME-fordítás pótlása). Részletek fent, „43. blokk".
+
+## 44. blokk — `gitweb.conf.adoc`, `git-svn.adoc` — 2026-09-11
+
+**Fájlok:** `gitweb.conf.adoc` (42KB, 983 sor, man page — a `gitweb.conf.perl` konfigurációs
+fájl referenciája, a `gitweb.adoc` [39. blokk] közvetlen mintáját követve), `git-svn.adoc`
+(46,4KB, 1176→1238 sor, man page — Subversion↔Git híd, a `git-p4.adoc` [40. blokk] a
+legközelebbi mintafájl). 2 párhuzamos subagent végezte, megszakítás nélkül; egyik fájl sem
+igényelt orchestrátor-javítást.
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| feature (gitweb `%feature`-mechanizmus, generikus főnév) | **„funkció"** | `gitweb.conf.adoc` — a `gitweb.adoc`-ban már használt „funkció" megerősítése |
+| action bar | **„akciósáv"** | `gitweb.conf.adoc` |
+| breadcrumb(s) / breadcrumb trail | **„morzsanyom"** | `gitweb.conf.adoc` |
+| policy (opcionális funkciók/szabályok értelemben) | **„szabályzat"** | `gitweb.conf.adoc` |
+| override (ige/melléknév, per-repository config felülbírálás) | **„felülír" / „felülírható"** | `gitweb.conf.adoc` — sima igeként, nem glossary-tétel |
+| revision / revision number (SVN-kontextusban) | **„revízió" / „revíziószám"** | `git-svn.adoc` — megerősítve a `git-bisect.adoc`/`gitweb.adoc` már meglévő „revízió" használatából |
+| transport / transport method (SVN kapcsolódási séma: `svn://`, `svn+ssh://`, `http://`) | **„protokoll"** | `git-svn.adoc` — **megkülönböztetve** a Git saját wire-transport „transport" terminusától (`gitprotocol-pack.adoc`, 39. blokk); az SVN-kontextusban a „protokoll" olvashatóbb és nem ütközik, mivel más fogalomkör |
+| property / properties (generikus SVN tulajdonság-fogalom) | **„tulajdonság" / „tulajdonságok"** | `git-svn.adoc` — a szó szerinti tulajdonság-azonosítók (`svn:ignore`, `svn:executable`, `svn:mergeinfo`, `svn:keywords`) angolul maradnak |
+| merge information / mergeinfo | **„merge-információ"** (a `mergeinfo` config-érték-név érintetlen) | `git-svn.adoc` |
+| authors-file / authors file | **marad angolul**, kölcsönszóként | `git-svn.adoc` — a git-p4 „depot"-precedens folytatása: idegen-eszköz-specifikus config-artifact-név angolul marad |
+| trunk (SVN standard-elrendezés könyvtárneve) | **marad angolul**, nem fordul | `git-svn.adoc` — tulajdonnév-szerű, konzisztens a git-p4 „depot" kezelésével |
+| externals (`svn:externals` funkció, generikus hivatkozás) | **„Subversion externals bejegyzéseket"** (kölcsönszó + magyar főnév) | `git-svn.adoc` |
+| patch set | **„patch-halmaz"** | `git-svn.adoc` |
+
+### Címsor-anchorok
+
+- **`gitweb.conf.adoc`**: 8 defenzív `[[...]]` anchor a fordított, nem kanonikus, NEM csupa
+  nagybetűs setext-alcímek fölött (`_location_of_repositories`, `_finding_files`,
+  `_links_and_their_targets`, `_changing_gitweb_s_look`, `_changing_gitweb_s_behavior`,
+  `_some_optional_features_and_policies`, `_other_variables`, `_features_in_feature`). Nincs
+  `<<...>>` a fájlban. A `CONFIGURATION VARIABLES` és `CONFIGURING GITWEB FEATURES` csupa
+  nagybetűs, kanonikus listán kívüli címek a 39. blokk VÉGLEGES DÖNTÉSE szerint angolul.
+- **`git-svn.adoc`**: nincs `<<...>>` a fájlban, nem kellett anchort hozzáadni. A `COMMANDS`,
+  `ADVANCED OPTIONS`, `CONFIG FILE-ONLY OPTIONS`, `BASIC EXAMPLES`, `REBASE VS. PULL/MERGE`,
+  `MERGE TRACKING`, `HANDLING OF SVN BRANCHES` csupa nagybetűs alcímek a 39. blokk VÉGLEGES
+  DÖNTÉSE szerint angolul. A `'clone'`/`'fetch'`/`'rebase'`/`'dcommit'`/`'branch'`/`'tag'`/
+  `'log'`/`'blame'` stb. **alparancsnév-definíciós-lista-címkék** (a `githooks.adoc` [41. blokk]
+  hook-név-precedensének megfelelően) szó szerinti azonosítóként érintetlenek, csak a
+  leírás-törzsük fordult.
+
+### Megőrzött markup / megjegyzések
+
+- `gitweb.conf.adoc`: minden Perl-kódblokk, változónév (`$projectroot`, `%feature`,
+  `@stylesheets` stb.), config-kulcs és szó szerinti program-kimeneti sztring (pl. `"$SERVER_NAME
+  Git"`, `"This page took 6.53325 seconds and 13 Git..."`) bájtazonos.
+- `git-svn.adoc`: minden `----`/`------------` kódblokk (beleértve a BASIC EXAMPLES `#`-
+  kommentjeit és a 2 ASCII-art rev-gráf-diagramot) bájtazonos; a `"not found in commit"` /
+  `"checksum mismatch"` szó szerinti hibaüzenetek angolul; az `--interactive` `"yes"/"no"/"all"/
+  "quit"` válaszsztringek egyenes ASCII idézőjelben maradtak, konzisztensen a fájl más
+  felsorolás-szerű értékeivel (`"true"/"false"`).
+
+Orchestrátor konszolidálta, javítás nélkül (mindkét subagent hibátlanul fejezte be a saját
+fájlját). Részletek fent, „44. blokk".
