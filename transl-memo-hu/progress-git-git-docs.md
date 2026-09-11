@@ -135,7 +135,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-mv.adoc | [x] |  | 2026-09-10 |
 | git-name-rev.adoc | [x] |  | 2026-09-10 |
 | git-notes.adoc | [x] |  | 2026-09-11 |
-| git-p4.adoc | [ ] |  |  |
+| git-p4.adoc | [x] |  | 2026-09-11 |
 | git-pack-objects.adoc | [x] |  | 2026-09-11 |
 | git-pack-redundant.adoc | [x] |  | 2026-09-10 |
 | git-pack-refs.adoc | [x] |  | 2026-09-10 |
@@ -166,7 +166,7 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
 | git-rev-parse.adoc | [x] |  | 2026-09-11 |
 | git-revert.adoc | [x] |  | 2026-09-10 |
 | git-rm.adoc | [x] |  | 2026-09-10 |
-| git-send-email.adoc | [ ] |  |  |
+| git-send-email.adoc | [x] |  | 2026-09-11 |
 | git-send-pack.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n--envsubst.adoc | [x] |  | 2026-09-10 |
 | git-sh-i18n.adoc | [x] |  | 2026-09-10 |
@@ -924,3 +924,23 @@ sűrűségűek — ezeket a végére hagyd, amikor a terminológia már stabil.
   hibátlan. Nyitva maradt döntési kérdés: az „Authentication" cím ellentmondása
   (`gitprotocol-pack.adoc`-ban lefordítva „Hitelesítés"-re, a korábban kész `gitprotocol-http.adoc`-
   ban angolul hagyva) — l. `glossary-git-git-docs.md` „39. blokk". Részletek: „39. blokk".
+- **2026-09-11 — a felhasználó lezárta a két nyitott döntést**: (1) „Authentication" marad
+  angolul mindkét helyen — a `gitprotocol-pack.adoc` visszaállítva „Hitelesítés"-ről
+  „Authentication"-re; (2) a kanonikus man-page-listán kívüli, csupa nagybetűs, kétsoros
+  alcímek **véglegesen angolul maradnak** (a projekt eddigi gyakorlatának megerősítése,
+  mostantól nem kell újra jelezni). Mindkettő rögzítve: `glossary-git-git-docs.md` „39. blokk"
+  (frissítve).
+- **2026-09-11 — a következő 2 legkisebb, még lefordítatlan „Gyökér" fájl kész** (a felhasználó
+  kérésére; a két gyökér-tábla együttes, bájtméret szerint növekvő listája): `git-p4.adoc` (28KB,
+  865 sor, man page), `git-send-email.adoc` (29KB, 771 sor, man page). 2 párhuzamos subagent
+  kezdte, de mindkettő **munkamenet-limit (session limit, HTTP 429) miatt idő előtt megszakadt**
+  a fájl vége felé; az orchestrátor ellenőrizte a tényleges fájlállapotot és Read/Edit-tel
+  befejezte mindkettőt (`git-p4.adoc`-ban a „Clone és sync változók" alszakasz második fele
+  [`branchUser`-től `mapUser`-ig], a „Submit változók" alszakasz és az „IMPLEMENTATION DETAILS"
+  felsorolás, valamint mindkét fájl záró „GIT"/"Part of the linkgit:git[1] suite" sora volt még
+  angolul — utóbbi „A linkgit:git[1] csomag része"-ként fordítva, a bevett precedens szerint).
+  Strukturális ellenőrzés (`----`/`====` párszám, `[[...]]` duplikátum, reziduális angol szöveg
+  heurisztikus grep) mindkét fájlon hibátlan (a fennmaradó angol találatok mind kódblokkon
+  belüli, szándékosan érintetlen tartalom: egy `<submit more changes...>` placeholder-sor és egy
+  `# Change this to...` shell-kommentár). Ez az első `git-p4.adoc` fájl a projektben, néhány
+  Perforce-specifikus terminológiai döntéssel. Részletek: `glossary-git-git-docs.md` „40. blokk".

@@ -3564,3 +3564,71 @@ párszám, `[[...]]` duplikátum-ellenőrzés, `ifdef`/`endif` párosság) mind 
   attribútum-hivatkozás érintetlen.
 - `gittutorial.adoc`: a `$ man git-log` / `$ git help log` stb. `------------------------------`
   (32 kötőjel) parancspélda-blokkok és azok konzol-kimenete bájtazonosak.
+
+## 40. blokk — `git-p4.adoc`, `git-send-email.adoc` — 2026-09-11
+
+**Fájlok:** `git-p4.adoc` (28KB, 865 sor, man page — ELSŐ git-p4 fájl a projektben),
+`git-send-email.adoc` (29KB, 771 sor, man page). 2 párhuzamos subagent kezdte; mindkettő
+**munkamenet-limit (session limit, HTTP 429) miatt idő előtt megszakadt** a fájl vége felé —
+első alkalom a projektben, hogy ez subagent-futás közben (nem csak korábbi, más jellegű
+`content filtering policy` hibaként, l. „4. blokk") fordul elő. Az orchestrátor ellenőrizte a
+tényleges fájlállapotot Read-del, és Edit-tel közvetlenül befejezte mindkét fájlt.
+
+### Befejezéskor pótolt, még angol maradványok
+
+- **`git-p4.adoc`**: a „Clone és sync változók" alszakasz második fele (`git-p4.branchUser`-től
+  `git-p4.mapUser`-ig, kb. 120 sor), a „Submit variables" → „Submit változók" alcím és teljes
+  törzse (`git-p4.detectRenames`-től `git-p4.disableP4Sync`-ig), az „IMPLEMENTATION DETAILS"
+  4 pontos felsorolása, és a záró „GIT" szakasz „Part of the linkgit:git[1] suite" sora.
+- **`git-send-email.adoc`**: csak a záró „GIT" szakasz „Part of the linkgit:git[1] suite" sora
+  maradt angolul (a fájl többi része a subagent által hibátlanul befejezve).
+- Mindkét fájlban: „Part of the linkgit:git[1] suite" → **„A linkgit:git[1] csomag része"**
+  (a bevett projekt-precedens megismétlése).
+
+### Ebben a blokkban rögzített / megerősített döntések
+
+| angol | magyar | megjegyzés |
+|---|---|---|
+| Perforce / p4 (eszköznév, parancsnév) | **marad angolul**, kis kezdőbetűs `p4` a prózában a forrás szóhasználatát követve | `git-p4.adoc` — tulajdonnév, a `Subversion`/`CVS` (0. blokk) mintájára |
+| depot (p4 fogalom) | **marad „depot"** angol kölcsönszóként, magyar toldalékkal: `depot elérési út`, `depotban` | `git-p4.adoc` — Perforce-specifikus terminus, nincs bevett magyar megfelelője |
+| changelist | **marad „changelist"** | `git-p4.adoc` — Perforce-specifikus terminus, a `changeset` (0. blokk) mintájára |
+| shelve / unshelve (p4 ige) | **„shelve-el" / „unshelve-el"**, `shelve-elt`, `unshelve-elés` | `git-p4.adoc` — a `stash`/`bundle` (0. blokk) igeképzési mintájára |
+| client spec (p4 fogalom) | **marad „client spec"** | `git-p4.adoc` |
+| branch detection (p4-specifikus algoritmus neve, prózahivatkozás) | **marad angolul, idézőjelben**: „BRANCH DETECTION" | a kanonikus listán kívüli, csupa nagybetűs cím (VÉGLEGES DÖNTÉS, 39. blokk) |
+| re-author (ige, p4 submit kontextusban) | **„újra-szerzőz"** | `git-p4.adoc` — a `annotate`/`amend` (0. blokk) ad hoc igeképzési mintája |
+
+### Man-page címként angolul hagyott, kétes címsorok
+
+- `git-p4.adoc`: `COMMANDS`, `OPTIONS`, `DEPOT PATH SYNTAX`, `CLIENT SPEC`, `BRANCH DETECTION`,
+  `PERFORMANCE`, `CONFIGURATION VARIABLES`, `IMPLEMENTATION DETAILS` — mind a 39. blokk
+  VÉGLEGES DÖNTÉSE szerint angolul (kanonikus listán kívüli, csupa nagybetűs, kétsoros
+  man-page-stílusú alcímek). Ezután **nem kell többé "kétesként" flag-elni** ezt a mintát.
+- `git-send-email.adoc`: `SENDING PATCHES`, `EXAMPLES OF SMTP SERVERS`, `CAVEATS`, `SEE ALSO`
+  — ugyanígy angolul, a `CAVEATS`/`SEE ALSO` kanonikus, a másik kettő a VÉGLEGES DÖNTÉS szerint.
+
+### Címsor-anchorok
+
+- `git-p4.adoc`: nincs `[[...]]`/`<<...>>` a fájlban — minden alcím vagy kanonikus, vagy a
+  fenti VÉGLEGES DÖNTÉS szerint angolul maradó, csupa nagybetűs cím, tehát egyik sem kapott
+  (vagy igényelt) anchort.
+  - `git-send-email.adoc`: 8 defenzív anchor a fordított (Title Case) alcímek fölött:
+  `_composing` (Összeállítás), `_sending` (Küldés), `_automating` (Automatizálás),
+  `_administering` (Adminisztráció), `_information` (Információ),
+  `_use_gmail_as_the_smtp_server`, `_use_microsoft_outlook_as_the_smtp_server`,
+  `_exploiting_the_sendmailcmd_option_of_git_send_email`. Nincs `<<...>>` a fájlban.
+
+### Megőrzött markup / megjegyzések
+
+- `git-p4.adoc`: minden `------------`/`----`/`-------------` (változó hosszúságú, 4–13
+  kötőjeles) parancspélda- és config-blokk bájtazonos, beleértve a `<submit more changes via p4
+  to the same files>` placeholder-sort egy unshelve-példában.
+  A `git-p4.*` config-kulcsok (`::`-címkék) és a `P4CLIENT`/`P4USER`/`P4PASS`/`P4PORT`/`P4HOST`/
+  `P4CONFIG` környezeti változók bájtazonosak.
+- `git-send-email.adoc`: az e-mail-fejléc-nevek (`From:`, `To:`, `Cc:`, `Bcc:`, `Subject:`,
+  `Message-ID:`, `In-Reply-To:`, `References:`, `X-Mailer:`) és a `sendemail.*` config-kulcsok
+  bájtazonosak; a patch-thread ASCII-ábra (`[PATCH 0/2] Here is what I did...` stb.) és a
+  `# Change this to the path where msmtp is installed` shell-kommentár bájtazonos (kódblokkon
+  belüli tartalom).
+
+Orchestrátor végezte közvetlenül (a két subagent munkamenet-limit miatti korai megszakadása
+után a hiányzó részek befejezésével). Részletek fent, „40. blokk".

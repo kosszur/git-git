@@ -3,7 +3,7 @@ git-send-email(1)
 
 NAME
 ----
-git-send-email - Send a collection of patches as emails
+git-send-email - Patchek egy csoportjának e-mailben történő elküldése
 
 
 SYNOPSIS
@@ -17,92 +17,95 @@ git send-email --translate-aliases
 
 DESCRIPTION
 -----------
-Takes the patches given on the command line and emails them out.
-Patches can be specified as files, directories (which will send all
-files in the directory), or directly as a revision list.  In the
-last case, any format accepted by linkgit:git-format-patch[1] can
-be passed to `git send-email`, as well as options understood by
-linkgit:git-format-patch[1].
+A parancssorban megadott patcheket fogja, és e-mailben elküldi őket.
+A patchek megadhatók fájlokként, könyvtárakként (ekkor a könyvtárban lévő
+összes fájl elküldésre kerül), vagy közvetlenül revíziólistaként. Az utóbbi
+esetben bármilyen, a linkgit:git-format-patch[1] által elfogadott formátum
+átadható a `git send-email` parancsnak, csakúgy, mint a
+linkgit:git-format-patch[1] által értelmezett opciók.
 
-The header of the email is configurable via command-line options.  If not
-specified on the command line, the user will be prompted with a ReadLine
-enabled interface to provide the necessary information.
+Az e-mail fejléce parancssori opciókkal konfigurálható. Ha nincs megadva a
+parancssorban, a felhasználót egy ReadLine-t használó felület kéri majd a
+szükséges adatok megadására.
 
-There are two formats accepted for patch files:
+A patch-fájloknak két elfogadott formátuma van:
 
-1. mbox format files
+1. mbox formátumú fájlok
 +
-This is what linkgit:git-format-patch[1] generates.  Most headers and MIME
-formatting are ignored.
+Ezt a linkgit:git-format-patch[1] állítja elő. A legtöbb fejlécet és a MIME
+formázást figyelmen kívül hagyja.
 
-2. The original format used by Greg Kroah-Hartman's `send_lots_of_email.pl`
-   script
+2. Greg Kroah-Hartman `send_lots_of_email.pl` szkriptje által használt
+   eredeti formátum
 +
-This format expects the first line of the file to contain the `Cc:` value
-and the `Subject:` of the message as the second line.
+Ez a formátum azt várja, hogy a fájl első sora tartalmazza a `Cc:` értéket,
+a második sor pedig az üzenet `Subject:` sorát.
 
 
 OPTIONS
 -------
 
-Composing
-~~~~~~~~~
+[[_composing]]
+Összeállítás
+~~~~~~~~~~~~
 
 `--annotate`::
-	Review and edit each patch you're about to send. Default is the value
-	of `sendemail.annotate`. See the CONFIGURATION section for
-	`sendemail.multiEdit`.
+	Tekintsd át és szerkeszd az egyes elküldeni kívánt patcheket. Az
+	alapérték a `sendemail.annotate` értéke. Lásd a CONFIGURATION
+	szekciót a `sendemail.multiEdit` opcióhoz.
 
 `--bcc=<address>,...`::
-	Specify a `Bcc:` value for each email. Default is the value of
-	`sendemail.bcc`.
+	Adj meg egy `Bcc:` értéket minden e-mailhez. Az alapérték a
+	`sendemail.bcc` értéke.
 +
-This option may be specified multiple times.
+Ez az opció többször is megadható.
 
 `--cc=<address>,...`::
-	Specify a starting `Cc:` value for each email.
-	Default is the value of `sendemail.cc`.
+	Adj meg egy kezdeti `Cc:` értéket minden e-mailhez.
+	Az alapérték a `sendemail.cc` értéke.
 +
-This option may be specified multiple times.
+Ez az opció többször is megadható.
 
 `--compose`::
-	Invoke a text editor (see GIT_EDITOR in linkgit:git-var[1])
-	to edit an introductory message for the patch series.
+	Hívj meg egy szövegszerkesztőt (lásd a GIT_EDITOR-t a
+	linkgit:git-var[1]-ben) a patch-sorozathoz tartozó bevezető üzenet
+	szerkesztéséhez.
 +
-When `--compose` is used, `git send-email` will use the `From`, `To`, `Cc`,
-`Bcc`, `Subject`, `Reply-To`, and `In-Reply-To` headers specified in the
-message. If the body of the message (what you type after the headers and a
-blank line) only contains blank (or `Git:` prefixed) lines, the summary won't be
-sent, but the headers mentioned above will be used unless they are
-removed.
+Ha a `--compose` van használatban, a `git send-email` az üzenetben megadott
+`From`, `To`, `Cc`, `Bcc`, `Subject`, `Reply-To` és `In-Reply-To` fejléceket
+fogja használni. Ha az üzenet törzse (amit a fejlécek és egy üres sor után
+gépelsz be) csak üres (vagy `Git:` előtaggal kezdődő) sorokat tartalmaz, az
+összefoglaló nem kerül elküldésre, de a fent említett fejlécek felhasználásra
+kerülnek, hacsak nem lettek eltávolítva.
 +
-Missing `From` or `In-Reply-To` headers will be prompted for.
+A hiányzó `From` vagy `In-Reply-To` fejlécekre rá fog kérdezni.
 +
-See the CONFIGURATION section for `sendemail.multiEdit`.
+Lásd a CONFIGURATION szekciót a `sendemail.multiEdit` opcióhoz.
 
 `--from=<address>`::
-	Specify the sender of the emails.  If not specified on the command line,
-	the value of the `sendemail.from` configuration option is used.  If
-	neither the command-line option nor `sendemail.from` are set, then the
-	user will be prompted for the value.  The default for the prompt will be
-	the value of `GIT_AUTHOR_IDENT`, or `GIT_COMMITTER_IDENT` if that is not
-	set, as returned by `git var -l`.
+	Add meg az e-mailek küldőjét. Ha nincs megadva a parancssorban, a
+	`sendemail.from` konfigurációs opció értéke kerül felhasználásra. Ha
+	sem a parancssori opció, sem a `sendemail.from` nincs beállítva, a
+	felhasználót kérdezi meg az értékről. A kérdés alapértéke a
+	`GIT_AUTHOR_IDENT`, vagy ha az nincs beállítva, a `GIT_COMMITTER_IDENT`
+	értéke lesz, ahogy azt a `git var -l` visszaadja.
 
 `--reply-to=<address>`::
-	Specify the address where replies from recipients should go to.
-	Use this if replies to messages should go to another address than what
-	is specified with the `--from` parameter.
+	Add meg azt a címet, ahová a címzettek válaszainak érkezniük kell.
+	Ezt akkor használd, ha az üzenetekre érkező válaszoknak más címre
+	kell mennie, mint amit a `--from` paraméter megad.
 
 `--in-reply-to=<identifier>`::
-	Make the first mail (or all the mails with `--no-thread`) appear as a
-	reply to the given Message-ID, which avoids breaking threads to
-	provide a new patch series.
-	The second and subsequent emails will be sent as replies according to
-	the `--[no-]chain-reply-to` setting.
+	Az első levelet (vagy `--no-thread` esetén az összes levelet) a
+	megadott Message-ID-re adott válaszként jeleníti meg, ami elkerüli a
+	témaszálak megszakítását egy új patch-sorozat közlésekor.
+	A második és az azt követő e-mailek a `--[no-]chain-reply-to`
+	beállításnak megfelelően kerülnek elküldésre válaszként.
 +
-So for example when `--thread` and `--no-chain-reply-to` are specified, the
-second and subsequent patches will be replies to the first one like in the
-illustration below where `[PATCH v2 0/3]` is in reply to `[PATCH 0/2]`:
+Így például amikor a `--thread` és a `--no-chain-reply-to` van megadva, a
+második és az azt követő patchek az elsőre adott válaszok lesznek, ahogy azt
+az alábbi ábra mutatja, ahol a `[PATCH v2 0/3]` a `[PATCH 0/2]`-re adott
+válasz:
 +
   [PATCH 0/2] Here is what I did...
     [PATCH 1/2] Clean up and tests
@@ -112,452 +115,484 @@ illustration below where `[PATCH v2 0/3]` is in reply to `[PATCH 0/2]`:
       [PATCH v2 2/3] New tests
       [PATCH v2 3/3] Implementation
 +
-Only necessary if `--compose` is also set.  If `--compose`
-is not set, this will be prompted for.
+Csak akkor szükséges, ha a `--compose` is be van állítva. Ha a `--compose`
+nincs beállítva, erre rá fog kérdezni.
 
 `--outlook-id-fix`::
 `--no-outlook-id-fix`::
-	Microsoft Outlook SMTP servers discard the Message-ID sent via email and
-	assign a new random Message-ID, thus breaking threads.
+	A Microsoft Outlook SMTP-szerverei eldobják az e-mailben elküldött
+	Message-ID-t, és egy új, véletlenszerű Message-ID-t rendelnek hozzá,
+	ezzel megszakítva a témaszálakat.
 +
-With `--outlook-id-fix`, `git send-email` uses a mechanism specific to
-Outlook servers to learn the Message-ID the server assigned to fix the
-threading. Use it only when you know that the server reports the
-rewritten Message-ID the same way as Outlook servers do.
+A `--outlook-id-fix` opcióval a `git send-email` egy, az Outlook
+szerverekre jellemző mechanizmust használ, hogy megtudja, a szerver milyen
+Message-ID-t rendelt hozzá, és ezzel javítsa a szálazást. Csak akkor
+használd, ha tudod, hogy a szerver ugyanúgy adja vissza az átírt
+Message-ID-t, mint az Outlook szerverek.
 +
-Without this option specified, the fix is done by default when talking
-to `smtp.office365.com` or `smtp-mail.outlook.com`. Use
-`--no-outlook-id-fix` to disable even when talking to these two servers.
+Ha ez az opció nincs megadva, a javítás alapértelmezetten megtörténik, ha a
+`smtp.office365.com` vagy a `smtp-mail.outlook.com` szerverrel kommunikál.
+Használd a `--no-outlook-id-fix` opciót, ha ezt ki akarod kapcsolni akkor is,
+amikor ezzel a két szerverrel kommunikál.
 
 `--subject=<string>`::
-	Specify the initial subject of the email thread.
-	Only necessary if `--compose` is also set.  If `--compose`
-	is not set, this will be prompted for.
+	Add meg az e-mail témaszál kezdeti tárgyát.
+	Csak akkor szükséges, ha a `--compose` is be van állítva. Ha a
+	`--compose` nincs beállítva, erre rá fog kérdezni.
 
 `--to=<address>,...`::
-	Specify the primary recipient of the emails generated. Generally, this
-	will be the upstream maintainer of the project involved. Default is the
-	value of the `sendemail.to` configuration value; if that is unspecified,
-	and `--to-cmd` is not specified, this will be prompted for.
+	Add meg a generált e-mailek elsődleges címzettjét. Általában ez az
+	érintett projekt upstream maintainere. Az alapérték a `sendemail.to`
+	konfigurációs érték; ha az nincs megadva, és a `--to-cmd` sincs
+	megadva, erre rá fog kérdezni.
 +
-This option may be specified multiple times.
+Ez az opció többször is megadható.
 
 `--8bit-encoding=<encoding>`::
-	When encountering a non-ASCII message or subject that does not
-	declare its encoding, add headers/quoting to indicate it is
-	encoded in _<encoding>_.  Default is the value of the
-	`sendemail.assume8bitEncoding`; if that is unspecified, this
-	will be prompted for if any non-ASCII files are encountered.
+	Ha nem ASCII üzenettel vagy tárggyal találkozik, amely nem deklarálja
+	a kódolását, fejléceket/idézést ad hozzá annak jelzésére, hogy az
+	_<encoding>_ kódolással van kódolva. Az alapérték a
+	`sendemail.assume8bitEncoding` értéke; ha az nincs megadva, erre
+	rá fog kérdezni, ha bármilyen nem ASCII fájllal találkozik.
 +
-Note that no attempts whatsoever are made to validate the encoding.
+Megjegyzés: semmilyen kísérlet nem történik a kódolás ellenőrzésére.
 
 `--compose-encoding=<encoding>`::
-	Specify encoding of compose message. Default is the value of the
-	`sendemail.composeEncoding`; if that is unspecified, UTF-8 is assumed.
+	Add meg a compose-üzenet kódolását. Az alapérték a
+	`sendemail.composeEncoding` értéke; ha az nincs megadva, UTF-8-at
+	feltételez.
 
 `--transfer-encoding=(7bit|8bit|quoted-printable|base64|auto)`::
-	Specify the transfer encoding to be used to send the message over SMTP.
-	`7bit` will fail upon encountering a non-ASCII message. `quoted-printable`
-	can be useful when the repository contains files that contain carriage
-	returns, but makes the raw patch email file (as saved from an MUA) much
-	harder to inspect manually. `base64` is even more fool proof, but also
-	even more opaque. `auto` will use `8bit` when possible, and
-	`quoted-printable` otherwise.
+	Add meg az SMTP-n keresztül küldött üzenethez használandó
+	átviteli kódolást. A `7bit` hibázik, ha nem ASCII üzenettel
+	találkozik. A `quoted-printable` akkor hasznos, ha a repository
+	kocsivissza-karaktereket tartalmazó fájlokat tartalmaz, de ettől a
+	nyers patch e-mail fájl (ahogy egy MUA-ból elmentve van) sokkal
+	nehezebben ellenőrizhető kézzel. A `base64` még inkább hibatűrő, de
+	még átláthatatlanabb is. Az `auto` a `8bit`-et használja, amikor
+	lehetséges, egyébként a `quoted-printable`-t.
 +
-Default is the value of the `sendemail.transferEncoding` configuration
-value; if that is unspecified, default to `auto`.
+Az alapérték a `sendemail.transferEncoding` konfigurációs érték; ha az
+nincs megadva, az alapértelmezés `auto`.
 
 `--xmailer`::
 `--no-xmailer`::
-	Add (or prevent adding) the `X-Mailer:` header.  By default,
-	the header is added, but it can be turned off by setting the
-	`sendemail.xmailer` configuration variable to `false`.
+	Hozzáadja (vagy megakadályozza a hozzáadását) az `X-Mailer:`
+	fejlécnek. Alapértelmezésben a fejléc hozzáadásra kerül, de
+	kikapcsolható a `sendemail.xmailer` konfigurációs változó `false`-ra
+	állításával.
 
-Sending
-~~~~~~~
+[[_sending]]
+Küldés
+~~~~~~
 
 `--envelope-sender=<address>`::
-	Specify the envelope sender used to send the emails.
-	This is useful if your default address is not the address that is
-	subscribed to a list. In order to use the `From` address, set the
-	value to `auto`. If you use the `sendmail` binary, you must have
-	suitable privileges for the `-f` parameter.  Default is the value of the
-	`sendemail.envelopeSender` configuration variable; if that is
-	unspecified, choosing the envelope sender is left to your MTA.
+	Add meg az e-mailek küldéséhez használt boríték-küldőt (envelope
+	sender). Ez akkor hasznos, ha az alapértelmezett címed nem az a
+	cím, amely fel van iratkozva egy listára. A `From` cím
+	használatához állítsd az értéket `auto`-ra. Ha a `sendmail`
+	binárist használod, megfelelő jogosultságokkal kell rendelkezned az
+	`-f` paraméterhez. Az alapérték a `sendemail.envelopeSender`
+	konfigurációs változó értéke; ha az nincs megadva, a boríték-küldő
+	kiválasztása az MTA-dra van bízva.
 
 `--sendmail-cmd=<command>`::
-	Specify a command to run to send the email. The command should
-	be sendmail-like; specifically, it must support the `-i` option.
-	The command will be executed in the shell if necessary.  Default
-	is the value of `sendemail.sendmailCmd`.  If unspecified, and if
-	`--smtp-server` is also unspecified, `git send-email` will search
-	for `sendmail` in `/usr/sbin`, `/usr/lib` and `$PATH`.
+	Add meg egy futtatandó parancsot az e-mail küldéséhez. A parancsnak
+	sendmail-szerűnek kell lennie; konkrétan támogatnia kell a `-i`
+	opciót. A parancs szükség esetén a shellben kerül végrehajtásra. Az
+	alapérték a `sendemail.sendmailCmd` értéke. Ha nincs megadva, és a
+	`--smtp-server` sincs megadva, a `git send-email` keresni fogja a
+	`sendmail`-t a `/usr/sbin`, `/usr/lib` és a `$PATH` könyvtárakban.
 
 `--smtp-encryption=<encryption>`::
-	Specify in what way encrypting begins for the SMTP connection.
-	Valid values are `ssl` and `tls`. Any other value reverts to plain
-	(unencrypted) SMTP, which defaults to port 25.
-	Despite the names, both values will use the same newer version of TLS,
-	but for historic reasons have these names. `ssl` refers to "implicit"
-	encryption (sometimes called SMTPS), that uses port 465 by default.
-	`tls` refers to "explicit" encryption (often known as STARTTLS),
-	that uses port 25 by default. Other ports might be used by the SMTP
-	server, which are not the default. Commonly found alternative port for
-	`tls` and unencrypted is 587. You need to check your provider's
-	documentation or your server configuration to make sure
-	for your own case. Default is the value of `sendemail.smtpEncryption`.
+	Add meg, milyen módon kezdődjön a titkosítás az SMTP-kapcsolathoz.
+	Érvényes értékek az `ssl` és a `tls`. Bármely más érték egyszerű
+	(titkosítatlan) SMTP-re esik vissza, amely alapértelmezetten a 25-ös
+	portot használja.
+	A nevek ellenére mindkét érték a TLS ugyanazon újabb verzióját
+	használja, de történelmi okokból ezeket a neveket viselik. Az `ssl` az
+	„implicit" titkosításra utal (néha SMTPS-nek is nevezik), amely
+	alapértelmezetten a 465-ös portot használja. A `tls` az „explicit"
+	titkosításra utal (gyakran STARTTLS néven ismert), amely
+	alapértelmezetten a 25-ös portot használja. Az SMTP-szerver más
+	portokat is használhat, amelyek nem az alapértelmezettek. A `tls` és
+	a titkosítatlan mód esetén gyakran előforduló alternatív port az 587.
+	A saját esetedhez ellenőrizned kell a szolgáltatód dokumentációját
+	vagy a szervered konfigurációját. Az alapérték a
+	`sendemail.smtpEncryption` értéke.
 
 `--smtp-domain=<FQDN>`::
-	Specify the Fully Qualified Domain Name (FQDN) used in the
-	HELO/EHLO command to the SMTP server.  Some servers require the
-	FQDN to match your IP address.  If not set, `git send-email` attempts
-	to determine your FQDN automatically.  Default is the value of
-	`sendemail.smtpDomain`.
+	Add meg a teljes tartománynevet (Fully Qualified Domain Name, FQDN),
+	amelyet a HELO/EHLO parancs használ az SMTP-szerver felé. Egyes
+	szerverek megkövetelik, hogy az FQDN megegyezzen az IP-címeddel. Ha
+	nincs beállítva, a `git send-email` megpróbálja automatikusan
+	meghatározni az FQDN-t. Az alapérték a `sendemail.smtpDomain` értéke.
 
 `--smtp-auth=<mechanisms>`::
-	Whitespace-separated list of allowed SMTP-AUTH mechanisms. This setting
-	forces using only the listed mechanisms. Example:
+	A megengedett SMTP-AUTH mechanizmusok szóközzel elválasztott listája.
+	Ez a beállítás rákényszeríti, hogy csak a felsorolt mechanizmusok
+	legyenek használva. Példa:
 +
 ------
 $ git send-email --smtp-auth="PLAIN LOGIN GSSAPI" ...
 ------
 +
-If at least one of the specified mechanisms matches the ones advertised by the
-SMTP server and if it is supported by the utilized SASL library, the mechanism
-is used for authentication. If neither `sendemail.smtpAuth` nor `--smtp-auth`
-is specified, all mechanisms supported by the SASL library can be used. The
-special value `none` maybe specified to completely disable authentication
-independently of `--smtp-user`.
+Ha a megadott mechanizmusok közül legalább egy megegyezik az SMTP-szerver
+által hirdetettek valamelyikével, és azt a használt SASL-könyvtár is
+támogatja, az adott mechanizmus kerül felhasználásra a hitelesítéshez. Ha
+sem a `sendemail.smtpAuth`, sem a `--smtp-auth` nincs megadva, a
+SASL-könyvtár által támogatott összes mechanizmus használható. A speciális
+`none` érték megadható a hitelesítés teljes letiltásához, függetlenül a
+`--smtp-user`-től.
 
 `--smtp-pass[=<password>]`::
-	Password for SMTP-AUTH. The argument is optional: If no
-	argument is specified, then the empty string is used as
-	the password. Default is the value of `sendemail.smtpPass`,
-	however `--smtp-pass` always overrides this value.
+	Jelszó az SMTP-AUTH-hoz. Az argumentum opcionális: ha nincs
+	argumentum megadva, az üres sztring kerül felhasználásra
+	jelszóként. Az alapérték a `sendemail.smtpPass` értéke, azonban a
+	`--smtp-pass` mindig felülírja ezt az értéket.
 +
-Furthermore, passwords need not be specified in configuration files
-or on the command line. If a username has been specified (with
-`--smtp-user` or a `sendemail.smtpUser`), but no password has been
-specified (with `--smtp-pass` or `sendemail.smtpPass`), then
-a password is obtained using linkgit:git-credential[1].
+Továbbá a jelszavakat nem kell megadni sem konfigurációs fájlokban, sem a
+parancssorban. Ha meg lett adva egy felhasználónév (a `--smtp-user`
+opcióval vagy a `sendemail.smtpUser`-rel), de nincs megadva jelszó (a
+`--smtp-pass` opcióval vagy a `sendemail.smtpPass`-szal), akkor a jelszó a
+linkgit:git-credential[1] segítségével kerül lekérésre.
 
 `--no-smtp-auth`::
-	Disable SMTP authentication. Short hand for `--smtp-auth=none`.
+	Letiltja az SMTP-hitelesítést. Rövidítés a `--smtp-auth=none`-ra.
 
 `--smtp-server=<host>`::
-	Specify the outgoing SMTP server to use (e.g.
-	`smtp.example.com` or a raw IP address).  If unspecified, and if
-	`--sendmail-cmd` is also unspecified, the default is to search
-	for `sendmail` in `/usr/sbin`, `/usr/lib` and `$PATH` if such a
-	program is available, falling back to `localhost` otherwise.
+	Add meg a használandó kimenő SMTP-szervert (pl. `smtp.example.com`
+	vagy egy nyers IP-cím). Ha nincs megadva, és a `--sendmail-cmd` sincs
+	megadva, az alapértelmezés a `sendmail` keresése a `/usr/sbin`,
+	`/usr/lib` és a `$PATH` könyvtárakban, ha ilyen program elérhető,
+	egyébként visszaesik a `localhost`-ra.
 +
-For backward compatibility, this option can also specify a full pathname
-of a sendmail-like program instead; the program must support the `-i`
-option.  This method does not support passing arguments or using plain
-command names.  For those use cases, consider using `--sendmail-cmd`
-instead.
+Visszafelé kompatibilitás céljából ez az opció megadhatja egy
+sendmail-szerű program teljes elérési útját is; a programnak támogatnia
+kell a `-i` opciót. Ez a módszer nem támogatja argumentumok átadását vagy
+egyszerű parancsnevek használatát. Ezekre az esetekre inkább a
+`--sendmail-cmd` használatát fontold meg.
 
 `--smtp-server-port=<port>`::
-	Specify a port different from the default port (SMTP
-	servers typically listen to smtp port 25, but may also listen to
-	submission port 587, or the common SSL smtp port 465);
-	symbolic port names (e.g. `submission` instead of 587)
-	are also accepted. The port can also be set with the
-	`sendemail.smtpServerPort` configuration variable.
+	Add meg egy, az alapértelmezett porttól eltérő portot (az
+	SMTP-szerverek jellemzően a 25-ös smtp porton figyelnek, de a 587-es
+	submission porton vagy a gyakori SSL smtp porton, a 465-ösön is
+	figyelhetnek); szimbolikus portnevek (pl. `submission` 587 helyett)
+	is elfogadottak. A port a `sendemail.smtpServerPort` konfigurációs
+	változóval is beállítható.
 
 `--smtp-server-option=<option>`::
-	Specify the outgoing SMTP server option to use.
-	Default value can be specified by the `sendemail.smtpServerOption`
-	configuration option.
+	Add meg a használandó kimenő SMTP-szerver-opciót.
+	Az alapértéket a `sendemail.smtpServerOption` konfigurációs opció
+	adhatja meg.
 +
-The `--smtp-server-option` option must be repeated for each option you want
-to pass to the server. Likewise, different lines in the configuration files
-must be used for each option.
+A `--smtp-server-option` opciót minden, a szervernek átadni kívánt
+opcióhoz meg kell ismételni. Hasonlóképpen, a konfigurációs fájlokban is
+külön sort kell használni minden opcióhoz.
 
 `--smtp-ssl`::
-	Legacy alias for `--smtp-encryption ssl`.
+	Örökölt (legacy) alias a `--smtp-encryption ssl`-hez.
 
 `--smtp-ssl-cert-path <path>`::
-	Path to a store of trusted CA certificates for SMTP SSL/TLS
-	certificate validation (either a directory that has been processed
-	by `c_rehash`, or a single file containing one or more PEM format
-	certificates concatenated together: see the description of the
-	`-CAfile <file>` and the `-CApath <dir>` options of
+	Elérési út a megbízható CA-tanúsítványok tárolójához az SMTP
+	SSL/TLS-tanúsítvány ellenőrzéséhez (vagy egy `c_rehash`-sel
+	feldolgozott könyvtár, vagy egy fájl, amely egy vagy több, egymás
+	után fűzött PEM formátumú tanúsítványt tartalmaz: lásd a
+	`-CAfile <file>` és a `-CApath <dir>` opciók leírását az
 	https://docs.openssl.org/master/man1/openssl-verify/
-	[OpenSSL's verify(1) manual page] for more information on these).
-	Set it to an empty string to disable certificate verification.
-	Defaults to the value of the `sendemail.smtpSSLCertPath` configuration
-	variable, if set, or the backing SSL library's compiled-in default
-	otherwise (which should be the best choice on most platforms).
+	[OpenSSL verify(1) man page-én] további információkért ezekről).
+	Állítsd üres sztringre a tanúsítvány-ellenőrzés letiltásához. Az
+	alapérték a `sendemail.smtpSSLCertPath` konfigurációs változó
+	értéke, ha be van állítva, egyébként a mögöttes SSL-könyvtár
+	fordításba beépített alapértéke (ami a legtöbb platformon a legjobb
+	választás kell legyen).
 
 `--smtp-ssl-client-cert <path>`::
-	Path to the client certificate file to present if requested by the
-	server. This option is required when the server is set up to verify
-	client certificates. If the corresponding private key is not included in
-	the file, it must be supplied using the `sendemail.smtpSSLClientKey`
-	configuration variable or the `--smtp-ssl-client-key` option. Defaults
-	to the value of the `sendemail.smtpSSLClientCert` configuration
-	variable, if set.
+	Elérési út az ügyfél-tanúsítvány fájlhoz, amelyet be kell mutatni,
+	ha a szerver ezt kéri. Ez az opció szükséges, ha a szerver
+	ügyfél-tanúsítványok ellenőrzésére van beállítva. Ha a megfelelő
+	privát kulcs nincs a fájlban, azt a `sendemail.smtpSSLClientKey`
+	konfigurációs változóval vagy a `--smtp-ssl-client-key` opcióval
+	kell megadni. Az alapérték a `sendemail.smtpSSLClientCert`
+	konfigurációs változó értéke, ha be van állítva.
 
 `--smtp-ssl-client-key <path>`::
-	Path to the client private key file that corresponds to the client
-	certificate. To avoid misconfiguration, this option must be used in
-	conjunction with the `sendemail.smtpSSLClientKey` configuration variable
-	or the `--smtp-ssl-client-cert` option. If the client key is included in
-	the client certificate, the choice of private key depends on the format
-	of the certificate. Visit https://metacpan.org/pod/IO::Socket::SSL for
-	more details. Defaults to the value of the `sendemail.smtpSSLClientKey`
-	configuration variable, if set.
+	Elérési út az ügyfél-tanúsítványhoz tartozó ügyfél-privátkulcs
+	fájlhoz. A hibás konfiguráció elkerülése végett ezt az opciót a
+	`sendemail.smtpSSLClientKey` konfigurációs változóval vagy a
+	`--smtp-ssl-client-cert` opcióval együtt kell használni. Ha az
+	ügyfélkulcs benne van az ügyfél-tanúsítványban, a privát kulcs
+	kiválasztása a tanúsítvány formátumától függ. További részletekért
+	látogass el a https://metacpan.org/pod/IO::Socket::SSL oldalra. Az
+	alapérték a `sendemail.smtpSSLClientKey` konfigurációs változó
+	értéke, ha be van állítva.
 
 `--smtp-user=<user>`::
-	Username for SMTP-AUTH. Default is the value of `sendemail.smtpUser`;
-	if a username is not specified (with `--smtp-user` or `sendemail.smtpUser`),
-	then authentication is not attempted.
+	Felhasználónév az SMTP-AUTH-hoz. Az alapérték a
+	`sendemail.smtpUser` értéke; ha nincs megadva felhasználónév (a
+	`--smtp-user` opcióval vagy a `sendemail.smtpUser`-rel), akkor nem
+	történik hitelesítési kísérlet.
 
 `--smtp-debug=(0|1)`::
-	Enable (1) or disable (0) debug output. If enabled, SMTP
-	commands and replies will be printed. Useful to debug TLS
-	connection and authentication problems.
+	Bekapcsolja (1) vagy kikapcsolja (0) a debug kimenetet. Ha be van
+	kapcsolva, az SMTP-parancsok és -válaszok kiíródnak. Hasznos a
+	TLS-kapcsolat és a hitelesítési problémák debuggolásához.
 
 `--imap-sent-folder=<folder>`::
-	Some email providers (e.g. iCloud) do not send a copy of the emails sent
-	using SMTP to the `Sent` folder or similar in your mailbox. Use this option
-	to use `git imap-send` to send a copy of the emails to the folder specified
-	using this option. You can run `git imap-send --list` to get a list of
-	valid folder names, including the correct name of the `Sent` folder in
-	your mailbox. You can also use this option to send emails to a dedicated
-	IMAP folder of your choice.
+	Néhány e-mail-szolgáltató (pl. iCloud) nem küldi el az SMTP-n
+	keresztül elküldött e-mailek másolatát a postafiókod `Sent`
+	mappájába vagy hasonlóba. Ezzel az opcióval a `git imap-send`
+	segítségével elküldheted az e-mailek másolatát az opcióval megadott
+	mappába. A `git imap-send --list` futtatásával lekérheted az
+	érvényes mappanevek listáját, beleértve a postafiókod `Sent`
+	mappájának pontos nevét is. Ezzel az opcióval az e-maileket egy
+	tetszőleges, dedikált IMAP-mappába is küldheted.
 +
-This feature requires setting up `git imap-send`. See linkgit:git-imap-send[1]
-for instructions.
+Ez a funkció megköveteli a `git imap-send` beállítását. Lásd a
+linkgit:git-imap-send[1] útmutatót.
 
 `--use-imap-only`::
 `--no-use-imap-only`::
-	If this is set, all emails will only be copied to the IMAP folder specified
-	with `--imap-sent-folder` or `sendemail.imapSentFolder` and will not be sent
-	to the recipients. Useful if you just want to create a draft of the emails
-	and use another email client to send them.
-	If disabled with `--no-use-imap-only`, the emails will be sent like usual.
-	Disabled by default, but the `sendemail.useImapOnly` configuration
-	variable can be used to enable it.
+	Ha ez be van állítva, minden e-mail csak a `--imap-sent-folder`
+	vagy a `sendemail.imapSentFolder` által megadott IMAP-mappába
+	kerül másolásra, és nem lesz elküldve a címzetteknek. Hasznos, ha
+	csak piszkozatot szeretnél készíteni az e-mailekről, és egy másik
+	e-mail-klienssel szeretnéd elküldeni őket.
+	Ha a `--no-use-imap-only` opcióval le van tiltva, az e-mailek a
+	szokásos módon kerülnek elküldésre. Alapértelmezetten le van
+	tiltva, de a `sendemail.useImapOnly` konfigurációs változóval
+	bekapcsolható.
 +
-This feature requires setting up `git imap-send`. See linkgit:git-imap-send[1]
-for instructions.
+Ez a funkció megköveteli a `git imap-send` beállítását. Lásd a
+linkgit:git-imap-send[1] útmutatót.
 
 `--batch-size=<num>`::
-	Some email servers (e.g. `smtp.163.com`) limit the number of emails to be
-	sent per session (connection) and this will lead to a failure when
-	sending many messages.  With this option, send-email will disconnect after
-	sending _<num>_ messages and wait for a few seconds
-	(see `--relogin-delay`) and reconnect, to work around such a limit.
-	You may want to use some form of credential helper to avoid having to
-	retype your password every time this happens.  Defaults to the
-	`sendemail.smtpBatchSize` configuration variable.
+	Néhány e-mail-szerver (pl. `smtp.163.com`) korlátozza a munkamenetenként
+	(kapcsolatonként) elküldhető e-mailek számát, ami hibához vezet sok
+	üzenet küldésekor. Ezzel az opcióval a send-email _<num>_ üzenet
+	elküldése után bontja a kapcsolatot, vár néhány másodpercet (lásd a
+	`--relogin-delay` opciót), majd újracsatlakozik, hogy megkerülje ezt
+	a korlátot. Érdemes lehet valamilyen credential helpert használnod,
+	hogy ne kelljen minden alkalommal újra beírnod a jelszavadat, amikor
+	ez megtörténik. Az alapérték a `sendemail.smtpBatchSize`
+	konfigurációs változó.
 
 `--relogin-delay=<int>`::
-	Waiting _<int>_ seconds before reconnecting to SMTP server. Used together
-	with `--batch-size` option.  Defaults to the `sendemail.smtpReloginDelay`
-	configuration variable.
+	_<int>_ másodpercig vár, mielőtt újracsatlakozna az SMTP-szerverhez.
+	A `--batch-size` opcióval együtt használatos. Az alapérték a
+	`sendemail.smtpReloginDelay` konfigurációs változó.
 
-Automating
-~~~~~~~~~~
+[[_automating]]
+Automatizálás
+~~~~~~~~~~~~~
 
 `--no-to`::
 `--no-cc`::
 `--no-bcc`::
-	Clear any list of `To:`, `Cc:`, `Bcc:` addresses previously
-	set via config.
+	Törli a config-on keresztül korábban beállított `To:`, `Cc:`, `Bcc:`
+	címek listáját.
 
 `--no-identity`::
-	Clear the previously read value of `sendemail.identity` set
-	via config, if any.
+	Törli a config-on keresztül beállított `sendemail.identity` korábban
+	beolvasott értékét, ha van ilyen.
 
 `--to-cmd=<command>`::
-	Specify a command to execute once per patch file which
-	should generate patch file specific `To:` entries.
-	Output of this command must be single email address per line.
-	Default is the value of `sendemail.toCmd` configuration value.
+	Add meg egy parancsot, amelyet patch-fájlonként egyszer kell
+	végrehajtani, és amely a patch-fájlra jellemző `To:` bejegyzéseket
+	generál. Ennek a parancsnak a kimenete soronként egy e-mail cím
+	kell legyen. Az alapérték a `sendemail.toCmd` konfigurációs érték.
 
 `--cc-cmd=<command>`::
-	Specify a command to execute once per patch file which
-	should generate patch file specific `Cc:` entries.
-	Output of this command must be single email address per line.
-	Default is the value of `sendemail.ccCmd` configuration value.
+	Add meg egy parancsot, amelyet patch-fájlonként egyszer kell
+	végrehajtani, és amely a patch-fájlra jellemző `Cc:` bejegyzéseket
+	generál. Ennek a parancsnak a kimenete soronként egy e-mail cím
+	kell legyen. Az alapérték a `sendemail.ccCmd` konfigurációs érték.
 
 `--header-cmd=<command>`::
-	Specify a command that is executed once per outgoing message
-	and output RFC 2822 style header lines to be inserted into
-	them. When the `sendemail.headerCmd` configuration variable is
-	set, its value is always used. When `--header-cmd` is provided
-	at the command line, its value takes precedence over the
-	`sendemail.headerCmd` configuration variable.
+	Add meg egy parancsot, amely kimenő üzenetenként egyszer kerül
+	végrehajtásra, és RFC 2822 stílusú fejlécsorokat ad ki, amelyeket
+	be kell illeszteni az üzenetekbe. Ha a `sendemail.headerCmd`
+	konfigurációs változó be van állítva, annak értéke mindig
+	felhasználásra kerül. Ha a `--header-cmd` a parancssorban van
+	megadva, annak értéke elsőbbséget élvez a `sendemail.headerCmd`
+	konfigurációs változóval szemben.
 
 `--no-header-cmd`::
-	Disable any header command in use.
+	Letiltja a használatban lévő header-parancsot.
 
 `--chain-reply-to`::
 `--no-chain-reply-to`::
-	If this is set, each email will be sent as a reply to the previous
-	email sent.  If disabled with `--no-chain-reply-to`, all emails after
-	the first will be sent as replies to the first email sent.  When using
-	this, it is recommended that the first file given be an overview of the
-	entire patch series. Disabled by default, but the `sendemail.chainReplyTo`
-	configuration variable can be used to enable it.
+	Ha ez be van állítva, minden e-mail az előzőleg elküldött e-mailre
+	adott válaszként kerül elküldésre. Ha a `--no-chain-reply-to`
+	opcióval le van tiltva, az első utáni összes e-mail az első
+	elküldött e-mailre adott válaszként kerül elküldésre. Ennek
+	használatakor ajánlott, hogy az elsőként megadott fájl a teljes
+	patch-sorozat áttekintése legyen. Alapértelmezetten le van tiltva,
+	de a `sendemail.chainReplyTo` konfigurációs változóval
+	bekapcsolható.
 
 `--identity=<identity>`::
-	A configuration identity. When given, causes values in the
-	`sendemail.<identity>` subsection to take precedence over
-	values in the `sendemail` section. The default identity is
-	the value of `sendemail.identity`.
+	Egy konfigurációs identitás. Ha meg van adva, a `sendemail.<identity>`
+	alszekcióban lévő értékek elsőbbséget élveznek a `sendemail`
+	szekcióban lévő értékekkel szemben. Az alapértelmezett identitás a
+	`sendemail.identity` értéke.
 
 `--signed-off-by-cc`::
 `--no-signed-off-by-cc`::
-	If this is set, add emails found in the `Signed-off-by` trailer or `Cc:`
-	lines to the cc list. Default is the value of `sendemail.signedOffByCc`
-	configuration value; if that is unspecified, default to
-	`--signed-off-by-cc`.
+	Ha ez be van állítva, hozzáadja a `Signed-off-by` trailerben vagy a
+	`Cc:` sorokban talált e-maileket a cc listához. Az alapérték a
+	`sendemail.signedOffByCc` konfigurációs érték; ha az nincs megadva,
+	az alapértelmezés a `--signed-off-by-cc`.
 
 `--cc-cover`::
 `--no-cc-cover`::
-	If this is set, emails found in `Cc:` headers in the first patch of
-	the series (typically the cover letter) are added to the cc list
-	for each email set. Default is the value of `sendemail.ccCover`
-	configuration value; if that is unspecified, default to `--no-cc-cover`.
+	Ha ez be van állítva, a sorozat első patchjének (jellemzően a
+	cover letternek) a `Cc:` fejléceiben talált e-mailek hozzáadásra
+	kerülnek minden elküldött e-mail cc listájához. Az alapérték a
+	`sendemail.ccCover` konfigurációs érték; ha az nincs megadva, az
+	alapértelmezés a `--no-cc-cover`.
 
 `--to-cover`::
 `--no-to-cover`::
-	If this is set, emails found in `To:` headers in the first patch of
-	the series (typically the cover letter) are added to the to list
-	for each email set. Default is the value of `sendemail.toCover`
-	configuration value; if that is unspecified, default to `--no-to-cover`.
+	Ha ez be van állítva, a sorozat első patchjének (jellemzően a
+	cover letternek) a `To:` fejléceiben talált e-mailek hozzáadásra
+	kerülnek minden elküldött e-mail to listájához. Az alapérték a
+	`sendemail.toCover` konfigurációs érték; ha az nincs megadva, az
+	alapértelmezés a `--no-to-cover`.
 
 `--suppress-cc=<category>`::
-	Specify an additional category of recipients to suppress the
-	auto-cc of:
+	Add meg a címzettek egy további kategóriáját, amelynek automatikus
+	cc-zését ki kell hagyni:
 +
 --
-- `author` will avoid including the patch author.
-- `self` will avoid including the sender.
-- `cc` will avoid including anyone mentioned in Cc lines in the patch header
-  except for self (use `self` for that).
-- `bodycc` will avoid including anyone mentioned in Cc lines in the
-  patch body (commit message) except for self (use `self` for that).
-- `sob` will avoid including anyone mentioned in the Signed-off-by trailers except
-  for self (use `self` for that).
-- `misc-by` will avoid including anyone mentioned in Acked-by,
-  Reviewed-by, Tested-by and other "-by" lines in the patch body,
-  except Signed-off-by (use `sob` for that).
-- `cccmd` will avoid running the --cc-cmd.
-- `body` is equivalent to `sob` + `bodycc` + `misc-by`.
-- `all` will suppress all auto cc values.
+- `author` kihagyja a patch szerzőjét.
+- `self` kihagyja a küldőt.
+- `cc` kihagy mindenkit, aki a patch fejlécében lévő Cc sorokban szerepel,
+  kivéve saját magát (erre a `self`-et használd).
+- `bodycc` kihagy mindenkit, aki a patch törzsében (commit-üzenetben) lévő
+  Cc sorokban szerepel, kivéve saját magát (erre a `self`-et használd).
+- `sob` kihagy mindenkit, aki a Signed-off-by trailerekben szerepel,
+  kivéve saját magát (erre a `self`-et használd).
+- `misc-by` kihagy mindenkit, aki az Acked-by, Reviewed-by, Tested-by és
+  más „-by" sorokban szerepel a patch törzsében, a Signed-off-by kivételével
+  (erre a `sob`-ot használd).
+- `cccmd` kihagyja a --cc-cmd futtatását.
+- `body` egyenértékű a `sob` + `bodycc` + `misc-by` kombinációval.
+- `all` elnyomja az összes automatikus cc-értéket.
 --
 +
-Default is the value of `sendemail.suppressCc` configuration value; if
-that is unspecified, default to `self` if `--suppress-from` is
-specified, as well as `body` if `--no-signed-off-by-cc` is specified.
+Az alapérték a `sendemail.suppressCc` konfigurációs érték; ha az nincs
+megadva, az alapértelmezés `self`, ha a `--suppress-from` meg van adva,
+valamint `body`, ha a `--no-signed-off-by-cc` meg van adva.
 
 `--suppress-from`::
 `--no-suppress-from`::
-	If this is set, do not add the `From:` address to the `Cc:` list.
-	Default is the value of `sendemail.suppressFrom` configuration
-	value; if that is unspecified, default to `--no-suppress-from`.
+	Ha ez be van állítva, ne add hozzá a `From:` címet a `Cc:` listához.
+	Az alapérték a `sendemail.suppressFrom` konfigurációs érték; ha az
+	nincs megadva, az alapértelmezés a `--no-suppress-from`.
 
 `--thread`::
 `--no-thread`::
-	If this is set, the `In-Reply-To` and `References` headers will be
-	added to each email sent.  Whether each mail refers to the
-	previous email (`deep` threading per `git format-patch`
-	wording) or to the first email (`shallow` threading) is
-	governed by `--[no-]chain-reply-to`.
+	Ha ez be van állítva, az `In-Reply-To` és a `References` fejlécek
+	hozzáadásra kerülnek minden elküldött e-mailhez. Hogy minden levél
+	az előző e-mailre hivatkozik-e (`deep` szálazás, a `git
+	format-patch` terminológiája szerint), vagy az első e-mailre
+	(`shallow` szálazás), azt a `--[no-]chain-reply-to` szabályozza.
 +
-If disabled with `--no-thread`, those headers will not be added
-(unless specified with `--in-reply-to`).  Default is the value of the
-`sendemail.thread` configuration value; if that is unspecified,
-default to `--thread`.
+Ha a `--no-thread` opcióval le van tiltva, ezek a fejlécek nem kerülnek
+hozzáadásra (hacsak nincsenek megadva a `--in-reply-to` opcióval). Az
+alapérték a `sendemail.thread` konfigurációs érték; ha az nincs
+megadva, az alapértelmezés a `--thread`.
 +
-It is up to the user to ensure that no In-Reply-To header already
-exists when `git send-email` is asked to add it (especially note that
-`git format-patch` can be configured to do the threading itself).
-Failure to do so may not produce the expected result in the
-recipient's MUA.
+A felhasználó felelőssége biztosítani, hogy még ne létezzen In-Reply-To
+fejléc, amikor a `git send-email`-t megkérik annak hozzáadására (különösen
+vedd figyelembe, hogy a `git format-patch` beállítható úgy, hogy maga
+végezze el a szálazást). Ha ezt elmulasztod, előfordulhat, hogy a
+címzett MUA-jában nem a várt eredmény jelenik meg.
 
 `--mailmap`::
 `--no-mailmap`::
-	Use the mailmap file (see linkgit:gitmailmap[5]) to map all
-	addresses to their canonical real name and email address. Additional
-	mailmap data specific to `git send-email` may be provided using the
-	`sendemail.mailmap.file` or `sendemail.mailmap.blob` configuration
-	values. Defaults to `sendemail.mailmap`.
+	A mailmap fájl (lásd linkgit:gitmailmap[5]) használata az összes cím
+	kanonikus valódi névre és e-mail címre való leképezéséhez. A `git
+	send-email`-re jellemző további mailmap-adatok a
+	`sendemail.mailmap.file` vagy a `sendemail.mailmap.blob`
+	konfigurációs értékekkel adhatók meg. Az alapérték a
+	`sendemail.mailmap`.
 
-Administering
-~~~~~~~~~~~~~
+[[_administering]]
+Adminisztráció
+~~~~~~~~~~~~~~
 
 `--confirm=<mode>`::
-	Confirm just before sending:
+	Megerősítés kérése közvetlenül a küldés előtt:
 +
 --
-- `always` will always confirm before sending.
-- `never` will never confirm before sending.
-- `cc` will confirm before sending when send-email has automatically
-  added addresses from the patch to the Cc list.
-- `compose` will confirm before sending the first message when using --compose.
-- `auto` is equivalent to `cc` + `compose`.
+- `always` mindig megerősítést kér küldés előtt.
+- `never` soha nem kér megerősítést küldés előtt.
+- `cc` megerősítést kér küldés előtt, ha a send-email automatikusan
+  hozzáadott címeket a patchből a Cc listához.
+- `compose` megerősítést kér az első üzenet küldése előtt, amikor a
+  --compose van használatban.
+- `auto` egyenértékű a `cc` + `compose` kombinációval.
 --
 +
-Default is the value of `sendemail.confirm` configuration value; if that
-is unspecified, default to `auto` unless any of the suppress options
-have been specified, in which case default to `compose`.
+Az alapérték a `sendemail.confirm` konfigurációs érték; ha az nincs
+megadva, az alapértelmezés `auto`, hacsak nincs megadva valamelyik
+suppress opció, ebben az esetben az alapértelmezés `compose`.
 
 `--dry-run`::
-	Do everything except actually send the emails.
+	Mindent elvégez, kivéve a tényleges e-mailküldést.
 
 `--format-patch`::
 `--no-format-patch`::
-	When an argument may be understood either as a reference or as a file name,
-	choose to understand it as a format-patch argument (`--format-patch`)
-	or as a file name (`--no-format-patch`). By default, when such a conflict
-	occurs, `git send-email` will fail.
+	Ha egy argumentum értelmezhető akár referenciaként, akár fájlnévként,
+	válaszd ki, hogy format-patch argumentumként (`--format-patch`) vagy
+	fájlnévként (`--no-format-patch`) legyen értelmezve. Alapértelmezetten,
+	ha ilyen ütközés fordul elő, a `git send-email` hibával leáll.
 
 `--quiet`::
-	Make `git send-email` less verbose.  One line per email should be
-	all that is output.
+	Kevésbé bőbeszédűvé teszi a `git send-email`-t. A kimenetnek csak
+	soronként egy e-mailt kell tartalmaznia.
 
 `--validate`::
 `--no-validate`::
-	Perform sanity checks on patches.
-	Currently, validation means the following:
+	Épségellenőrzéseket (sanity check) végez a patcheken.
+	Jelenleg az ellenőrzés a következőket jelenti:
 +
 --
-* Invoke the sendemail-validate hook if present (see linkgit:githooks[5]).
-* Warn of patches that contain lines longer than
-  998 characters unless a suitable transfer encoding
-  (`auto`, `base64`, or `quoted-printable`) is used;
-  this is due to SMTP limits as described by
-  https://www.ietf.org/rfc/rfc5322.txt.
+* Meghívja a sendemail-validate hookot, ha az jelen van (lásd
+  linkgit:githooks[5]).
+* Figyelmeztet a 998 karakternél hosszabb sorokat tartalmazó patchekre,
+  hacsak nincs megfelelő átviteli kódolás (`auto`, `base64` vagy
+  `quoted-printable`) használatban; ez az SMTP-korlátok miatt szükséges,
+  ahogy azt a https://www.ietf.org/rfc/rfc5322.txt leírja.
 --
 +
-Default is the value of `sendemail.validate`; if this is not set,
-default to `--validate`.
+Az alapérték a `sendemail.validate`; ha ez nincs beállítva, az
+alapértelmezés a `--validate`.
 
 `--force`::
-	Send emails even if safety checks would prevent it.
+	E-mailek küldése akkor is, ha a biztonsági ellenőrzések ezt
+	megakadályoznák.
 
 
-Information
-~~~~~~~~~~~
+[[_information]]
+Információ
+~~~~~~~~~~
 
 `--dump-aliases`::
-	Instead of the normal operation, dump the shorthand alias names from
-	the configured alias file(s), one per line in alphabetical order. Note
-	that this only includes the alias name and not its expanded email addresses.
-	See `sendemail.aliasesFile` for more information about aliases.
+	A normál működés helyett kiírja a rövidített alias-neveket a
+	konfigurált alias-fájl(ok)ból, soronként egyet, ábécésorrendben.
+	Megjegyzés: ez csak az alias nevét tartalmazza, a kibontott e-mail
+	címeket nem. Lásd a `sendemail.aliasesFile` opciót az aliasokról
+	szóló további információkért.
 
 `--translate-aliases`::
-	Instead of the normal operation, read from standard input and
-	interpret each line as an email alias. Translate it according to the
-	configured alias file(s). Output each translated name and email
-	address to standard output, one per line. See `sendemail.aliasFile`
-	for more information about aliases.
+	A normál működés helyett a standard bemenetről olvas, és minden sort
+	e-mail aliasként értelmez. Lefordítja azt a konfigurált
+	alias-fájl(ok) alapján. Minden lefordított nevet és e-mail címet a
+	standard kimenetre ír, soronként egyet. Lásd a `sendemail.aliasFile`
+	opciót az aliasokról szóló további információkért.
 
 CONFIGURATION
 -------------
@@ -568,10 +603,11 @@ include::config/sendemail.adoc[]
 
 EXAMPLES OF SMTP SERVERS
 ------------------------
-Use Gmail as the SMTP Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To use `git send-email` to send your patches through the Gmail SMTP server,
-edit `~/.gitconfig` to specify your account settings:
+[[_use_gmail_as_the_smtp_server]]
+A Gmail használata SMTP-szerverként
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ahhoz, hogy a `git send-email` a Gmail SMTP-szerverén keresztül küldje el a
+patcheidet, szerkeszd a `~/.gitconfig` fájlt a fiókbeállításaid megadásához:
 
 ----
 [sendemail]
@@ -581,18 +617,21 @@ edit `~/.gitconfig` to specify your account settings:
 	smtpServerPort = 465
 ----
 
-Gmail does not allow using your regular password for `git send-email`.
-If you have multi-factor authentication set up on your Gmail account, you can
-generate an app-specific password for use with `git send-email`. Visit
-https://security.google.com/settings/security/apppasswords to create it.
+A Gmail nem engedélyezi a szokásos jelszavad használatát a `git
+send-email`-hez. Ha be van állítva többfaktoros hitelesítés a Gmail
+fiókodon, generálhatsz egy alkalmazás-specifikus jelszót a `git
+send-email`-lel való használatra. Látogass el a
+https://security.google.com/settings/security/apppasswords oldalra a
+létrehozásához.
 
-Alternatively, instead of using an app-specific password, you can use
-OAuth2.0 authentication with Gmail. OAuth2.0 is more secure than
-app-specific passwords, and works regardless of whether you have multi-factor
-authentication set up. `OAUTHBEARER` and `XOAUTH2` are common mechanisms used
-for this type of authentication. Gmail supports both of them. As an example,
-if you want to use `OAUTHBEARER`, edit your `~/.gitconfig` file and add
-`smtpAuth = OAUTHBEARER` to your account settings:
+Alternatívaként, alkalmazás-specifikus jelszó helyett használhatsz
+OAuth2.0-hitelesítést is a Gmaillel. Az OAuth2.0 biztonságosabb, mint az
+alkalmazás-specifikus jelszavak, és attól függetlenül működik, hogy be
+van-e állítva többfaktoros hitelesítés. Az `OAUTHBEARER` és az `XOAUTH2`
+gyakori mechanizmusok, amelyeket erre a hitelesítéstípusra használnak. A
+Gmail mindkettőt támogatja. Példaként, ha az `OAUTHBEARER`-t szeretnéd
+használni, szerkeszd a `~/.gitconfig` fájlodat, és add hozzá a
+`smtpAuth = OAUTHBEARER` sort a fiókbeállításaidhoz:
 
 ----
 [sendemail]
@@ -603,18 +642,20 @@ if you want to use `OAUTHBEARER`, edit your `~/.gitconfig` file and add
 	smtpAuth = OAUTHBEARER
 ----
 
-Another alternative is using a tool developed by Google known as
+Egy másik alternatíva a Google által fejlesztett
 https://github.com/google/gmail-oauth2-tools/tree/master/go/sendgmail[sendgmail]
-to send emails using `git send-email`.
+nevű eszköz használata e-mailek küldésére a `git send-email` segítségével.
 
-Use Microsoft Outlook as the SMTP Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Unlike Gmail, Microsoft Outlook no longer supports app-specific passwords.
-Therefore, OAuth2.0 authentication must be used for Outlook. Also, it only
-supports `XOAUTH2` authentication mechanism.
+[[_use_microsoft_outlook_as_the_smtp_server]]
+A Microsoft Outlook használata SMTP-szerverként
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A Gmail-lel ellentétben a Microsoft Outlook már nem támogatja az
+alkalmazás-specifikus jelszavakat. Ezért az Outlookhoz OAuth2.0-hitelesítést
+kell használni. Emellett csak az `XOAUTH2` hitelesítési mechanizmust
+támogatja.
 
-Edit `~/.gitconfig` to specify your account settings for Outlook and use its
-SMTP server with `git send-email`:
+Szerkeszd a `~/.gitconfig` fájlt az Outlookhoz tartozó fiókbeállításaid
+megadásához, és használd az SMTP-szerverét a `git send-email`-lel:
 
 ----
 [sendemail]
@@ -627,89 +668,93 @@ SMTP server with `git send-email`:
 
 SENDING PATCHES
 ---------------
-Once your commits are ready to be sent to the mailing list, run the
-following commands:
+Ha a commitjaid készen állnak a levelezőlistára küldésre, futtasd a
+következő parancsokat:
 
 	$ git format-patch --cover-letter -M origin/master -o outgoing/
 	$ edit outgoing/0000-*
 	$ git send-email outgoing/*
 
-The first time you run it, you will be prompted for your credentials.  Enter the
-app-specific or your regular password as appropriate.
+Az első futtatáskor a hitelesítő adataidra kérdez rá. Írd be az
+alkalmazás-specifikus vagy a szokásos jelszavadat, amelyik éppen
+szükséges.
 
-If you have a credential helper configured (see linkgit:git-credential[1]), the
-password will be saved in the credential store so you won't have to type it the
-next time.
+Ha be van állítva credential helper (lásd linkgit:git-credential[1]), a
+jelszó elmentésre kerül a credential store-ba, így legközelebb nem kell
+begépelned.
 
-If you are using OAuth2.0 authentication, you need to use an access token in
-place of a password when prompted. Various OAuth2.0 token generators are
-available online. Community maintained credential helpers are also available:
+Ha OAuth2.0-hitelesítést használsz, jelszó helyett egy hozzáférési tokent
+kell megadnod, amikor rákérdez. Számos OAuth2.0-token-generátor elérhető
+online. Közösség által karbantartott credential helperek is elérhetők:
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-credential-gmail]
-	  (cross platform, dedicated helper for authenticating Gmail accounts)
+	  (platformfüggetlen, dedikált helper Gmail-fiókok hitelesítéséhez)
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-credential-outlook]
-	  (cross platform, dedicated helper for authenticating Microsoft Outlook accounts)
+	  (platformfüggetlen, dedikált helper Microsoft Outlook-fiókok hitelesítéséhez)
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-credential-yahoo]
-	  (cross platform, dedicated helper for authenticating Yahoo accounts)
+	  (platformfüggetlen, dedikált helper Yahoo-fiókok hitelesítéséhez)
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-credential-aol]
-	  (cross platform, dedicated helper for authenticating AOL accounts)
+	  (platformfüggetlen, dedikált helper AOL-fiókok hitelesítéséhez)
 
-You can also see linkgit:gitcredentials[7] for more OAuth based authentication
-helpers.
+További OAuth-alapú hitelesítési helperekért lásd a
+linkgit:gitcredentials[7] oldalt is.
 
-Proton Mail does not provide an SMTP server to send emails. If you are a paid
-customer of Proton Mail, you can use
-https://proton.me/mail/bridge[Proton Mail Bridge]
-officially provided by Proton Mail to create a local SMTP server for sending
-emails. For both free and paid users, community maintained projects like
-https://github.com/AdityaGarg8/git-credential-email[git-protonmail] can be
-used.
+A Proton Mail nem biztosít SMTP-szervert e-mailek küldésére. Ha a Proton
+Mail fizető ügyfele vagy, használhatod a Proton Mail által hivatalosan
+biztosított https://proton.me/mail/bridge[Proton Mail Bridge]-et, hogy
+helyi SMTP-szervert hozz létre e-mailek küldésére. Mind az ingyenes, mind
+a fizető felhasználók számára elérhetők közösség által karbantartott
+projektek, mint a
+https://github.com/AdityaGarg8/git-credential-email[git-protonmail].
 
-Note: the following core Perl modules that may be installed with your
-distribution of Perl are required:
+Megjegyzés: a következő alap Perl modulok szükségesek, amelyek a Perl
+disztribúciódhoz telepítve lehetnek:
 
 https://metacpan.org/pod/MIME::Base64[MIME::Base64],
 https://metacpan.org/pod/MIME::QuotedPrint[MIME::QuotedPrint],
-https://metacpan.org/pod/Net::Domain[Net::Domain] and
+https://metacpan.org/pod/Net::Domain[Net::Domain] és
 https://metacpan.org/pod/Net::SMTP[Net::SMTP].
 
-These additional Perl modules are also required:
+Az alábbi további Perl modulok is szükségesek:
 
-https://metacpan.org/pod/Authen::SASL[Authen::SASL] and
+https://metacpan.org/pod/Authen::SASL[Authen::SASL] és
 https://metacpan.org/pod/Mail::Address[Mail::Address].
 
-Exploiting the `sendmailCmd` option of `git send-email`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[_exploiting_the_sendmailcmd_option_of_git_send_email]]
+A `git send-email` `sendmailCmd` opciójának kihasználása
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Apart from sending emails via an SMTP server, `git send-email` can also send
-emails through any application that supports sendmail-like commands. You can
-read documentation of `--sendmail-cmd=<command>` above for more information.
-This ability can be very useful if you want to use another application as an
-SMTP client for `git send-email`, or if your email provider uses proprietary
-APIs instead of SMTP to send emails.
+Az SMTP-szerveren keresztüli e-mailküldés mellett a `git send-email`
+bármilyen olyan alkalmazáson keresztül is tud e-mailt küldeni, amely
+támogatja a sendmail-szerű parancsokat. A további információkért lásd a
+fenti `--sendmail-cmd=<command>` dokumentációját. Ez a képesség nagyon
+hasznos lehet, ha egy másik alkalmazást szeretnél SMTP-kliensként
+használni a `git send-email`-hez, vagy ha az e-mail-szolgáltatód SMTP
+helyett saját, zárt API-kat használ e-mailek küldésére.
 
-As an example, lets see how to configure https://marlam.de/msmtp/[msmtp], a
-popular SMTP client found in many Linux distributions. Edit `~/.gitconfig`
-to instruct `git-send-email` to use it for sending emails.
+Példaként nézzük meg, hogyan konfigurálható a
+https://marlam.de/msmtp/[msmtp], egy sok Linux-disztribúcióban megtalálható
+népszerű SMTP-kliens. Szerkeszd a `~/.gitconfig` fájlt, hogy utasítsd a
+`git-send-email`-t ennek használatára e-mailek küldéséhez.
 
 ----
 [sendemail]
 	sendmailCmd = /usr/bin/msmtp # Change this to the path where msmtp is installed
 ----
 
-Links of a few such community maintained helpers are:
+Néhány ilyen, közösség által karbantartott helper linkje:
 
 	- https://marlam.de/msmtp/[msmtp]
-	  (popular SMTP client with many features, available for Linux and macOS)
+	  (népszerű, sok funkcióval rendelkező SMTP-kliens, Linuxra és macOS-re elérhető)
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-protonmail]
-	  (cross platform client that can send emails using the ProtonMail API)
+	  (platformfüggetlen kliens, amely a ProtonMail API-jával tud e-maileket küldeni)
 
 	- https://github.com/AdityaGarg8/git-credential-email[git-msgraph]
-	  (cross platform client that can send emails using the Microsoft Graph API)
+	  (platformfüggetlen kliens, amely a Microsoft Graph API-jával tud e-maileket küldeni)
 
 CAVEATS
 -------
@@ -722,4 +767,4 @@ linkgit:git-format-patch[1], linkgit:git-imap-send[1], `mbox`(5)
 
 GIT
 ---
-Part of the linkgit:git[1] suite
+A linkgit:git[1] csomag része
